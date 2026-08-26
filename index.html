@@ -4025,7 +4025,6 @@
       */
 
 
-      function sendToCSharp() {
         const values = {
           admissionNumber: "RS/2026/001",
           studentName: "John Doe",
@@ -4034,7 +4033,7 @@
         };
 
         window.chrome.webview.postMessage(values);
-      }
+    
     });
 
     function setupStudentSearch() {
