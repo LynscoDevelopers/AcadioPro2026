@@ -2676,6 +2676,22 @@
         alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
 
 
+        const values = {
+          DateandTime : paymentData.entryDate,
+          studentName : document.getElementById("Fn_Name").textContent.trim(),
+          Class_Grade : paymentData.class,
+          term : getActiveTerm(),
+          Admission_No : admissionNumber,
+          Amount : paymentData.amount,
+          RecieptNo :"001",
+          Balance : paymentData.balance,
+          DateofPayment : paymentData.paymentDate,
+          TransactionRef : paymentData.paymentRef,
+          Account : paymentData.Account
+        };
+
+        window.chrome.webview.postMessage(values);
+
 
 
       } catch (error) {
@@ -4025,15 +4041,15 @@
       */
 
 
-        const values = {
-          admissionNumber: "RS/2026/001",
-          studentName: "John Doe",
-          amount: 5000,
-          term: "Term 1"
-        };
+      const values = {
+        admissionNumber: "RS/2026/001",
+        studentName: "John Doe",
+        amount: 5000,
+        term: "Term 1"
+      };
 
-        window.chrome.webview.postMessage(values);
-    
+      window.chrome.webview.postMessage(values);
+
     });
 
     function setupStudentSearch() {
