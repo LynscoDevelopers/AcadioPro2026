@@ -1,0 +1,4165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>Student Register with Tabs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="classStyles.css">
+  <style>
+    /* ----- global reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #e5eaf0;
+      min-height: 100%;
+      padding: 0;
+      margin: 0;
+      transition: background 0.2s;
+    }
+
+    /* ----- Layout Container ----- */
+    .page-container {
+      max-width: 100%;
+      width: 100%;
+      padding: 0 0.2rem;
+    }
+
+    /* ----- Tab Navigation ----- */
+    .tabs-container {
+      background: #bb5c5c;
+      border-radius: 16px 16px 0 0;
+      padding: 0;
+      height: 0;
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 0.25rem;
+      border-bottom: 1px solid #eef2f6;
+      padding-bottom: 0;
+      visibility: hidden;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #6b7e93;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      margin-bottom: -1px;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover {
+      color: #1a3a5c;
+      background: #f8fafc;
+    }
+
+    .tab-btn.active {
+      color: #1a3a5c;
+      border-bottom-color: #1a3a5c;
+      background: transparent;
+    }
+
+    /* ----- Tab Content ----- */
+    .tab-content-wrapper {
+      background: transparent;
+    }
+
+    .tab-panel {
+      display: none;
+      background: transparent;
+      padding-top: 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ----- Table Container for Scroll ----- */
+    .table-container {
+      max-height: 600px;
+      overflow-y: auto;
+      overflow-x: auto;
+      position: relative;
+      background: #e5eaf0;
+      padding: 8px 4px;
+      margin: 0 -4px;
+      border-radius: 12px;
+    }
+
+    /* ----- Table Styles with Perfect Rounded Corners ----- */
+    .register-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      background: transparent;
+      padding: 0 4px;
+    }
+
+    /* Header Row - Fixed */
+    .register-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .register-table thead tr {
+      background: transparent;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: table-row;
+    }
+
+    .register-table th {
+      text-align: left;
+      font-weight: 600;
+      color: #1a2a3a;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 11;
+      background: #e5eaf0;
+      border: none;
+    }
+
+    /* First and last header cells - no rounded corners needed */
+    .register-table th:first-child {
+      border-radius: 0;
+    }
+
+    .register-table th:last-child {
+      border-radius: 0;
+    }
+
+    /* Student Rows with Perfect Rounded Corners */
+    .register-table tbody tr {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
+      display: table-row;
+      margin: 0 1px;
+    }
+
+    .register-table tbody tr:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      transform: scale(1.002);
+      background: #fafcfd;
+    }
+
+    .register-table tbody td {
+      padding: 0.25rem 0.2rem;
+      vertical-align: middle;
+      font-size: 0.95rem;
+      color: #0b1e2e;
+      background: #ffffff;
+      border: none;
+      position: relative;
+    }
+
+    /* First cell - rounded left corners with extra padding */
+    .register-table tbody td:first-child {
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+      padding-left: 1rem;
+      padding-right: 0.6rem;
+    }
+
+    /* Last cell - rounded right corners with extra padding */
+    .register-table tbody td:last-child {
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+      padding-right: 1rem;
+      padding-left: 0.6rem;
+    }
+
+    /* Alternative: Apply border-radius to the entire row using pseudo-element */
+    .register-table tbody tr {
+      position: relative;
+    }
+
+    /* Column Specific Styling */
+    .col-check {
+      width: 44px;
+      text-align: center;
+      padding-left: 1rem !important;
+      padding-right: 0.4rem !important;
+    }
+
+    .col-avatar {
+      width: 54px;
+      text-align: center;
+      padding-left: 0.4rem !important;
+      padding-right: 0.4rem !important;
+    }
+
+    .col-name {
+      min-width: 180px;
+      padding-left: 0.4rem !important;
+      padding-right: 0.6rem !important;
+    }
+
+    .col-grade,
+    .col-dob,
+    .col-national,
+    .col-contact {
+      min-width: 100px;
+      padding-left: 0.4rem !important;
+      padding-right: 0.6rem !important;
+    }
+
+    .col-status {
+      min-width: 110px;
+      text-align: right;
+      padding-right: 1rem !important;
+      padding-left: 0.6rem !important;
+    }
+
+    /* Checkbox Styling */
+    .custom-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #4caf50;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 2px solid #ccc;
+      vertical-align: middle;
+    }
+
+    /* Avatar Styling */
+    .avatar-wrapper {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #111;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-placeholder {
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    /* Student Name Block */
+    .student-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .student-name {
+      font-weight: 600;
+      color: #111;
+    }
+
+    .student-id {
+      font-size: 0.8rem;
+      color: #6b7e93;
+      margin-top: 2px;
+    }
+
+    /* Status Badge (Present) */
+    .status-badge {
+      display: inline-block;
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    /* Status Badge - Absent */
+    .status-badge.absent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Status Badge - Late */
+    .status-badge.late {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    /* ----- Hidden Open Button (Kept intact) ----- */
+    .open-dialog-btn {
+      display: none;
+    }
+
+    .open-dialog-btn:hover {
+      background: #0f2a44;
+      transform: scale(1.02);
+      box-shadow: 0 12px 24px rgba(26, 58, 92, 0.35);
+    }
+
+    .open-dialog-btn:active {
+      transform: scale(0.97);
+      background: #0b1f32;
+    }
+
+    .open-dialog-btn:focus-visible {
+      outline: 3px solid #6c8db0;
+      outline-offset: 4px;
+    }
+
+    /* ----- Responsive tweaks ----- */
+    @media (max-width: 700px) {
+      body {
+        padding: 0.5rem;
+      }
+
+      .page-container {
+        padding: 0 0.5rem;
+      }
+
+      .table-container {
+        padding: 6px 2px;
+      }
+
+      .register-table {
+        border-spacing: 0 8px;
+      }
+
+      .register-table th {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.25rem;
+      }
+
+      .register-table td {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.3rem;
+      }
+
+      .col-contact,
+      .col-national,
+      .col-dob {
+        display: none;
+      }
+
+      .tab-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      /* Adjust rounded corners for smaller screens */
+      .register-table tbody td:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+        padding-left: 0.75rem !important;
+      }
+
+      .register-table tbody td:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        padding-right: 0.75rem !important;
+      }
+
+      .col-check {
+        width: 36px;
+        padding-left: 0.75rem !important;
+      }
+
+      .col-status {
+        padding-right: 0.75rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .col-grade {
+        display: none;
+      }
+
+      .col-check {
+        width: 30px;
+      }
+
+      .col-avatar {
+        width: 30px;
+      }
+
+      .avatar-wrapper {
+        width: 30px;
+        height: 30px;
+      }
+
+      .student-id {
+        font-size: 0.7rem;
+      }
+
+      .status-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        min-width: 60px;
+      }
+
+      .table-container {
+        padding: 4px 2px;
+      }
+
+      .register-table {
+        border-spacing: 0 6px;
+      }
+
+      .register-table tbody td:first-child {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+        padding-left: 0.5rem !important;
+      }
+
+      .register-table tbody td:last-child {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+        padding-right: 0.5rem !important;
+      }
+
+      .register-table td {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        transform: none !important;
+      }
+    }
+
+    /* ----- Dialog Styles (Same as original) ----- */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(6px) brightness(0.96);
+      -webkit-backdrop-filter: blur(6px) brightness(0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 1000;
+    }
+
+    .dialog-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .dialogue-box {
+      background: white;
+      max-width: 720px;
+      width: 100%;
+      padding: 2rem 2rem 1.8rem;
+      border-radius: 2rem;
+      box-shadow: 0 40px 70px rgba(0, 0, 0, 0.25);
+      transform: scale(0.92) translateY(15px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .dialog-overlay.active .dialogue-box {
+      transform: scale(1) translateY(0);
+      box-shadow: 0 50px 80px rgba(0, 0, 0, 0.3);
+    }
+
+    .dialogue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.2rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .dialogue-header h2 {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 600;
+      color: #0b1e2e;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .close-icon {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #4a5f73;
+      padding: 0 0.3rem;
+      transition: color 0.2s, transform 0.15s;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 21px;
+      height: 21px;
+    }
+
+    .close-icon:hover {
+      color: #b91c1c;
+      background: rgba(185, 28, 28, 0.06);
+      transform: rotate(90deg);
+    }
+
+    .dialogue-body {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.6;
+      color: #1e2f3f;
+      margin: 1rem 0 1.8rem;
+      padding-right: 0.5rem;
+    }
+
+    .dialogue-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      border-top: 1px solid #e6edf4;
+      padding-top: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #bcccdb;
+      padding: 0.6rem 1.6rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #1f3a54;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex: 0 1 auto;
+      min-width: 80px;
+    }
+
+    .btn-secondary:hover {
+      background: #eaf0f6;
+      border-color: #8ba2b9;
+    }
+
+    .btn-primary {
+      background: #1a3a5c;
+      border: none;
+      padding: 0.6rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 8px rgba(26, 58, 92, 0.15);
+      flex: 0 1 auto;
+      min-width: 80px;
+    }
+
+    .btn-primary:hover {
+      background: #0f2a44;
+      transform: scale(1.02);
+    }
+
+
+    /* ----- Dialog Tab Styles ----- */
+    .dialog-tabs-container {
+      background: transparent;
+      padding: 0;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .dialog-tabs-header {
+      display: flex;
+      gap: 0.25rem;
+      border-bottom: 2px solid #eef2f6;
+      padding: 0 0.5rem;
+    }
+
+    .dialog-tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #6b7e93;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      margin-bottom: -2px;
+      font-family: inherit;
+      border-radius: 0;
+    }
+
+    .dialog-tab-btn:hover {
+      color: #1a3a5c;
+      background: #f8fafc;
+    }
+
+    .dialog-tab-btn.active {
+      color: #1a3a5c;
+      border-bottom-color: #1a3a5c;
+      background: transparent;
+    }
+
+    .dialog-tab-content-wrapper {
+      background: transparent;
+      padding: 0;
+    }
+
+    .dialog-tab-panel {
+      display: none;
+      background: transparent;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .dialog-tab-panel.active {
+      display: block;
+    }
+
+    /* Dialogue Box - Perfect Size Without Scrolling */
+    /* Dialogue Box - Perfect Size Without Scrolling */
+    .dialogue-box-large {
+      max-width: 750px !important;
+      width: 100% !important;
+      padding: 1.8rem 1.8rem 1.5rem !important;
+      max-height: 90vh !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* Dialog Tab Styles */
+    .dialog-tabs-container {
+      background: transparent;
+      padding: 0;
+      margin: 0 0 0.5rem 0;
+      flex-shrink: 0;
+    }
+
+    .dialog-tabs-header {
+      display: flex;
+      gap: 0.25rem;
+      border-bottom: 2px solid #eef2f6;
+      padding: 0 0.5rem;
+    }
+
+    .dialog-tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #6b7e93;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      margin-bottom: -2px;
+      font-family: inherit;
+      border-radius: 0;
+      white-space: nowrap;
+    }
+
+    .dialog-tab-btn:hover {
+      color: #1a3a5c;
+      background: #f8fafc;
+    }
+
+    .dialog-tab-btn.active {
+      color: #1a3a5c;
+      border-bottom-color: #1a3a5c;
+      background: transparent;
+    }
+
+    .dialog-tab-content-wrapper {
+      background: transparent;
+      padding: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .dialog-tab-panel {
+      display: none;
+      background: transparent;
+      animation: fadeIn 0.3s ease;
+      height: 100%;
+    }
+
+    .dialog-tab-panel.active {
+      display: block !important;
+    }
+
+    /* Override dialogue body for tabs */
+    .dialogue-body {
+      font-size: clamp(0.9rem, 1vw, 1rem);
+      line-height: 1.5;
+      color: #1e2f3f;
+      margin: 0.3rem 0 0.5rem;
+      padding-right: 0.3rem;
+      display: block !important;
+      overflow: hidden;
+    }
+
+    /* Form Grid */
+    .form-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1a2a3a;
+    }
+
+    .form-input {
+      padding: 0.5rem 0.7rem;
+      border: 1.5px solid #dce4ec;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+      background: #fff;
+      width: 100%;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #1a3a5c;
+      box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+    }
+
+    textarea.form-input {
+      resize: none;
+      min-height: 55px;
+      max-height: 65px;
+    }
+
+    select.form-input {
+      appearance: auto;
+      cursor: pointer;
+    }
+
+    /* Image Upload */
+    .image-upload-box {
+      border: 2px dashed #dce4ec;
+      border-radius: 8px;
+      padding: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #f8fafc;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-upload-box:hover {
+      border-color: #1a3a5c;
+      background: #f0f4f8;
+    }
+
+    .image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.1rem;
+    }
+
+    .image-placeholder span {
+      font-size: 1.8rem;
+    }
+
+    .image-placeholder p {
+      font-size: 0.8rem;
+      color: #6b7e93;
+      margin: 0;
+    }
+
+    /* Radio Group */
+    .radio-group {
+      display: flex;
+      gap: 1.5rem;
+      padding-top: 0.2rem;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: normal;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .radio-label input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #1a3a5c;
+      cursor: pointer;
+    }
+
+    /* Info Box */
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #eef2f6;
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+    }
+
+    .info-row {
+      margin: 0.2rem 0;
+      font-size: 0.88rem;
+    }
+
+    .info-row strong {
+      font-size: 0.85rem;
+      min-width: 100px;
+      display: inline-block;
+    }
+
+    .info-value {
+      color: #1a3a5c;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    /* Consent Box */
+    .consent-box {
+      background: #f8fafc;
+      border: 1px solid #eef2f6;
+      border-radius: 8px;
+      padding: 0.6rem;
+    }
+
+    /* Dialogue Actions */
+    .dialogue-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      border-top: 1px solid #e6edf4;
+      padding-top: 0.5rem;
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #bcccdb;
+      padding: 0.4rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #1f3a54;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex: 0 1 auto;
+      min-width: 80px;
+    }
+
+    .btn-secondary:hover {
+      background: #eaf0f6;
+      border-color: #8ba2b9;
+    }
+
+    .btn-primary {
+      background: #1a3a5c;
+      border: none;
+      padding: 0.4rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(26, 58, 92, 0.15);
+      flex: 0 1 auto;
+      min-width: 80px;
+    }
+
+    .btn-primary:hover {
+      background: #0f2a44;
+      transform: scale(1.02);
+    }
+  </style>
+
+  <style>
+    /* custom wrapper – uses .dashboard and .header from provided styles */
+    .term-page {
+      padding: 1.5rem 1rem;
+      background: #f4f7fc;
+      min-height: 100vh;
+    }
+
+    .term-page .dashboard {
+      margin: 0 auto;
+    }
+
+    /* term card extends .class-card */
+    .term-card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem 1.2rem 1.5rem 1.5rem;
+      box-shadow: 0 8px 24px rgba(0, 20, 40, 0.04);
+      border: 1px solid #eaf0f6;
+      transition: 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .term-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(26, 58, 94, 0.08);
+      border-color: #d0dceb;
+    }
+
+    .term-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .term-id {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0b2b4a;
+    }
+
+    .term-status {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 1rem;
+      border-radius: 40px;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .term-status.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .term-status.closed {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .term-dates {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #4b6a87;
+      margin-bottom: 0.8rem;
+    }
+
+    .term-dates i {
+      color: #2a7de1;
+      width: 1.2rem;
+    }
+
+    .term-fees {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem 1rem;
+      background: #f8faff;
+      padding: 0.6rem 1rem;
+      border-radius: 16px;
+      border: 1px solid #eaf0f6;
+      margin: 0.5rem 0;
+    }
+
+    .fee-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #1e3b5a;
+    }
+
+    .fee-item .label {
+      color: #4b6a87;
+    }
+
+    .fee-item .value {
+      font-weight: 600;
+      color: #0b2b4a;
+    }
+
+    .term-grades {
+      margin: 0.5rem 0;
+      font-size: 0.85rem;
+    }
+
+    .term-grades .label {
+      color: #4b6a87;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .grade-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .grade-chip {
+      background: #e9f2fa;
+      padding: 0.1rem 0.7rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #2a5f7a;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .grade-chip .fee {
+      font-weight: 600;
+      color: #0b2b4a;
+    }
+
+    .term-actions-card {
+      margin-top: 0.8rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      border-top: 1px solid #eef4fa;
+      padding-top: 0.8rem;
+    }
+
+    .btn-sm {
+      padding: 0.3rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    /* modal overrides for larger size */
+    .modal-box-large {
+      max-width: 680px !important;
+    }
+
+    .form-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #1a3a5e;
+      margin-bottom: 0.2rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem 0.2rem;
+      border: 1.5px solid #dce6f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: 0.15s ease;
+      background: #f9fcff;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #2a7de1;
+      box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1);
+      background: white;
+    }
+
+    .form-control-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .fee-grid-modal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 1rem;
+    }
+
+    .fee-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .fee-input-group label {
+      min-width: 70px;
+      font-size: 0.85rem;
+      color: #1a3a5e;
+      font-weight: 500;
+    }
+
+    .fee-input-group input {
+      flex: 1;
+      padding: 0.3rem 0.6rem;
+      border: 1.5px solid #dce6f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .fee-input-group input:focus {
+      outline: none;
+      border-color: #2a7de1;
+    }
+
+    /* ===== UPDATED: grade-fees-container with 2 rows + horizontal scroll ===== */
+    .grade-fees-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.4rem 0.8rem;
+      max-height: 120px;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding: 0.5rem 0.8rem;
+      background: #f9fcff;
+      border-radius: 12px;
+      border: 1.5px solid #eaf0f6;
+      align-content: start;
+      grid-auto-flow: row;
+      grid-template-rows: auto auto;
+    }
+
+    .grade-fees-container::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    .grade-fees-container::-webkit-scrollbar-track {
+      background: #eef2f6;
+      border-radius: 8px;
+    }
+
+    .grade-fees-container::-webkit-scrollbar-thumb {
+      background: #bcccdb;
+      border-radius: 8px;
+    }
+
+    .grade-fee-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.15rem 0.3rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #eef2f6;
+      white-space: nowrap;
+    }
+
+    .grade-fee-row label {
+      min-width: 28px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1a3a5e;
+    }
+
+    .grade-fee-row input {
+      width: 65px;
+      padding: 0.15rem 0.4rem;
+      border: 1.5px solid #dce6f0;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      text-align: right;
+    }
+
+    .grade-fee-row input:focus {
+      outline: none;
+      border-color: #2a7de1;
+    }
+
+    .btn-remove-grade {
+      background: none;
+      border: none;
+      color: #991b1b;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 0 0.2rem;
+      transition: 0.15s;
+    }
+
+    .btn-remove-grade:hover {
+      color: #b91c1c;
+      transform: scale(1.2);
+    }
+
+    .add-grade-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .add-grade-row input {
+      padding: 0.3rem 0.6rem;
+      border: 1.5px solid #dce6f0;
+      border-radius: 10px;
+      font-size: 0.85rem;
+    }
+
+    .add-grade-row input:focus {
+      outline: none;
+      border-color: #2a7de1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #6b7e93;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: #bcccdb;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div class="page-container">
+
+    <!-- Hidden Open Dialogue Button -->
+    <button class="open-dialog-btn" id="openDialogBtn" aria-haspopup="dialog" style="visibility: visible;">
+      <span>📬</span> Open dialogue
+    </button>
+    <button class="open-dialog-btn" id="openDialogBtn2" aria-haspopup="dialog" style="visibility: hidden;">
+      <span>📬</span> Open dialogue
+    </button>
+    <button class="open-dialog-btn" id="openDialogBtn3" aria-haspopup="dialog" style="visibility: visible;">
+      <span>📬</span> Open dialogue
+    </button>
+    <!-- Tabs Container -->
+    <div class="tabs-container">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="tab1">Register</button>
+        <button class="tab-btn" data-tab="tab2">Tab 2</button>
+        <button class="tab-btn" data-tab="tab3">Tab 3</button>
+        <button class="tab-btn" data-tab="tab4">Tab 4</button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content-wrapper">
+
+      <!-- Tab 1: Student Register -->
+      <div id="tab1" class="tab-panel active">
+        <table class="register-table">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" class="custom-checkbox"></th>
+              <th class="col-avatar"></th>
+              <th class="col-name">Student</th>
+              <th class="col-grade">Class/ Grade</th>
+              <th class="col-dob">Birthday</th>
+              <th class="col-national">Nationality</th>
+              <th class="col-contact">Contact</th>
+              <th class="col-status">Register</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="1">Students Full Names</span>
+                  <span class="student-id" id="myname">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 2 (Checked) -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox" checked></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="2">Students Full Names</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 3 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="3">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 4 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="4">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 5 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="5">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 5 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="6">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 5 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="7">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+            <!-- Row 5 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name clickable-name" data-student="8">John Doe</span>
+                  <span class="student-id">RS/2026/001</span>
+                </div>
+              </td>
+              <td class="col-grade">G8</td>
+              <td class="col-dob">01 Jan, 2010</td>
+              <td class="col-national">Kenyan</td>
+              <td class="col-contact">0712345678</td>
+              <td class="col-status"><span class="status-badge">Present</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab 2: Empty -->
+      <div id="tab2" class="tab-panel">
+        <table class="register-table" id="FeeBalanceList">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" class="custom-checkbox"></th>
+              <th class="col-avatar"></th>
+              <th class="col-name">Student</th>
+              <th class="col-grade">Term Fee</th>
+              <th class="col-dob">Exemption</th>
+              <th class="col-national">Balance B.F</th>
+              <th class="col-contact">Total Inst</th>
+              <th class="col-status">Balance</th>
+              <th class="col-status">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr>
+              <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+              <td class="col-avatar">
+                <div class="avatar-wrapper">
+                  <span class="avatar-placeholder">👤</span>
+                </div>
+              </td>
+              <td class="col-name">
+                <div class="student-info">
+                  <span class="student-name">Students Full Names</span>
+                  <span class="student-id">ADM-30688859</span>
+                </div>
+              </td>
+              <td class="col-grade">15,000</td>
+              <td class="col-dob">15,000</td>
+              <td class="col-national">15,000</td>
+              <td class="col-contact">15,000</td>
+              <td class="col-contact">15,000</td>
+              <td class="col-contact">Daycare</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tab 3: Empty -->
+      <div id="tab3" class="tab-panel">
+        <div class="dashboard">
+          <!-- header -->
+          <div class="header">
+            <h1>
+              <i class="fas fa-chalkboard-teacher"></i>
+              Class overview
+            </h1>
+            <div class="header-actions">
+              <div class="btn"><i class="fas fa-filter"></i> Filter</div>
+              <div class="btn btn-primary" id="openModalBtn"><i class="fas fa-plus"></i> Add class</div>
+            </div>
+          </div>
+
+          <!-- stats -->
+          <div class="stats" id="statsContainer">
+            <div class="stat-card"><i class="fas fa-layer-group"></i> <span id="totalClasses">0</span> classes</div>
+            <div class="stat-card"><i class="fas fa-users"></i> <span id="totalCapacity">0</span> total seats</div>
+            <div class="stat-card"><i class="fas fa-door-open"></i> <span id="totalRooms">0</span> rooms</div>
+          </div>
+
+          <!-- class grid -->
+          <div class="classes-grid" id="classGrid"></div>
+        </div>
+
+        <!-- ===== MODAL / DIALOG ===== -->
+        <div class="modal-overlay" id="modalOverlay">
+          <div class="modal-box">
+            <div class="modal-header">
+              <h2><i class="fas fa-plus-circle"></i> New class</h2>
+              <button class="modal-close" id="closeModalBtn" aria-label="Close dialog">&times;</button>
+            </div>
+            <form id="classForm" autocomplete="off">
+              <!-- two‑column grid from the provided style -->
+              <div class="form-grid-2col">
+                <!-- left column -->
+                <div class="form-section">
+                  <div class="form-group">
+                    <label for="gradeInput">Grade</label>
+                    <input type="text" id="gradeInput" class="form-input" placeholder="e.g. 9" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="capacityInput">Capacity</label>
+                    <input type="number" id="capacityInput" class="form-input" placeholder="e.g. 28" min="1" required>
+                  </div>
+
+                </div>
+                <!-- right column -->
+                <div class="form-section">
+
+                  <div class="form-group">
+                    <label for="streamInput">Stream</label>
+                    <input type="text" id="streamInput" class="form-input" placeholder="e.g. Alpha" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="roomInput">Room</label>
+                    <input type="text" id="roomInput" class="form-input" placeholder="e.g. 201" required>
+                  </div>
+
+                </div>
+
+
+
+              </div>
+              <div class="form-group" style="margin: 5px;">
+                <label for="teacherInput">Class teacher</label>
+                <input type="text" id="teacherInput" class="form-input" placeholder="e.g. Mrs. Kariuki" required>
+              </div>
+
+              <div class="dialogue-actions">
+                <button type="button" class="btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="saveClass_Details">
+                  <i class="fas fa-save"></i> Add class
+                </button>
+              </div>
+            </form>
+
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Empty -->
+      <div id="tab4" class="tab-panel">
+        <div class="term-page">
+          <div class="dashboard">
+            <!-- HEADER (using provided .header) -->
+            <div class="header">
+              <h1>
+                <i class="fas fa-calendar-alt"></i>
+                Term Details &amp; Fee Structure
+              </h1>
+              <div class="header-actions">
+                <button class="btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn btn-primary" id="addTermBtn"><i class="fas fa-plus"></i> New Term</button>
+              </div>
+            </div>
+
+            <!-- STATS (using provided .stats) -->
+            <div class="stats" id="statsContainer">
+              <div class="stat-card"><i class="fas fa-calendar-check"></i> <span id="totalTerms">0</span> Terms</div>
+              <div class="stat-card"><i class="fas fa-coins"></i> <span id="totalFees">0</span> Total Fees</div>
+              <div class="stat-card"><i class="fas fa-user-graduate"></i> <span id="totalGrades">0</span> Grade Levels
+              </div>
+            </div>
+
+            <!-- GRID (using provided .classes-grid) -->
+            <div class="classes-grid" id="termGrid"></div>
+          </div>
+        </div>
+
+        <!-- ===== MODAL / DIALOG (using provided .modal-overlay) ===== -->
+        <div class="modal-overlay" id="termModal">
+          <div class="modal-box modal-box-large" style="margin: 0px;">
+            <div class="modal-header" style="margin: 0px;">
+              <h2><i class="fas fa-edit"></i> <span id="modalTitle">New Term</span></h2>
+              <button class="modal-close" id="closeTermModalBtn">&times;</button>
+            </div>
+
+            <!-- Form -->
+            <form id="termForm">
+              <!-- Row 1: Term ID + Status -->
+              <div class="form-row">
+                <div class="form-group" style="flex:2;">
+                  <label for="termIdInput">Term ID *</label>
+                  <input class="form-control" id="termIdInput" placeholder="e.g. TERM-2026-01" />
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label for="statusSelect">Status</label>
+                  <select class="form-control" id="statusSelect">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 2: Start + End -->
+              <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                  <label for="startDateInput">Start Date *</label>
+                  <input class="form-control" id="startDateInput" type="date" />
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label for="endDateInput">End Date *</label>
+                  <input class="form-control" id="endDateInput" type="date" />
+                </div>
+              </div>
+
+              <!-- Fee Components -->
+              <div class="form-group">
+                <label>Fee Components</label>
+                <div class="fee-grid-modal">
+                  <div class="fee-input-group">
+                    <label>Meal</label>
+                    <input type="number" step="0.01" id="mealInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Transport</label>
+                    <input type="number" step="0.01" id="transportInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Boarding</label>
+                    <input type="number" step="0.01" id="boardingInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Break</label>
+                    <input type="number" step="0.01" id="breakInput" value="0.00" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grade Fees -->
+              <div class="form-group">
+                <label>Grade-wise Fees</label>
+                <div class="grade-fees-container" id="gradeFeesContainer">
+                  <!-- grade rows injected by JS -->
+                </div>
+
+              </div>
+
+              <!-- Actions -->
+              <div class="modal-actions" style="margin: 0px;">
+                <button type="button" class="btn btn-outline" id="cancelTermModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Term</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- dialog overlay (hidden by default) -->
+  <div class="dialog-overlay" id="dialogOverlay" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+    <div class="dialogue-box dialogue-box-large">
+      <div class="dialogue-header">
+        <h2 id="dialogTitle">📋 New Student</h2>
+        <button class="close-icon" id="closeDialogIcon" aria-label="Close dialogue">✕</button>
+      </div>
+
+      <!-- Tab Navigation inside Dialog -->
+      <div class="dialog-tabs-container">
+        <div class="dialog-tabs-header">
+          <button class="dialog-tab-btn active" data-tab="0">Personal Information</button>
+          <button class="dialog-tab-btn" data-tab="1">Contact Information</button>
+          <button class="dialog-tab-btn" data-tab="2">Admission Information</button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="dialog-tab-content-wrapper">
+        <!-- Tab 1: Personal Information -->
+        <div class="dialog-tab-panel active" id="tab0">
+          <div class="dialogue-body">
+
+            <div class="form-grid-2col">
+              <!-- Left Column -->
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Student's Full Name</label>
+                  <input type="text" id="studentName" placeholder="Enter full name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label>Date of Birth</label>
+                  <input type="date" id="studentDOB" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label>Religion/Faith</label>
+                  <select id="studentReligion" class="form-input">
+                    <option value="">Select Religion</option>
+                    <option>Christianity</option>
+                    <option>Islam</option>
+                    <option>Hinduism</option>
+                    <option>Buddhism</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Nationality</label>
+                  <select id="studentNationality" class="form-input">
+                    <option value="">Select Nationality</option>
+                    <option>Kenyan</option>
+                    <option>Ugandan</option>
+                    <option>Tanzanian</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-section">
+                <div class="form-group image-upload">
+                  <label>Select Image</label>
+                  <div class="image-upload-box" id="imageUploadBox">
+                    <div class="image-placeholder">
+                      <span>📸</span>
+                      <p>Click to upload</p>
+                    </div>
+                    <input type="file" id="studentImage" accept="image/*" style="display: none;">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Gender/Sex</label>
+                  <div class="radio-group">
+                    <label class="radio-label">
+                      <input type="radio" name="gender" id="genderMale" value="Male"> Male
+                    </label>
+                    <label class="radio-label">
+                      <input type="radio" name="gender" id="genderFemale" value="Female"> Female
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>ID/Birth Certificate Number</label>
+                  <input type="text" id="studentID" placeholder="Enter ID or birth certificate number"
+                    class="form-input">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Contact Information -->
+        <div class="dialog-tab-panel" id="tab1">
+          <div class="dialogue-body">
+
+            <div class="form-grid-2col">
+              <!-- Left Column -->
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Parent/Guardian Name</label>
+                  <input type="text" id="guardianName" placeholder="Guardian's full name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label>Relationship</label>
+                  <select id="guardianRelationship" class="form-input">
+                    <option value="">Select Relationship</option>
+                    <option>Father</option>
+                    <option>Mother</option>
+                    <option>Stepfather</option>
+                    <option>Stepmother</option>
+                    <option>Guardian</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="tel" id="guardianPhone" placeholder="+254 712 345 678" class="form-input">
+                  <input type="tel" id="guardianPhone2" placeholder="Alternative phone (optional)" class="form-input"
+                    style="margin-top: 0.3rem;">
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" id="guardianEmail" placeholder="johndoe@example.com" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label>Physical Address</label>
+                  <textarea id="guardianAddress" class="form-input" rows="3"
+                    placeholder="Street address, city, postal code"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Admission Information -->
+        <div class="dialog-tab-panel" id="tab2">
+          <div class="dialogue-body">
+
+            <div class="form-grid-2col">
+              <!-- Left Column -->
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Student Information</label>
+                  <div class="info-box" id="studentInfoDisplay">
+                    <div class="info-row"><strong>Name:</strong> <span class="info-value" id="displayName">-</span>
+                    </div>
+                    <div class="info-row"><strong>D.O.B:</strong> <span class="info-value" id="displayDOB">-</span>
+                    </div>
+                    <div class="info-row"><strong>Gender:</strong> <span class="info-value" id="displayGender">-</span>
+                    </div>
+                    <div class="info-row"><strong>Nationality:</strong> <span class="info-value"
+                        id="displayNationality">-</span></div>
+                    <div class="info-row"><strong>ID Number:</strong> <span class="info-value" id="displayID">-</span>
+                    </div>
+                    <div class="info-row"><strong>Religion:</strong> <span class="info-value"
+                        id="displayReligion">-</span></div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Contact Information</label>
+                  <div class="info-box" id="contactInfoDisplay">
+                    <div class="info-row"><strong>Parent/Guardian:</strong> <span class="info-value"
+                        id="displayGuardian">-</span></div>
+                    <div class="info-row"><strong>Relationship:</strong> <span class="info-value"
+                        id="displayRelationship">-</span></div>
+                    <div class="info-row"><strong>Phone No:</strong> <span class="info-value" id="displayPhone">-</span>
+                    </div>
+                    <div class="info-row"><strong>Email:</strong> <span class="info-value" id="displayEmail">-</span>
+                    </div>
+                    <div class="info-row"><strong>Address:</strong> <span class="info-value"
+                        id="displayAddress">-</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Admission Details</label>
+                  <div class="info-box">
+                    <div style="display: flex; gap: 0.3rem; align-items: center; margin-bottom: 0.3rem;">
+                      <strong style="font-size: 0.85rem;">Admission No.</strong>
+                      <input type="text" id="admissionNumber" placeholder="Auto Generate" class="form-input"
+                        style="flex: 1; font-size: 0.85rem; padding: 0.3rem 0.5rem;">
+                    </div>
+                    <div style="margin-bottom: 0.3rem;">
+                      <label
+                        style="display: flex; align-items: center; gap: 0.3rem; font-weight: normal; font-size: 0.85rem;">
+                        <input type="checkbox" id="autoGenerate" checked> Auto Generate
+                      </label>
+                    </div>
+                    <div class="form-group" style="margin-top: 0.3rem;">
+                      <label style="font-size: 0.8rem;">Select Class</label>
+                      <select id="studentClass" class="form-input" style="font-size: 0.85rem; padding: 0.3rem 0.5rem;">
+                        <option value="">Select Class</option>
+                        <option>Pre-primary</option>
+                        <option>Grade 1</option>
+                        <option>Grade 2</option>
+                        <option>Grade 3</option>
+                        <option>Grade 4</option>
+                        <option>Grade 5</option>
+                        <option>Grade 6</option>
+                        <option>Grade 7</option>
+                        <option>Grade 8</option>
+                        <option>Form 1</option>
+                        <option>Form 2</option>
+                        <option>Form 3</option>
+                        <option>Form 4</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Consent Acknowledgement</label>
+                  <div class="consent-box">
+                    <p style="font-size: 0.8rem; line-height: 1.4; color: #1e2f3f; margin: 0;">
+                      I confirm that the information provided is accurate and complete. I understand that this
+                      information will be used for academic and administrative purposes.
+                    </p>
+                    <label
+                      style="display: flex; align-items: center; gap: 0.3rem; margin-top: 0.3rem; font-weight: normal; font-size: 0.85rem;">
+                      <input type="checkbox" id="consentCheck"> I agree to the terms
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dialog Actions -->
+      <div class="dialogue-actions">
+        <button class="btn-secondary" id="resetBtn">Reset</button>
+        <button class="btn-primary" id="saveStudent">Complete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECOND DIALOG BOX (fully independent) -->
+
+
+  <div class="dialog-overlay" id="dialogOverlay2" role="dialog" aria-modal="true" aria-labelledby="dialogTitle2">
+    <div class="dialogue-box dialogue-box-large">
+      <div class="dialogue-header">
+        <h2 id="dialogTitle2">💱 Fee Management </h2>
+        <button class="close-icon" id="closeDialogIcon2" aria-label="Close dialogue">✕</button>
+      </div>
+
+      <!-- Tab Navigation inside Dialog -->
+      <div class="dialog-tabs-container">
+        <div class="dialog-tabs-header">
+          <button class="dialog-tab-btn active" data-tab="edit0">New Payment</button>
+          <button class="dialog-tab-btn" data-tab="edit1">Payment History</button>
+          <input type="text" id="Searchtext" placeholder="Search..." class="form-input" value=""
+            style="margin: 5px; margin-left: 150px; width: 250px;" />
+
+        </div>
+
+      </div>
+
+      <!-- Tab Content -->
+      <div class="dialog-tab-content-wrapper">
+        <!-- Tab 1: Personal Information -->
+        <div class="dialog-tab-panel active" id="editTab0">
+          <div class="dialogue-body" style="height: 55vh;">
+
+            <div style="display: flex; font-size: medium;">
+              <div style="flex: 1; padding: 10px;">Student's Name:<br></t><label id="Fn_Name"
+                  style="font-weight: 100;">Students Fullname</label>
+              </div>
+              <div style="flex: 1; padding: 10px;">Admission No:<br></t><label id="Fn_Admn"
+                  style="font-weight: 100;">Students Admission</label>
+              </div>
+              <div style="flex: 1; padding: 10px;">Class/Grade:<br></t><label id="Fn_Grade"
+                  style="font-weight: 100;">Grade</label></div>
+            </div>
+            </hr>
+            <div style="display: flex; font-size: medium;">
+              <div style="flex: 1; padding: 10px;">Current Fee(Kes)</div>
+              <div style="flex: 1; padding: 10px;">Exemption (Kes)</div>
+              <div style="flex: 1; padding: 10px;">B.F balance(Kes)</div>
+              <div style="flex: 1; padding: 10px;">Balance(Kes)</div>
+            </div>
+
+            <div style="display: flex; font-size: medium; margin-top: 0;">
+              <div style="flex: 1; padding: 10px;" id="Fn_CurrentFee">0.00</div>
+              <div style="flex: 1; padding: 10px;" id="Fn_studentExceptions">0.00</div>
+              <div style="flex: 1; padding: 10px;" id="Fn_studentgetBalanceBefore">0.00</div>
+              <div style="flex: 1; padding: 10px;" id="Fn_CurrentBalance">0.00</div>
+            </div>
+
+            <div
+              style="background-color: #93a3b33d; width: 100%; padding: 5px; margin: auto; height: 27vh; border-radius: 17px;">
+              <div style="display: flex; font-size: medium; margin-top: 0;">
+                <div style="flex: 1; padding: 10px;">Paid Amount</div>
+                <div style="flex: 1; padding: 10px;">Account</div>
+                <div style="flex: 1; padding: 10px;">Date</div>
+              </div>
+
+              <div style="display: flex; font-size: medium; margin-top: 0;">
+                <input type="text" id="Fn_PaidAmount" placeholder="Amount Paid" class="form-input"
+                  style="margin-right: 15px;" />
+                <input type="text" id="Fn_Account" placeholder="Account" class="form-input"
+                  style="margin-right: 15px;" />
+                <input type="date" id="Fn_PaymentDate" placeholder="Guardian's full name" class="form-input"
+                  style="margin-right: 15px;" />
+              </div>
+              <div style="display: flex; font-size: medium; margin-top: 10px;">
+                <div style="flex: 1; padding: 10px;">Payment Ref:</div>
+                <input type="text" id="Fn_PaymentRef" placeholder="Transaction Code" class="form-input"
+                  style="flex: 3; height: 37px; width: 50px;" />
+                <div style="flex: 1;"></div>
+              </div>
+
+
+            </div>
+
+
+          </div>
+        </div>
+
+        <!-- Tab 2: Contact Information -->
+        <div class="dialog-tab-panel" id="editTab1">
+          <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
+
+
+
+            <table id="feepaymentHistory" style="width:100%; table-layout:fixed; border-collapse:collapse;">
+
+              <thead>
+                <tr style="text-align:left; font-size:small;">
+                  <th>Term</th>
+                  <th>Fee</th>
+                  <th>Exemption</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
+                  <th>Date Paid</th>
+                  <th>Account</th>
+                  <th>Transaction ID</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <!-- Your rows -->
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+
+
+      </div>
+
+      <!-- Dialog Actions -->
+      <div class="dialogue-actions">
+        <button class="btn-secondary" id="editResetBtn">Reset</button>
+        <button class="btn-primary" id="savePaymentBtn">Update</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="student-form.js"></script>
+  <script src="classScript.js"></script>
+  <script src="TermFX1.js"></script>
+  <script src="paymentReciept.js"></script>
+
+
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ----- DOM elements for first dialog -----
+      const overlay = document.getElementById('dialogOverlay');
+      const openBtn = document.getElementById('openDialogBtn');
+      const openBtn3 = document.getElementById('openDialogBtn3');
+
+      const SaveUpdateBtn = document.getElementById('saveStudent');
+
+      const openBtn2 = document.getElementById('openDialogBtn2');
+      const closeIcon = document.getElementById('closeDialogIcon');
+      const closeSecondary = document.getElementById('closeDialogSecondary');
+      const confirmBtn = document.getElementById('confirmDialogBtn');
+
+      // ----- DOM elements for second dialog -----
+      const overlay2 = document.getElementById('dialogOverlay2');
+      const closeIcon2 = document.getElementById('closeDialogIcon2');
+      const closeSecondary2 = document.getElementById('closeDialogSecondary2');
+      const confirmBtn2 = document.getElementById('confirmDialogBtn2');
+
+      // ----- helper functions (open / close) for first dialog -----
+      window.openDialog = function () {
+        switchDialogTab(0);
+        overlay.classList.add('active');
+
+        setTimeout(() => {
+          closeIcon.focus();
+        }, 50);
+      };
+
+      function closeDialog() {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        if (openBtn) openBtn.focus();
+
+      }
+
+      // ----- helper functions for second dialog -----
+      const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
+      const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
+
+      function switchDialogTab2(index) {
+        dialogTabBtns2.forEach(btn => btn.classList.remove('active'));
+        dialogTabPanels2.forEach(panel => panel.classList.remove('active'));
+        if (dialogTabBtns2[index] && dialogTabPanels2[index]) {
+          dialogTabBtns2[index].classList.add('active');
+          dialogTabPanels2[index].classList.add('active');
+        }
+      }
+
+      window.openDialog2 = function () {
+        switchDialogTab2(0);
+        overlay2.classList.add('active');
+        setTimeout(() => {
+          closeIcon2.focus();
+        }, 50);
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDialog2() {
+        overlay2.classList.remove('active');
+        document.body.style.overflow = '';
+        if (openBtn2) openBtn2.focus();
+      }
+
+      // ----- event listeners for first dialogue -----
+      if (openBtn) {
+
+        openBtn.addEventListener('click', openDialog);
+
+        openBtn.addEventListener('click', function () {
+
+          if (SaveUpdateBtn.textContent === "Update") {
+            const inputs = document.querySelectorAll(
+              '#dialogOverlay .form-input, #dialogOverlay textarea.form-input'
+            );
+
+            inputs.forEach(input => {
+
+              if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+
+              } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+
+              } else {
+                input.value = '';
+              }
+            });
+
+            // Reset button
+            SaveUpdateBtn.textContent = "Complete";
+
+            if (Auto) Auto.disabled = false;
+
+            // Return to first tab
+            switchDialogTab(0);
+          }
+
+        });
+
+      }
+
+
+
+
+
+
+      // ----- FIXED: event listeners for second dialogue -----
+      if (openBtn2) {
+        openBtn2.addEventListener('click', openDialog2);  // Changed from openBtn to openBtn2
+      }
+
+      if (closeIcon) {
+        closeIcon.addEventListener('click', closeDialog);
+      }
+      if (closeSecondary) {
+        closeSecondary.addEventListener('click', closeDialog);
+      }
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', closeDialog);
+      }
+
+      if (overlay) {
+        overlay.addEventListener('click', function (e) {
+          if (e.target === overlay) {
+            closeDialog();
+          }
+        });
+
+        overlay.addEventListener('keydown', function (e) {
+          if (e.key === 'Tab') {
+            const focusable = overlay.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }
+        });
+      }
+
+      // ----- event listeners for second dialogue -----
+      if (closeIcon2) {
+        closeIcon2.addEventListener('click', closeDialog2);
+      }
+      if (closeSecondary2) {
+        closeSecondary2.addEventListener('click', closeDialog2);
+      }
+      if (confirmBtn2) {
+        confirmBtn2.addEventListener('click', closeDialog2);
+      }
+
+      if (overlay2) {
+        overlay2.addEventListener('click', function (e) {
+          if (e.target === overlay2) {
+            closeDialog2();
+          }
+        });
+
+        overlay2.addEventListener('keydown', function (e) {
+          if (e.key === 'Tab') {
+            const focusable = overlay2.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }
+        });
+      }
+
+      // ----- global escape key handling for both dialogs -----
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          if (overlay && overlay.classList.contains('active')) {
+            closeDialog();
+            e.preventDefault();
+          } else if (overlay2 && overlay2.classList.contains('active')) {
+            closeDialog2();
+            e.preventDefault();
+          }
+        }
+      });
+
+      window.addEventListener('beforeunload', function () {
+        document.body.style.overflow = '';
+      });
+
+      // ----- First Dialog Tab Switching Logic -----
+      const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
+      const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
+
+      function switchDialogTab(index) {
+        dialogTabBtns.forEach(btn => btn.classList.remove('active'));
+        dialogTabPanels.forEach(panel => panel.classList.remove('active'));
+        if (dialogTabBtns[index] && dialogTabPanels[index]) {
+          dialogTabBtns[index].classList.add('active');
+          dialogTabPanels[index].classList.add('active');
+        }
+      }
+
+      dialogTabBtns.forEach((btn, idx) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchDialogTab(idx);
+        });
+      });
+
+      // ----- Second Dialog Tab Switching Logic -----
+      dialogTabBtns2.forEach((btn, idx) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchDialogTab2(idx);
+        });
+      });
+
+      // ----- First Dialog: Reset and Complete buttons -----
+      const resetBtn = document.getElementById('resetBtn');
+      const completeBtn = document.getElementById('completeBtn');
+      const Auto = document.getElementById("autoGenerate");
+
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          if (confirm('Are you sure you want to reset all form fields?')) {
+            const inputs = document.querySelectorAll('#dialogOverlay .form-input, #dialogOverlay textarea.form-input');
+            inputs.forEach(input => {
+              if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+              } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+              } else {
+                input.value = '';
+              }
+            });
+
+            SaveUpdateBtn.textContent = "Complete";
+            if (Auto) Auto.disabled = false;
+            switchDialogTab(0);
+          }
+        });
+      }
+
+      if (completeBtn) {
+        completeBtn.addEventListener('click', function () {
+          alert('Student record completed successfully!');
+          closeDialog();
+        });
+      }
+
+      // ----- Second Dialog: Reset and Update buttons -----
+      const editResetBtn = document.getElementById('editResetBtn');
+      const editCompleteBtn = document.getElementById('editCompleteBtn');
+
+      if (editResetBtn) {
+        editResetBtn.addEventListener('click', function () {
+          if (confirm('Are you sure you want to reset all fields?')) {
+            const inputs = document.querySelectorAll('#dialogOverlay2 .form-input, #dialogOverlay2 textarea.form-input');
+            inputs.forEach(input => {
+              if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+              } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+              } else {
+                input.value = '';
+              }
+            });
+            switchDialogTab2(0);
+          }
+        });
+      }
+
+      if (editCompleteBtn) {
+        editCompleteBtn.addEventListener('click', function () {
+          alert('Student record updated successfully!');
+          closeDialog2();
+        });
+      }
+
+      // ----- Open second dialog via a trigger (for demo) -----
+      window.openEditDialog = function () {
+        openDialog2();
+      };
+
+      // ----- Tab Switching for Main Tabs -----
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = {
+        tab1: document.getElementById('tab1'),
+        tab2: document.getElementById('tab2'),
+        tab3: document.getElementById('tab3'),
+        tab4: document.getElementById('tab4')
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+          tabs.forEach(t => t.classList.remove('active'));
+          Object.values(panels).forEach(p => {
+            if (p) p.classList.remove('active');
+          });
+          this.classList.add('active');
+          const targetId = this.getAttribute('data-tab');
+          if (panels[targetId]) {
+            panels[targetId].classList.add('active');
+          }
+        });
+      });
+
+      // ----- Expose global function for C# to call -----
+      window.switchTab = function (tabId) {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = {
+          tab1: document.getElementById('tab1'),
+          tab2: document.getElementById('tab2'),
+          tab3: document.getElementById('tab3'),
+          tab4: document.getElementById('tab4')
+        };
+
+        tabs.forEach(t => t.classList.remove('active'));
+        Object.values(panels).forEach(p => {
+          if (p) p.classList.remove('active');
+        });
+
+        const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
+        if (targetTab) {
+          targetTab.classList.add('active');
+          if (panels[tabId]) {
+            panels[tabId].classList.add('active');
+          }
+          return true;
+        }
+        return false;
+      };
+
+      window.__tabPanels = panels;
+
+
+
+      document.querySelectorAll('.clickable-name').forEach(nameEl => {
+        nameEl.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openDialog2();
+          var S_name = document.getElementById('editStudentName').value;
+          alert("My name is" + S_name);
+        });
+      });
+
+      window.openEditDialogWithData = function (name, id, dob, grade) {
+
+
+        document.getElementById('editStudentName').value = name || '';
+        document.getElementById('editStudentID').value = id || '';
+        document.getElementById('editStudentDOB').value = dob || '';
+        openDialog2();
+      };
+
+      console.log('✅ Both dialog boxes ready. Click a student name or double-click a row to open edit dialog (tab 0 activated).');
+    })();
+  </script>
+  <script type="module">
+    // ============================================================
+    // FIREBASE IMPORTS
+    // ============================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      push,
+      update,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+    // ============================================================
+    // FIREBASE CONFIG
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDD26eTdsp8LCtBXSEdom4-_yEkyUp571M",
+      authDomain: "acadiapro-software.firebaseapp.com",
+      databaseURL: "https://acadiapro-software-default-rtdb.firebaseio.com",
+      projectId: "acadiapro-software",
+      storageBucket: "acadiapro-software.firebasestorage.app",
+      messagingSenderId: "667384212843",
+      appId: "1:667384212843:web:4a5662c4815ab19057302e",
+      measurementId: "G-6E1J42CD4R"
+    };
+
+    // ============================================================
+    // INITIALIZE
+    // ============================================================
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let studentsCache = {};
+    let paymentCache = {};
+    let classCache = {};
+    const studentsRef = ref(db, "Institution/ Revival/Students");
+    const feepaymentRef = ref(db, "Institution/ Revival/Fee_payment");
+    const classRef = ref(db, "Institution/ Revival/classes");
+    const termRef = ref(db, `Institution/ Revival/terms/`);
+
+    // ============================================================
+    // UTILITY FUNCTIONS
+    // ============================================================
+    function formatDateToDDMMYYYY(dateString) {
+      if (!dateString) return '';
+
+      // If already in DD/MM/YYYY format, return as-is
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+        return dateString;
+      }
+
+      const d = new Date(dateString);
+      if (isNaN(d)) return dateString;
+
+      return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+    }
+
+    // Currency formatter - formats to 0,000.00
+    function formatCurrency(value) {
+      if (value === null || value === undefined || value === "") return "0.00";
+      if (value === "Sponsored") return "Sponsored";
+
+      // Remove any existing commas and parse as float
+      const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
+
+      if (isNaN(num)) return "0.00";
+
+      // Format with commas and 2 decimal places
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    const overlay = document.getElementById('dialogOverlay');
+    function closeDialog() {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      if (openBtn) openBtn.focus();
+    }
+
+    // ============================================================
+    // SAVE STUDENT
+    // ============================================================
+    document.getElementById("saveStudent")?.addEventListener("click", async () => {
+      const name = document.getElementById("studentName").value.trim();
+      const admissionNumber = document.getElementById("admissionNumber").value.trim();
+
+      if (!name) return alert("Please enter the student's name.");
+      if (!admissionNumber) return alert("Please enter the admission number.");
+
+      const genderEl = document.querySelector('input[name="gender"]:checked');
+
+      const studentData = {
+        name,
+        dob: document.getElementById("studentDOB").value,
+        religion: document.getElementById("studentReligion").value,
+        nationality: document.getElementById("studentNationality").value,
+        gender: genderEl ? genderEl.value : "",
+        idNumber: document.getElementById("studentID").value.trim(),
+        guardian: document.getElementById("guardianName").value.trim(),
+        relationship: document.getElementById("guardianRelationship").value,
+        phone: document.getElementById("guardianPhone").value.trim(),
+        email: document.getElementById("guardianEmail").value.trim(),
+        address: document.getElementById("guardianAddress").value.trim(),
+        admissionNumber,
+        class: document.getElementById("studentClass").value,
+        consent: document.getElementById("consentCheck").checked,
+        Status: "Active",
+        Exceptions: {},
+        lastPayment: null
+      };
+
+      try {
+        await set(ref(db, `Institution/ Revival/Students/${admissionNumber}`), studentData);
+        closeDialog();
+        alert(`Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save student:\n" + error.message);
+      }
+    });
+
+    // ============================================================
+    // SAVE PAYMENT
+    // ============================================================
+    document.getElementById("savePaymentBtn")?.addEventListener("click", async () => {
+      const admissionNumber = document.getElementById("Fn_Admn").textContent.trim();
+      if (!admissionNumber) return alert("Please enter the admission number.");
+
+      const getValue = id =>
+        parseFloat(String(document.getElementById(id).value || 0).replace(/,/g, "")) || 0;
+
+      const amount = getValue("Fn_PaidAmount");
+      const currentBalance = parseFloat(String(document.getElementById("Fn_CurrentBalance").textContent.trim().replace(/,/g, "")));
+      const balance = currentBalance - amount;
+
+      const paymentData = {
+        term: getActiveTerm(),
+        fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
+        boarding: document.getElementById("guardianPhone").value.trim(),
+        class: document.getElementById("Fn_Grade").textContent.trim(),
+        entryDate: (() => {
+          const d = new Date();
+          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+        })(),
+        admissionNumber,
+        amount: formatCurrency(amount),
+        balance: formatCurrency(balance),
+        Account: document.getElementById("Fn_Account").value,
+        paymentDate: document.getElementById("Fn_PaymentDate").value,
+        paymentRef: document.getElementById("Fn_PaymentRef").value,
+        Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim())
+      };
+
+      try {
+        await push(
+          ref(db, "Institution/ Revival/Fee_payment/"),
+          paymentData
+        );
+
+        const admissionKey = admissionNumber.replace(/\//g, "-");
+
+        await update(
+          ref(db, `Institution/ Revival/Students/${admissionKey}`),
+          { lastPayment: paymentData }
+        );
+
+        document.getElementById("Fn_CurrentBalance").textContent=formatCurrency(balance);
+
+        alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
+
+
+
+
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save Payment:\n" + error.message);
+      }
+    });
+
+    // ============================================================
+    // SAVE CLASS DETAILS
+    // ============================================================
+    document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
+
+      const classData = {
+        grade: document.getElementById('gradeInput').value,
+        stream: document.getElementById('streamInput').value,
+        capacity: document.getElementById('capacityInput').value,
+        teacher: document.getElementById('teacherInput').value,
+        room: document.getElementById('roomInput').value
+      };
+
+      try {
+        await push(ref(db, `Institution/ Revival/classes/`), classData);
+
+        modalOverlay.classList.remove('active');
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save Class Details:\n" + error.message);
+      }
+    });
+
+    // Function to update a single field for a student
+    async function updateStudentField(admissionNumber, fieldName, fieldValue) {
+      if (!admissionNumber) {
+        alert("Please enter the admission number.");
+        return false;
+      }
+
+      if (!fieldName) {
+        alert("Please specify the field to update.");
+        return false;
+      }
+
+      try {
+        const updateData = {
+          [fieldName]: fieldValue
+        };
+
+        await update(ref(db, `Institution/ Revival/Students/${admissionNumber}`), updateData);
+        console.log(`Successfully updated ${fieldName} for student ${admissionNumber}`);
+        return true;
+      } catch (error) {
+        console.error(`Failed to update ${fieldName}:`, error);
+        alert(`Failed to update ${fieldName}:\n` + error.message);
+        return false;
+      }
+    }
+
+    // ============================================================
+    // POPULATE TABLE
+    // ============================================================
+    function populateStudentsTable(students) {
+      const tbody = document.querySelector(".register-table tbody");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+      if (!students) return;
+
+      // Sort students by grade and status
+      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
+        const gradeA = a.class || "";
+        const gradeB = b.class || "";
+
+        const isGraduateA = gradeA === "Graduate";
+        const isGraduateB = gradeB === "Graduate";
+        if (isGraduateA && !isGraduateB) return 1;
+        if (!isGraduateA && isGraduateB) return -1;
+
+        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+        if (isInactiveA && !isInactiveB) return 1;
+        if (!isInactiveA && isInactiveB) return -1;
+
+        const getGradeNumber = (grade) => {
+          const match = grade.match(/(\d+)/);
+          return match ? parseInt(match[1]) : -1;
+        };
+
+        const getGradePrefix = (grade) => {
+          const match = grade.match(/^([A-Za-z]+)/);
+          return match ? match[1].toUpperCase() : "";
+        };
+
+        const numA = getGradeNumber(gradeA);
+        const numB = getGradeNumber(gradeB);
+
+        if (numA !== numB) {
+          if (numA === -1 && numB !== -1) return 1;
+          if (numA !== -1 && numB === -1) return -1;
+          return numB - numA;
+        }
+
+        const prefixA = getGradePrefix(gradeA);
+        const prefixB = getGradePrefix(gradeB);
+
+        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+        const orderA = prefixOrder[prefixA] ?? 99;
+        const orderB = prefixOrder[prefixB] ?? 99;
+
+        return orderA - orderB;
+      });
+
+      let index = 1;
+
+      for (const [admissionNumber, student] of sortedStudents) {
+        const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
+
+        const isGraduate = student.class === "Graduate";
+        const status = isGraduate ? "Graduate" : (student.Status || "—");
+        const statusClass = isGraduate ? "late" :
+          status.toLowerCase() === "inactive" ? "absent" : "";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td class="col-check">
+              <input type="checkbox" class="custom-checkbox">
+            </td>
+            <td class="col-avatar">
+              <div class="avatar-wrapper">
+                <span class="avatar-placeholder">👤</span>
+              </div>
+            </td>
+            <td class="col-name">
+              <div class="student-info">
+                <span class="student-name clickable-name" data-student="${index}">
+                  ${student.name || "Unknown"}
+                </span>
+                <span class="student-id">${admissionNumber}</span>
+              </div>
+            </td>
+            <td class="col-grade">${student.class || "—"}</td>
+            <td class="col-dob">${formattedDob}</td>
+            <td class="col-national">${student.nationality || "—"}</td>
+            <td class="col-contact">${student.phone || "—"}</td>
+            <td class="col-status">
+              <span class="status-badge ${statusClass}">${status}</span>
+            </td>
+          `;
+        tbody.appendChild(row);
+        index++;
+      }
+    }
+
+    function populateFeeBalanceTable(students) {
+      const tbody = document.querySelector("#FeeBalanceList tbody");
+      if (!tbody || !students) return;
+
+      tbody.innerHTML = "";
+
+      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
+        const gradeA = a.class || "";
+        const gradeB = b.class || "";
+
+        const isGraduateA = gradeA === "Graduate";
+        const isGraduateB = gradeB === "Graduate";
+        if (isGraduateA && !isGraduateB) return 1;
+        if (!isGraduateA && isGraduateB) return -1;
+
+        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+        if (isInactiveA && !isInactiveB) return 1;
+        if (!isInactiveA && isInactiveB) return -1;
+
+        const getGradeNumber = (grade) => {
+          const match = grade.match(/(\d+)/);
+          return match ? parseInt(match[1]) : -1;
+        };
+
+        const getGradePrefix = (grade) => {
+          const match = grade.match(/^([A-Za-z]+)/);
+          return match ? match[1].toUpperCase() : "";
+        };
+
+        const numA = getGradeNumber(gradeA);
+        const numB = getGradeNumber(gradeB);
+
+        if (numA !== numB) {
+          if (numA === -1 && numB !== -1) return 1;
+          if (numA !== -1 && numB === -1) return -1;
+          return numB - numA;
+        }
+
+        const prefixA = getGradePrefix(gradeA);
+        const prefixB = getGradePrefix(gradeB);
+
+        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+        const orderA = prefixOrder[prefixA] ?? 99;
+        const orderB = prefixOrder[prefixB] ?? 99;
+
+        return orderA - orderB;
+      });
+
+      for (const [admissionNumber, student] of sortedStudents) {
+        const lp = student.lastPayment || {};
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+          <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+          <td class="col-name">
+            <div class="student-info">
+              <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
+              <span class="student-id">${admissionNumber}</span>
+            </div>
+          </td>
+          <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td> 
+          <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
+          <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
+          <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
+          <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
+          <td class="col-contact">${student.class || "—"}</td>
+        `;
+        tbody.appendChild(row);
+      }
+    }
+
+    // Function to populate fee payment history table
+    function populateFeePaymentHistory(paymentData, admissionNumber) {
+
+      const tableBody = document.querySelector('#feepaymentHistory tbody');
+      if (!tableBody) return;
+
+      tableBody.innerHTML = '';
+
+      const paymentDataArray = paymentData
+        ? (Array.isArray(paymentData)
+          ? paymentData
+          : Object.values(paymentData))
+        : [];
+
+      const filteredPayments = paymentDataArray.filter(payment => {
+        return String(payment.admissionNumber || '').trim() ===
+          String(admissionNumber || '').trim();
+      });
+
+      if (filteredPayments.length === 0) {
+        tableBody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center;">
+          No payment history available
+        </td>
+      </tr>
+    `;
+        return;
+      }
+
+      filteredPayments.forEach(payment => {
+
+        const row = document.createElement('tr');
+        const displayDate = formatDateToDDMMYYYY(payment.paymentDate) ||
+          formatDateToDDMMYYYY(payment.entryDate) || '—';
+
+        row.innerHTML = `
+          <td>${payment.term || '—'}</td>
+          <td>${formatCurrency(payment.fee)}</td>
+          <td>${formatCurrency(payment.Exemption)}</td>
+          <td>${formatCurrency(payment.amount)}</td>
+          <td>${formatCurrency(payment.balance)}</td>
+          <td>${displayDate}</td>
+          <td>${payment.Account || '—'}</td>
+          <td>${payment.paymentRef || '—'}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // ============================================================
+    // REAL-TIME LISTENERS
+    // ============================================================
+    onValue(studentsRef, (snapshot) => {
+      studentsCache = snapshot.exists() ? snapshot.val() : {};
+      populateStudentsTable(studentsCache);
+      populateFeeBalanceTable(studentsCache);
+      document.getElementById('autoGenerate')
+        .dispatchEvent(new Event('change'));
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load students:\n" + error.message);
+    });
+
+    onValue(feepaymentRef, (snapshot) => {
+      paymentCache = snapshot.exists() ? snapshot.val() : {};
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load students:\n" + error.message);
+    });
+
+    let classData = [];
+
+    // ---------- DATA STORE ----------
+    let terms = [];
+
+    // ---------- DOM REFS ----------
+    const Termgrid = document.getElementById('termGrid');
+    const totalTermsSpan = document.getElementById('totalTerms');
+    const totalFeesSpan = document.getElementById('totalFees');
+    const totalGradesSpan = document.getElementById('totalGrades');
+
+    const modal = document.getElementById('termModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const termIdInput = document.getElementById('termIdInput');
+    const statusSelect = document.getElementById('statusSelect');
+    const startDateInput = document.getElementById('startDateInput');
+    const endDateInput = document.getElementById('endDateInput');
+    const mealInput = document.getElementById('mealInput');
+    const transportInput = document.getElementById('transportInput');
+    const boardingInput = document.getElementById('boardingInput');
+    const breakInput = document.getElementById('breakInput');
+    const gradeFeesContainer = document.getElementById('gradeFeesContainer');
+    const newGradeInput = document.getElementById('newGradeInput');
+    const newGradeFeeInput = document.getElementById('newGradeFeeInput');
+    const addGradeBtn = document.getElementById('addGradeBtn');
+
+    const addBtn = document.getElementById('addTermBtn');
+    const closeBtn = document.getElementById('closeTermModalBtn');
+    const cancelBtn = document.getElementById('cancelTermModalBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const form = document.getElementById('termForm');
+
+    // ---------- STATE ----------
+    let editingIndex = -1;
+
+    // ---------- DEFAULT GRADES ----------
+    let defaultGrades = {};
+
+    const getDefaultGrades = (classData) => {
+      const grades = {};
+
+      classData.forEach(cls => {
+        const grade = cls.grade || 'Unknown';
+        grades[grade] = 0;
+      });
+
+      return grades;
+    };
+
+    onValue(classRef, (snapshot) => {
+
+      if (snapshot.exists()) {
+
+        classData = Object.values(snapshot.val()).map(data => ({
+          grade: data.grade || '',
+          stream: data.stream || '',
+          room: data.room || '',
+          capacity: data.capacity || 0,
+          teacher: data.teacher || ''
+        }));
+
+      } else {
+
+        classData = [];
+
+      }
+
+      defaultGrades = getDefaultGrades(classData);
+      renderClasses(classData);
+      populateClassSelect(classData);
+
+    }, (error) => {
+
+      console.error("Realtime error:", error);
+      alert("Failed to load classes:\n" + error.message);
+
+    });
+
+    const grid = document.getElementById('classGrid');
+    // render cards
+    function renderClasses(classes) {
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      classes.forEach(cls => {
+        const card = document.createElement('div');
+        card.className = 'class-card';
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'class-header';
+
+        const gradeStreamDiv = document.createElement('div');
+        gradeStreamDiv.className = 'grade-stream';
+        const gradeSpan = document.createElement('span');
+        gradeSpan.className = 'grade';
+        gradeSpan.textContent = cls.grade;
+        const streamSpan = document.createElement('span');
+        streamSpan.className = 'stream';
+        streamSpan.textContent = cls.stream;
+        gradeStreamDiv.appendChild(gradeSpan);
+        gradeStreamDiv.appendChild(streamSpan);
+
+        const teacherBadge = document.createElement('div');
+        teacherBadge.className = 'teacher-badge';
+        teacherBadge.innerHTML = `<i class="fas fa-user-graduate"></i> ${cls.teacher.split(' ').slice(-1)[0]}`;
+
+        headerDiv.appendChild(gradeStreamDiv);
+        headerDiv.appendChild(teacherBadge);
+        card.appendChild(headerDiv);
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'class-details';
+
+        const roomRow = document.createElement('div');
+        roomRow.className = 'detail-row';
+        roomRow.innerHTML = `<i class="fas fa-door-open"></i><span class="detail-label">Room</span><span class="detail-value">${cls.room}</span>`;
+        detailsDiv.appendChild(roomRow);
+
+        const capacityRow = document.createElement('div');
+        capacityRow.className = 'detail-row';
+        capacityRow.innerHTML = `<i class="fas fa-user-friends"></i><span class="detail-label">Capacity</span><span class="detail-value">${cls.capacity}</span>`;
+        detailsDiv.appendChild(capacityRow);
+
+        const teacherRow = document.createElement('div');
+        teacherRow.className = 'detail-row';
+        teacherRow.innerHTML = `<i class="fas fa-chalkboard-teacher"></i><span class="detail-label">Teacher</span><span class="detail-value">${cls.teacher}</span>`;
+        detailsDiv.appendChild(teacherRow);
+
+        card.appendChild(detailsDiv);
+
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'class-footer';
+        const teacherChip = document.createElement('div');
+        teacherChip.className = 'class-teacher';
+        teacherChip.innerHTML = `<i class="fas fa-user-tie"></i> ${cls.teacher}`;
+        footerDiv.appendChild(teacherChip);
+        card.appendChild(footerDiv);
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Populate class select dropdown
+    function populateClassSelect(classData) {
+      const select = document.getElementById('studentClass');
+      if (!select) return;
+
+      select.innerHTML = '';
+
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select Class';
+      select.appendChild(defaultOption);
+
+      const classMap = new Map();
+
+      classData.forEach(cls => {
+        const key = `${cls.grade}|${cls.stream}`;
+        if (!classMap.has(key)) {
+          classMap.set(key, {
+            grade: cls.grade,
+            stream: cls.stream
+          });
+        }
+      });
+
+      const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
+        const gradeOrder = {
+          'Pre-primary': 0,
+          'Grade 1': 1,
+          'Grade 2': 2,
+          'Grade 3': 3,
+          'Grade 4': 4,
+          'Grade 5': 5,
+          'Grade 6': 6,
+          'Grade 7': 7,
+          'Grade 8': 8,
+          'Form 1': 9,
+          'Form 2': 10,
+          'Form 3': 11,
+          'Form 4': 12
+        };
+
+        const aOrder = gradeOrder[a.grade] || 999;
+        const bOrder = gradeOrder[b.grade] || 999;
+
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return (a.stream || '').localeCompare(b.stream || '');
+      });
+
+      uniqueClasses.forEach(cls => {
+        const option = document.createElement('option');
+        let displayText = cls.grade;
+        if (cls.stream) {
+          displayText += ` - ${cls.stream}`;
+        }
+        option.value = displayText;
+        option.textContent = displayText;
+        select.appendChild(option);
+      });
+    }
+
+    // ---------- MODAL CONTROL ----------
+    function openModal(index) {
+      editingIndex = index;
+      if (index === -1) {
+        modalTitle.textContent = 'New Term';
+        termIdInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        statusSelect.value = 'Active';
+        mealInput.value = '0.00';
+        transportInput.value = '0.00';
+        boardingInput.value = '0.00';
+        breakInput.value = '0.00';
+        renderGradeFees(defaultGrades);
+      } else {
+        modalTitle.textContent = 'Edit Term';
+        const t = terms[index];
+        termIdInput.value = t.termId || '';
+        startDateInput.value = t.start ? t.start.split('T')[0] : '';
+        endDateInput.value = t.end ? t.end.split('T')[0] : '';
+        statusSelect.value = t.status || 'Active';
+        mealInput.value = (t.meal || 0).toFixed(2);
+        transportInput.value = (t.transport || 0).toFixed(2);
+        boardingInput.value = (t.boarding || 0).toFixed(2);
+        breakInput.value = (t.breakFee || 0).toFixed(2);
+        renderGradeFees(t.grades || defaultGrade);
+      }
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      editingIndex = -1;
+    }
+
+    // ---------- RENDER GRADE FEE ROWS ----------
+    function renderGradeFees(grades) {
+      gradeFeesContainer.innerHTML = '';
+
+      if (!grades) grades = defaultGrades();
+
+      for (const [grade, fee] of Object.entries(grades)) {
+        const displayGrade = /^\d+$/.test(grade)
+          ? `Grade ${grade}`
+          : grade;
+
+        const row = document.createElement('div');
+        row.className = 'grade-fee-row';
+
+        row.innerHTML = `
+            <label>${displayGrade}</label>
+            <input 
+                type="number" 
+                step="0.01" 
+                class="grade-fee-input" 
+                data-grade="${grade}" 
+                value="${fee}" 
+            />
+            <button 
+                type="button" 
+                class="btn-remove-grade" 
+                data-grade="${grade}"
+            >✕</button>
+        `;
+
+        gradeFeesContainer.appendChild(row);
+      }
+
+      gradeFeesContainer.querySelectorAll('.btn-remove-grade').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const row = this.closest('.grade-fee-row');
+          if (row) row.remove();
+        });
+      });
+    }
+
+    async function saveTerm(e) {
+      e.preventDefault();
+
+      const termId = termIdInput.value.trim();
+      const start = startDateInput.value;
+      const end = endDateInput.value;
+      const status = statusSelect.value;
+
+      const meal = parseFloat(mealInput.value) || 0;
+      const transport = parseFloat(transportInput.value) || 0;
+      const boarding = parseFloat(boardingInput.value) || 0;
+      const breakFee = parseFloat(breakInput.value) || 0;
+
+      const grades = collectGrades();
+
+      if (!termId) {
+        alert('Term ID is required.');
+        return;
+      }
+
+      if (!start) {
+        alert('Start date is required.');
+        return;
+      }
+
+      if (!end) {
+        alert('End date is required.');
+        return;
+      }
+
+      if (new Date(start) > new Date(end)) {
+        alert('Start date must be before end date.');
+        return;
+      }
+
+      if (Object.keys(grades).length === 0) {
+        alert('Add at least one grade with fee.');
+        return;
+      }
+
+      const termObj = {
+        termId: termId,
+        start: start,
+        end: end,
+        status: status,
+        meal: meal,
+        transport: transport,
+        boarding: boarding,
+        breakFee: breakFee,
+        grades: grades
+      };
+
+      try {
+        await set(
+          ref(db, `Institution/ Revival/terms/${termId}`),
+          termObj
+        );
+
+        terms.push(termObj);
+        closeModal();
+
+      } catch (error) {
+        console.error("Error saving term:", error);
+        alert("Failed to save Term Details:\n" + error.message);
+      }
+    }
+
+    onValue(termRef, (snapshot) => {
+
+      if (snapshot.exists()) {
+
+        terms = Object.entries(snapshot.val()).map(([key, data]) => ({
+          termId: key,
+          start: data.start || '',
+          end: data.end || '',
+          status: data.status || 'Active',
+          meal: parseFloat(data.meal) || 0,
+          transport: parseFloat(data.transport) || 0,
+          boarding: parseFloat(data.boarding) || 0,
+          breakFee: parseFloat(data.breakFee) || 0,
+          grades: data.grades || {}
+        }));
+
+      } else {
+
+        terms = [];
+
+      }
+
+      renderGrid();
+      populateFeeBalanceTable(studentsCache);
+
+    }, (error) => {
+
+      console.error("Realtime error:", error);
+      alert("Failed to load terms:\n" + error.message);
+
+    });
+
+    function collectGrades() {
+      const grades = {};
+
+      const inputs = gradeFeesContainer.querySelectorAll('.grade-fee-input');
+
+      inputs.forEach(inp => {
+        const grade = inp.dataset.grade;
+        const val = parseFloat(inp.value) || 0;
+
+        if (grade) {
+          grades[grade] = val;
+        }
+      });
+
+      return grades;
+    }
+
+    // ---------- RENDER GRID ----------
+    function renderGrid() {
+      Termgrid.innerHTML = '';
+
+      if (terms.length === 0) {
+        Termgrid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-plus"></i>
+                <p>No terms yet. Click <strong>"New Term"</strong> to add one.</p>
+            </div>
+        `;
+        updateStats();
+        return;
+      }
+
+      terms.forEach((term, idx) => {
+        const card = document.createElement('div');
+        card.className = 'term-card';
+
+        const statusClass =
+          term.status === 'Active' ? '' :
+            term.status === 'Inactive' ? 'inactive' : 'closed';
+
+        const startDate = formatDateToDDMMYYYY(term.start);
+        const endDate = formatDateToDDMMYYYY(term.end);
+
+        let gradesHtml = '';
+        const gradeEntries = Object.entries(term.grades || {});
+
+        if (gradeEntries.length > 0) {
+          gradesHtml = gradeEntries.map(([g, f]) => {
+            const displayGrade = /^\d+$/.test(g)
+              ? `Grade ${g}`
+              : g;
+
+            return `
+                    <span class="grade-chip">
+                        ${displayGrade}
+                        <span class="fee">${formatCurrency(f)}</span>
+                    </span>
+                `;
+          }).join('');
+        } else {
+          gradesHtml = '<span style="color:#6b7e93;">No grades set</span>';
+        }
+
+        card.innerHTML = `
+            <div class="term-card-header">
+                <span class="term-id">
+                    <i class="fas fa-tag" style="color:#2a7de1; margin-right:0.3rem;"></i>
+                    ${term.termId || '—'}
+                </span>
+                <span class="term-status ${statusClass}">
+                    ${term.status || '—'}
+                </span>
+            </div>
+
+            <div class="term-dates">
+                <span>
+                    <i class="fas fa-calendar-day"></i> ${startDate}
+                </span>
+                <span>
+                    <i class="fas fa-calendar-day"></i> ${endDate}
+                </span>
+            </div>
+
+            <div class="term-fees">
+                <div class="fee-item">
+                    <span class="label">Meal</span>
+                    <span class="value">${formatCurrency(term.meal)}</span>
+                </div>
+
+                <div class="fee-item">
+                    <span class="label">Transport</span>
+                    <span class="value">${formatCurrency(term.transport)}</span>
+                </div>
+
+                <div class="fee-item">
+                    <span class="label">Boarding</span>
+                    <span class="value">${formatCurrency(term.boarding)}</span>
+                </div>
+
+                <div class="fee-item">
+                    <span class="label">Break</span>
+                    <span class="value">${formatCurrency(term.breakFee)}</span>
+                </div>
+            </div>
+
+            <div class="term-grades">
+                <span class="label">Grade Fees</span>
+                <div class="grade-chips">
+                    ${gradesHtml}
+                </div>
+            </div>
+
+            <div class="term-actions-card">
+                <button class="btn btn-outline btn-sm edit-btn" data-index="${idx}">
+                    <i class="fas fa-pen"></i> Edit
+                </button>
+
+                <button class="btn btn-outline btn-sm delete-btn"
+                        data-index="${idx}"
+                        style="border-color:#fca5a5; color:#991b1b;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+
+        Termgrid.appendChild(card);
+      });
+
+      Termgrid.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const idx = parseInt(this.dataset.index);
+          openModal(idx);
+        });
+      });
+
+      Termgrid.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const idx = parseInt(this.dataset.index);
+
+          if (confirm('Delete this term?')) {
+            terms.splice(idx, 1);
+            renderGrid();
+          }
+        });
+      });
+
+      updateStats();
+    }
+
+    // ---------- UPDATE STATS ----------
+    function updateStats() {
+      totalTermsSpan.textContent = terms.length;
+
+      let totalFees = 0;
+      let gradeSet = new Set();
+      terms.forEach(t => {
+        totalFees += (t.meal || 0) + (t.transport || 0) + (t.boarding || 0) + (t.breakFee || 0);
+        if (t.grades) {
+          Object.keys(t.grades).forEach(g => gradeSet.add(g));
+        }
+      });
+      totalFeesSpan.textContent = formatCurrency(totalFees);
+      totalGradesSpan.textContent = gradeSet.size;
+    }
+
+    function getFeeForGrade(grade) {
+
+      if (!grade) return "0.00";
+
+      grade = String(grade).split('-')[0].trim();
+
+      const activeTerm = terms.find(term =>
+        String(term.status || '').trim().toLowerCase() === 'active'
+      );
+
+      if (!activeTerm) {
+        console.warn("No active term found. Loaded terms:", terms);
+        return "0.00";
+      }
+
+      if (
+        !activeTerm.grades ||
+        !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)
+      ) {
+        return "0.00";
+      }
+
+      const gradeFee = parseFloat(activeTerm.grades[grade]) || 0;
+      const meal = parseFloat(activeTerm.meal) || 0;
+      const transport = parseFloat(activeTerm.transport) || 0;
+      const boarding = parseFloat(activeTerm.boarding) || 0;
+      const breakFee = parseFloat(activeTerm.breakFee) || 0;
+
+      return formatCurrency(gradeFee + meal + transport + boarding + breakFee);
+    }
+
+    addBtn.addEventListener('click', () => openModal(-1));
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    form.addEventListener('submit', saveTerm);
+
+    // ============================================================
+    // GET CHECKED STUDENT + POPULATE FORM (Exposed to C#)
+    // ============================================================
+    window.getCheckedStudentAndPopulate = function () {
+      const checked = document.querySelectorAll(".register-table tbody .custom-checkbox:checked");
+
+      if (checked.length === 0) return alert("Please select a student first.") || null;
+      if (checked.length > 1) return alert("Select only one student.") || null;
+
+      const admissionNumber = checked[0].closest("tr").querySelector(".student-id")?.textContent.trim();
+      const s = studentsCache[admissionNumber];
+
+      if (!s) return alert("Student data not found.") || null;
+
+      const set = (id, val) => document.getElementById(id).value = val || "";
+      set("studentName", s.name);
+      set("studentDOB", s.dob);
+      set("studentReligion", s.religion);
+      set("studentNationality", s.nationality);
+      set("studentID", s.idNumber);
+      set("guardianName", s.guardian);
+      set("guardianRelationship", s.relationship);
+      set("guardianPhone", s.phone);
+      set("guardianEmail", s.email);
+      set("guardianAddress", s.address);
+      set("admissionNumber", s.admissionNumber || admissionNumber);
+      set("studentClass", s.class);
+      document.getElementById("consentCheck").checked = !!s.consent;
+
+      if (s.gender) {
+        const radio = document.querySelector(`input[name="gender"][value="${s.gender}"]`);
+        if (radio) radio.checked = true;
+      }
+
+      if (typeof window.openDialog === "function") {
+        window.openDialog();
+        const btn = document.getElementById("saveStudent");
+        const Auto = document.getElementById("autoGenerate");
+        if (btn) btn.textContent = "Update";
+        if (Auto) Auto.disabled = true;
+      }
+
+      return s;
+    };
+
+    function getLastPayment(admission) {
+
+      if (!admission || !studentsCache) {
+        return {};
+      }
+
+      const student = studentsCache[admission];
+
+      if (!student) {
+        return {};
+      }
+
+      return student.lastPayment || {};
+    }
+
+    function getStudentExceptions(admissionNumber) {
+      if (!admissionNumber || !studentsCache) {
+        return {};
+      }
+
+      const student = studentsCache[admissionNumber];
+
+      if (!student) {
+        console.warn(`Student not found: ${admissionNumber}`);
+        return {};
+      }
+
+      return student.Exceptions || {};
+    }
+
+    function getCurrent(admission) {
+      if (!admission || !studentsCache) {
+        return "0.00";
+      }
+
+      const student = studentsCache[admission];
+
+      if (!student) {
+        return "0.00";
+      }
+
+      const gradeFee = getStudentRequiredFee(admission);
+
+      if (gradeFee === "Sponsored") {
+        return "Sponsored";
+      }
+
+      if (!student.lastPayment) {
+        return formatCurrency(gradeFee);
+      }
+
+      const balance = student.lastPayment.balance;
+      const last_balance =
+        parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
+
+      const activeTerm = getActiveTerm();
+
+      if (!activeTerm) {
+        return formatCurrency(last_balance);
+      }
+
+      if (student.lastPayment.term !== activeTerm) {
+        return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
+      }
+
+      return formatCurrency(last_balance);
+    }
+
+    function getActiveTerm() {
+      const activeTerm = terms.find(term =>
+        String(term.status || '').trim().toLowerCase() === 'active'
+      );
+
+      return activeTerm ? activeTerm.termId : null;
+    }
+
+    function getStudentExceptionAmount(admissionNumber) {
+      if (!admissionNumber) return "0.00";
+
+      const exceptions = getStudentExceptions(admissionNumber) || {};
+      const activeTerm = terms.find(term =>
+        String(term.status || '').trim().toLowerCase() === 'active'
+      );
+
+      if (!activeTerm) {
+        console.warn("No active term found.");
+        return "0.00";
+      }
+
+      const fees = {
+        meal: parseFloat(activeTerm.meal) || 0,
+        boarding: parseFloat(activeTerm.boarding) || 0,
+        break: parseFloat(activeTerm.breakFee) || 0
+      };
+
+      if (exceptions.Sponsored) return formatCurrency(fees.meal + fees.boarding + fees.break);
+      if (exceptions.Boarding) return formatCurrency(fees.boarding);
+      if (exceptions.meals) return formatCurrency(fees.meal);
+      if (exceptions.Break) return formatCurrency(fees.break);
+
+      return "0.00";
+    }
+
+    function getStudentGrade(admission) {
+
+      if (!admission || !studentsCache) {
+        return '';
+      }
+
+      const student = studentsCache[admission];
+
+      if (!student) {
+        return '';
+      }
+
+      return String(student.class || '').split('-')[0].trim();
+    }
+
+    function getStudentRequiredFee(admissionNumber) {
+      if (!admissionNumber || !studentsCache) return "0.00";
+
+      const student = studentsCache[admissionNumber];
+      if (!student?.class) return "0.00";
+
+      const grade = String(student.class).split('-')[0].trim();
+      const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
+
+      if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
+
+      const fees = {
+        grade: parseFloat(activeTerm.grades[grade]) || 0,
+        meal: parseFloat(activeTerm.meal) || 0,
+        transport: parseFloat(activeTerm.transport) || 0,
+        boarding: parseFloat(activeTerm.boarding) || 0,
+        break: parseFloat(activeTerm.breakFee) || 0
+      };
+
+      if (/[789]/.test(grade)) {
+        fees.boarding = Math.max(0, fees.boarding - 2000);
+      }
+
+      const ex = student.Exceptions || {};
+
+      if (ex.Sponsored === true) return "Sponsored";
+
+      let requiredFee = fees.grade;
+
+      if (ex.Boarding === true) {
+        return formatCurrency(requiredFee + fees.boarding);
+      }
+
+      requiredFee += fees.transport;
+      if (ex.meals === true) requiredFee += fees.meal;
+      if (ex.Break === true) requiredFee += fees.break;
+
+      return formatCurrency(requiredFee);
+    }
+
+    function studentExceptions(admissionNumber) {
+      if (!admissionNumber || !studentsCache) return "0.00";
+
+      const student = studentsCache[admissionNumber];
+      if (!student?.class) return "0.00";
+
+      const grade = String(student.class).split('-')[0].trim();
+      const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
+
+      if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
+
+      const fees = {
+        meal: parseFloat(activeTerm.meal) || 0,
+        transport: parseFloat(activeTerm.transport) || 0,
+        boarding: parseFloat(activeTerm.boarding) || 0,
+        break: parseFloat(activeTerm.breakFee) || 0
+      };
+
+      const isSeniorGrade = /[789]/.test(grade);
+
+      if (isSeniorGrade) {
+        fees.boarding = Math.max(0, fees.boarding - 2000);
+      }
+
+      const ex = student.Exceptions || {};
+
+      if (ex.Sponsored === true) return "Sponsored";
+
+      if (ex.Boarding === true) return "0.00";
+
+      let falseExceptionsSum = 0;
+
+      if (isSeniorGrade) falseExceptionsSum += fees.boarding;
+      if (ex.meals !== true) falseExceptionsSum += fees.meal;
+      if (ex.Break !== true) falseExceptionsSum += fees.break;
+      if (ex.Sponsored !== true) falseExceptionsSum += fees.transport;
+
+      return formatCurrency(falseExceptionsSum);
+    }
+
+    function getInstallmentsForStudent(admissionNumber) {
+      const activeTerm = getActiveTerm();
+      let totalInstallments = 0;
+
+      const normalizedAdmissionNumber = admissionNumber.replace(/-/g, "/");
+
+      if (!paymentCache || typeof paymentCache !== 'object') {
+        console.warn("Payment cache is empty or invalid");
+        return "0.00";
+      }
+
+      Object.values(paymentCache).forEach(payment => {
+        const paymentAdmissionNumber = payment.admissionNumber ?
+          payment.admissionNumber.replace(/-/g, "/") : "";
+
+        if (paymentAdmissionNumber === normalizedAdmissionNumber &&
+          payment.term === activeTerm) {
+
+          // Fix: Remove commas before parsing
+          let paymentAmount = 0;
+          if (typeof payment.amount === 'string') {
+            paymentAmount = parseFloat(payment.amount.replace(/,/g, '')) || 0;
+          } else {
+            paymentAmount = parseFloat(payment.amount) || 0;
+          }
+
+          totalInstallments += paymentAmount;
+        }
+      });
+
+      return formatCurrency(totalInstallments);
+    }
+
+    function getBalanceBefore(admissionNumber) {
+      const normalizedAdmission = admissionNumber.replace(/-/g, "/");
+      const activeTerm = getActiveTerm();
+      let lastBalance = 0;
+
+      Object.values(paymentCache || {}).forEach(payment => {
+        if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission &&
+          payment.term !== activeTerm) {
+
+          // Fix: Remove commas before parsing
+          if (typeof payment.balance === 'string') {
+            lastBalance = parseFloat(payment.balance.replace(/,/g, '')) || 0;
+          } else {
+            lastBalance = Number(payment.balance) || 0;
+          }
+        }
+      });
+
+      return formatCurrency(lastBalance);
+    }
+
+    // ============================================================
+    // GET NEXT ADMISSION NUMBER
+    // ============================================================
+    function getNextAdmissionNumber() {
+
+      const prefix = "RS";
+      const year = new Date().getFullYear();
+
+      let highestNumber = 0;
+
+      if (studentsCache && typeof studentsCache === "object") {
+
+        Object.keys(studentsCache).forEach(admissionNumber => {
+
+          const parts = String(admissionNumber).split("-");
+
+          if (parts.length !== 3) return;
+
+          const admissionPrefix = parts[0];
+          const admissionYear = parts[1];
+          const admissionNumber1 = parseInt(parts[2], 10);
+
+          if (
+            admissionPrefix === prefix &&
+            admissionYear === String(year) &&
+            !isNaN(admissionNumber1)
+          ) {
+            highestNumber = Math.max(
+              highestNumber,
+              admissionNumber1
+            );
+          }
+
+        });
+      }
+
+      const nextNumber = highestNumber + 1;
+
+      return `${prefix}-${year}-${nextNumber}`;
+    }
+
+    // ============================================================
+    // AUTO-GENERATE ADMISSION NUMBER
+    // ============================================================
+    document.getElementById('autoGenerate').addEventListener('change', function () {
+
+      const admissionInput = document.getElementById('admissionNumber');
+      const year = new Date().getFullYear();
+      if (this.checked) {
+
+        admissionInput.value = getNextAdmissionNumber();
+        admissionInput.disabled = true;
+
+      } else {
+
+        admissionInput.value = `RS-${year}-`;
+        admissionInput.disabled = false;
+        admissionInput.focus();
+      }
+    });
+
+    window.getCheckedStudentAndPopulateFee = function () {
+
+      const checked = document.querySelectorAll(
+        "#FeeBalanceList tbody .custom-checkbox:checked"
+      );
+
+      if (checked.length > 1) {
+        alert("Select only one student.");
+        return null;
+      }
+
+      if (checked.length === 0) {
+
+        if (typeof window.openDialog2 === "function") {
+          window.openDialog2();
+        }
+
+        return null;
+      }
+
+      const row = checked[0].closest("tr");
+
+      const admissionNumber = row
+        ?.querySelector(".student-id")
+        ?.textContent
+        .trim();
+
+      if (!admissionNumber) {
+
+        if (typeof window.openDialog2 === "function") {
+          window.openDialog2();
+        }
+
+        return null;
+      }
+
+      const s = studentsCache?.[admissionNumber];
+
+      if (!s) {
+
+        if (typeof window.openDialog2 === "function") {
+          window.openDialog2();
+        }
+
+        return null;
+      }
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val ?? "";
+      };
+
+      set("Fn_Name", s.name);
+      set("Fn_Grade", s.class);
+      set("Fn_Admn", s.admissionNumber || admissionNumber);
+      set("Fn_CurrentFee", getStudentRequiredFee(admissionNumber));
+      set("Fn_CurrentBalance", getCurrent(admissionNumber));
+      set("Fn_studentExceptions", studentExceptions(admissionNumber));
+      set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
+
+      populateFeePaymentHistory(
+        paymentCache,
+        admissionNumber
+      );
+
+      if (typeof window.openDialog2 === "function") {
+        window.openDialog2(admissionNumber);
+      }
+
+      return s;
+    };
+
+    // ----- Double-click student row to open edit dialog -----
+    document.getElementById('FeeBalanceList')?.addEventListener('dblclick', function (e) {
+
+      const row = e.target.closest('tbody tr');
+
+      if (!row || e.target.closest('.col-check')) return;
+
+      const admissionNumber =
+        row.querySelector('.student-id')?.textContent.trim();
+
+      selectStudentForFee(admissionNumber);
+    });
+
+    document.getElementById('FeeBalanceListX')?.addEventListener('click', function (e) {
+
+      const row = e.target.closest('tbody tr');
+
+      if (!row || e.target.closest('.col-check')) return;
+
+      const admissionNumber = row
+        .querySelector('.student-id')
+        ?.textContent
+        .trim();
+
+      if (!admissionNumber) {
+        return alert("Admission number not found.");
+      }
+
+      const exceptions = getStudentExceptions(admissionNumber);
+
+      console.log("Admission Number:", admissionNumber);
+      console.log("Student Exceptions:", exceptions);
+
+      alert(
+        `Admission Number: ${admissionNumber}\n\n` +
+        `Boarding: ${exceptions.Boarding}\n` +
+        `Break: ${exceptions.Break}\n` +
+        `Sponsored: ${exceptions.Sponsored}\n` +
+        `Meals: ${exceptions.meals}`
+      );
+
+    });
+
+    function setupStudentSearch() {
+      const searchInput = document.getElementById("Searchtext");
+
+      if (!searchInput) return;
+
+      const suggestionBox = document.createElement("div");
+
+      suggestionBox.style.cssText = `
+        position: absolute;
+        background: white;
+        width: 250px;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        z-index: 9999;
+        display: none;
+        font-size: 12px;
+    `;
+
+      document.body.appendChild(suggestionBox);
+
+      searchInput.addEventListener("input", function () {
+
+        const searchText = this.value.trim().toLowerCase();
+
+        suggestionBox.innerHTML = "";
+
+        if (!searchText || !studentsCache) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        const matches = Object.entries(studentsCache)
+          .filter(([key, student]) => {
+            const name = String(student.name || "").toLowerCase();
+            return name.includes(searchText);
+          })
+          .slice(0, 10);
+
+        if (matches.length === 0) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        matches.forEach(([key, student]) => {
+
+          const item = document.createElement("div");
+
+          item.textContent = student.name || "Unknown Student";
+
+          item.style.cssText = `
+                padding: 8px;
+                cursor: pointer;
+                border-bottom: 1px solid #eee;
+            `;
+
+          item.addEventListener("mouseenter", () => {
+            item.style.background = "#f1f1f1";
+          });
+
+          item.addEventListener("mouseleave", () => {
+            item.style.background = "white";
+          });
+
+          item.addEventListener("click", () => {
+
+            const admissionNumber =
+              student.admissionNumber || key;
+
+            searchInput.value = student.name || "";
+
+            suggestionBox.style.display = "none";
+
+            selectStudentForFee(admissionNumber.replace(/\//g, "-"));
+          });
+
+          suggestionBox.appendChild(item);
+        });
+
+        const rect = searchInput.getBoundingClientRect();
+
+        suggestionBox.style.left =
+          `${rect.left + window.scrollX}px`;
+
+        suggestionBox.style.top =
+          `${rect.bottom + window.scrollY}px`;
+
+        suggestionBox.style.width =
+          `${rect.width}px`;
+
+        suggestionBox.style.display = "block";
+      });
+
+      document.addEventListener("click", function (e) {
+        if (
+          e.target !== searchInput &&
+          !suggestionBox.contains(e.target)
+        ) {
+          suggestionBox.style.display = "none";
+        }
+      });
+    }
+
+    function selectStudentForFee(admissionNumber) {
+      if (!admissionNumber) return alert("Admission number not found.");
+
+      const s = studentsCache[admissionNumber];
+      if (!s) return alert("Student not found.");
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || "";
+      };
+
+      const payment = getLastPayment(s.admissionNumber);
+
+      set("Fn_Name", s.name);
+      set("Fn_Grade", s.class);
+      set("Fn_Admn", s.admissionNumber);
+      set("Fn_CurrentFee", getStudentRequiredFee(admissionNumber));
+      set("Fn_CurrentBalance", getCurrent(admissionNumber));
+      set("Fn_studentExceptions", studentExceptions(admissionNumber));
+      set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
+
+      populateFeePaymentHistory(paymentCache, s.admissionNumber);
+
+      window.openDialog2(admissionNumber);
+    }
+
+    // Call after studentsCache has been populated
+    setupStudentSearch();
+
+  </script>
+</body>
+
+
+</html>
