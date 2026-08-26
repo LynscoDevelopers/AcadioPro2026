@@ -2965,6 +2965,9 @@
 
         const row = document.createElement('tr');
 
+        // Store Firebase push key in the row
+        row.dataset.key = payment.key || '';
+
         const displayDate =
           formatDateToDDMMYYYY(payment.paymentDate) ||
           formatDateToDDMMYYYY(payment.entryDate) ||
