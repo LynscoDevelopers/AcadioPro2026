@@ -2119,390 +2119,6 @@
   <script src="paymentReciept.js"></script>
 
 
-
-  <script>
-    (function () {
-      "use strict";
-
-      // ----- DOM elements for first dialog -----
-      const overlay = document.getElementById('dialogOverlay');
-      const openBtn = document.getElementById('openDialogBtn');
-      const openBtn3 = document.getElementById('openDialogBtn3');
-
-      const SaveUpdateBtn = document.getElementById('saveStudent');
-
-      const openBtn2 = document.getElementById('openDialogBtn2');
-      const closeIcon = document.getElementById('closeDialogIcon');
-      const closeSecondary = document.getElementById('closeDialogSecondary');
-      const confirmBtn = document.getElementById('confirmDialogBtn');
-
-      // ----- DOM elements for second dialog -----
-      const overlay2 = document.getElementById('dialogOverlay2');
-      const closeIcon2 = document.getElementById('closeDialogIcon2');
-      const closeSecondary2 = document.getElementById('closeDialogSecondary2');
-      const confirmBtn2 = document.getElementById('confirmDialogBtn2');
-
-      // ----- helper functions (open / close) for first dialog -----
-      window.openDialog = function () {
-        switchDialogTab(0);
-        overlay.classList.add('active');
-
-        setTimeout(() => {
-          closeIcon.focus();
-        }, 50);
-      };
-
-      function closeDialog() {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        if (openBtn) openBtn.focus();
-
-      }
-
-      // ----- helper functions for second dialog -----
-      const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
-      const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
-
-      function switchDialogTab2(index) {
-        dialogTabBtns2.forEach(btn => btn.classList.remove('active'));
-        dialogTabPanels2.forEach(panel => panel.classList.remove('active'));
-        if (dialogTabBtns2[index] && dialogTabPanels2[index]) {
-          dialogTabBtns2[index].classList.add('active');
-          dialogTabPanels2[index].classList.add('active');
-        }
-      }
-
-      window.openDialog2 = function () {
-        switchDialogTab2(0);
-        overlay2.classList.add('active');
-        setTimeout(() => {
-          closeIcon2.focus();
-        }, 50);
-        document.body.style.overflow = 'hidden';
-      }
-
-      function closeDialog2() {
-        overlay2.classList.remove('active');
-        document.body.style.overflow = '';
-        if (openBtn2) openBtn2.focus();
-      }
-
-      // ----- event listeners for first dialogue -----
-      if (openBtn) {
-
-        openBtn.addEventListener('click', openDialog);
-
-        openBtn.addEventListener('click', function () {
-
-          if (SaveUpdateBtn.textContent === "Update") {
-            const inputs = document.querySelectorAll(
-              '#dialogOverlay .form-input, #dialogOverlay textarea.form-input'
-            );
-
-            inputs.forEach(input => {
-
-              if (input.type === 'checkbox' || input.type === 'radio') {
-                input.checked = false;
-
-              } else if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-
-              } else {
-                input.value = '';
-              }
-            });
-
-            // Reset button
-            SaveUpdateBtn.textContent = "Complete";
-
-            if (Auto) Auto.disabled = false;
-
-            // Return to first tab
-            switchDialogTab(0);
-          }
-
-        });
-
-      }
-
-
-
-
-
-
-      // ----- FIXED: event listeners for second dialogue -----
-      if (openBtn2) {
-        openBtn2.addEventListener('click', openDialog2);  // Changed from openBtn to openBtn2
-      }
-
-      if (closeIcon) {
-        closeIcon.addEventListener('click', closeDialog);
-      }
-      if (closeSecondary) {
-        closeSecondary.addEventListener('click', closeDialog);
-      }
-      if (confirmBtn) {
-        confirmBtn.addEventListener('click', closeDialog);
-      }
-
-      if (overlay) {
-        overlay.addEventListener('click', function (e) {
-          if (e.target === overlay) {
-            closeDialog();
-          }
-        });
-
-        overlay.addEventListener('keydown', function (e) {
-          if (e.key === 'Tab') {
-            const focusable = overlay.querySelectorAll(
-              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-            if (focusable.length === 0) return;
-            const first = focusable[0];
-            const last = focusable[focusable.length - 1];
-            if (e.shiftKey) {
-              if (document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-              }
-            } else {
-              if (document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-              }
-            }
-          }
-        });
-      }
-
-      // ----- event listeners for second dialogue -----
-      if (closeIcon2) {
-        closeIcon2.addEventListener('click', closeDialog2);
-      }
-      if (closeSecondary2) {
-        closeSecondary2.addEventListener('click', closeDialog2);
-      }
-      if (confirmBtn2) {
-        confirmBtn2.addEventListener('click', closeDialog2);
-      }
-
-      if (overlay2) {
-        overlay2.addEventListener('click', function (e) {
-          if (e.target === overlay2) {
-            closeDialog2();
-          }
-        });
-
-        overlay2.addEventListener('keydown', function (e) {
-          if (e.key === 'Tab') {
-            const focusable = overlay2.querySelectorAll(
-              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-            if (focusable.length === 0) return;
-            const first = focusable[0];
-            const last = focusable[focusable.length - 1];
-            if (e.shiftKey) {
-              if (document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-              }
-            } else {
-              if (document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-              }
-            }
-          }
-        });
-      }
-
-      // ----- global escape key handling for both dialogs -----
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          if (overlay && overlay.classList.contains('active')) {
-            closeDialog();
-            e.preventDefault();
-          } else if (overlay2 && overlay2.classList.contains('active')) {
-            closeDialog2();
-            e.preventDefault();
-          }
-        }
-      });
-
-      window.addEventListener('beforeunload', function () {
-        document.body.style.overflow = '';
-      });
-
-      // ----- First Dialog Tab Switching Logic -----
-      const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
-      const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
-
-      function switchDialogTab(index) {
-        dialogTabBtns.forEach(btn => btn.classList.remove('active'));
-        dialogTabPanels.forEach(panel => panel.classList.remove('active'));
-        if (dialogTabBtns[index] && dialogTabPanels[index]) {
-          dialogTabBtns[index].classList.add('active');
-          dialogTabPanels[index].classList.add('active');
-        }
-      }
-
-      dialogTabBtns.forEach((btn, idx) => {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          switchDialogTab(idx);
-        });
-      });
-
-      // ----- Second Dialog Tab Switching Logic -----
-      dialogTabBtns2.forEach((btn, idx) => {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          switchDialogTab2(idx);
-        });
-      });
-
-      // ----- First Dialog: Reset and Complete buttons -----
-      const resetBtn = document.getElementById('resetBtn');
-      const completeBtn = document.getElementById('completeBtn');
-      const Auto = document.getElementById("autoGenerate");
-
-
-      if (resetBtn) {
-        resetBtn.addEventListener('click', function () {
-          if (confirm('Are you sure you want to reset all form fields?')) {
-            const inputs = document.querySelectorAll('#dialogOverlay .form-input, #dialogOverlay textarea.form-input');
-            inputs.forEach(input => {
-              if (input.type === 'checkbox' || input.type === 'radio') {
-                input.checked = false;
-              } else if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-              } else {
-                input.value = '';
-              }
-            });
-
-            SaveUpdateBtn.textContent = "Complete";
-            if (Auto) Auto.disabled = false;
-            switchDialogTab(0);
-          }
-        });
-      }
-
-      if (completeBtn) {
-        completeBtn.addEventListener('click', function () {
-          alert('Student record completed successfully!');
-          closeDialog();
-        });
-      }
-
-      // ----- Second Dialog: Reset and Update buttons -----
-      const editResetBtn = document.getElementById('editResetBtn');
-      const editCompleteBtn = document.getElementById('editCompleteBtn');
-
-      if (editResetBtn) {
-        editResetBtn.addEventListener('click', function () {
-          if (confirm('Are you sure you want to reset all fields?')) {
-            const inputs = document.querySelectorAll('#dialogOverlay2 .form-input, #dialogOverlay2 textarea.form-input');
-            inputs.forEach(input => {
-              if (input.type === 'checkbox' || input.type === 'radio') {
-                input.checked = false;
-              } else if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-              } else {
-                input.value = '';
-              }
-            });
-            switchDialogTab2(0);
-          }
-        });
-      }
-
-      if (editCompleteBtn) {
-        editCompleteBtn.addEventListener('click', function () {
-          alert('Student record updated successfully!');
-          closeDialog2();
-        });
-      }
-
-      // ----- Open second dialog via a trigger (for demo) -----
-      window.openEditDialog = function () {
-        openDialog2();
-      };
-
-      // ----- Tab Switching for Main Tabs -----
-      const tabs = document.querySelectorAll('.tab-btn');
-      const panels = {
-        tab1: document.getElementById('tab1'),
-        tab2: document.getElementById('tab2'),
-        tab3: document.getElementById('tab3'),
-        tab4: document.getElementById('tab4')
-      };
-
-      tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-          tabs.forEach(t => t.classList.remove('active'));
-          Object.values(panels).forEach(p => {
-            if (p) p.classList.remove('active');
-          });
-          this.classList.add('active');
-          const targetId = this.getAttribute('data-tab');
-          if (panels[targetId]) {
-            panels[targetId].classList.add('active');
-          }
-        });
-      });
-
-      // ----- Expose global function for C# to call -----
-      window.switchTab = function (tabId) {
-        const tabs = document.querySelectorAll('.tab-btn');
-        const panels = {
-          tab1: document.getElementById('tab1'),
-          tab2: document.getElementById('tab2'),
-          tab3: document.getElementById('tab3'),
-          tab4: document.getElementById('tab4')
-        };
-
-        tabs.forEach(t => t.classList.remove('active'));
-        Object.values(panels).forEach(p => {
-          if (p) p.classList.remove('active');
-        });
-
-        const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
-        if (targetTab) {
-          targetTab.classList.add('active');
-          if (panels[tabId]) {
-            panels[tabId].classList.add('active');
-          }
-          return true;
-        }
-        return false;
-      };
-
-      window.__tabPanels = panels;
-
-
-
-      document.querySelectorAll('.clickable-name').forEach(nameEl => {
-        nameEl.addEventListener('click', function (e) {
-          e.stopPropagation();
-          openDialog2();
-          var S_name = document.getElementById('editStudentName').value;
-          alert("My name is" + S_name);
-        });
-      });
-
-      window.openEditDialogWithData = function (name, id, dob, grade) {
-
-
-        document.getElementById('editStudentName').value = name || '';
-        document.getElementById('editStudentID').value = id || '';
-        document.getElementById('editStudentDOB').value = dob || '';
-        openDialog2();
-      };
-
-      console.log('✅ Both dialog boxes ready. Click a student name or double-click a row to open edit dialog (tab 0 activated).');
-    })();
-  </script>
   <script type="module">
     // ============================================================
     // FIREBASE IMPORTS
@@ -2515,7 +2131,8 @@
       set,
       push,
       update,
-      onValue
+      onValue,
+      remove
     } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
     // ============================================================
@@ -2533,15 +2150,39 @@
     };
 
     // ============================================================
-    // INITIALIZE
+    // INITIALIZE FIREBASE
     // ============================================================
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    // ============================================================
+    // DOM ELEMENTS (All defined at the top)
+    // ============================================================
+    const overlay = document.getElementById('dialogOverlay');
+    const openBtn = document.getElementById('openDialogBtn');
+    const openBtn3 = document.getElementById('openDialogBtn3');
+    const SaveUpdateBtn = document.getElementById('saveStudent');
+    const openBtn2 = document.getElementById('openDialogBtn2');
+    const closeIcon = document.getElementById('closeDialogIcon');
+    const closeSecondary = document.getElementById('closeDialogSecondary');
+    const confirmBtn = document.getElementById('confirmDialogBtn');
+
+    const overlay2 = document.getElementById('dialogOverlay2');
+    const closeIcon2 = document.getElementById('closeDialogIcon2');
+    const closeSecondary2 = document.getElementById('closeDialogSecondary2');
+    const confirmBtn2 = document.getElementById('confirmDialogBtn2');
+
+    // ============================================================
+    // DATA CACHE
+    // ============================================================
     let studentsCache = {};
     let paymentCache = {};
     let classCache = {};
+    let classData = [];
+    let terms = [];
+    let selectedPaymentKey = null;
+
     const studentsRef = ref(db, "Institution/ Revival/Students");
     const feepaymentRef = ref(db, "Institution/ Revival/Fee_payment");
     const classRef = ref(db, "Institution/ Revival/classes");
@@ -2553,1198 +2194,65 @@
     function formatDateToDDMMYYYY(dateString) {
       if (!dateString) return '';
 
-      // If already in DD/MM/YYYY format, return as-is
       if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
         return dateString;
       }
 
       const d = new Date(dateString);
-      if (isNaN(d)) return dateString;
+      if (isNaN(d.getTime())) return dateString;
 
       return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
     }
 
-    // Currency formatter - formats to 0,000.00
     function formatCurrency(value) {
       if (value === null || value === undefined || value === "") return "0.00";
       if (value === "Sponsored") return "Sponsored";
 
-      // Remove any existing commas and parse as float
       const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
 
       if (isNaN(num)) return "0.00";
 
-      // Format with commas and 2 decimal places
       return num.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
     }
 
-    const overlay = document.getElementById('dialogOverlay');
-    function closeDialog() {
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
-      if (openBtn) openBtn.focus();
+    // Normalize admission number: convert slashes to hyphens for Firebase keys
+    function normalizeAdmissionKey(admissionNumber) {
+      return admissionNumber ? admissionNumber.replace(/\//g, "-") : admissionNumber;
     }
 
-    // ============================================================
-    // SAVE STUDENT
-    // ============================================================
-    document.getElementById("saveStudent")?.addEventListener("click", async () => {
-      const name = document.getElementById("studentName").value.trim();
-      const admissionNumber = document.getElementById("admissionNumber").value.trim();
-
-      if (!name) return alert("Please enter the student's name.");
-      if (!admissionNumber) return alert("Please enter the admission number.");
-
-      const genderEl = document.querySelector('input[name="gender"]:checked');
-
-      const studentData = {
-        name,
-        dob: document.getElementById("studentDOB").value,
-        religion: document.getElementById("studentReligion").value,
-        nationality: document.getElementById("studentNationality").value,
-        gender: genderEl ? genderEl.value : "",
-        idNumber: document.getElementById("studentID").value.trim(),
-        guardian: document.getElementById("guardianName").value.trim(),
-        relationship: document.getElementById("guardianRelationship").value,
-        phone: document.getElementById("guardianPhone").value.trim(),
-        email: document.getElementById("guardianEmail").value.trim(),
-        address: document.getElementById("guardianAddress").value.trim(),
-        admissionNumber,
-        class: document.getElementById("studentClass").value,
-        consent: document.getElementById("consentCheck").checked,
-        Status: "Active",
-        Exceptions: {},
-        lastPayment: null
-      };
-
-      try {
-        await set(ref(db, `Institution/ Revival/Students/${admissionNumber}`), studentData);
-        closeDialog();
-        alert(`Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to save student:\n" + error.message);
-      }
-    });
-
-    // ============================================================
-    // SAVE PAYMENT
-    // ============================================================
-    document.getElementById("savePaymentBtn")?.addEventListener("click", async () => {
-      const admissionNumber = document.getElementById("Fn_Admn").textContent.trim();
-      if (!admissionNumber) return alert("Please enter the admission number.");
-
-      const getValue = id =>
-        parseFloat(String(document.getElementById(id).value || 0).replace(/,/g, "")) || 0;
-
-      const amount = getValue("Fn_PaidAmount");
-      const currentBalance = parseFloat(String(document.getElementById("Fn_CurrentBalance").textContent.trim().replace(/,/g, "")));
-      const balance = currentBalance - amount;
-
-      const paymentData = {
-        term: getActiveTerm(),
-        fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
-        boarding: document.getElementById("guardianPhone").value.trim(),
-        class: document.getElementById("Fn_Grade").textContent.trim(),
-        entryDate: (() => {
-          const d = new Date();
-          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
-        })(),
-        admissionNumber,
-        amount: formatCurrency(amount),
-        balance: formatCurrency(balance),
-        Account: document.getElementById("Fn_Account").value,
-        paymentDate: document.getElementById("Fn_PaymentDate").value,
-        paymentRef: document.getElementById("Fn_PaymentRef").value,
-        Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim())
-      };
-
-      try {
-        await push(
-          ref(db, "Institution/ Revival/Fee_payment/"),
-          paymentData
-        );
-
-        const admissionKey = admissionNumber.replace(/\//g, "-");
-
-        await update(
-          ref(db, `Institution/ Revival/Students/${admissionKey}`),
-          { lastPayment: paymentData }
-        );
-
-        document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
-
-        alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
-
-
-        window.chrome.webview.postMessage({
-          action: "PRINT_RECEIPT",
-
-          DateandTime: paymentData.entryDate,
-          studentName: document.getElementById("Fn_Name").textContent.trim(),
-          Class_Grade: paymentData.class,
-          term: getActiveTerm(),
-          Admission_No: admissionNumber,
-          Amount: paymentData.amount,
-          RecieptNo: "001",
-          Balance: paymentData.balance,
-          DateofPayment: paymentData.paymentDate,
-          TransactionRef: paymentData.paymentRef,
-          Account: paymentData.Account
-        });
-
-
-      } catch (error) {
-        console.error(error);
-        alert("Failed to save Payment:\n" + error.message);
-      }
-    });
-
-    // ============================================================
-    // SAVE CLASS DETAILS
-    // ============================================================
-    document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
-
-      const classData = {
-        grade: document.getElementById('gradeInput').value,
-        stream: document.getElementById('streamInput').value,
-        capacity: document.getElementById('capacityInput').value,
-        teacher: document.getElementById('teacherInput').value,
-        room: document.getElementById('roomInput').value
-      };
-
-      try {
-        await push(ref(db, `Institution/ Revival/classes/`), classData);
-
-        modalOverlay.classList.remove('active');
-      } catch (error) {
-        console.error(error);
-        alert("Failed to save Class Details:\n" + error.message);
-      }
-    });
-
-    // Function to update a single field for a student
-    async function updateStudentField(admissionNumber, fieldName, fieldValue) {
-      if (!admissionNumber) {
-        alert("Please enter the admission number.");
-        return false;
-      }
-
-      if (!fieldName) {
-        alert("Please specify the field to update.");
-        return false;
-      }
-
-      try {
-        const updateData = {
-          [fieldName]: fieldValue
-        };
-
-        await update(ref(db, `Institution/ Revival/Students/${admissionNumber}`), updateData);
-        console.log(`Successfully updated ${fieldName} for student ${admissionNumber}`);
-        return true;
-      } catch (error) {
-        console.error(`Failed to update ${fieldName}:`, error);
-        alert(`Failed to update ${fieldName}:\n` + error.message);
-        return false;
-      }
-    }
-
-    // ============================================================
-    // POPULATE TABLE
-    // ============================================================
-    function populateStudentsTable(students) {
-      const tbody = document.querySelector(".register-table tbody");
-      if (!tbody) return;
-
-      tbody.innerHTML = "";
-      if (!students) return;
-
-      // Sort students by grade and status
-      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
-        const gradeA = a.class || "";
-        const gradeB = b.class || "";
-
-        const isGraduateA = gradeA === "Graduate";
-        const isGraduateB = gradeB === "Graduate";
-        if (isGraduateA && !isGraduateB) return 1;
-        if (!isGraduateA && isGraduateB) return -1;
-
-        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
-        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
-        if (isInactiveA && !isInactiveB) return 1;
-        if (!isInactiveA && isInactiveB) return -1;
-
-        const getGradeNumber = (grade) => {
-          const match = grade.match(/(\d+)/);
-          return match ? parseInt(match[1]) : -1;
-        };
-
-        const getGradePrefix = (grade) => {
-          const match = grade.match(/^([A-Za-z]+)/);
-          return match ? match[1].toUpperCase() : "";
-        };
-
-        const numA = getGradeNumber(gradeA);
-        const numB = getGradeNumber(gradeB);
-
-        if (numA !== numB) {
-          if (numA === -1 && numB !== -1) return 1;
-          if (numA !== -1 && numB === -1) return -1;
-          return numB - numA;
-        }
-
-        const prefixA = getGradePrefix(gradeA);
-        const prefixB = getGradePrefix(gradeB);
-
-        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
-        const orderA = prefixOrder[prefixA] ?? 99;
-        const orderB = prefixOrder[prefixB] ?? 99;
-
-        return orderA - orderB;
-      });
-
-      let index = 1;
-
-      for (const [admissionNumber, student] of sortedStudents) {
-        const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
-
-        const isGraduate = student.class === "Graduate";
-        const status = isGraduate ? "Graduate" : (student.Status || "—");
-        const statusClass = isGraduate ? "late" :
-          status.toLowerCase() === "inactive" ? "absent" : "";
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td class="col-check">
-              <input type="checkbox" class="custom-checkbox">
-            </td>
-            <td class="col-avatar">
-              <div class="avatar-wrapper">
-                <span class="avatar-placeholder">👤</span>
-              </div>
-            </td>
-            <td class="col-name">
-              <div class="student-info">
-                <span class="student-name clickable-name" data-student="${index}">
-                  ${student.name || "Unknown"}
-                </span>
-                <span class="student-id">${admissionNumber}</span>
-              </div>
-            </td>
-            <td class="col-grade">${student.class || "—"}</td>
-            <td class="col-dob">${formattedDob}</td>
-            <td class="col-national">${student.nationality || "—"}</td>
-            <td class="col-contact">${student.phone || "—"}</td>
-            <td class="col-status">
-              <span class="status-badge ${statusClass}">${status}</span>
-            </td>
-          `;
-        tbody.appendChild(row);
-        index++;
-      }
-    }
-
-    function populateFeeBalanceTable(students) {
-      const tbody = document.querySelector("#FeeBalanceList tbody");
-      if (!tbody || !students) return;
-
-      tbody.innerHTML = "";
-
-      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
-        const gradeA = a.class || "";
-        const gradeB = b.class || "";
-
-        const isGraduateA = gradeA === "Graduate";
-        const isGraduateB = gradeB === "Graduate";
-        if (isGraduateA && !isGraduateB) return 1;
-        if (!isGraduateA && isGraduateB) return -1;
-
-        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
-        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
-        if (isInactiveA && !isInactiveB) return 1;
-        if (!isInactiveA && isInactiveB) return -1;
-
-        const getGradeNumber = (grade) => {
-          const match = grade.match(/(\d+)/);
-          return match ? parseInt(match[1]) : -1;
-        };
-
-        const getGradePrefix = (grade) => {
-          const match = grade.match(/^([A-Za-z]+)/);
-          return match ? match[1].toUpperCase() : "";
-        };
-
-        const numA = getGradeNumber(gradeA);
-        const numB = getGradeNumber(gradeB);
-
-        if (numA !== numB) {
-          if (numA === -1 && numB !== -1) return 1;
-          if (numA !== -1 && numB === -1) return -1;
-          return numB - numA;
-        }
-
-        const prefixA = getGradePrefix(gradeA);
-        const prefixB = getGradePrefix(gradeB);
-
-        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
-        const orderA = prefixOrder[prefixA] ?? 99;
-        const orderB = prefixOrder[prefixB] ?? 99;
-
-        return orderA - orderB;
-      });
-
-      for (const [admissionNumber, student] of sortedStudents) {
-        const lp = student.lastPayment || {};
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
-          <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
-          <td class="col-name">
-            <div class="student-info">
-              <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
-              <span class="student-id">${admissionNumber}</span>
-            </div>
-          </td>
-          <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td> 
-          <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
-          <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
-          <td class="col-contact">${student.class || "—"}</td>
-        `;
-        tbody.appendChild(row);
-      }
-    }
-
-    // Function to populate fee payment history table
-    function populateFeePaymentHistory(paymentData, admissionNumber) {
-
-      const tableBody = document.querySelector('#feepaymentHistory tbody');
-      if (!tableBody) return;
-
-      tableBody.innerHTML = '';
-
-      const paymentDataArray = paymentData
-        ? (Array.isArray(paymentData)
-          ? paymentData.map((payment, index) => ({
-            ...payment,
-            key: payment.key || index
-          }))
-          : Object.entries(paymentData).map(([key, payment]) => ({
-            ...payment,
-            key
-          }))
-        )
-        : [];
-
-      const filteredPayments = paymentDataArray.filter(payment =>
-        String(payment.admissionNumber || '').trim() ===
-        String(admissionNumber || '').trim()
-      );
-
-      if (filteredPayments.length === 0) {
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align:center;">
-                    No payment history available
-                </td>
-            </tr>
-        `;
-
-        return;
-      }
-
-      filteredPayments.forEach(payment => {
-
-        const row = document.createElement('tr');
-
-        // Store Firebase push key in the row
-        row.dataset.key = payment.key || '';
-
-        const displayDate =
-          formatDateToDDMMYYYY(payment.paymentDate) ||
-          formatDateToDDMMYYYY(payment.entryDate) ||
-          '—';
-
-        row.innerHTML = `
-            <td>${payment.term || '—'}</td>
-            <td>${formatCurrency(payment.fee)}</td>
-            <td>${formatCurrency(payment.Exemption)}</td>
-            <td>${formatCurrency(payment.amount)}</td>
-            <td>${formatCurrency(payment.balance)}</td>
-            <td>${displayDate}</td>
-            <td>${payment.Account || '—'}</td>
-            <td>${payment.key || '—'}</td>
-        `;
-
-        tableBody.appendChild(row);
-      });
-    }
-    // ============================================================
-    // REAL-TIME LISTENERS
-    // ============================================================
-    onValue(studentsRef, (snapshot) => {
-      studentsCache = snapshot.exists() ? snapshot.val() : {};
-      populateStudentsTable(studentsCache);
-      populateFeeBalanceTable(studentsCache);
-      document.getElementById('autoGenerate')
-        .dispatchEvent(new Event('change'));
-    }, (error) => {
-      console.error("Realtime error:", error);
-      alert("Failed to load students:\n" + error.message);
-    });
-
-    onValue(feepaymentRef, (snapshot) => {
-      paymentCache = snapshot.exists() ? snapshot.val() : {};
-    }, (error) => {
-      console.error("Realtime error:", error);
-      alert("Failed to load students:\n" + error.message);
-    });
-
-    let classData = [];
-
-    // ---------- DATA STORE ----------
-    let terms = [];
-
-    // ---------- DOM REFS ----------
-    const Termgrid = document.getElementById('termGrid');
-    const totalTermsSpan = document.getElementById('totalTerms');
-    const totalFeesSpan = document.getElementById('totalFees');
-    const totalGradesSpan = document.getElementById('totalGrades');
-
-    const modal = document.getElementById('termModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const termIdInput = document.getElementById('termIdInput');
-    const statusSelect = document.getElementById('statusSelect');
-    const startDateInput = document.getElementById('startDateInput');
-    const endDateInput = document.getElementById('endDateInput');
-    const mealInput = document.getElementById('mealInput');
-    const transportInput = document.getElementById('transportInput');
-    const boardingInput = document.getElementById('boardingInput');
-    const breakInput = document.getElementById('breakInput');
-    const gradeFeesContainer = document.getElementById('gradeFeesContainer');
-    const newGradeInput = document.getElementById('newGradeInput');
-    const newGradeFeeInput = document.getElementById('newGradeFeeInput');
-    const addGradeBtn = document.getElementById('addGradeBtn');
-
-    const addBtn = document.getElementById('addTermBtn');
-    const closeBtn = document.getElementById('closeTermModalBtn');
-    const cancelBtn = document.getElementById('cancelTermModalBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const form = document.getElementById('termForm');
-
-    // ---------- STATE ----------
-    let editingIndex = -1;
-
-    // ---------- DEFAULT GRADES ----------
-    let defaultGrades = {};
-
-    const getDefaultGrades = (classData) => {
-      const grades = {};
-
-      classData.forEach(cls => {
-        const grade = cls.grade || 'Unknown';
-        grades[grade] = 0;
-      });
-
-      return grades;
-    };
-
-    onValue(classRef, (snapshot) => {
-
-      if (snapshot.exists()) {
-
-        classData = Object.values(snapshot.val()).map(data => ({
-          grade: data.grade || '',
-          stream: data.stream || '',
-          room: data.room || '',
-          capacity: data.capacity || 0,
-          teacher: data.teacher || ''
-        }));
-
-      } else {
-
-        classData = [];
-
-      }
-
-      defaultGrades = getDefaultGrades(classData);
-      renderClasses(classData);
-      populateClassSelect(classData);
-
-    }, (error) => {
-
-      console.error("Realtime error:", error);
-      alert("Failed to load classes:\n" + error.message);
-
-    });
-
-    const grid = document.getElementById('classGrid');
-    // render cards
-    function renderClasses(classes) {
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      classes.forEach(cls => {
-        const card = document.createElement('div');
-        card.className = 'class-card';
-
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'class-header';
-
-        const gradeStreamDiv = document.createElement('div');
-        gradeStreamDiv.className = 'grade-stream';
-        const gradeSpan = document.createElement('span');
-        gradeSpan.className = 'grade';
-        gradeSpan.textContent = cls.grade;
-        const streamSpan = document.createElement('span');
-        streamSpan.className = 'stream';
-        streamSpan.textContent = cls.stream;
-        gradeStreamDiv.appendChild(gradeSpan);
-        gradeStreamDiv.appendChild(streamSpan);
-
-        const teacherBadge = document.createElement('div');
-        teacherBadge.className = 'teacher-badge';
-        teacherBadge.innerHTML = `<i class="fas fa-user-graduate"></i> ${cls.teacher.split(' ').slice(-1)[0]}`;
-
-        headerDiv.appendChild(gradeStreamDiv);
-        headerDiv.appendChild(teacherBadge);
-        card.appendChild(headerDiv);
-
-        const detailsDiv = document.createElement('div');
-        detailsDiv.className = 'class-details';
-
-        const roomRow = document.createElement('div');
-        roomRow.className = 'detail-row';
-        roomRow.innerHTML = `<i class="fas fa-door-open"></i><span class="detail-label">Room</span><span class="detail-value">${cls.room}</span>`;
-        detailsDiv.appendChild(roomRow);
-
-        const capacityRow = document.createElement('div');
-        capacityRow.className = 'detail-row';
-        capacityRow.innerHTML = `<i class="fas fa-user-friends"></i><span class="detail-label">Capacity</span><span class="detail-value">${cls.capacity}</span>`;
-        detailsDiv.appendChild(capacityRow);
-
-        const teacherRow = document.createElement('div');
-        teacherRow.className = 'detail-row';
-        teacherRow.innerHTML = `<i class="fas fa-chalkboard-teacher"></i><span class="detail-label">Teacher</span><span class="detail-value">${cls.teacher}</span>`;
-        detailsDiv.appendChild(teacherRow);
-
-        card.appendChild(detailsDiv);
-
-        const footerDiv = document.createElement('div');
-        footerDiv.className = 'class-footer';
-        const teacherChip = document.createElement('div');
-        teacherChip.className = 'class-teacher';
-        teacherChip.innerHTML = `<i class="fas fa-user-tie"></i> ${cls.teacher}`;
-        footerDiv.appendChild(teacherChip);
-        card.appendChild(footerDiv);
-
-        grid.appendChild(card);
-      });
-    }
-
-    // Populate class select dropdown
-    function populateClassSelect(classData) {
-      const select = document.getElementById('studentClass');
-      if (!select) return;
-
-      select.innerHTML = '';
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = 'Select Class';
-      select.appendChild(defaultOption);
-
-      const classMap = new Map();
-
-      classData.forEach(cls => {
-        const key = `${cls.grade}|${cls.stream}`;
-        if (!classMap.has(key)) {
-          classMap.set(key, {
-            grade: cls.grade,
-            stream: cls.stream
-          });
-        }
-      });
-
-      const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
-        const gradeOrder = {
-          'Pre-primary': 0,
-          'Grade 1': 1,
-          'Grade 2': 2,
-          'Grade 3': 3,
-          'Grade 4': 4,
-          'Grade 5': 5,
-          'Grade 6': 6,
-          'Grade 7': 7,
-          'Grade 8': 8,
-          'Form 1': 9,
-          'Form 2': 10,
-          'Form 3': 11,
-          'Form 4': 12
-        };
-
-        const aOrder = gradeOrder[a.grade] || 999;
-        const bOrder = gradeOrder[b.grade] || 999;
-
-        if (aOrder !== bOrder) return aOrder - bOrder;
-        return (a.stream || '').localeCompare(b.stream || '');
-      });
-
-      uniqueClasses.forEach(cls => {
-        const option = document.createElement('option');
-        let displayText = cls.grade;
-        if (cls.stream) {
-          displayText += ` - ${cls.stream}`;
-        }
-        option.value = displayText;
-        option.textContent = displayText;
-        select.appendChild(option);
-      });
-    }
-
-    // ---------- MODAL CONTROL ----------
-    function openModal(index) {
-      editingIndex = index;
-      if (index === -1) {
-        modalTitle.textContent = 'New Term';
-        termIdInput.value = '';
-        startDateInput.value = '';
-        endDateInput.value = '';
-        statusSelect.value = 'Active';
-        mealInput.value = '0.00';
-        transportInput.value = '0.00';
-        boardingInput.value = '0.00';
-        breakInput.value = '0.00';
-        renderGradeFees(defaultGrades);
-      } else {
-        modalTitle.textContent = 'Edit Term';
-        const t = terms[index];
-        termIdInput.value = t.termId || '';
-        startDateInput.value = t.start ? t.start.split('T')[0] : '';
-        endDateInput.value = t.end ? t.end.split('T')[0] : '';
-        statusSelect.value = t.status || 'Active';
-        mealInput.value = (t.meal || 0).toFixed(2);
-        transportInput.value = (t.transport || 0).toFixed(2);
-        boardingInput.value = (t.boarding || 0).toFixed(2);
-        breakInput.value = (t.breakFee || 0).toFixed(2);
-        renderGradeFees(t.grades || defaultGrade);
-      }
-      modal.classList.add('active');
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      editingIndex = -1;
-    }
-
-    // ---------- RENDER GRADE FEE ROWS ----------
-    function renderGradeFees(grades) {
-      gradeFeesContainer.innerHTML = '';
-
-      if (!grades) grades = defaultGrades();
-
-      for (const [grade, fee] of Object.entries(grades)) {
-        const displayGrade = /^\d+$/.test(grade)
-          ? `Grade ${grade}`
-          : grade;
-
-        const row = document.createElement('div');
-        row.className = 'grade-fee-row';
-
-        row.innerHTML = `
-            <label>${displayGrade}</label>
-            <input 
-                type="number" 
-                step="0.01" 
-                class="grade-fee-input" 
-                data-grade="${grade}" 
-                value="${fee}" 
-            />
-            <button 
-                type="button" 
-                class="btn-remove-grade" 
-                data-grade="${grade}"
-            >✕</button>
-        `;
-
-        gradeFeesContainer.appendChild(row);
-      }
-
-      gradeFeesContainer.querySelectorAll('.btn-remove-grade').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const row = this.closest('.grade-fee-row');
-          if (row) row.remove();
-        });
-      });
-    }
-
-    async function saveTerm(e) {
-      e.preventDefault();
-
-      const termId = termIdInput.value.trim();
-      const start = startDateInput.value;
-      const end = endDateInput.value;
-      const status = statusSelect.value;
-
-      const meal = parseFloat(mealInput.value) || 0;
-      const transport = parseFloat(transportInput.value) || 0;
-      const boarding = parseFloat(boardingInput.value) || 0;
-      const breakFee = parseFloat(breakInput.value) || 0;
-
-      const grades = collectGrades();
-
-      if (!termId) {
-        alert('Term ID is required.');
-        return;
-      }
-
-      if (!start) {
-        alert('Start date is required.');
-        return;
-      }
-
-      if (!end) {
-        alert('End date is required.');
-        return;
-      }
-
-      if (new Date(start) > new Date(end)) {
-        alert('Start date must be before end date.');
-        return;
-      }
-
-      if (Object.keys(grades).length === 0) {
-        alert('Add at least one grade with fee.');
-        return;
-      }
-
-      const termObj = {
-        termId: termId,
-        start: start,
-        end: end,
-        status: status,
-        meal: meal,
-        transport: transport,
-        boarding: boarding,
-        breakFee: breakFee,
-        grades: grades
-      };
-
-      try {
-        await set(
-          ref(db, `Institution/ Revival/terms/${termId}`),
-          termObj
-        );
-
-        terms.push(termObj);
-        closeModal();
-
-      } catch (error) {
-        console.error("Error saving term:", error);
-        alert("Failed to save Term Details:\n" + error.message);
-      }
-    }
-
-    onValue(termRef, (snapshot) => {
-
-      if (snapshot.exists()) {
-
-        terms = Object.entries(snapshot.val()).map(([key, data]) => ({
-          termId: key,
-          start: data.start || '',
-          end: data.end || '',
-          status: data.status || 'Active',
-          meal: parseFloat(data.meal) || 0,
-          transport: parseFloat(data.transport) || 0,
-          boarding: parseFloat(data.boarding) || 0,
-          breakFee: parseFloat(data.breakFee) || 0,
-          grades: data.grades || {}
-        }));
-
-      } else {
-
-        terms = [];
-
-      }
-
-      renderGrid();
-      populateFeeBalanceTable(studentsCache);
-
-    }, (error) => {
-
-      console.error("Realtime error:", error);
-      alert("Failed to load terms:\n" + error.message);
-
-    });
-
-    function collectGrades() {
-      const grades = {};
-
-      const inputs = gradeFeesContainer.querySelectorAll('.grade-fee-input');
-
-      inputs.forEach(inp => {
-        const grade = inp.dataset.grade;
-        const val = parseFloat(inp.value) || 0;
-
-        if (grade) {
-          grades[grade] = val;
-        }
-      });
-
-      return grades;
-    }
-
-    // ---------- RENDER GRID ----------
-    function renderGrid() {
-      Termgrid.innerHTML = '';
-
-      if (terms.length === 0) {
-        Termgrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-calendar-plus"></i>
-                <p>No terms yet. Click <strong>"New Term"</strong> to add one.</p>
-            </div>
-        `;
-        updateStats();
-        return;
-      }
-
-      terms.forEach((term, idx) => {
-        const card = document.createElement('div');
-        card.className = 'term-card';
-
-        const statusClass =
-          term.status === 'Active' ? '' :
-            term.status === 'Inactive' ? 'inactive' : 'closed';
-
-        const startDate = formatDateToDDMMYYYY(term.start);
-        const endDate = formatDateToDDMMYYYY(term.end);
-
-        let gradesHtml = '';
-        const gradeEntries = Object.entries(term.grades || {});
-
-        if (gradeEntries.length > 0) {
-          gradesHtml = gradeEntries.map(([g, f]) => {
-            const displayGrade = /^\d+$/.test(g)
-              ? `Grade ${g}`
-              : g;
-
-            return `
-                    <span class="grade-chip">
-                        ${displayGrade}
-                        <span class="fee">${formatCurrency(f)}</span>
-                    </span>
-                `;
-          }).join('');
-        } else {
-          gradesHtml = '<span style="color:#6b7e93;">No grades set</span>';
-        }
-
-        card.innerHTML = `
-            <div class="term-card-header">
-                <span class="term-id">
-                    <i class="fas fa-tag" style="color:#2a7de1; margin-right:0.3rem;"></i>
-                    ${term.termId || '—'}
-                </span>
-                <span class="term-status ${statusClass}">
-                    ${term.status || '—'}
-                </span>
-            </div>
-
-            <div class="term-dates">
-                <span>
-                    <i class="fas fa-calendar-day"></i> ${startDate}
-                </span>
-                <span>
-                    <i class="fas fa-calendar-day"></i> ${endDate}
-                </span>
-            </div>
-
-            <div class="term-fees">
-                <div class="fee-item">
-                    <span class="label">Meal</span>
-                    <span class="value">${formatCurrency(term.meal)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Transport</span>
-                    <span class="value">${formatCurrency(term.transport)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Boarding</span>
-                    <span class="value">${formatCurrency(term.boarding)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Break</span>
-                    <span class="value">${formatCurrency(term.breakFee)}</span>
-                </div>
-            </div>
-
-            <div class="term-grades">
-                <span class="label">Grade Fees</span>
-                <div class="grade-chips">
-                    ${gradesHtml}
-                </div>
-            </div>
-
-            <div class="term-actions-card">
-                <button class="btn btn-outline btn-sm edit-btn" data-index="${idx}">
-                    <i class="fas fa-pen"></i> Edit
-                </button>
-
-                <button class="btn btn-outline btn-sm delete-btn"
-                        data-index="${idx}"
-                        style="border-color:#fca5a5; color:#991b1b;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-
-        Termgrid.appendChild(card);
-      });
-
-      Termgrid.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const idx = parseInt(this.dataset.index);
-          openModal(idx);
-        });
-      });
-
-      Termgrid.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const idx = parseInt(this.dataset.index);
-
-          if (confirm('Delete this term?')) {
-            terms.splice(idx, 1);
-            renderGrid();
-          }
-        });
-      });
-
-      updateStats();
-    }
-
-    // ---------- UPDATE STATS ----------
-    function updateStats() {
-      totalTermsSpan.textContent = terms.length;
-
-      let totalFees = 0;
-      let gradeSet = new Set();
-      terms.forEach(t => {
-        totalFees += (t.meal || 0) + (t.transport || 0) + (t.boarding || 0) + (t.breakFee || 0);
-        if (t.grades) {
-          Object.keys(t.grades).forEach(g => gradeSet.add(g));
-        }
-      });
-      totalFeesSpan.textContent = formatCurrency(totalFees);
-      totalGradesSpan.textContent = gradeSet.size;
-    }
-
-    function getFeeForGrade(grade) {
-
-      if (!grade) return "0.00";
-
-      grade = String(grade).split('-')[0].trim();
-
-      const activeTerm = terms.find(term =>
-        String(term.status || '').trim().toLowerCase() === 'active'
-      );
-
-      if (!activeTerm) {
-        console.warn("No active term found. Loaded terms:", terms);
-        return "0.00";
-      }
-
-      if (
-        !activeTerm.grades ||
-        !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)
-      ) {
-        return "0.00";
-      }
-
-      const gradeFee = parseFloat(activeTerm.grades[grade]) || 0;
-      const meal = parseFloat(activeTerm.meal) || 0;
-      const transport = parseFloat(activeTerm.transport) || 0;
-      const boarding = parseFloat(activeTerm.boarding) || 0;
-      const breakFee = parseFloat(activeTerm.breakFee) || 0;
-
-      return formatCurrency(gradeFee + meal + transport + boarding + breakFee);
-    }
-
-    addBtn.addEventListener('click', () => openModal(-1));
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    form.addEventListener('submit', saveTerm);
-
-    // ============================================================
-    // GET CHECKED STUDENT + POPULATE FORM (Exposed to C#)
-    // ============================================================
-    window.getCheckedStudentAndPopulate = function () {
-      const checked = document.querySelectorAll(".register-table tbody .custom-checkbox:checked");
-
-      if (checked.length === 0) return alert("Please select a student first.") || null;
-      if (checked.length > 1) return alert("Select only one student.") || null;
-
-      const admissionNumber = checked[0].closest("tr").querySelector(".student-id")?.textContent.trim();
-      const s = studentsCache[admissionNumber];
-
-      if (!s) return alert("Student data not found.") || null;
-
-      const set = (id, val) => document.getElementById(id).value = val || "";
-      set("studentName", s.name);
-      set("studentDOB", s.dob);
-      set("studentReligion", s.religion);
-      set("studentNationality", s.nationality);
-      set("studentID", s.idNumber);
-      set("guardianName", s.guardian);
-      set("guardianRelationship", s.relationship);
-      set("guardianPhone", s.phone);
-      set("guardianEmail", s.email);
-      set("guardianAddress", s.address);
-      set("admissionNumber", s.admissionNumber || admissionNumber);
-      set("studentClass", s.class);
-      document.getElementById("consentCheck").checked = !!s.consent;
-
-      if (s.gender) {
-        const radio = document.querySelector(`input[name="gender"][value="${s.gender}"]`);
-        if (radio) radio.checked = true;
-      }
-
-      if (typeof window.openDialog === "function") {
-        window.openDialog();
-        const btn = document.getElementById("saveStudent");
-        const Auto = document.getElementById("autoGenerate");
-        if (btn) btn.textContent = "Update";
-        if (Auto) Auto.disabled = true;
-      }
-
-      return s;
-    };
-
-    function getLastPayment(admission) {
-
-      if (!admission || !studentsCache) {
-        return {};
-      }
-
-      const student = studentsCache[admission];
-
-      if (!student) {
-        return {};
-      }
-
-      return student.lastPayment || {};
-    }
-
-    function getStudentExceptions(admissionNumber) {
-      if (!admissionNumber || !studentsCache) {
-        return {};
-      }
-
-      const student = studentsCache[admissionNumber];
-
-      if (!student) {
-        console.warn(`Student not found: ${admissionNumber}`);
-        return {};
-      }
-
-      return student.Exceptions || {};
-    }
-
-    function getCurrent(admission) {
-      if (!admission || !studentsCache) {
-        return "0.00";
-      }
-
-      const student = studentsCache[admission];
-
-      if (!student) {
-        return "0.00";
-      }
-
-      const gradeFee = getStudentRequiredFee(admission);
-
-      if (gradeFee === "Sponsored") {
-        return "Sponsored";
-      }
-
-      if (!student.lastPayment) {
-        return formatCurrency(gradeFee);
-      }
-
-      const balance = student.lastPayment.balance;
-      const last_balance =
-        parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
-
-      const activeTerm = getActiveTerm();
-
-      if (!activeTerm) {
-        return formatCurrency(last_balance);
-      }
-
-      if (student.lastPayment.term !== activeTerm) {
-        return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
-      }
-
-      return formatCurrency(last_balance);
+    // Normalize admission number for display: convert hyphens to slashes
+    function normalizeAdmissionDisplay(admissionNumber) {
+      return admissionNumber ? admissionNumber.replace(/-/g, "/") : admissionNumber;
     }
 
     function getActiveTerm() {
       const activeTerm = terms.find(term =>
         String(term.status || '').trim().toLowerCase() === 'active'
       );
-
       return activeTerm ? activeTerm.termId : null;
     }
 
-    function getStudentExceptionAmount(admissionNumber) {
-      if (!admissionNumber) return "0.00";
+    function getLastPayment(admission) {
+      if (!admission || !studentsCache) return {};
+      const student = studentsCache[admission];
+      if (!student) return {};
+      return student.lastPayment || {};
+    }
 
-      const exceptions = getStudentExceptions(admissionNumber) || {};
-      const activeTerm = terms.find(term =>
-        String(term.status || '').trim().toLowerCase() === 'active'
-      );
-
-      if (!activeTerm) {
-        console.warn("No active term found.");
-        return "0.00";
-      }
-
-      const fees = {
-        meal: parseFloat(activeTerm.meal) || 0,
-        boarding: parseFloat(activeTerm.boarding) || 0,
-        break: parseFloat(activeTerm.breakFee) || 0
-      };
-
-      if (exceptions.Sponsored) return formatCurrency(fees.meal + fees.boarding + fees.break);
-      if (exceptions.Boarding) return formatCurrency(fees.boarding);
-      if (exceptions.meals) return formatCurrency(fees.meal);
-      if (exceptions.Break) return formatCurrency(fees.break);
-
-      return "0.00";
+    function getStudentExceptions(admissionNumber) {
+      if (!admissionNumber || !studentsCache) return {};
+      const student = studentsCache[admissionNumber];
+      if (!student) return {};
+      return student.Exceptions || {};
     }
 
     function getStudentGrade(admission) {
-
-      if (!admission || !studentsCache) {
-        return '';
-      }
-
+      if (!admission || !studentsCache) return '';
       const student = studentsCache[admission];
-
-      if (!student) {
-        return '';
-      }
-
+      if (!student) return '';
       return String(student.class || '').split('-')[0].trim();
     }
 
@@ -3815,7 +2323,6 @@
       const ex = student.Exceptions || {};
 
       if (ex.Sponsored === true) return "Sponsored";
-
       if (ex.Boarding === true) return "0.00";
 
       let falseExceptionsSum = 0;
@@ -3832,21 +2339,18 @@
       const activeTerm = getActiveTerm();
       let totalInstallments = 0;
 
-      const normalizedAdmissionNumber = admissionNumber.replace(/-/g, "/");
+      const normalizedAdmissionNumber = normalizeAdmissionKey(admissionNumber);
 
       if (!paymentCache || typeof paymentCache !== 'object') {
-        console.warn("Payment cache is empty or invalid");
         return "0.00";
       }
 
       Object.values(paymentCache).forEach(payment => {
-        const paymentAdmissionNumber = payment.admissionNumber ?
-          payment.admissionNumber.replace(/-/g, "/") : "";
+        const paymentAdmissionNumber = normalizeAdmissionKey(payment.admissionNumber || "");
 
         if (paymentAdmissionNumber === normalizedAdmissionNumber &&
           payment.term === activeTerm) {
 
-          // Fix: Remove commas before parsing
           let paymentAmount = 0;
           if (typeof payment.amount === 'string') {
             paymentAmount = parseFloat(payment.amount.replace(/,/g, '')) || 0;
@@ -3862,15 +2366,16 @@
     }
 
     function getBalanceBefore(admissionNumber) {
-      const normalizedAdmission = admissionNumber.replace(/-/g, "/");
+      const normalizedAdmission = normalizeAdmissionKey(admissionNumber);
       const activeTerm = getActiveTerm();
       let lastBalance = 0;
 
       Object.values(paymentCache || {}).forEach(payment => {
-        if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission &&
+        const paymentAdmissionNumber = normalizeAdmissionKey(payment.admissionNumber || "");
+
+        if (paymentAdmissionNumber === normalizedAdmission &&
           payment.term !== activeTerm) {
 
-          // Fix: Remove commas before parsing
           if (typeof payment.balance === 'string') {
             lastBalance = parseFloat(payment.balance.replace(/,/g, '')) || 0;
           } else {
@@ -3882,22 +2387,44 @@
       return formatCurrency(lastBalance);
     }
 
-    // ============================================================
-    // GET NEXT ADMISSION NUMBER
-    // ============================================================
-    function getNextAdmissionNumber() {
+    function getCurrent(admission) {
+      if (!admission || !studentsCache) return "0.00";
 
+      const student = studentsCache[admission];
+
+      if (!student) return "0.00";
+
+      const gradeFee = getStudentRequiredFee(admission);
+
+      if (gradeFee === "Sponsored") return "Sponsored";
+
+      if (!student.lastPayment) {
+        return formatCurrency(gradeFee);
+      }
+
+      const balance = student.lastPayment.balance;
+      const last_balance = parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
+
+      const activeTerm = getActiveTerm();
+
+      if (!activeTerm) return formatCurrency(last_balance);
+
+      if (student.lastPayment.term !== activeTerm) {
+        return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
+      }
+
+      return formatCurrency(last_balance);
+    }
+
+    function getNextAdmissionNumber() {
       const prefix = "RS";
       const year = new Date().getFullYear();
-
       let highestNumber = 0;
 
       if (studentsCache && typeof studentsCache === "object") {
-
-        Object.keys(studentsCache).forEach(admissionNumber => {
-
-          const parts = String(admissionNumber).split("-");
-
+        Object.keys(studentsCache).forEach(admissionKey => {
+          // Keys are stored with hyphens (e.g., RS-2025-001)
+          const parts = String(admissionKey).split("-");
           if (parts.length !== 3) return;
 
           const admissionPrefix = parts[0];
@@ -3909,45 +2436,863 @@
             admissionYear === String(year) &&
             !isNaN(admissionNumber1)
           ) {
-            highestNumber = Math.max(
-              highestNumber,
-              admissionNumber1
-            );
+            highestNumber = Math.max(highestNumber, admissionNumber1);
           }
-
         });
       }
 
       const nextNumber = highestNumber + 1;
-
       return `${prefix}-${year}-${nextNumber}`;
     }
 
+    function getFeeForGrade(grade) {
+      if (!grade) return "0.00";
+
+      grade = String(grade).split('-')[0].trim();
+
+      const activeTerm = terms.find(term =>
+        String(term.status || '').trim().toLowerCase() === 'active'
+      );
+
+      if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+        return "0.00";
+      }
+
+      const gradeFee = parseFloat(activeTerm.grades[grade]) || 0;
+      const meal = parseFloat(activeTerm.meal) || 0;
+      const transport = parseFloat(activeTerm.transport) || 0;
+      const boarding = parseFloat(activeTerm.boarding) || 0;
+      const breakFee = parseFloat(activeTerm.breakFee) || 0;
+
+      return formatCurrency(gradeFee + meal + transport + boarding + breakFee);
+    }
+
     // ============================================================
-    // AUTO-GENERATE ADMISSION NUMBER
+    // DIALOG FUNCTIONS - FIRST DIALOG
     // ============================================================
-    document.getElementById('autoGenerate').addEventListener('change', function () {
+    function switchDialogTab(index) {
+      const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
+      const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
 
-      const admissionInput = document.getElementById('admissionNumber');
-      const year = new Date().getFullYear();
-      if (this.checked) {
+      dialogTabBtns.forEach(btn => btn.classList.remove('active'));
+      dialogTabPanels.forEach(panel => panel.classList.remove('active'));
 
-        admissionInput.value = getNextAdmissionNumber();
-        admissionInput.disabled = true;
+      if (dialogTabBtns[index] && dialogTabPanels[index]) {
+        dialogTabBtns[index].classList.add('active');
+        dialogTabPanels[index].classList.add('active');
+      }
+    }
 
-      } else {
+    window.openDialog = function () {
+      switchDialogTab(0);
+      if (overlay) overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        if (closeIcon) closeIcon.focus();
+      }, 50);
+    };
 
-        admissionInput.value = `RS-${year}-`;
-        admissionInput.disabled = false;
-        admissionInput.focus();
+    function closeDialog() {
+      if (overlay) overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      const openBtn = document.getElementById('openDialogBtn');
+      if (openBtn) openBtn.focus();
+    }
+
+    // ============================================================
+    // DIALOG FUNCTIONS - SECOND DIALOG
+    // ============================================================
+    function switchDialogTab2(index) {
+      const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
+      const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
+
+      dialogTabBtns2.forEach(btn => btn.classList.remove('active'));
+      dialogTabPanels2.forEach(panel => panel.classList.remove('active'));
+
+      if (dialogTabBtns2[index] && dialogTabPanels2[index]) {
+        dialogTabBtns2[index].classList.add('active');
+        dialogTabPanels2[index].classList.add('active');
+      }
+    }
+
+    window.openDialog2 = function () {
+      switchDialogTab2(0);
+      if (overlay2) overlay2.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        if (closeIcon2) closeIcon2.focus();
+      }, 50);
+    };
+
+    function closeDialog2() {
+      if (overlay2) overlay2.classList.remove('active');
+      document.body.style.overflow = '';
+      const openBtn2 = document.getElementById('openDialogBtn2');
+      if (openBtn2) openBtn2.focus();
+    }
+
+    window.openEditDialog = function () {
+      openDialog2();
+    };
+
+    window.openEditDialogWithData = function (name, id, dob, grade) {
+      const nameInput = document.getElementById('editStudentName');
+      const idInput = document.getElementById('editStudentID');
+      const dobInput = document.getElementById('editStudentDOB');
+
+      if (nameInput) nameInput.value = name || '';
+      if (idInput) idInput.value = id || '';
+      if (dobInput) dobInput.value = dob || '';
+      openDialog2();
+    };
+
+    // ============================================================
+    // EVENT LISTENERS - FIRST DIALOG
+    // ============================================================
+    if (openBtn) {
+      openBtn.addEventListener('click', openDialog);
+
+      openBtn.addEventListener('click', function () {
+        const saveBtn = document.getElementById('saveStudent');
+        if (saveBtn && saveBtn.textContent === "Update") {
+          const inputs = document.querySelectorAll(
+            '#dialogOverlay .form-input, #dialogOverlay textarea.form-input'
+          );
+
+          inputs.forEach(input => {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+              input.checked = false;
+            } else if (input.tagName === 'SELECT') {
+              input.selectedIndex = 0;
+            } else {
+              input.value = '';
+            }
+          });
+
+          saveBtn.textContent = "Complete";
+
+          const Auto = document.getElementById("autoGenerate");
+          if (Auto) Auto.disabled = false;
+
+          switchDialogTab(0);
+        }
+      });
+    }
+
+    if (closeIcon) closeIcon.addEventListener('click', closeDialog);
+    if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
+    if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
+
+    if (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeDialog();
+      });
+
+      overlay.addEventListener('keydown', function (e) {
+        if (e.key === 'Tab') {
+          const focusable = overlay.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // EVENT LISTENERS - SECOND DIALOG
+    // ============================================================
+    if (openBtn2) openBtn2.addEventListener('click', openDialog2);
+    if (closeIcon2) closeIcon2.addEventListener('click', closeDialog2);
+    if (closeSecondary2) closeSecondary2.addEventListener('click', closeDialog2);
+    if (confirmBtn2) confirmBtn2.addEventListener('click', closeDialog2);
+
+    if (overlay2) {
+      overlay2.addEventListener('click', function (e) {
+        if (e.target === overlay2) closeDialog2();
+      });
+
+      overlay2.addEventListener('keydown', function (e) {
+        if (e.key === 'Tab') {
+          const focusable = overlay2.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // GLOBAL ESCAPE KEY
+    // ============================================================
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        if (overlay && overlay.classList.contains('active')) {
+          closeDialog();
+          e.preventDefault();
+        } else if (overlay2 && overlay2.classList.contains('active')) {
+          closeDialog2();
+          e.preventDefault();
+        }
       }
     });
 
-    window.getCheckedStudentAndPopulateFee = function () {
+    window.addEventListener('beforeunload', function () {
+      document.body.style.overflow = '';
+    });
 
-      const checked = document.querySelectorAll(
-        "#FeeBalanceList tbody .custom-checkbox:checked"
+    // ============================================================
+    // TAB SWITCHING - FIRST DIALOG
+    // ============================================================
+    const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
+    dialogTabBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        switchDialogTab(idx);
+      });
+    });
+
+    // ============================================================
+    // TAB SWITCHING - SECOND DIALOG
+    // ============================================================
+    const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
+    dialogTabBtns2.forEach((btn, idx) => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        switchDialogTab2(idx);
+      });
+    });
+
+    // ============================================================
+    // RESET AND COMPLETE BUTTONS - FIRST DIALOG
+    // ============================================================
+    const resetBtn = document.getElementById('resetBtn');
+    const completeBtn = document.getElementById('completeBtn');
+    const Auto = document.getElementById("autoGenerate");
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        if (confirm('Are you sure you want to reset all form fields?')) {
+          const inputs = document.querySelectorAll('#dialogOverlay .form-input, #dialogOverlay textarea.form-input');
+          inputs.forEach(input => {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+              input.checked = false;
+            } else if (input.tagName === 'SELECT') {
+              input.selectedIndex = 0;
+            } else {
+              input.value = '';
+            }
+          });
+
+          const saveBtn = document.getElementById('saveStudent');
+          if (saveBtn) saveBtn.textContent = "Complete";
+          if (Auto) Auto.disabled = false;
+          switchDialogTab(0);
+        }
+      });
+    }
+
+    if (completeBtn) {
+      completeBtn.addEventListener('click', function () {
+        alert('Student record completed successfully!');
+        closeDialog();
+      });
+    }
+
+    // ============================================================
+    // RESET AND UPDATE BUTTONS - SECOND DIALOG
+    // ============================================================
+    const editResetBtn = document.getElementById('editResetBtn');
+    const editCompleteBtn = document.getElementById('editCompleteBtn');
+
+    if (editResetBtn) {
+      editResetBtn.addEventListener('click', function () {
+        if (confirm('Are you sure you want to reset all fields?')) {
+          const inputs = document.querySelectorAll('#dialogOverlay2 .form-input, #dialogOverlay2 textarea.form-input');
+          inputs.forEach(input => {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+              input.checked = false;
+            } else if (input.tagName === 'SELECT') {
+              input.selectedIndex = 0;
+            } else {
+              input.value = '';
+            }
+          });
+          switchDialogTab2(0);
+        }
+      });
+    }
+
+    if (editCompleteBtn) {
+      editCompleteBtn.addEventListener('click', function () {
+        alert('Student record updated successfully!');
+        closeDialog2();
+      });
+    }
+
+    // ============================================================
+    // MAIN TABS
+    // ============================================================
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = {
+      tab1: document.getElementById('tab1'),
+      tab2: document.getElementById('tab2'),
+      tab3: document.getElementById('tab3'),
+      tab4: document.getElementById('tab4')
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function () {
+        tabs.forEach(t => t.classList.remove('active'));
+        Object.values(panels).forEach(p => {
+          if (p) p.classList.remove('active');
+        });
+        this.classList.add('active');
+        const targetId = this.getAttribute('data-tab');
+        if (panels[targetId]) {
+          panels[targetId].classList.add('active');
+        }
+      });
+    });
+
+    window.switchTab = function (tabId) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = {
+        tab1: document.getElementById('tab1'),
+        tab2: document.getElementById('tab2'),
+        tab3: document.getElementById('tab3'),
+        tab4: document.getElementById('tab4')
+      };
+
+      tabs.forEach(t => t.classList.remove('active'));
+      Object.values(panels).forEach(p => {
+        if (p) p.classList.remove('active');
+      });
+
+      const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
+      if (targetTab) {
+        targetTab.classList.add('active');
+        if (panels[tabId]) {
+          panels[tabId].classList.add('active');
+        }
+        return true;
+      }
+      return false;
+    };
+
+    window.__tabPanels = panels;
+
+    // ============================================================
+    // SAVE STUDENT (Fixed admission number format)
+    // ============================================================
+    document.getElementById("saveStudent")?.addEventListener("click", async () => {
+      const name = document.getElementById("studentName").value.trim();
+      const admissionInput = document.getElementById("admissionNumber").value.trim();
+
+      if (!name) return alert("Please enter the student's name.");
+      if (!admissionInput) return alert("Please enter the admission number.");
+
+      // Normalize admission number to use hyphens for Firebase key
+      const admissionNumber = normalizeAdmissionKey(admissionInput);
+
+      const genderEl = document.querySelector('input[name="gender"]:checked');
+
+      const studentData = {
+        name,
+        dob: document.getElementById("studentDOB").value,
+        religion: document.getElementById("studentReligion").value,
+        nationality: document.getElementById("studentNationality").value,
+        gender: genderEl ? genderEl.value : "",
+        idNumber: document.getElementById("studentID").value.trim(),
+        guardian: document.getElementById("guardianName").value.trim(),
+        relationship: document.getElementById("guardianRelationship").value,
+        phone: document.getElementById("guardianPhone").value.trim(),
+        email: document.getElementById("guardianEmail").value.trim(),
+        address: document.getElementById("guardianAddress").value.trim(),
+        admissionNumber: admissionNumber, // Store with hyphens
+        class: document.getElementById("studentClass").value,
+        consent: document.getElementById("consentCheck").checked,
+        Status: "Active",
+        Exceptions: {},
+        lastPayment: null
+      };
+
+      try {
+        // Save with hyphenated key
+        await set(ref(db, `Institution/ Revival/Students/${admissionNumber}`), studentData);
+        closeDialog();
+        alert(`Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save student:\n" + error.message);
+      }
+    });
+
+    // ============================================================
+    // SAVE PAYMENT (Fixed admission number format)
+    // ============================================================
+    document.getElementById("savePaymentBtn")?.addEventListener("click", async () => {
+      const admissionDisplay = document.getElementById("Fn_Admn").textContent.trim();
+      if (!admissionDisplay) return alert("Please enter the admission number.");
+
+      // Normalize admission number for consistency
+      const admissionNumber = normalizeAdmissionKey(admissionDisplay);
+
+      const getValue = id =>
+        parseFloat(String(document.getElementById(id).value || 0).replace(/,/g, "")) || 0;
+
+      const amount = getValue("Fn_PaidAmount");
+      const currentBalanceText = document.getElementById("Fn_CurrentBalance").textContent.trim().replace(/,/g, "");
+      const currentBalance = parseFloat(currentBalanceText) || 0;
+      const balance = currentBalance - amount;
+
+      const paymentData = {
+        term: getActiveTerm(),
+        fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
+        boarding: document.getElementById("guardianPhone").value.trim(),
+        class: document.getElementById("Fn_Grade").textContent.trim(),
+        entryDate: (() => {
+          const d = new Date();
+          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+        })(),
+        admissionNumber: admissionNumber, // Store with hyphens
+        amount: formatCurrency(amount),
+        balance: formatCurrency(balance),
+        Account: document.getElementById("Fn_Account").value,
+        paymentDate: document.getElementById("Fn_PaymentDate").value,
+        paymentRef: document.getElementById("Fn_PaymentRef").value,
+        Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim())
+      };
+
+      try {
+        await push(ref(db, "Institution/ Revival/Fee_payment/"), paymentData);
+
+        // Use the normalized key for update
+        await update(ref(db, `Institution/ Revival/Students/${admissionNumber}`), {
+          lastPayment: paymentData
+        });
+
+        document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
+
+        alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
+
+        window.chrome.webview.postMessage({
+          action: "PRINT_RECEIPT",
+          DateandTime: paymentData.entryDate,
+          studentName: document.getElementById("Fn_Name").textContent.trim(),
+          Class_Grade: paymentData.class,
+          term: getActiveTerm(),
+          Admission_No: normalizeAdmissionDisplay(admissionNumber),
+          Amount: paymentData.amount,
+          RecieptNo: "001",
+          Balance: paymentData.balance,
+          DateofPayment: paymentData.paymentDate,
+          TransactionRef: paymentData.paymentRef,
+          Account: paymentData.Account
+        });
+
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save Payment:\n" + error.message);
+      }
+    });
+
+    // ============================================================
+    // SAVE CLASS DETAILS
+    // ============================================================
+    document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
+      const classDataObj = {
+        grade: document.getElementById('gradeInput').value,
+        stream: document.getElementById('streamInput').value,
+        capacity: document.getElementById('capacityInput').value,
+        teacher: document.getElementById('teacherInput').value,
+        room: document.getElementById('roomInput').value
+      };
+
+      try {
+        await push(ref(db, `Institution/ Revival/classes/`), classDataObj);
+        const modalOverlay = document.getElementById('modalOverlay');
+        if (modalOverlay) modalOverlay.classList.remove('active');
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save Class Details:\n" + error.message);
+      }
+    });
+
+    // ============================================================
+    // POPULATE STUDENTS TABLE
+    // ============================================================
+    function populateStudentsTable(students) {
+      const tbody = document.querySelector(".register-table tbody");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+      if (!students) return;
+
+      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
+        const gradeA = a.class || "";
+        const gradeB = b.class || "";
+
+        const isGraduateA = gradeA === "Graduate";
+        const isGraduateB = gradeB === "Graduate";
+        if (isGraduateA && !isGraduateB) return 1;
+        if (!isGraduateA && isGraduateB) return -1;
+
+        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+        if (isInactiveA && !isInactiveB) return 1;
+        if (!isInactiveA && isInactiveB) return -1;
+
+        const getGradeNumber = (grade) => {
+          const match = grade.match(/(\d+)/);
+          return match ? parseInt(match[1]) : -1;
+        };
+
+        const getGradePrefix = (grade) => {
+          const match = grade.match(/^([A-Za-z]+)/);
+          return match ? match[1].toUpperCase() : "";
+        };
+
+        const numA = getGradeNumber(gradeA);
+        const numB = getGradeNumber(gradeB);
+
+        if (numA !== numB) {
+          if (numA === -1 && numB !== -1) return 1;
+          if (numA !== -1 && numB === -1) return -1;
+          return numB - numA;
+        }
+
+        const prefixA = getGradePrefix(gradeA);
+        const prefixB = getGradePrefix(gradeB);
+
+        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+        const orderA = prefixOrder[prefixA] ?? 99;
+        const orderB = prefixOrder[prefixB] ?? 99;
+
+        return orderA - orderB;
+      });
+
+      let index = 1;
+
+      for (const [admissionKey, student] of sortedStudents) {
+        const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
+        const admissionDisplay = normalizeAdmissionDisplay(admissionKey);
+
+        const isGraduate = student.class === "Graduate";
+        const status = isGraduate ? "Graduate" : (student.Status || "—");
+        const statusClass = isGraduate ? "late" :
+          status.toLowerCase() === "inactive" ? "absent" : "";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="col-check">
+            <input type="checkbox" class="custom-checkbox">
+          </td>
+          <td class="col-avatar">
+            <div class="avatar-wrapper">
+              <span class="avatar-placeholder">👤</span>
+            </div>
+          </td>
+          <td class="col-name">
+            <div class="student-info">
+              <span class="student-name clickable-name" data-student="${admissionKey}">
+                ${student.name || "Unknown"}
+              </span>
+              <span class="student-id">${admissionDisplay}</span>
+            </div>
+          </td>
+          <td class="col-grade">${student.class || "—"}</td>
+          <td class="col-dob">${formattedDob}</td>
+          <td class="col-national">${student.nationality || "—"}</td>
+          <td class="col-contact">${student.phone || "—"}</td>
+          <td class="col-status">
+            <span class="status-badge ${statusClass}">${status}</span>
+          </td>
+        `;
+        tbody.appendChild(row);
+        index++;
+      }
+
+      attachClickableNameHandlers();
+    }
+
+    // ============================================================
+    // POPULATE FEE BALANCE TABLE
+    // ============================================================
+    function populateFeeBalanceTable(students) {
+      const tbody = document.querySelector("#FeeBalanceList tbody");
+      if (!tbody || !students) return;
+
+      tbody.innerHTML = "";
+
+      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
+        const gradeA = a.class || "";
+        const gradeB = b.class || "";
+
+        const isGraduateA = gradeA === "Graduate";
+        const isGraduateB = gradeB === "Graduate";
+        if (isGraduateA && !isGraduateB) return 1;
+        if (!isGraduateA && isGraduateB) return -1;
+
+        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+        if (isInactiveA && !isInactiveB) return 1;
+        if (!isInactiveA && isInactiveB) return -1;
+
+        const getGradeNumber = (grade) => {
+          const match = grade.match(/(\d+)/);
+          return match ? parseInt(match[1]) : -1;
+        };
+
+        const getGradePrefix = (grade) => {
+          const match = grade.match(/^([A-Za-z]+)/);
+          return match ? match[1].toUpperCase() : "";
+        };
+
+        const numA = getGradeNumber(gradeA);
+        const numB = getGradeNumber(gradeB);
+
+        if (numA !== numB) {
+          if (numA === -1 && numB !== -1) return 1;
+          if (numA !== -1 && numB === -1) return -1;
+          return numB - numA;
+        }
+
+        const prefixA = getGradePrefix(gradeA);
+        const prefixB = getGradePrefix(gradeB);
+
+        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+        const orderA = prefixOrder[prefixA] ?? 99;
+        const orderB = prefixOrder[prefixB] ?? 99;
+
+        return orderA - orderB;
+      });
+
+      for (const [admissionKey, student] of sortedStudents) {
+        const admissionDisplay = normalizeAdmissionDisplay(admissionKey);
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+          <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+          <td class="col-name">
+            <div class="student-info">
+              <span class="student-name clickable-name" data-student="${admissionKey}">${student.name || "Unknown"}</span>
+              <span class="student-id">${admissionDisplay}</span>
+            </div>
+          </td>
+          <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionKey))}</td> 
+          <td class="col-dob">${formatCurrency(studentExceptions(admissionKey))}</td>
+          <td class="col-national">${formatCurrency(getBalanceBefore(admissionKey))}</td>
+          <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionKey))}</td>
+          <td class="col-contact">${formatCurrency(getCurrent(admissionKey))}</td>
+          <td class="col-contact">${student.class || "—"}</td>
+        `;
+        tbody.appendChild(row);
+      }
+
+      attachClickableNameHandlers();
+    }
+
+    // ============================================================
+    // ATTACH CLICK HANDLERS
+    // ============================================================
+    function attachClickableNameHandlers() {
+      document.querySelectorAll('.clickable-name').forEach(nameEl => {
+        // Remove existing listener to avoid duplicates
+        nameEl.removeEventListener('click', handleNameClick);
+        nameEl.addEventListener('click', handleNameClick);
+      });
+    }
+
+    function handleNameClick(e) {
+      e.stopPropagation();
+      const studentId = this.getAttribute('data-student');
+      if (studentId) {
+        selectStudentForFee(studentId);
+      }
+    }
+
+    // ============================================================
+    // POPULATE FEE PAYMENT HISTORY
+    // ============================================================
+    function populateFeePaymentHistory(paymentData, admissionNumber) {
+      const tableBody = document.querySelector('#feepaymentHistory tbody');
+      if (!tableBody) return;
+
+      tableBody.innerHTML = '';
+
+      const normalizedAdmission = normalizeAdmissionKey(admissionNumber);
+
+      const paymentDataArray = paymentData
+        ? (Array.isArray(paymentData)
+          ? paymentData.map((payment, index) => ({ ...payment, key: payment.key || index }))
+          : Object.entries(paymentData).map(([key, payment]) => ({ ...payment, key }))
+        )
+        : [];
+
+      const filteredPayments = paymentDataArray.filter(payment =>
+        normalizeAdmissionKey(String(payment.admissionNumber || '')) === normalizedAdmission
       );
+
+      if (filteredPayments.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align:center;">
+              No payment history available
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filteredPayments.forEach(payment => {
+        const row = document.createElement('tr');
+        row.dataset.key = payment.key || '';
+
+        const displayDate =
+          formatDateToDDMMYYYY(payment.paymentDate) ||
+          formatDateToDDMMYYYY(payment.entryDate) ||
+          '—';
+
+        row.innerHTML = `
+          <td>${payment.term || '—'}</td>
+          <td>${formatCurrency(payment.fee)}</td>
+          <td>${formatCurrency(payment.Exemption)}</td>
+          <td>${formatCurrency(payment.amount)}</td>
+          <td>${formatCurrency(payment.balance)}</td>
+          <td>${displayDate}</td>
+          <td>${payment.Account || '—'}</td>
+          <td>${payment.key || '—'}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // ============================================================
+    // SELECT STUDENT FOR FEE
+    // ============================================================
+    function selectStudentForFee(admissionNumber) {
+      if (!admissionNumber) return alert("Admission number not found.");
+
+      const admissionKey = normalizeAdmissionKey(admissionNumber);
+      const s = studentsCache[admissionKey];
+
+      if (!s) {
+        // Try with the original key
+        const s2 = studentsCache[admissionNumber];
+        if (!s2) return alert("Student not found.");
+        return populateStudentFeeData(s2, admissionNumber);
+      }
+
+      return populateStudentFeeData(s, admissionKey);
+    }
+
+    function populateStudentFeeData(s, admissionKey) {
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || "";
+      };
+
+      const admissionDisplay = normalizeAdmissionDisplay(admissionKey);
+
+      set("Fn_Name", s.name);
+      set("Fn_Grade", s.class);
+      set("Fn_Admn", admissionDisplay);
+      set("Fn_CurrentFee", getStudentRequiredFee(admissionKey));
+      set("Fn_CurrentBalance", getCurrent(admissionKey));
+      set("Fn_studentExceptions", studentExceptions(admissionKey));
+      set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionKey));
+
+      populateFeePaymentHistory(paymentCache, admissionKey);
+
+      if (typeof window.openDialog2 === "function") {
+        window.openDialog2(admissionKey);
+      }
+    }
+
+    // ============================================================
+    // GET CHECKED STUDENT AND POPULATE
+    // ============================================================
+    window.getCheckedStudentAndPopulate = function () {
+      const checked = document.querySelectorAll(".register-table tbody .custom-checkbox:checked");
+
+      if (checked.length === 0) return alert("Please select a student first.") || null;
+      if (checked.length > 1) return alert("Select only one student.") || null;
+
+      const admissionDisplay = checked[0].closest("tr").querySelector(".student-id")?.textContent.trim();
+      const admissionKey = normalizeAdmissionKey(admissionDisplay);
+      const s = studentsCache[admissionKey];
+
+      if (!s) return alert("Student data not found.") || null;
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || "";
+      };
+
+      set("studentName", s.name);
+      set("studentDOB", s.dob);
+      set("studentReligion", s.religion);
+      set("studentNationality", s.nationality);
+      set("studentID", s.idNumber);
+      set("guardianName", s.guardian);
+      set("guardianRelationship", s.relationship);
+      set("guardianPhone", s.phone);
+      set("guardianEmail", s.email);
+      set("guardianAddress", s.address);
+      set("admissionNumber", normalizeAdmissionDisplay(s.admissionNumber || admissionKey));
+      set("studentClass", s.class);
+
+      const consentCheck = document.getElementById("consentCheck");
+      if (consentCheck) consentCheck.checked = !!s.consent;
+
+      if (s.gender) {
+        const radio = document.querySelector(`input[name="gender"][value="${s.gender}"]`);
+        if (radio) radio.checked = true;
+      }
+
+      if (typeof window.openDialog === "function") {
+        window.openDialog();
+        const btn = document.getElementById("saveStudent");
+        const Auto = document.getElementById("autoGenerate");
+        if (btn) btn.textContent = "Update";
+        if (Auto) Auto.disabled = true;
+      }
+
+      return s;
+    };
+
+    window.getCheckedStudentAndPopulateFee = function () {
+      const checked = document.querySelectorAll("#FeeBalanceList tbody .custom-checkbox:checked");
 
       if (checked.length > 1) {
         alert("Select only one student.");
@@ -3955,288 +3300,659 @@
       }
 
       if (checked.length === 0) {
-
         if (typeof window.openDialog2 === "function") {
           window.openDialog2();
         }
-
         return null;
       }
 
       const row = checked[0].closest("tr");
+      const admissionDisplay = row?.querySelector(".student-id")?.textContent.trim();
 
-      const admissionNumber = row
-        ?.querySelector(".student-id")
-        ?.textContent
-        .trim();
-
-      if (!admissionNumber) {
-
+      if (!admissionDisplay) {
         if (typeof window.openDialog2 === "function") {
           window.openDialog2();
         }
-
         return null;
       }
 
-      const s = studentsCache?.[admissionNumber];
+      const admissionKey = normalizeAdmissionKey(admissionDisplay);
+      const s = studentsCache?.[admissionKey];
 
       if (!s) {
-
         if (typeof window.openDialog2 === "function") {
           window.openDialog2();
         }
-
         return null;
       }
 
-      const set = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val ?? "";
-      };
-
-      set("Fn_Name", s.name);
-      set("Fn_Grade", s.class);
-      set("Fn_Admn", s.admissionNumber || admissionNumber);
-      set("Fn_CurrentFee", getStudentRequiredFee(admissionNumber));
-      set("Fn_CurrentBalance", getCurrent(admissionNumber));
-      set("Fn_studentExceptions", studentExceptions(admissionNumber));
-      set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-
-      populateFeePaymentHistory(
-        paymentCache,
-        admissionNumber
-      );
-
-      if (typeof window.openDialog2 === "function") {
-        window.openDialog2(admissionNumber);
-      }
-
+      selectStudentForFee(admissionKey);
       return s;
     };
 
-    // ----- Double-click student row to open edit dialog -----
-    document.getElementById('FeeBalanceList')?.addEventListener('dblclick', function (e) {
-
-      const row = e.target.closest('tbody tr');
-
-      if (!row || e.target.closest('.col-check')) return;
-
-      const admissionNumber =
-        row.querySelector('.student-id')?.textContent.trim();
-
-      selectStudentForFee(admissionNumber);
+    // ============================================================
+    // REAL-TIME LISTENERS
+    // ============================================================
+    onValue(studentsRef, (snapshot) => {
+      studentsCache = snapshot.exists() ? snapshot.val() : {};
+      populateStudentsTable(studentsCache);
+      populateFeeBalanceTable(studentsCache);
+      const autoGenerate = document.getElementById('autoGenerate');
+      if (autoGenerate) autoGenerate.dispatchEvent(new Event('change'));
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load students:\n" + error.message);
     });
 
-    document.getElementById('FeeBalanceList')?.addEventListener('click', function (e) {
+    onValue(feepaymentRef, (snapshot) => {
+      paymentCache = snapshot.exists() ? snapshot.val() : {};
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load payments:\n" + error.message);
+    });
 
-      const row = e.target.closest('tbody tr');
-
-      if (!row || e.target.closest('.col-check')) return;
-
-      const admissionNumber = row
-        .querySelector('.student-id')
-        ?.textContent
-        .trim();
-
-      if (!admissionNumber) {
-        return alert("Admission number not found.");
+    onValue(classRef, (snapshot) => {
+      if (snapshot.exists()) {
+        classData = Object.values(snapshot.val()).map(data => ({
+          grade: data.grade || '',
+          stream: data.stream || '',
+          room: data.room || '',
+          capacity: data.capacity || 0,
+          teacher: data.teacher || ''
+        }));
+      } else {
+        classData = [];
       }
 
-      const exceptions = getStudentExceptions(admissionNumber);
-
-      console.log("Admission Number:", admissionNumber);
-      console.log("Student Exceptions:", exceptions);
-
-      /*
-      alert(
-        `Admission Number: ${admissionNumber}\n\n` +
-        `Boarding: ${exceptions.Boarding}\n` +
-        `Break: ${exceptions.Break}\n` +
-        `Sponsored: ${exceptions.Sponsored}\n` +
-        `Meals: ${exceptions.meals}`
-      );
-      
-
-
-      const values = {
-        admissionNumber: "RS/2026/001",
-        studentName: "John Doe",
-        amount: 5000,
-        term: "Term 1"
-      };
-
-      window.chrome.webview.postMessage(values);
-      */
+      defaultGrades = getDefaultGrades(classData);
+      renderClasses(classData);
+      populateClassSelect(classData);
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load classes:\n" + error.message);
     });
 
-    function setupStudentSearch() {
-      const searchInput = document.getElementById("Searchtext");
+    onValue(termRef, (snapshot) => {
+      if (snapshot.exists()) {
+        terms = Object.entries(snapshot.val()).map(([key, data]) => ({
+          termId: key,
+          start: data.start || '',
+          end: data.end || '',
+          status: data.status || 'Active',
+          meal: parseFloat(data.meal) || 0,
+          transport: parseFloat(data.transport) || 0,
+          boarding: parseFloat(data.boarding) || 0,
+          breakFee: parseFloat(data.breakFee) || 0,
+          grades: data.grades || {}
+        }));
+      } else {
+        terms = [];
+      }
 
-      if (!searchInput) return;
+      renderGrid();
+      populateFeeBalanceTable(studentsCache);
+    }, (error) => {
+      console.error("Realtime error:", error);
+      alert("Failed to load terms:\n" + error.message);
+    });
 
-      const suggestionBox = document.createElement("div");
+    // ============================================================
+    // CLASS RENDERING
+    // ============================================================
+    const grid = document.getElementById('classGrid');
 
-      suggestionBox.style.cssText = `
-        position: absolute;
-        background: white;
-        width: 250px;
-        max-height: 250px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        z-index: 9999;
-        display: none;
-        font-size: 12px;
-    `;
+    function renderClasses(classes) {
+      if (!grid) return;
+      grid.innerHTML = '';
 
-      document.body.appendChild(suggestionBox);
+      classes.forEach(cls => {
+        const card = document.createElement('div');
+        card.className = 'class-card';
 
-      searchInput.addEventListener("input", function () {
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'class-header';
 
-        const searchText = this.value.trim().toLowerCase();
+        const gradeStreamDiv = document.createElement('div');
+        gradeStreamDiv.className = 'grade-stream';
+        const gradeSpan = document.createElement('span');
+        gradeSpan.className = 'grade';
+        gradeSpan.textContent = cls.grade;
+        const streamSpan = document.createElement('span');
+        streamSpan.className = 'stream';
+        streamSpan.textContent = cls.stream;
+        gradeStreamDiv.appendChild(gradeSpan);
+        gradeStreamDiv.appendChild(streamSpan);
 
-        suggestionBox.innerHTML = "";
+        const teacherBadge = document.createElement('div');
+        teacherBadge.className = 'teacher-badge';
+        teacherBadge.innerHTML = `<i class="fas fa-user-graduate"></i> ${cls.teacher.split(' ').slice(-1)[0]}`;
 
-        if (!searchText || !studentsCache) {
-          suggestionBox.style.display = "none";
-          return;
-        }
+        headerDiv.appendChild(gradeStreamDiv);
+        headerDiv.appendChild(teacherBadge);
+        card.appendChild(headerDiv);
 
-        const matches = Object.entries(studentsCache)
-          .filter(([key, student]) => {
-            const name = String(student.name || "").toLowerCase();
-            return name.includes(searchText);
-          })
-          .slice(0, 10);
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'class-details';
 
-        if (matches.length === 0) {
-          suggestionBox.style.display = "none";
-          return;
-        }
+        const roomRow = document.createElement('div');
+        roomRow.className = 'detail-row';
+        roomRow.innerHTML = `<i class="fas fa-door-open"></i><span class="detail-label">Room</span><span class="detail-value">${cls.room}</span>`;
+        detailsDiv.appendChild(roomRow);
 
-        matches.forEach(([key, student]) => {
+        const capacityRow = document.createElement('div');
+        capacityRow.className = 'detail-row';
+        capacityRow.innerHTML = `<i class="fas fa-user-friends"></i><span class="detail-label">Capacity</span><span class="detail-value">${cls.capacity}</span>`;
+        detailsDiv.appendChild(capacityRow);
 
-          const item = document.createElement("div");
+        const teacherRow = document.createElement('div');
+        teacherRow.className = 'detail-row';
+        teacherRow.innerHTML = `<i class="fas fa-chalkboard-teacher"></i><span class="detail-label">Teacher</span><span class="detail-value">${cls.teacher}</span>`;
+        detailsDiv.appendChild(teacherRow);
 
-          item.textContent = student.name || "Unknown Student";
+        card.appendChild(detailsDiv);
 
-          item.style.cssText = `
-                padding: 8px;
-                cursor: pointer;
-                border-bottom: 1px solid #eee;
-            `;
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'class-footer';
+        const teacherChip = document.createElement('div');
+        teacherChip.className = 'class-teacher';
+        teacherChip.innerHTML = `<i class="fas fa-user-tie"></i> ${cls.teacher}`;
+        footerDiv.appendChild(teacherChip);
+        card.appendChild(footerDiv);
 
-          item.addEventListener("mouseenter", () => {
-            item.style.background = "#f1f1f1";
-          });
-
-          item.addEventListener("mouseleave", () => {
-            item.style.background = "white";
-          });
-
-          item.addEventListener("click", () => {
-
-            const admissionNumber =
-              student.admissionNumber || key;
-
-            searchInput.value = student.name || "";
-
-            suggestionBox.style.display = "none";
-
-            selectStudentForFee(admissionNumber.replace(/\//g, "-"));
-          });
-
-          suggestionBox.appendChild(item);
-        });
-
-        const rect = searchInput.getBoundingClientRect();
-
-        suggestionBox.style.left =
-          `${rect.left + window.scrollX}px`;
-
-        suggestionBox.style.top =
-          `${rect.bottom + window.scrollY}px`;
-
-        suggestionBox.style.width =
-          `${rect.width}px`;
-
-        suggestionBox.style.display = "block";
-      });
-
-      document.addEventListener("click", function (e) {
-        if (
-          e.target !== searchInput &&
-          !suggestionBox.contains(e.target)
-        ) {
-          suggestionBox.style.display = "none";
-        }
+        grid.appendChild(card);
       });
     }
 
-    function selectStudentForFee(admissionNumber) {
-      if (!admissionNumber) return alert("Admission number not found.");
+    function populateClassSelect(classData) {
+      const select = document.getElementById('studentClass');
+      if (!select) return;
 
-      const s = studentsCache[admissionNumber];
-      if (!s) return alert("Student not found.");
+      select.innerHTML = '';
 
-      const set = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val || "";
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select Class';
+      select.appendChild(defaultOption);
+
+      const classMap = new Map();
+
+      classData.forEach(cls => {
+        const key = `${cls.grade}|${cls.stream}`;
+        if (!classMap.has(key)) {
+          classMap.set(key, { grade: cls.grade, stream: cls.stream });
+        }
+      });
+
+      const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
+        const gradeOrder = {
+          'Pre-primary': 0,
+          'Grade 1': 1,
+          'Grade 2': 2,
+          'Grade 3': 3,
+          'Grade 4': 4,
+          'Grade 5': 5,
+          'Grade 6': 6,
+          'Grade 7': 7,
+          'Grade 8': 8,
+          'Form 1': 9,
+          'Form 2': 10,
+          'Form 3': 11,
+          'Form 4': 12
+        };
+
+        const aOrder = gradeOrder[a.grade] || 999;
+        const bOrder = gradeOrder[b.grade] || 999;
+
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return (a.stream || '').localeCompare(b.stream || '');
+      });
+
+      uniqueClasses.forEach(cls => {
+        const option = document.createElement('option');
+        let displayText = cls.grade;
+        if (cls.stream) {
+          displayText += ` - ${cls.stream}`;
+        }
+        option.value = displayText;
+        option.textContent = displayText;
+        select.appendChild(option);
+      });
+    }
+
+    // ============================================================
+    // TERM MANAGEMENT
+    // ============================================================
+    const Termgrid = document.getElementById('termGrid');
+    const totalTermsSpan = document.getElementById('totalTerms');
+    const totalFeesSpan = document.getElementById('totalFees');
+    const totalGradesSpan = document.getElementById('totalGrades');
+
+    const modal = document.getElementById('termModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const termIdInput = document.getElementById('termIdInput');
+    const statusSelect = document.getElementById('statusSelect');
+    const startDateInput = document.getElementById('startDateInput');
+    const endDateInput = document.getElementById('endDateInput');
+    const mealInput = document.getElementById('mealInput');
+    const transportInput = document.getElementById('transportInput');
+    const boardingInput = document.getElementById('boardingInput');
+    const breakInput = document.getElementById('breakInput');
+    const gradeFeesContainer = document.getElementById('gradeFeesContainer');
+    const newGradeInput = document.getElementById('newGradeInput');
+    const newGradeFeeInput = document.getElementById('newGradeFeeInput');
+    const addGradeBtn = document.getElementById('addGradeBtn');
+
+    const addBtn = document.getElementById('addTermBtn');
+    const closeBtn = document.getElementById('closeTermModalBtn');
+    const cancelBtn = document.getElementById('cancelTermModalBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const form = document.getElementById('termForm');
+
+    let editingIndex = -1;
+    let defaultGrades = {};
+
+    const getDefaultGrades = (classData) => {
+      const grades = {};
+      classData.forEach(cls => {
+        const grade = cls.grade || 'Unknown';
+        grades[grade] = 0;
+      });
+      return grades;
+    };
+
+    function openModal(index) {
+      editingIndex = index;
+      if (index === -1) {
+        modalTitle.textContent = 'New Term';
+        termIdInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        statusSelect.value = 'Active';
+        mealInput.value = '0.00';
+        transportInput.value = '0.00';
+        boardingInput.value = '0.00';
+        breakInput.value = '0.00';
+        renderGradeFees(defaultGrades);
+      } else {
+        modalTitle.textContent = 'Edit Term';
+        const t = terms[index];
+        termIdInput.value = t.termId || '';
+        startDateInput.value = t.start ? t.start.split('T')[0] : '';
+        endDateInput.value = t.end ? t.end.split('T')[0] : '';
+        statusSelect.value = t.status || 'Active';
+        mealInput.value = (t.meal || 0).toFixed(2);
+        transportInput.value = (t.transport || 0).toFixed(2);
+        boardingInput.value = (t.boarding || 0).toFixed(2);
+        breakInput.value = (t.breakFee || 0).toFixed(2);
+        renderGradeFees(t.grades || defaultGrades);
+      }
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      editingIndex = -1;
+    }
+
+    function renderGradeFees(grades) {
+      gradeFeesContainer.innerHTML = '';
+
+      if (!grades) grades = defaultGrades;
+
+      for (const [grade, fee] of Object.entries(grades)) {
+        const displayGrade = /^\d+$/.test(grade) ? `Grade ${grade}` : grade;
+
+        const row = document.createElement('div');
+        row.className = 'grade-fee-row';
+
+        row.innerHTML = `
+          <label>${displayGrade}</label>
+          <input 
+            type="number" 
+            step="0.01" 
+            class="grade-fee-input" 
+            data-grade="${grade}" 
+            value="${fee}" 
+          />
+          <button 
+            type="button" 
+            class="btn-remove-grade" 
+            data-grade="${grade}"
+          >✕</button>
+        `;
+
+        gradeFeesContainer.appendChild(row);
+      }
+
+      gradeFeesContainer.querySelectorAll('.btn-remove-grade').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const row = this.closest('.grade-fee-row');
+          if (row) row.remove();
+        });
+      });
+    }
+
+    function collectGrades() {
+      const grades = {};
+      const inputs = gradeFeesContainer.querySelectorAll('.grade-fee-input');
+
+      inputs.forEach(inp => {
+        const grade = inp.dataset.grade;
+        const val = parseFloat(inp.value) || 0;
+
+        if (grade) {
+          grades[grade] = val;
+        }
+      });
+
+      return grades;
+    }
+
+    async function saveTerm(e) {
+      e.preventDefault();
+
+      const termId = termIdInput.value.trim();
+      const start = startDateInput.value;
+      const end = endDateInput.value;
+      const status = statusSelect.value;
+
+      const meal = parseFloat(mealInput.value) || 0;
+      const transport = parseFloat(transportInput.value) || 0;
+      const boarding = parseFloat(boardingInput.value) || 0;
+      const breakFee = parseFloat(breakInput.value) || 0;
+
+      const grades = collectGrades();
+
+      if (!termId) {
+        alert('Term ID is required.');
+        return;
+      }
+
+      if (!start) {
+        alert('Start date is required.');
+        return;
+      }
+
+      if (!end) {
+        alert('End date is required.');
+        return;
+      }
+
+      if (new Date(start) > new Date(end)) {
+        alert('Start date must be before end date.');
+        return;
+      }
+
+      if (Object.keys(grades).length === 0) {
+        alert('Add at least one grade with fee.');
+        return;
+      }
+
+      const termObj = {
+        termId: termId,
+        start: start,
+        end: end,
+        status: status,
+        meal: meal,
+        transport: transport,
+        boarding: boarding,
+        breakFee: breakFee,
+        grades: grades
       };
 
-      const payment = getLastPayment(s.admissionNumber);
-
-      set("Fn_Name", s.name);
-      set("Fn_Grade", s.class);
-      set("Fn_Admn", s.admissionNumber);
-      set("Fn_CurrentFee", getStudentRequiredFee(admissionNumber));
-      set("Fn_CurrentBalance", getCurrent(admissionNumber));
-      set("Fn_studentExceptions", studentExceptions(admissionNumber));
-      set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-
-      populateFeePaymentHistory(paymentCache, s.admissionNumber);
-
-      window.openDialog2(admissionNumber);
+      try {
+        await set(ref(db, `Institution/ Revival/terms/${termId}`), termObj);
+        closeModal();
+      } catch (error) {
+        console.error("Error saving term:", error);
+        alert("Failed to save Term Details:\n" + error.message);
+      }
     }
 
-    // Call after studentsCache has been populated
-    setupStudentSearch();
+    function renderGrid() {
+      if (!Termgrid) return;
+      Termgrid.innerHTML = '';
 
-    let selectedPaymentKey = null;
+      if (terms.length === 0) {
+        Termgrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-calendar-plus"></i>
+            <p>No terms yet. Click <strong>"New Term"</strong> to add one.</p>
+          </div>
+        `;
+        updateStats();
+        return;
+      }
 
+      terms.forEach((term, idx) => {
+        const card = document.createElement('div');
+        card.className = 'term-card';
 
-    // ==========================================
-    // SELECT PAYMENT ROW
-    // ==========================================
+        const statusClass =
+          term.status === 'Active' ? '' :
+            term.status === 'Inactive' ? 'inactive' : 'closed';
+
+        const startDate = formatDateToDDMMYYYY(term.start);
+        const endDate = formatDateToDDMMYYYY(term.end);
+
+        let gradesHtml = '';
+        const gradeEntries = Object.entries(term.grades || {});
+
+        if (gradeEntries.length > 0) {
+          gradesHtml = gradeEntries.map(([g, f]) => {
+            const displayGrade = /^\d+$/.test(g) ? `Grade ${g}` : g;
+
+            return `
+              <span class="grade-chip">
+                ${displayGrade}
+                <span class="fee">${formatCurrency(f)}</span>
+              </span>
+            `;
+          }).join('');
+        } else {
+          gradesHtml = '<span style="color:#6b7e93;">No grades set</span>';
+        }
+
+        card.innerHTML = `
+          <div class="term-card-header">
+            <span class="term-id">
+              <i class="fas fa-tag" style="color:#2a7de1; margin-right:0.3rem;"></i>
+              ${term.termId || '—'}
+            </span>
+            <span class="term-status ${statusClass}">
+              ${term.status || '—'}
+            </span>
+          </div>
+
+          <div class="term-dates">
+            <span>
+              <i class="fas fa-calendar-day"></i> ${startDate}
+            </span>
+            <span>
+              <i class="fas fa-calendar-day"></i> ${endDate}
+            </span>
+          </div>
+
+          <div class="term-fees">
+            <div class="fee-item">
+              <span class="label">Meal</span>
+              <span class="value">${formatCurrency(term.meal)}</span>
+            </div>
+
+            <div class="fee-item">
+              <span class="label">Transport</span>
+              <span class="value">${formatCurrency(term.transport)}</span>
+            </div>
+
+            <div class="fee-item">
+              <span class="label">Boarding</span>
+              <span class="value">${formatCurrency(term.boarding)}</span>
+            </div>
+
+            <div class="fee-item">
+              <span class="label">Break</span>
+              <span class="value">${formatCurrency(term.breakFee)}</span>
+            </div>
+          </div>
+
+          <div class="term-grades">
+            <span class="label">Grade Fees</span>
+            <div class="grade-chips">
+              ${gradesHtml}
+            </div>
+          </div>
+
+          <div class="term-actions-card">
+            <button class="btn btn-outline btn-sm edit-btn" data-index="${idx}">
+              <i class="fas fa-pen"></i> Edit
+            </button>
+
+            <button class="btn btn-outline btn-sm delete-btn"
+              data-index="${idx}"
+              style="border-color:#fca5a5; color:#991b1b;">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        `;
+
+        Termgrid.appendChild(card);
+      });
+
+      Termgrid.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const idx = parseInt(this.dataset.index);
+          openModal(idx);
+        });
+      });
+
+      Termgrid.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const idx = parseInt(this.dataset.index);
+          const termId = terms[idx].termId;
+
+          if (confirm('Delete this term?')) {
+            try {
+              await remove(ref(db, `Institution/ Revival/terms/${termId}`));
+              terms.splice(idx, 1);
+              renderGrid();
+            } catch (error) {
+              console.error("Error deleting term:", error);
+              alert("Failed to delete term:\n" + error.message);
+            }
+          }
+        });
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      if (totalTermsSpan) totalTermsSpan.textContent = terms.length;
+
+      let totalFees = 0;
+      let gradeSet = new Set();
+      terms.forEach(t => {
+        totalFees += (t.meal || 0) + (t.transport || 0) + (t.boarding || 0) + (t.breakFee || 0);
+        if (t.grades) {
+          Object.keys(t.grades).forEach(g => gradeSet.add(g));
+        }
+      });
+      if (totalFeesSpan) totalFeesSpan.textContent = formatCurrency(totalFees);
+      if (totalGradesSpan) totalGradesSpan.textContent = gradeSet.size;
+    }
+
+    if (addBtn) addBtn.addEventListener('click', () => openModal(-1));
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (form) form.addEventListener('submit', saveTerm);
+
+    if (addGradeBtn) {
+      addGradeBtn.addEventListener('click', function () {
+        const grade = newGradeInput.value.trim();
+        const fee = parseFloat(newGradeFeeInput.value) || 0;
+
+        if (!grade) {
+          alert('Please enter a grade name.');
+          return;
+        }
+
+        const existingInput = gradeFeesContainer.querySelector(`[data-grade="${grade}"]`);
+        if (existingInput) {
+          existingInput.value = fee;
+        } else {
+          const row = document.createElement('div');
+          row.className = 'grade-fee-row';
+          row.innerHTML = `
+            <label>${grade}</label>
+            <input 
+              type="number" 
+              step="0.01" 
+              class="grade-fee-input" 
+              data-grade="${grade}" 
+              value="${fee}" 
+            />
+            <button 
+              type="button" 
+              class="btn-remove-grade" 
+              data-grade="${grade}"
+            >✕</button>
+          `;
+          gradeFeesContainer.appendChild(row);
+
+          row.querySelector('.btn-remove-grade').addEventListener('click', function () {
+            row.remove();
+          });
+        }
+
+        newGradeInput.value = '';
+        newGradeFeeInput.value = '';
+      });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function () {
+        renderGrid();
+      });
+    }
+
+    // ============================================================
+    // AUTO-GENERATE ADMISSION NUMBER
+    // ============================================================
+    document.getElementById('autoGenerate')?.addEventListener('change', function () {
+      const admissionInput = document.getElementById('admissionNumber');
+      if (this.checked) {
+        admissionInput.value = getNextAdmissionNumber();
+        admissionInput.disabled = true;
+      } else {
+        const year = new Date().getFullYear();
+        admissionInput.value = `RS-${year}-`;
+        admissionInput.disabled = false;
+        admissionInput.focus();
+      }
+    });
+
+    // ============================================================
+    // FEE PAYMENT HISTORY ROW SELECTION
+    // ============================================================
     document.querySelector('#feepaymentHistory tbody')
       ?.addEventListener('click', function (e) {
-
         const row = e.target.closest('tr');
-
         if (!row || !row.dataset.key) return;
 
-        // Remove selection from all rows
         document.querySelectorAll('#feepaymentHistory tbody tr')
           .forEach(r => r.classList.remove('selected-row'));
 
-        // Highlight selected row
         row.classList.add('selected-row');
-
-        // Store Firebase key
         selectedPaymentKey = row.dataset.key;
 
         console.log("Selected Payment Key:", selectedPaymentKey);
       });
 
-
-    // ==========================================
-    // CTRL + F + P
-    // ==========================================
+    // ============================================================
+    // CTRL + P FOR PRINT
+    // ============================================================
     document.addEventListener('keydown', function (e) {
-
       if (e.ctrlKey && e.key.toLowerCase() === 'p') {
-
         e.preventDefault();
 
         if (!selectedPaymentKey) {
@@ -4244,7 +3960,6 @@
           return;
         }
 
-        // Get selected payment directly from Firebase cache
         const paymentData = paymentCache[selectedPaymentKey];
 
         if (!paymentData) {
@@ -4257,13 +3972,10 @@
         window.chrome.webview.postMessage({
           action: "PRINT_RECEIPT",
           DateandTime: paymentData.entryDate,
-          studentName:
-            document.getElementById("Fn_Name")
-              ?.textContent
-              .trim() || '',
+          studentName: document.getElementById("Fn_Name")?.textContent.trim() || '',
           Class_Grade: paymentData.class,
           term: paymentData.term || getActiveTerm(),
-          Admission_No: admissionNumber,
+          Admission_No: normalizeAdmissionDisplay(admissionNumber),
           Amount: paymentData.amount,
           RecieptNo: paymentData.receiptNo || "001",
           Balance: paymentData.balance,
@@ -4274,8 +3986,138 @@
       }
     });
 
+    // ============================================================
+    // STUDENT SEARCH
+    // ============================================================
+    function setupStudentSearch() {
+      const searchInput = document.getElementById("Searchtext");
+      if (!searchInput) return;
 
+      const suggestionBox = document.createElement("div");
+      suggestionBox.style.cssText = `
+        position: absolute;
+        background: white;
+        width: 250px;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        z-index: 9999;
+        display: none;
+        font-size: 12px;
+      `;
+      document.body.appendChild(suggestionBox);
+
+      searchInput.addEventListener("input", function () {
+        const searchText = this.value.trim().toLowerCase();
+        suggestionBox.innerHTML = "";
+
+        if (!searchText || !studentsCache) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        const matches = Object.entries(studentsCache)
+          .filter(([, student]) => {
+            const name = String(student.name || "").toLowerCase();
+            return name.includes(searchText);
+          })
+          .slice(0, 10);
+
+        if (matches.length === 0) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        matches.forEach(([key, student]) => {
+          const item = document.createElement("div");
+          item.textContent = student.name || "Unknown Student";
+          item.style.cssText = `
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+          `;
+
+          item.addEventListener("mouseenter", () => {
+            item.style.background = "#f1f1f1";
+          });
+
+          item.addEventListener("mouseleave", () => {
+            item.style.background = "white";
+          });
+
+          item.addEventListener("click", () => {
+            searchInput.value = student.name || "";
+            suggestionBox.style.display = "none";
+            selectStudentForFee(key);
+          });
+
+          suggestionBox.appendChild(item);
+        });
+
+        const rect = searchInput.getBoundingClientRect();
+        suggestionBox.style.left = `${rect.left + window.scrollX}px`;
+        suggestionBox.style.top = `${rect.bottom + window.scrollY}px`;
+        suggestionBox.style.width = `${rect.width}px`;
+        suggestionBox.style.display = "block";
+      });
+
+      document.addEventListener("click", function (e) {
+        if (e.target !== searchInput && !suggestionBox.contains(e.target)) {
+          suggestionBox.style.display = "none";
+        }
+      });
+    }
+
+    // ============================================================
+    // FEE BALANCE LIST EVENTS
+    // ============================================================
+    document.getElementById('FeeBalanceList')?.addEventListener('dblclick', function (e) {
+      const row = e.target.closest('tbody tr');
+      if (!row || e.target.closest('.col-check')) return;
+
+      const admissionDisplay = row.querySelector('.student-id')?.textContent.trim();
+      if (admissionDisplay) {
+        const admissionKey = normalizeAdmissionKey(admissionDisplay);
+        selectStudentForFee(admissionKey);
+      }
+    });
+
+    document.getElementById('FeeBalanceList')?.addEventListener('click', function (e) {
+      const row = e.target.closest('tbody tr');
+      if (!row || e.target.closest('.col-check')) return;
+
+      const admissionDisplay = row.querySelector('.student-id')?.textContent.trim();
+
+      if (!admissionDisplay) {
+        return alert("Admission number not found.");
+      }
+
+      const admissionKey = normalizeAdmissionKey(admissionDisplay);
+      const exceptions = getStudentExceptions(admissionKey);
+      console.log("Admission Key:", admissionKey);
+      console.log("Student Exceptions:", exceptions);
+    });
+
+    // ============================================================
+    // INITIALIZE
+    // ============================================================
+    setupStudentSearch();
+    attachClickableNameHandlers();
+
+    console.log('✅ All scripts loaded and ready. Both dialog boxes initialized.');
+    console.log('✅ Admission numbers will be stored with hyphens (e.g., RS-2025-001)');
+    console.log('✅ Admission numbers will be displayed with slashes (e.g., RS/2025/001)');
+
+    // Handle window resize for suggestion box
+    window.addEventListener('resize', function () {
+      const suggestionBox = document.querySelector('div[style*="z-index: 9999"]');
+      if (suggestionBox) {
+        suggestionBox.style.display = 'none';
+      }
+    });
   </script>
+
 </body>
 
 
