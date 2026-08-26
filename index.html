@@ -2671,7 +2671,7 @@
           { lastPayment: paymentData }
         );
 
-        document.getElementById("Fn_CurrentBalance").textContent=formatCurrency(balance);
+        document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
 
         alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
 
@@ -4015,7 +4015,7 @@
       console.log("Admission Number:", admissionNumber);
       console.log("Student Exceptions:", exceptions);
 
-      alert(
+      alert1(
         `Admission Number: ${admissionNumber}\n\n` +
         `Boarding: ${exceptions.Boarding}\n` +
         `Break: ${exceptions.Break}\n` +
@@ -4023,6 +4023,17 @@
         `Meals: ${exceptions.meals}`
       );
 
+
+      function sendToCSharp() {
+        const values = {
+          admissionNumber: "RS/2026/001",
+          studentName: "John Doe",
+          amount: 5000,
+          term: "Term 1"
+        };
+
+        window.chrome.webview.postMessage(values);
+      }
     });
 
     function setupStudentSearch() {
