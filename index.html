@@ -1282,6 +1282,10 @@
     .empty-state p {
       font-size: 1.1rem;
     }
+
+    #feepaymentHistory tbody tr.selected-row {
+      background: #dbeafe;
+    }
   </style>
 </head>
 
@@ -4196,6 +4200,53 @@
 
     // Call after studentsCache has been populated
     setupStudentSearch();
+
+    let selectedPaymentKey = null;
+
+
+    // ==========================================
+    // SELECT PAYMENT ROW
+    // ==========================================
+    document.querySelector('#feepaymentHistory tbody')
+      ?.addEventListener('click', function (e) {
+
+        const row = e.target.closest('tr');
+
+        if (!row || !row.dataset.key) return;
+
+        // Remove selection from all rows
+        document.querySelectorAll('#feepaymentHistory tbody tr')
+          .forEach(r => r.classList.remove('selected-row'));
+
+        // Highlight selected row
+        row.classList.add('selected-row');
+
+        // Store Firebase key
+        selectedPaymentKey = row.dataset.key;
+
+        console.log("Selected Payment Key:", selectedPaymentKey);
+      });
+
+
+    // ==========================================
+    // CTRL + F + P
+    // ==========================================
+    document.addEventListener('keydown', function (e) {
+
+      if (e.ctrlKey && e.key.toLowerCase() === 'p') {
+
+        e.preventDefault();
+
+        if (!selectedPaymentKey) {
+          alert("Please select a payment first.");
+          return;
+        }
+
+        alert(selectedPaymentKey);
+      }
+    });
+
+
 
   </script>
 </body>
