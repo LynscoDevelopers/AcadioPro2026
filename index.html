@@ -2677,17 +2677,17 @@
 
 
         const values = {
-          DateandTime : paymentData.entryDate,
-          studentName : document.getElementById("Fn_Name").textContent.trim(),
-          Class_Grade : paymentData.class,
-          term : getActiveTerm(),
-          Admission_No : admissionNumber,
-          Amount : paymentData.amount,
-          RecieptNo :"001",
-          Balance : paymentData.balance,
-          DateofPayment : paymentData.paymentDate,
-          TransactionRef : paymentData.paymentRef,
-          Account : paymentData.Account
+          DateandTime: paymentData.entryDate,
+          studentName: document.getElementById("Fn_Name").textContent.trim(),
+          Class_Grade: paymentData.class,
+          term: getActiveTerm(),
+          Admission_No: admissionNumber,
+          Amount: paymentData.amount,
+          RecieptNo: "001",
+          Balance: paymentData.balance,
+          DateofPayment: paymentData.paymentDate,
+          TransactionRef: paymentData.paymentRef,
+          Account: paymentData.Account
         };
 
         window.chrome.webview.postMessage(values);
@@ -2928,47 +2928,58 @@
 
       const paymentDataArray = paymentData
         ? (Array.isArray(paymentData)
-          ? paymentData
-          : Object.values(paymentData))
+          ? paymentData.map((payment, index) => ({
+            ...payment,
+            key: payment.key || index
+          }))
+          : Object.entries(paymentData).map(([key, payment]) => ({
+            ...payment,
+            key
+          }))
+        )
         : [];
 
-      const filteredPayments = paymentDataArray.filter(payment => {
-        return String(payment.admissionNumber || '').trim() ===
-          String(admissionNumber || '').trim();
-      });
+      const filteredPayments = paymentDataArray.filter(payment =>
+        String(payment.admissionNumber || '').trim() ===
+        String(admissionNumber || '').trim()
+      );
 
       if (filteredPayments.length === 0) {
+
         tableBody.innerHTML = `
-      <tr>
-        <td colspan="8" style="text-align:center;">
-          No payment history available
-        </td>
-      </tr>
-    `;
+            <tr>
+                <td colspan="8" style="text-align:center;">
+                    No payment history available
+                </td>
+            </tr>
+        `;
+
         return;
       }
 
       filteredPayments.forEach(payment => {
 
         const row = document.createElement('tr');
-        const displayDate = formatDateToDDMMYYYY(payment.paymentDate) ||
-          formatDateToDDMMYYYY(payment.entryDate) || '—';
+
+        const displayDate =
+          formatDateToDDMMYYYY(payment.paymentDate) ||
+          formatDateToDDMMYYYY(payment.entryDate) ||
+          '—';
 
         row.innerHTML = `
-          <td>${payment.term || '—'}</td>
-          <td>${formatCurrency(payment.fee)}</td>
-          <td>${formatCurrency(payment.Exemption)}</td>
-          <td>${formatCurrency(payment.amount)}</td>
-          <td>${formatCurrency(payment.balance)}</td>
-          <td>${displayDate}</td>
-          <td>${payment.Account || '—'}</td>
-          <td>${payment.key || '—'}</td>
+            <td>${payment.term || '—'}</td>
+            <td>${formatCurrency(payment.fee)}</td>
+            <td>${formatCurrency(payment.Exemption)}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${formatCurrency(payment.balance)}</td>
+            <td>${displayDate}</td>
+            <td>${payment.Account || '—'}</td>
+            <td>${payment.key || '—'}</td>
         `;
 
         tableBody.appendChild(row);
       });
     }
-
     // ============================================================
     // REAL-TIME LISTENERS
     // ============================================================
