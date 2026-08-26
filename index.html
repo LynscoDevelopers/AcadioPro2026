@@ -2680,7 +2680,9 @@
         alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
 
 
-        const values = {
+        window.chrome.webview.postMessage({
+          action: "PRINT_RECEIPT",
+
           DateandTime: paymentData.entryDate,
           studentName: document.getElementById("Fn_Name").textContent.trim(),
           Class_Grade: paymentData.class,
@@ -2692,10 +2694,7 @@
           DateofPayment: paymentData.paymentDate,
           TransactionRef: paymentData.paymentRef,
           Account: paymentData.Account
-        };
-
-        window.chrome.webview.postMessage(values);
-
+        });
 
 
       } catch (error) {
@@ -4245,10 +4244,35 @@
           return;
         }
 
-        alert(selectedPaymentKey);
+        // Get selected payment directly from Firebase cache
+        const paymentData = paymentCache[selectedPaymentKey];
+
+        if (!paymentData) {
+          alert("Selected payment data not found.");
+          return;
+        }
+
+        const admissionNumber = paymentData.admissionNumber;
+
+        window.chrome.webview.postMessage({
+          action: "PRINT_RECEIPT",
+          DateandTime: paymentData.entryDate,
+          studentName:
+            document.getElementById("Fn_Name")
+              ?.textContent
+              .trim() || '',
+          Class_Grade: paymentData.class,
+          term: paymentData.term || getActiveTerm(),
+          Admission_No: admissionNumber,
+          Amount: paymentData.amount,
+          RecieptNo: paymentData.receiptNo || "001",
+          Balance: paymentData.balance,
+          DateofPayment: paymentData.paymentDate,
+          TransactionRef: paymentData.paymentRef,
+          Account: paymentData.Account
+        });
       }
     });
-
 
 
   </script>
