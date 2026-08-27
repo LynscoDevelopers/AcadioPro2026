@@ -1337,6 +1337,22 @@
     #register_Tbl tbody tr.context-selected td {
       background-color: #e8f1ff !important;
     }
+
+
+    /* ============================================================
+   FEE BALANCE SELECTED ROW
+   ============================================================ */
+
+    #FeeBalanceList tbody tr.fee-balance-row-selected {
+      background-color: #e8f0fe !important;
+    }
+
+
+    /* Optional: selected row hover */
+
+    #FeeBalanceList tbody tr.fee-balance-row-selected:hover {
+      background-color: #dce8fc !important;
+    }
   </style>
 
 </head>
@@ -2956,78 +2972,291 @@
     }
 
     function populateFeeBalanceTable(students) {
-      const tbody = document.querySelector("#FeeBalanceList tbody");
+
+      const tbody =
+        document.querySelector(
+          "#FeeBalanceList tbody"
+        );
+
       if (!tbody || !students) return;
+
+
+      // ==========================================================
+      // CLEAR TABLE
+      // ==========================================================
 
       tbody.innerHTML = "";
 
-      const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
-        const gradeA = a.class || "";
-        const gradeB = b.class || "";
 
-        const isGraduateA = gradeA === "Graduate";
-        const isGraduateB = gradeB === "Graduate";
-        if (isGraduateA && !isGraduateB) return 1;
-        if (!isGraduateA && isGraduateB) return -1;
+      // ==========================================================
+      // SORT STUDENTS
+      // ==========================================================
 
-        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
-        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
-        if (isInactiveA && !isInactiveB) return 1;
-        if (!isInactiveA && isInactiveB) return -1;
+      const sortedStudents =
+        Object.entries(students).sort(
+          ([, a], [, b]) => {
 
-        const getGradeNumber = (grade) => {
-          const match = grade.match(/(\d+)/);
-          return match ? parseInt(match[1]) : -1;
-        };
+            const gradeA =
+              a.class || "";
 
-        const getGradePrefix = (grade) => {
-          const match = grade.match(/^([A-Za-z]+)/);
-          return match ? match[1].toUpperCase() : "";
-        };
+            const gradeB =
+              b.class || "";
 
-        const numA = getGradeNumber(gradeA);
-        const numB = getGradeNumber(gradeB);
 
-        if (numA !== numB) {
-          if (numA === -1 && numB !== -1) return 1;
-          if (numA !== -1 && numB === -1) return -1;
-          return numB - numA;
+            // Graduate last
+            const isGraduateA =
+              gradeA === "Graduate";
+
+            const isGraduateB =
+              gradeB === "Graduate";
+
+
+            if (
+              isGraduateA &&
+              !isGraduateB
+            ) {
+              return 1;
+            }
+
+
+            if (
+              !isGraduateA &&
+              isGraduateB
+            ) {
+              return -1;
+            }
+
+
+            // Inactive last
+            const isInactiveA =
+              (a.Status || "")
+                .toLowerCase() ===
+              "inactive";
+
+            const isInactiveB =
+              (b.Status || "")
+                .toLowerCase() ===
+              "inactive";
+
+
+            if (
+              isInactiveA &&
+              !isInactiveB
+            ) {
+              return 1;
+            }
+
+
+            if (
+              !isInactiveA &&
+              isInactiveB
+            ) {
+              return -1;
+            }
+
+
+            // Grade number
+            const getGradeNumber =
+              grade => {
+
+                const match =
+                  String(grade)
+                    .match(/(\d+)/);
+
+                return match
+                  ? parseInt(match[1])
+                  : -1;
+              };
+
+
+            // Grade prefix
+            const getGradePrefix =
+              grade => {
+
+                const match =
+                  String(grade)
+                    .match(/^([A-Za-z]+)/);
+
+                return match
+                  ? match[1].toUpperCase()
+                  : "";
+              };
+
+
+            const numA =
+              getGradeNumber(gradeA);
+
+            const numB =
+              getGradeNumber(gradeB);
+
+
+            if (numA !== numB) {
+
+              if (
+                numA === -1 &&
+                numB !== -1
+              ) {
+                return 1;
+              }
+
+
+              if (
+                numA !== -1 &&
+                numB === -1
+              ) {
+                return -1;
+              }
+
+
+              return numB - numA;
+            }
+
+
+            const prefixA =
+              getGradePrefix(gradeA);
+
+            const prefixB =
+              getGradePrefix(gradeB);
+
+
+            const prefixOrder = {
+              G: 0,
+              PP: 1,
+              DAYCARE: 2
+            };
+
+
+            const orderA =
+              prefixOrder[prefixA] ?? 99;
+
+            const orderB =
+              prefixOrder[prefixB] ?? 99;
+
+
+            return orderA - orderB;
+
+          }
+        );
+
+
+      // ==========================================================
+      // CREATE ROWS
+      // ==========================================================
+
+      for (
+        const [admissionNumber, student]
+        of sortedStudents
+      ) {
+
+        const row =
+          document.createElement("tr");
+
+
+        row.innerHTML = `
+
+      <td class="col-check">
+        <input
+          type="checkbox"
+          class="custom-checkbox"
+        >
+      </td>
+
+      <td class="col-avatar">
+        <div class="avatar-wrapper">
+          <span class="avatar-placeholder">
+            👤
+          </span>
+        </div>
+      </td>
+
+      <td class="col-name">
+
+        <div class="student-info">
+
+          <span
+            class="student-name clickable-name"
+            data-student="${admissionNumber}"
+          >
+            ${student.name || "Unknown"}
+          </span>
+
+          <span class="student-id">
+            ${admissionNumber}
+          </span>
+
+        </div>
+
+      </td>
+
+      <td class="col-grade">
+        ${formatCurrency(
+          getStudentRequiredFee(
+            admissionNumber
+          )
+        )}
+      </td>
+
+      <td class="col-dob">
+        ${formatCurrency(
+          studentExceptions(
+            admissionNumber
+          )
+        )}
+      </td>
+
+      <td class="col-national">
+        ${formatCurrency(
+          getBalanceBefore(
+            admissionNumber
+          )
+        )}
+      </td>
+
+      <td class="col-contact">
+        ${formatCurrency(
+          getInstallmentsForStudent(
+            admissionNumber
+          )
+        )}
+      </td>
+
+      <td class="col-contact">
+        ${formatCurrency(
+          getCurrent(
+            admissionNumber
+          )
+        )}
+      </td>
+
+      <td class="col-contact">
+        ${student.class || "—"}
+      </td>
+
+    `;
+
+
+        // ========================================================
+        // RESTORE PREVIOUS SELECTION
+        // ========================================================
+
+        if (
+          admissionNumber ===
+          feeBalanceSelectedAdmissionNumber
+        ) {
+
+          row.classList.add(
+            "fee-balance-row-selected"
+          );
+
+          feeBalanceSelectedRow =
+            row;
         }
 
-        const prefixA = getGradePrefix(gradeA);
-        const prefixB = getGradePrefix(gradeB);
 
-        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
-        const orderA = prefixOrder[prefixA] ?? 99;
-        const orderB = prefixOrder[prefixB] ?? 99;
-
-        return orderA - orderB;
-      });
-
-      for (const [admissionNumber, student] of sortedStudents) {
-        const lp = student.lastPayment || {};
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
-          <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
-          <td class="col-name">
-            <div class="student-info">
-              <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
-              <span class="student-id">${admissionNumber}</span>
-            </div>
-          </td>
-          <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td> 
-          <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
-          <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
-          <td class="col-contact">${student.class || "—"}</td>
-        `;
         tbody.appendChild(row);
+
       }
     }
-
     // Function to populate fee payment history table
     function populateFeePaymentHistory(paymentData, admissionNumber) {
 
@@ -5537,6 +5766,158 @@
       }
     );
 
+
+    // ============================================================
+    // FEE BALANCE TABLE ROW SELECTION
+    // ============================================================
+
+    const feeBalanceTable =
+      document.getElementById("FeeBalanceList");
+
+    // Separate state from register_Tbl
+    let feeBalanceSelectedRow = null;
+    let feeBalanceSelectedAdmissionNumber = null;
+
+
+    // ============================================================
+    // SELECT FEE BALANCE ROW
+    // ============================================================
+
+    function selectFeeBalanceRow(row) {
+
+      if (!row) return;
+
+
+      // Remove selection ONLY from FeeBalanceList
+      feeBalanceTable
+        ?.querySelectorAll(
+          "tbody tr.fee-balance-row-selected"
+        )
+        .forEach(r => {
+
+          if (r !== row) {
+            r.classList.remove(
+              "fee-balance-row-selected"
+            );
+          }
+
+        });
+
+
+      // Select current row
+      row.classList.add(
+        "fee-balance-row-selected"
+      );
+
+
+      // Store row
+      feeBalanceSelectedRow = row;
+
+
+      // Get admission number
+      const admissionNumber =
+        row.querySelector(".student-id")
+          ?.textContent
+          .trim();
+
+
+      if (admissionNumber) {
+
+        feeBalanceSelectedAdmissionNumber =
+          admissionNumber;
+      }
+    }
+
+
+    // ============================================================
+    // CLEAR FEE BALANCE SELECTION
+    // ============================================================
+
+    function clearFeeBalanceSelection() {
+
+      feeBalanceTable
+        ?.querySelectorAll(
+          "tbody tr.fee-balance-row-selected"
+        )
+        .forEach(row => {
+
+          row.classList.remove(
+            "fee-balance-row-selected"
+          );
+
+        });
+
+
+      feeBalanceSelectedRow = null;
+
+      feeBalanceSelectedAdmissionNumber = null;
+    }
+
+
+    // ============================================================
+    // LEFT CLICK ON FEE BALANCE TABLE
+    // ============================================================
+
+    feeBalanceTable?.addEventListener(
+      "click",
+      function (e) {
+
+        const row =
+          e.target.closest("tbody tr");
+
+
+        if (!row) return;
+
+
+        // ========================================================
+        // CHECKBOX CLICK
+        // ========================================================
+
+        if (
+          e.target.matches(
+            "input.custom-checkbox"
+          )
+        ) {
+
+          selectFeeBalanceRow(row);
+
+          return;
+        }
+
+
+        // ========================================================
+        // NORMAL ROW CLICK
+        // ========================================================
+
+        selectFeeBalanceRow(row);
+
+      }
+    );
+
+
+    // ============================================================
+    // RIGHT CLICK ON FEE BALANCE TABLE
+    // ============================================================
+
+    feeBalanceTable?.addEventListener(
+      "contextmenu",
+      function (e) {
+
+        const row =
+          e.target.closest("tbody tr");
+
+
+        if (!row) return;
+
+
+        // Select the row
+        selectFeeBalanceRow(row);
+
+        // Do NOT open registerContextMenu here
+        // This table has its own selection only
+
+      }
+    );
   </script>
 </body>
 
