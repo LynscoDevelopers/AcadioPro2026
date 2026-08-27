@@ -1287,6 +1287,40 @@
       background: #dbeafe;
     }
   </style>
+
+  <style>
+    .register-context-menu {
+      position: fixed;
+      display: none;
+      min-width: 160px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, .15);
+      padding: 6px 0;
+      z-index: 99999;
+    }
+
+    .context-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .context-check-item:hover {
+      background: #f1f5f9;
+    }
+
+    .context-check-item input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -2111,7 +2145,24 @@
     </div>
   </div>
 
+  <div id="registerContextMenu" class="register-context-menu">
 
+    <label class="context-check-item">
+      <input type="checkbox" id="menuMeal">
+      <span>Meal</span>
+    </label>
+
+    <label class="context-check-item">
+      <input type="checkbox" id="menuBoarding">
+      <span>Boarding</span>
+    </label>
+
+    <label class="context-check-item">
+      <input type="checkbox" id="menuSponsored">
+      <span>Sponsored</span>
+    </label>
+
+  </div>
 
   <script src="student-form.js"></script>
   <script src="classScript.js"></script>
@@ -2647,11 +2698,13 @@
 
         await set(studentRef, studentData);
         closeDialog();
+        /*
         alert(
           existingStudent
             ? `Student updated!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}`
             : `Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`
         );
+        */
 
       } catch (error) {
 
@@ -2729,7 +2782,7 @@
           DateofPayment: paymentData.paymentDate,
           TransactionRef: paymentData.paymentRef,
           Account: paymentData.Account,
-          Qr_Key :firebaseKey
+          Qr_Key: firebaseKey
         });
 
 
@@ -4453,7 +4506,7 @@
           DateofPayment: paymentData.paymentDate,
           TransactionRef: paymentData.paymentRef,
           Account: paymentData.Account,
-          Qr_Key :selectedPaymentKey
+          Qr_Key: selectedPaymentKey
 
         });
       }
@@ -4487,6 +4540,290 @@
         sPressed = false;
       }
     });
+
+
+
+    // ============================================================
+    // REGISTER TABLE RIGHT-CLICK MENU
+    // ============================================================
+
+    const registerContextMenu =
+      document.getElementById("registerContextMenu");
+
+    let contextAdmissionNumber = null;
+
+    const menuMeal = document.getElementById("menuMeal");
+    const menuBoarding = document.getElementById("menuBoarding");
+    const menuSponsored = document.getElementById("menuSponsored");
+
+
+    // ============================================================
+    // RIGHT CLICK ON REGISTER TABLE
+    // ============================================================
+
+    document.getElementById("register_Tbl")
+      ?.addEventListener("contextmenu", function (e) {
+
+        const row = e.target.closest("tbody tr");
+
+        if (!row || !registerContextMenu) return;
+
+        e.preventDefault();
+
+        // --------------------------------------------------------
+        // GET ADMISSION NUMBER
+        // --------------------------------------------------------
+
+        const admissionNumber = row
+          .querySelector(".student-id")
+          ?.textContent
+          .trim();
+
+        if (!admissionNumber) {
+          console.warn("Admission number not found.");
+          return;
+        }
+
+        contextAdmissionNumber = admissionNumber;
+
+        // --------------------------------------------------------
+        // GET STUDENT FROM CACHE
+        // --------------------------------------------------------
+
+        const student = studentsCache[admissionNumber];
+
+        if (!student) {
+          console.warn(
+            "Student not found:",
+            admissionNumber
+          );
+          return;
+        }
+
+        // --------------------------------------------------------
+        // GET EXCEPTIONS
+        // --------------------------------------------------------
+
+        const exceptions = student.Exceptions || {};
+
+        // --------------------------------------------------------
+        // SET CURRENT VALUES
+        // --------------------------------------------------------
+
+        menuMeal.checked =
+          exceptions.Meal === true;
+
+        menuBoarding.checked =
+          exceptions.Boarding === true;
+
+        menuSponsored.checked =
+          exceptions.Sponsored === true;
+
+
+        // --------------------------------------------------------
+        // BOARDING → DISABLE MEAL
+        // --------------------------------------------------------
+
+        menuMeal.disabled =
+          menuBoarding.checked;
+
+        if (menuBoarding.checked) {
+          menuMeal.checked = false;
+        }
+
+
+        // --------------------------------------------------------
+        // POSITION MENU UNDER .col-status
+        // --------------------------------------------------------
+
+        const statusCell =
+          row.querySelector(".col-status");
+
+        if (!statusCell) {
+          console.warn("Status cell not found.");
+          return;
+        }
+
+        const rect =
+          statusCell.getBoundingClientRect();
+
+        // Shift right by 15px
+        // Shift upward by 10px
+
+        let left = rect.left + 15;
+        let top = rect.bottom - 10;
+
+
+        // --------------------------------------------------------
+        // KEEP MENU INSIDE SCREEN
+        // --------------------------------------------------------
+
+        const menuWidth =
+          registerContextMenu.offsetWidth || 180;
+
+        const menuHeight =
+          registerContextMenu.offsetHeight || 120;
+
+        if (
+          left + menuWidth >
+          window.innerWidth
+        ) {
+          left =
+            window.innerWidth -
+            menuWidth -
+            10;
+        }
+
+        if (
+          top + menuHeight >
+          window.innerHeight
+        ) {
+          top =
+            rect.top -
+            menuHeight -
+            4;
+        }
+
+
+        // --------------------------------------------------------
+        // SHOW MENU
+        // --------------------------------------------------------
+
+        registerContextMenu.style.left =
+          `${left}px`;
+
+        registerContextMenu.style.top =
+          `${top}px`;
+
+        registerContextMenu.style.display =
+          "block";
+
+
+        console.log(
+          "Selected Admission:",
+          contextAdmissionNumber
+        );
+
+      });
+
+
+    // ============================================================
+    // BOARDING CHECKBOX CHANGE
+    // ============================================================
+
+    menuBoarding?.addEventListener("change", async function () {
+
+      if (this.checked) {
+
+        // Boarding selected → Meal cannot be selected
+        menuMeal.checked = false;
+        menuMeal.disabled = true;
+
+      } else {
+
+        // Boarding removed → Meal becomes available
+        menuMeal.disabled = false;
+      }
+
+      await updateStudentExceptions();
+    });
+    menuMeal?.addEventListener("change", async function () {
+
+      await updateStudentExceptions();
+    });
+
+
+    menuSponsored?.addEventListener("change", async function () {
+
+      await updateStudentExceptions();
+    });
+
+    // ============================================================
+    // UPDATE STUDENT EXCEPTIONS FROM RIGHT-CLICK MENU
+    // ============================================================
+
+    async function updateStudentExceptions() {
+
+      if (!contextAdmissionNumber) {
+        alert("No student selected.");
+        return;
+      }
+
+      const admissionNumber = contextAdmissionNumber;
+      const admissionKey = admissionNumber.replace(/\//g, "-");
+
+      const exceptions = {
+        Meal: menuMeal.checked,
+        Boarding: menuBoarding.checked,
+        Sponsored: menuSponsored.checked
+      };
+
+      try {
+
+        const studentRef = ref(
+          db,
+          `Institution/ Revival/Students/${admissionKey}`
+        );
+
+        // Update ONLY the Exceptions field
+        await update(studentRef, {
+          Exceptions: exceptions
+        });
+
+        // Keep cache synchronized
+        if (studentsCache[admissionNumber]) {
+          studentsCache[admissionNumber].Exceptions = exceptions;
+        }
+
+        console.log(
+          "Exceptions updated:",
+          admissionNumber,
+          exceptions
+        );
+
+        // Close menu
+        registerContextMenu.style.display = "none";
+
+      } catch (error) {
+
+        console.error(
+          "Failed to update exceptions:",
+          error
+        );
+
+        alert(
+          "Failed to update student exceptions:\n" +
+          error.message
+        );
+      }
+    }
+    // ============================================================
+    // CLOSE MENU WHEN CLICKING OUTSIDE
+    // ============================================================
+    document.addEventListener("click", function (e) {
+
+      if (
+        registerContextMenu &&
+        !registerContextMenu.contains(e.target)
+      ) {
+        registerContextMenu.style.display =
+          "none";
+      }
+    });
+
+
+    // ============================================================
+    // CLOSE MENU WHEN SCROLLING
+    // ============================================================
+
+    window.addEventListener("scroll", function () {
+
+      if (registerContextMenu) {
+        registerContextMenu.style.display =
+          "none";
+      }
+
+    }, true);
 
   </script>
 </body>
