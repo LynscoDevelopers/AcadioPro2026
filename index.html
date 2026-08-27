@@ -4731,13 +4731,10 @@
     }
 
 
-    // ============================================================
-    // LEFT CLICK ON REGISTER TABLE
-    // ============================================================
 
     // ============================================================
     // LEFT CLICK ON REGISTER TABLE
-    // INCLUDING CHECKBOX CLICK
+    // INCLUDING CHECKBOX
     // ============================================================
 
     registerTable?.addEventListener("click", function (e) {
@@ -4747,29 +4744,38 @@
       if (!row) return;
 
 
-      // --------------------------------------------------------
-      // ANY CLICK IN THE ROW, INCLUDING CHECKBOX,
-      // SELECTS THE ROW
-      // --------------------------------------------------------
+      // ========================================================
+      // CHECKBOX CLICK
+      // ========================================================
 
-      selectRegisterRow(row);
+      if (
+        e.target.matches(
+          'input.custom-checkbox'
+        )
+      ) {
+
+        // Select this row
+        selectRegisterRow(row);
 
 
-      // --------------------------------------------------------
-      // If checkbox was clicked, keep the row selected
-      // --------------------------------------------------------
+        // Hide context menu
+        closeRegisterContextMenu();
 
-      if (e.target.classList.contains("custom-checkbox")) {
 
-        // Make sure selection remains
+        // IMPORTANT:
+        // Keep row selection
         row.classList.add("row-selected");
 
+
+        // Keep references
         contextSelectedRow = row;
 
-        const admissionNumber = row
-          .querySelector(".student-id")
-          ?.textContent
-          .trim();
+
+        const admissionNumber =
+          row.querySelector(".student-id")
+            ?.textContent
+            .trim();
+
 
         if (admissionNumber) {
 
@@ -4780,18 +4786,20 @@
             admissionNumber;
         }
 
+
         return;
       }
 
 
-      // --------------------------------------------------------
-      // Normal row click
-      // --------------------------------------------------------
+      // ========================================================
+      // NORMAL ROW CLICK
+      // ========================================================
+
+      selectRegisterRow(row);
 
       closeRegisterContextMenu();
 
     });
-
     // ============================================================
     // RIGHT CLICK ON REGISTER TABLE
     // ============================================================
