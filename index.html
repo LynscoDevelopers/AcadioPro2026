@@ -2512,6 +2512,7 @@
       ref,
       set,
       get,
+      remove,
       push,
       update,
       onValue
@@ -2693,10 +2694,13 @@
       };
 
       try {
-        await push(
+        const paymentRef = await push(
           ref(db, "Institution/ Revival/Fee_payment/"),
           paymentData
         );
+
+        const firebaseKey = paymentRef.key;
+
 
         const admissionKey = admissionNumber.replace(/\//g, "-");
 
@@ -2723,7 +2727,8 @@
           Balance: paymentData.balance,
           DateofPayment: paymentData.paymentDate,
           TransactionRef: paymentData.paymentRef,
-          Account: paymentData.Account
+          Account: paymentData.Account,
+          Qr_Key :firebaseKey
         });
 
 
@@ -4292,6 +4297,120 @@
         console.log("Selected Payment Key:", selectedPaymentKey);
       });
 
+    // ============================================================
+    // DELETE SELECTED STUDENTS + RELATED PAYMENTS
+    // ============================================================
+
+    async function deleteSelectedStudents() {
+
+      const checked = document.querySelectorAll(
+        "#register_Tbl tbody .custom-checkbox:checked"
+      );
+
+      if (checked.length === 0) {
+        alert("Please select at least one student.");
+        return;
+      }
+
+      const studentsToDelete = Array.from(checked)
+        .map(checkbox => {
+
+          const row = checkbox.closest("tr");
+
+          const admissionNumber = row
+            ?.querySelector(".student-id")
+            ?.textContent
+            .trim();
+
+          return {
+            admissionNumber,
+            key: admissionNumber?.replace(/\//g, "-")
+          };
+        })
+        .filter(student => student.admissionNumber);
+
+      if (!studentsToDelete.length) {
+        alert("No valid students selected.");
+        return;
+      }
+
+      const confirmed = confirm(
+        `Are you sure you want to delete ${studentsToDelete.length} student(s)?\n\n` +
+        studentsToDelete
+          .map(s => s.admissionNumber)
+          .join("\n")
+      );
+
+      if (!confirmed) return;
+
+      try {
+
+        // Get all fee payments once
+        const paymentsSnapshot = await get(
+          ref(db, "Institution/ Revival/Fee_payment/")
+        );
+
+        const payments = paymentsSnapshot.exists()
+          ? paymentsSnapshot.val()
+          : {};
+
+        // Prepare one Firebase update operation
+        const updates = {};
+
+        studentsToDelete.forEach(student => {
+
+          // --------------------------------------------
+          // DELETE STUDENT
+          // --------------------------------------------
+          updates[
+            `Institution/ Revival/Students/${student.key}`
+          ] = null;
+
+
+          // --------------------------------------------
+          // DELETE ALL RELATED PAYMENTS
+          // --------------------------------------------
+          Object.entries(payments).forEach(
+            ([paymentKey, payment]) => {
+
+              if (
+                String(payment.admissionNumber || "").trim() ===
+                String(student.admissionNumber).trim()
+              ) {
+
+                updates[
+                  `Institution/ Revival/Fee_payment/${paymentKey}`
+                ] = null;
+              }
+            }
+          );
+        });
+
+        // Delete students and payments in one operation
+        await update(ref(db), updates);
+
+        const paymentCount = Object.keys(updates)
+          .filter(path =>
+            path.startsWith("Institution/ Revival/Fee_payment/")
+          )
+          .length;
+
+        alert(
+          `${studentsToDelete.length} student(s) deleted successfully.\n` +
+          `${paymentCount} related payment(s) deleted successfully.`
+        );
+
+      } catch (error) {
+
+        console.error("Delete error:", error);
+
+        alert(
+          "Failed to delete selected students:\n" +
+          error.message
+        );
+      }
+    }
+
 
     // ==========================================
     // CTRL + F + P
@@ -4337,6 +4456,34 @@
       }
     });
 
+    // ============================================================
+    // S + DELETE SHORTCUT
+    // ============================================================
+
+    let sPressed = false;
+
+    document.addEventListener("keydown", async function (e) {
+
+      // Track S key
+      if (e.key.toLowerCase() === "s") {
+        sPressed = true;
+      }
+
+      // Delete while S is held
+      if (sPressed && e.key === "Delete") {
+
+        e.preventDefault();
+
+        await deleteSelectedStudents();
+      }
+    });
+
+    document.addEventListener("keyup", function (e) {
+
+      if (e.key.toLowerCase() === "s") {
+        sPressed = false;
+      }
+    });
 
   </script>
 </body>
