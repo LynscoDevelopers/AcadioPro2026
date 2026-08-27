@@ -2511,6 +2511,7 @@
       getDatabase,
       ref,
       set,
+      get,
       push,
       update,
       onValue
@@ -2587,49 +2588,78 @@
     }
 
     // ============================================================
-    // SAVE STUDENT
+    // SAVE / UPDATE STUDENT
     // ============================================================
     document.getElementById("saveStudent")?.addEventListener("click", async () => {
+
       const name = document.getElementById("studentName").value.trim();
       const admissionNumber = document.getElementById("admissionNumber").value.trim();
 
       if (!name) return alert("Please enter the student's name.");
       if (!admissionNumber) return alert("Please enter the admission number.");
 
-      const genderEl = document.querySelector('input[name="gender"]:checked');
+      const genderEl = document.querySelector(
+        'input[name="gender"]:checked'
+      );
 
-      const studentData = {
-        name,
-        dob: document.getElementById("studentDOB").value,
-        religion: document.getElementById("studentReligion").value,
-        nationality: document.getElementById("studentNationality").value,
-        gender: genderEl ? genderEl.value : "",
-        idNumber: document.getElementById("studentID").value.trim(),
-        guardian: document.getElementById("guardianName").value.trim(),
-        relationship: document.getElementById("guardianRelationship").value,
-        phone: document.getElementById("guardianPhone").value.trim(),
-        email: document.getElementById("guardianEmail").value.trim(),
-        address: document.getElementById("guardianAddress").value.trim(),
-        admissionNumber,
-        class: document.getElementById("studentClass").value,
-        consent: document.getElementById("consentCheck").checked,
-        Status: "Active",
-        Exceptions: {},
-        lastPayment: null
-      };
+      const admissionKey = admissionNumber.replace(/\//g, "-");
+
+      const studentRef = ref(
+        db,
+        `Institution/ Revival/Students/${admissionKey}`
+      );
 
       try {
 
-        const admissionKey = admissionNumber.replace(/\//g, "-");
-        await set(ref(db, `Institution/ Revival/Students/${admissionKey}`), studentData);
+        // Check whether the student already exists
+        const snapshot = await get(studentRef);
 
-        alert(`Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`);
+        // Preserve existing lastPayment when updating
+        const existingStudent = snapshot.exists()
+          ? snapshot.val()
+          : null;
+
+        const studentData = {
+          name,
+          dob: document.getElementById("studentDOB").value,
+          religion: document.getElementById("studentReligion").value,
+          nationality: document.getElementById("studentNationality").value,
+          gender: genderEl ? genderEl.value : "",
+          idNumber: document.getElementById("studentID").value.trim(),
+          guardian: document.getElementById("guardianName").value.trim(),
+          relationship: document.getElementById("guardianRelationship").value,
+          phone: document.getElementById("guardianPhone").value.trim(),
+          email: document.getElementById("guardianEmail").value.trim(),
+          address: document.getElementById("guardianAddress").value.trim(),
+          admissionNumber,
+          class: document.getElementById("studentClass").value,
+          consent: document.getElementById("consentCheck").checked,
+
+          // Preserve existing values when updating
+          Status: existingStudent?.Status || "Active",
+          Exceptions: existingStudent?.Exceptions || {},
+
+          // Keep existing payment data
+          lastPayment: existingStudent?.lastPayment ?? null
+        };
+
+        await set(studentRef, studentData);
+        closeDialog();
+        alert(
+          existingStudent
+            ? `Student updated!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}`
+            : `Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`
+        );
+
       } catch (error) {
+
         console.error(error);
-        alert("Failed to save student:\n" + error.message);
+
+        alert(
+          "Failed to save student:\n" + error.message
+        );
       }
     });
-
     // ============================================================
     // SAVE PAYMENT
     // ============================================================
