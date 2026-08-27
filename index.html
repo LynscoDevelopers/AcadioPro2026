@@ -4735,19 +4735,62 @@
     // LEFT CLICK ON REGISTER TABLE
     // ============================================================
 
+    // ============================================================
+    // LEFT CLICK ON REGISTER TABLE
+    // INCLUDING CHECKBOX CLICK
+    // ============================================================
+
     registerTable?.addEventListener("click", function (e) {
 
       const row = e.target.closest("tbody tr");
 
       if (!row) return;
 
-      // Select clicked row
+
+      // --------------------------------------------------------
+      // ANY CLICK IN THE ROW, INCLUDING CHECKBOX,
+      // SELECTS THE ROW
+      // --------------------------------------------------------
+
       selectRegisterRow(row);
 
-      // Close context menu but keep selection
-      closeRegisterContextMenu();
-    });
 
+      // --------------------------------------------------------
+      // If checkbox was clicked, keep the row selected
+      // --------------------------------------------------------
+
+      if (e.target.classList.contains("custom-checkbox")) {
+
+        // Make sure selection remains
+        row.classList.add("row-selected");
+
+        contextSelectedRow = row;
+
+        const admissionNumber = row
+          .querySelector(".student-id")
+          ?.textContent
+          .trim();
+
+        if (admissionNumber) {
+
+          contextAdmissionNumber =
+            admissionNumber;
+
+          selectedAdmissionNumber =
+            admissionNumber;
+        }
+
+        return;
+      }
+
+
+      // --------------------------------------------------------
+      // Normal row click
+      // --------------------------------------------------------
+
+      closeRegisterContextMenu();
+
+    });
 
     // ============================================================
     // RIGHT CLICK ON REGISTER TABLE
