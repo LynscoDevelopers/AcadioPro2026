@@ -5551,7 +5551,7 @@
     );
 
     // ============================================================
-    // FEE BALANCE LIST - CONTEXT MENU
+    // FEE BALANCE LIST CONTEXT MENU
     // ============================================================
 
     const feeBalanceTable =
@@ -5571,7 +5571,7 @@
 
 
     // ============================================================
-    // STATE - COMPLETELY SEPARATE FROM register_Tbl
+    // STATE
     // ============================================================
 
     let feeContextAdmissionNumber = null;
@@ -5579,6 +5579,7 @@
     let feeSelectedAdmissionNumber = null;
 
     let feeMenuAutoScrolling = false;
+    let feeMenuFollowingScroll = false;
 
 
     // ============================================================
@@ -5595,7 +5596,8 @@
       if (!table) return;
 
 
-      // Remove selection ONLY from FeeBalanceList
+      // Remove previous selection ONLY
+      // inside FeeBalanceList
       table
         .querySelectorAll(
           "tbody tr.fee-balance-selected"
@@ -5609,7 +5611,7 @@
         });
 
 
-      // Select this row
+      // Select new row
       row.classList.add(
         "fee-balance-selected"
       );
@@ -5638,7 +5640,7 @@
 
 
     // ============================================================
-    // RESTORE SELECTION AFTER TABLE RE-RENDER
+    // RESTORE SELECTION
     // ============================================================
 
     function restoreFeeBalanceSelection() {
@@ -5648,52 +5650,62 @@
 
 
       const table =
-        document.getElementById("FeeBalanceList");
+        document.getElementById(
+          "FeeBalanceList"
+        );
 
       if (!table) return;
 
 
-      const rows =
-        table.querySelectorAll(
+      let foundRow = null;
+
+
+      table
+        .querySelectorAll(
           "tbody tr"
-        );
+        )
+        .forEach(row => {
+
+          const admissionNumber =
+            row.querySelector(
+              ".student-id"
+            )?.textContent.trim();
 
 
-      rows.forEach(row => {
+          if (
+            admissionNumber ===
+            feeSelectedAdmissionNumber
+          ) {
 
-        const admissionNumber =
-          row.querySelector(".student-id")
-            ?.textContent
-            .trim();
+            row.classList.add(
+              "fee-balance-selected"
+            );
+
+            foundRow = row;
+
+          } else {
+
+            row.classList.remove(
+              "fee-balance-selected"
+            );
+
+          }
+
+        });
 
 
-        if (
-          admissionNumber ===
-          feeSelectedAdmissionNumber
-        ) {
+      if (foundRow) {
 
-          row.classList.add(
-            "fee-balance-selected"
-          );
+        feeContextSelectedRow =
+          foundRow;
 
-          feeContextSelectedRow =
-            row;
-
-        } else {
-
-          row.classList.remove(
-            "fee-balance-selected"
-          );
-
-        }
-
-      });
+      }
     }
 
 
     // ============================================================
     // CLOSE MENU
-    // DOES NOT UNSELECT ROW
+    // DOES NOT CLEAR ROW SELECTION
     // ============================================================
 
     function closeFeeBalanceMenu() {
@@ -5708,12 +5720,15 @@
       feeBalanceMenu.style.visibility =
         "hidden";
 
+
+      feeMenuFollowingScroll =
+        false;
+
     }
 
 
     // ============================================================
     // POSITION MENU
-    // MENU IS POSITIONED BELOW THE LAST CELL
     // ============================================================
 
     function positionFeeBalanceMenu() {
@@ -5726,8 +5741,12 @@
       }
 
 
+      const row =
+        feeContextSelectedRow;
+
+
       const anchor =
-        feeContextSelectedRow.querySelector(
+        row.querySelector(
           "td:last-child"
         );
 
@@ -5741,7 +5760,8 @@
 
 
       const menuWidth =
-        feeBalanceMenu.offsetWidth || 190;
+        feeBalanceMenu.offsetWidth ||
+        190;
 
 
       let left =
@@ -5752,19 +5772,13 @@
         rect.bottom - 10;
 
 
-      // --------------------------------------------------------
-      // KEEP INSIDE LEFT EDGE
-      // --------------------------------------------------------
-
+      // Keep inside left edge
       if (left < 10) {
         left = 10;
       }
 
 
-      // --------------------------------------------------------
-      // KEEP INSIDE RIGHT EDGE
-      // --------------------------------------------------------
-
+      // Keep inside right edge
       if (
         left + menuWidth >
         window.innerWidth
@@ -5783,10 +5797,6 @@
       }
 
 
-      // --------------------------------------------------------
-      // APPLY POSITION
-      // --------------------------------------------------------
-
       feeBalanceMenu.style.position =
         "fixed";
 
@@ -5795,6 +5805,27 @@
 
       feeBalanceMenu.style.top =
         `${top}px`;
+    }
+
+
+    // ============================================================
+    // FOLLOW MENU DURING AUTO SCROLL
+    // ============================================================
+
+    function followFeeBalanceMenuDuringScroll() {
+
+      if (!feeMenuFollowingScroll)
+        return;
+
+
+      // Reposition menu
+      positionFeeBalanceMenu();
+
+
+      // Continue following
+      requestAnimationFrame(
+        followFeeBalanceMenuDuringScroll
+      );
     }
 
 
@@ -5812,43 +5843,38 @@
       }
 
 
-      // --------------------------------------------------------
+      // ========================================================
       // SELECT ROW
-      // --------------------------------------------------------
+      // ========================================================
 
       selectFeeBalanceRow(row);
 
 
       const admissionNumber =
-        row.querySelector(".student-id")
-          ?.textContent
-          .trim();
+        row.querySelector(
+          ".student-id"
+        )?.textContent.trim();
 
 
-      if (!admissionNumber) {
-
-        console.warn(
-          "Admission number not found."
-        );
-
+      if (!admissionNumber)
         return;
-      }
 
 
       feeContextAdmissionNumber =
         admissionNumber;
 
-
       feeSelectedAdmissionNumber =
         admissionNumber;
 
 
-      // --------------------------------------------------------
+      // ========================================================
       // GET STUDENT
-      // --------------------------------------------------------
+      // ========================================================
 
       const student =
-        studentsCache?.[admissionNumber];
+        studentsCache?.[
+        admissionNumber
+        ];
 
 
       if (!student) {
@@ -5862,17 +5888,17 @@
       }
 
 
-      // --------------------------------------------------------
+      // ========================================================
       // GET EXCEPTIONS
-      // --------------------------------------------------------
+      // ========================================================
 
       const exceptions =
         student.Exceptions || {};
 
 
-      // --------------------------------------------------------
-      // SET MENU CHECKBOXES
-      // --------------------------------------------------------
+      // ========================================================
+      // SET CHECKBOXES
+      // ========================================================
 
       feeMenuMeal.checked =
         exceptions.Meal === true;
@@ -5884,10 +5910,7 @@
         exceptions.Sponsored === true;
 
 
-      // --------------------------------------------------------
-      // BOARDING DISABLES MEAL
-      // --------------------------------------------------------
-
+      // Boarding disables Meal
       if (
         feeMenuBoarding.checked
       ) {
@@ -5907,7 +5930,7 @@
 
 
       // ========================================================
-      // SHOW MENU
+      // SHOW MENU IMMEDIATELY
       // ========================================================
 
       feeBalanceMenu.style.display =
@@ -5920,12 +5943,12 @@
         "fixed";
 
 
-      // Force browser to calculate dimensions
+      // Force layout
       void feeBalanceMenu.offsetWidth;
 
 
       // ========================================================
-      // CHECK SPACE BELOW ROW
+      // GET ANCHOR
       // ========================================================
 
       const anchor =
@@ -5938,7 +5961,7 @@
         return;
 
 
-      const rect =
+      let rect =
         anchor.getBoundingClientRect();
 
 
@@ -5950,13 +5973,13 @@
       const padding = 15;
 
 
-      const spaceBelow =
+      let spaceBelow =
         window.innerHeight -
         rect.bottom;
 
 
       // ========================================================
-      // AUTO SCROLL IF NECESSARY
+      // NOT ENOUGH SPACE
       // ========================================================
 
       if (
@@ -5969,14 +5992,38 @@
           spaceBelow;
 
 
-        feeMenuAutoScrolling =
-          true;
+        // ----------------------------------------------------
+        // SHOW MENU NOW
+        // ----------------------------------------------------
 
-
-        // Show menu while scrolling
         feeBalanceMenu.style.visibility =
           "visible";
 
+
+        // Position at current location first
+        positionFeeBalanceMenu();
+
+
+        // ----------------------------------------------------
+        // ENABLE FOLLOWING
+        // ----------------------------------------------------
+
+        feeMenuAutoScrolling =
+          true;
+
+        feeMenuFollowingScroll =
+          true;
+
+
+        // Start tracking menu position
+        requestAnimationFrame(
+          followFeeBalanceMenuDuringScroll
+        );
+
+
+        // ----------------------------------------------------
+        // AUTO SCROLL
+        // ----------------------------------------------------
 
         window.scrollBy({
 
@@ -5987,31 +6034,44 @@
         });
 
 
-        // Wait for smooth scrolling
+        // ----------------------------------------------------
+        // STOP FOLLOWING AFTER SCROLL
+        // ----------------------------------------------------
+
         setTimeout(() => {
 
           feeMenuAutoScrolling =
             false;
 
+          feeMenuFollowingScroll =
+            false;
 
-          // Table may have been rendered again
+
+          // Table might have rendered again
           restoreFeeBalanceSelection();
 
 
-          // Position using the NEW row position
+          // Final position
           positionFeeBalanceMenu();
 
+
+          // Make absolutely sure it remains visible
+          feeBalanceMenu.style.display =
+            "block";
 
           feeBalanceMenu.style.visibility =
             "visible";
 
 
-        }, 500);
+        }, 600);
 
 
       } else {
 
-        // Enough space
+        // ====================================================
+        // ENOUGH SPACE
+        // ====================================================
+
         positionFeeBalanceMenu();
 
 
@@ -6051,7 +6111,7 @@
 
 
         // ====================================================
-        // CHECKBOX CLICK
+        // CHECKBOX
         // ====================================================
 
         if (
@@ -6060,17 +6120,12 @@
           )
         ) {
 
-          // Select row
           selectFeeBalanceRow(row);
 
-
-          // Hide menu
           closeFeeBalanceMenu();
 
-
-          // IMPORTANT:
-          // Selection remains
           return;
+
         }
 
 
@@ -6080,8 +6135,6 @@
 
         selectFeeBalanceRow(row);
 
-
-        // Close menu
         closeFeeBalanceMenu();
 
       },
@@ -6090,7 +6143,7 @@
 
 
     // ============================================================
-    // RIGHT CLICK ON FEE BALANCE TABLE
+    // RIGHT CLICK
     // ============================================================
 
     document.addEventListener(
@@ -6103,7 +6156,6 @@
           );
 
 
-        // Ignore everything else
         if (!table)
           return;
 
@@ -6118,11 +6170,10 @@
           return;
 
 
-        // Prevent browser menu
         e.preventDefault();
 
 
-        // Open our menu
+        // Open immediately
         openFeeBalanceMenu(row);
 
       },
@@ -6132,7 +6183,7 @@
 
     // ============================================================
     // MENU CLICK
-    // DO NOT ALLOW TABLE SELECTION TO CHANGE
+    // DON'T UNSELECT ROW
     // ============================================================
 
     feeBalanceMenu?.addEventListener(
@@ -6188,7 +6239,6 @@
 
         e.stopPropagation();
 
-
         await updateFeeBalanceExceptions();
 
       }
@@ -6204,7 +6254,6 @@
       async function (e) {
 
         e.stopPropagation();
-
 
         await updateFeeBalanceExceptions();
 
@@ -6225,7 +6274,7 @@
       }
 
 
-      // Save admission number before anything changes
+      // Preserve admission number
       const admissionNumber =
         feeContextAdmissionNumber;
 
@@ -6237,10 +6286,7 @@
         );
 
 
-      // ========================================================
-      // BOARDING + MEAL RULE
-      // ========================================================
-
+      // Boarding disables Meal
       if (
         feeMenuBoarding.checked
       ) {
@@ -6259,10 +6305,6 @@
       }
 
 
-      // ========================================================
-      // CREATE EXCEPTIONS
-      // ========================================================
-
       const exceptions = {
 
         Meal:
@@ -6279,10 +6321,6 @@
 
       try {
 
-        // ====================================================
-        // UPDATE FIREBASE
-        // ====================================================
-
         await update(
 
           ref(
@@ -6298,10 +6336,7 @@
         );
 
 
-        // ====================================================
-        // UPDATE CACHE
-        // ====================================================
-
+        // Update cache
         if (
           studentsCache &&
           studentsCache[admissionNumber]
@@ -6315,10 +6350,7 @@
         }
 
 
-        // ====================================================
-        // KEEP SELECTION
-        // ====================================================
-
+        // Preserve selection
         feeSelectedAdmissionNumber =
           admissionNumber;
 
@@ -6326,28 +6358,16 @@
           admissionNumber;
 
 
-        // Restore selection
         restoreFeeBalanceSelection();
 
 
-        // Restore after possible UI render
         requestAnimationFrame(() => {
 
           restoreFeeBalanceSelection();
 
-          // Menu must continue following row
           positionFeeBalanceMenu();
 
         });
-
-
-        setTimeout(() => {
-
-          restoreFeeBalanceSelection();
-
-          positionFeeBalanceMenu();
-
-        }, 100);
 
 
         console.log(
@@ -6377,17 +6397,15 @@
     // ============================================================
     // MANUAL SCROLL
     // CLOSE MENU
-    //
-    // AUTO SCROLL DOES NOT CLOSE IT
     // ============================================================
 
     window.addEventListener(
       "scroll",
       function () {
 
-        if (
-          feeMenuAutoScrolling
-        ) {
+        // Our automatic scrolling
+        // must NOT close the menu
+        if (feeMenuAutoScrolling) {
           return;
         }
 
