@@ -4570,93 +4570,75 @@
 
         e.preventDefault();
 
-        // --------------------------------------------------------
+        // ------------------------------------------
         // GET ADMISSION NUMBER
-        // --------------------------------------------------------
+        // ------------------------------------------
 
         const admissionNumber = row
           .querySelector(".student-id")
           ?.textContent
           .trim();
 
-        if (!admissionNumber) {
-          console.warn("Admission number not found.");
-          return;
-        }
+        if (!admissionNumber) return;
 
-        contextAdmissionNumber = admissionNumber;
-
-        // --------------------------------------------------------
-        // GET STUDENT FROM CACHE
-        // --------------------------------------------------------
+        // ------------------------------------------
+        // GET STUDENT
+        // ------------------------------------------
 
         const student = studentsCache[admissionNumber];
 
         if (!student) {
-          console.warn(
-            "Student not found:",
-            admissionNumber
-          );
+          console.warn("Student not found:", admissionNumber);
           return;
         }
 
-        // --------------------------------------------------------
+        // Store currently selected student
+        contextAdmissionNumber = admissionNumber;
+
+        // ------------------------------------------
         // GET EXCEPTIONS
-        // --------------------------------------------------------
+        // ------------------------------------------
 
         const exceptions = student.Exceptions || {};
 
-        // --------------------------------------------------------
-        // SET CURRENT VALUES
-        // --------------------------------------------------------
+        // ------------------------------------------
+        // UPDATE MENU CHECKBOXES
+        // ------------------------------------------
 
-        menuMeal.checked =
-          exceptions.Meal === true;
+        menuMeal.checked = exceptions.Meal === true;
 
-        menuBoarding.checked =
-          exceptions.Boarding === true;
+        menuBoarding.checked = exceptions.Boarding === true;
 
-        menuSponsored.checked =
-          exceptions.Sponsored === true;
+        menuSponsored.checked = exceptions.Sponsored === true;
 
+        // ------------------------------------------
+        // BOARDING DISABLES MEAL
+        // ------------------------------------------
 
-        // --------------------------------------------------------
-        // BOARDING → DISABLE MEAL
-        // --------------------------------------------------------
-
-        menuMeal.disabled =
-          menuBoarding.checked;
+        menuMeal.disabled = menuBoarding.checked;
 
         if (menuBoarding.checked) {
           menuMeal.checked = false;
         }
 
-
-        // --------------------------------------------------------
-        // POSITION MENU UNDER .col-status
-        // --------------------------------------------------------
+        // ------------------------------------------
+        // GET STATUS CELL
+        // ------------------------------------------
 
         const statusCell =
           row.querySelector(".col-status");
 
-        if (!statusCell) {
-          console.warn("Status cell not found.");
-          return;
-        }
+        if (!statusCell) return;
 
         const rect =
           statusCell.getBoundingClientRect();
 
-        // Shift right by 15px
-        // Shift upward by 10px
+        // ------------------------------------------
+        // POSITION MENU
+        // ------------------------------------------
 
         let left = rect.left + 15;
         let top = rect.bottom - 10;
-
-
-        // --------------------------------------------------------
-        // KEEP MENU INSIDE SCREEN
-        // --------------------------------------------------------
 
         const menuWidth =
           registerContextMenu.offsetWidth || 180;
@@ -4664,30 +4646,25 @@
         const menuHeight =
           registerContextMenu.offsetHeight || 120;
 
-        if (
-          left + menuWidth >
-          window.innerWidth
-        ) {
+        // Keep inside right side
+        if (left + menuWidth > window.innerWidth) {
           left =
             window.innerWidth -
             menuWidth -
             10;
         }
 
-        if (
-          top + menuHeight >
-          window.innerHeight
-        ) {
+        // If not enough space below, show above
+        if (top + menuHeight > window.innerHeight) {
           top =
             rect.top -
             menuHeight -
             4;
         }
 
-
-        // --------------------------------------------------------
+        // ------------------------------------------
         // SHOW MENU
-        // --------------------------------------------------------
+        // ------------------------------------------
 
         registerContextMenu.style.left =
           `${left}px`;
@@ -4698,59 +4675,70 @@
         registerContextMenu.style.display =
           "block";
 
-
-        console.log(
-          "Selected Admission:",
-          contextAdmissionNumber
-        );
-
       });
 
 
     // ============================================================
-    // BOARDING CHECKBOX CHANGE
+    // BOARDING CHECKBOX
     // ============================================================
 
-    menuBoarding?.addEventListener("change", async function () {
+    menuBoarding?.addEventListener(
+      "change",
+      async function () {
 
-      if (this.checked) {
+        if (this.checked) {
 
-        // Boarding selected → Meal cannot be selected
-        menuMeal.checked = false;
-        menuMeal.disabled = true;
+          menuMeal.checked = false;
+          menuMeal.disabled = true;
 
-      } else {
+        } else {
 
-        // Boarding removed → Meal becomes available
-        menuMeal.disabled = false;
+          menuMeal.disabled = false;
+        }
+
+        await updateStudentExceptions();
       }
+    );
 
-      await updateStudentExceptions();
-    });
-    menuMeal?.addEventListener("change", async function () {
-
-      await updateStudentExceptions();
-    });
-
-
-    menuSponsored?.addEventListener("change", async function () {
-
-      await updateStudentExceptions();
-    });
 
     // ============================================================
-    // UPDATE STUDENT EXCEPTIONS FROM RIGHT-CLICK MENU
+    // MEAL CHECKBOX
+    // ============================================================
+
+    menuMeal?.addEventListener(
+      "change",
+      async function () {
+
+        await updateStudentExceptions();
+      }
+    );
+
+
+    // ============================================================
+    // SPONSORED CHECKBOX
+    // ============================================================
+
+    menuSponsored?.addEventListener(
+      "change",
+      async function () {
+
+        await updateStudentExceptions();
+      }
+    );
+
+
+    // ============================================================
+    // UPDATE FIREBASE
     // ============================================================
 
     async function updateStudentExceptions() {
 
       if (!contextAdmissionNumber) {
-        alert("No student selected.");
         return;
       }
 
-      const admissionNumber = contextAdmissionNumber;
-      const admissionKey = admissionNumber.replace(/\//g, "-");
+      const admissionKey =
+        contextAdmissionNumber.replace(/\//g, "-");
 
       const exceptions = {
         Meal: menuMeal.checked,
@@ -4760,29 +4748,21 @@
 
       try {
 
-        const studentRef = ref(
-          db,
-          `Institution/ Revival/Students/${admissionKey}`
+        await update(
+          ref(
+            db,
+            `Institution/ Revival/Students/${admissionKey}`
+          ),
+          {
+            Exceptions: exceptions
+          }
         );
 
-        // Update ONLY the Exceptions field
-        await update(studentRef, {
-          Exceptions: exceptions
-        });
-
-        // Keep cache synchronized
-        if (studentsCache[admissionNumber]) {
-          studentsCache[admissionNumber].Exceptions = exceptions;
+        // Update local cache
+        if (studentsCache[contextAdmissionNumber]) {
+          studentsCache[contextAdmissionNumber].Exceptions =
+            exceptions;
         }
-
-        console.log(
-          "Exceptions updated:",
-          admissionNumber,
-          exceptions
-        );
-
-        // Close menu
-        registerContextMenu.style.display = "none";
 
       } catch (error) {
 
@@ -4797,17 +4777,20 @@
         );
       }
     }
+
+
     // ============================================================
     // CLOSE MENU WHEN CLICKING OUTSIDE
     // ============================================================
+
     document.addEventListener("click", function (e) {
 
       if (
         registerContextMenu &&
         !registerContextMenu.contains(e.target)
       ) {
-        registerContextMenu.style.display =
-          "none";
+        registerContextMenu.style.display = "none";
+        contextAdmissionNumber = null;
       }
     });
 
@@ -4819,12 +4802,11 @@
     window.addEventListener("scroll", function () {
 
       if (registerContextMenu) {
-        registerContextMenu.style.display =
-          "none";
+        registerContextMenu.style.display = "none";
+        contextAdmissionNumber = null;
       }
 
     }, true);
-
   </script>
 </body>
 
