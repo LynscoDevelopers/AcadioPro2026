@@ -1319,7 +1319,7 @@
 
       <!-- Tab 1: Student Register -->
       <div id="tab1" class="tab-panel active">
-        <table class="register-table">
+        <table class="register-table" id="register_Tbl">
           <thead>
             <tr>
               <th class="col-check"><input type="checkbox" class="custom-checkbox"></th>
@@ -3589,17 +3589,44 @@
     // GET CHECKED STUDENT + POPULATE FORM (Exposed to C#)
     // ============================================================
     window.getCheckedStudentAndPopulate = function () {
-      const checked = document.querySelectorAll(".register-table tbody .custom-checkbox:checked");
 
-      if (checked.length === 0) return alert("Please select a student first.") || null;
-      if (checked.length > 1) return alert("Select only one student.") || null;
+      // Only check checkboxes inside #register_Tbl
+      const checked = document.querySelectorAll(
+        "#register_Tbl tbody .custom-checkbox:checked"
+      );
 
-      const admissionNumber = checked[0].closest("tr").querySelector(".student-id")?.textContent.trim();
+      if (checked.length === 0) {
+        alert("Please select a student first.");
+        return null;
+      }
+
+      if (checked.length > 1) {
+        alert("Select only one student.");
+        return null;
+      }
+
+      const row = checked[0].closest("tr");
+
+      const admissionNumber = row
+        ?.querySelector(".student-id")
+        ?.textContent
+        .trim();
+
+      if (!admissionNumber) {
+        alert("Admission number not found.");
+        return null;
+      }
+
       const s = studentsCache[admissionNumber];
 
-      if (!s) return alert("Student data not found.") || null;
+      if (!s) {
+        alert("Student data not found.");
+        return null;
+      }
 
-      const set = (id, val) => document.getElementById(id).value = val || "";
+      const set = (id, val) =>
+        document.getElementById(id).value = val || "";
+
       set("studentName", s.name);
       set("studentDOB", s.dob);
       set("studentReligion", s.religion);
@@ -3612,24 +3639,30 @@
       set("guardianAddress", s.address);
       set("admissionNumber", s.admissionNumber || admissionNumber);
       set("studentClass", s.class);
+
       document.getElementById("consentCheck").checked = !!s.consent;
 
       if (s.gender) {
-        const radio = document.querySelector(`input[name="gender"][value="${s.gender}"]`);
+        const radio = document.querySelector(
+          `input[name="gender"][value="${s.gender}"]`
+        );
+
         if (radio) radio.checked = true;
       }
 
       if (typeof window.openDialog === "function") {
+
         window.openDialog();
+
         const btn = document.getElementById("saveStudent");
-        const Auto = document.getElementById("autoGenerate");
+        const auto = document.getElementById("autoGenerate");
+
         if (btn) btn.textContent = "Update";
-        if (Auto) Auto.disabled = true;
+        if (auto) auto.disabled = true;
       }
 
       return s;
     };
-
     function getLastPayment(admission) {
 
       if (!admission || !studentsCache) {
