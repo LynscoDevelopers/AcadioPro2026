@@ -5739,6 +5739,78 @@
       }
     );
 
+
+    document.addEventListener("contextmenu", function (e) {
+
+      const table = e.target.closest("#FeeBalanceList");
+      if (!table) return;
+
+      const row = e.target.closest("tbody tr");
+      if (!row) return;
+
+      e.preventDefault();
+
+      // Select row
+      selectFeeBalanceRow(row);
+
+      // Get admission number
+      const admissionNumber =
+        row.querySelector(".student-id")?.textContent.trim();
+
+      if (!admissionNumber) return;
+
+      // Use the same context menu
+      if (!registerContextMenu) return;
+
+      // Set current admission number
+      contextAdmissionNumber = admissionNumber;
+
+      // Get last cell as anchor
+      const anchorCell =
+        row.querySelector("td:last-child");
+
+      if (!anchorCell) return;
+
+      // Show menu so browser calculates its size
+      registerContextMenu.style.display = "block";
+      registerContextMenu.style.visibility = "hidden";
+
+      registerContextMenu.offsetWidth;
+
+      const rect =
+        anchorCell.getBoundingClientRect();
+
+      const menuWidth =
+        registerContextMenu.offsetWidth || 180;
+
+      const menuHeight =
+        registerContextMenu.offsetHeight || 120;
+
+      // Position below the last cell
+      let left = rect.left;
+      let top = rect.bottom;
+
+      // Keep inside right edge
+      if (
+        left + menuWidth >
+        window.innerWidth
+      ) {
+        left =
+          window.innerWidth -
+          menuWidth -
+          10;
+      }
+
+      registerContextMenu.style.left =
+        `${left}px`;
+
+      registerContextMenu.style.top =
+        `${top}px`;
+
+      registerContextMenu.style.visibility =
+        "visible";
+    });
+
   </script>
 </body>
 
