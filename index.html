@@ -3038,22 +3038,6 @@
           <td class="col-contact">${student.class || "—"}</td>
         `;
 
-        // RESTORE SELECTION AFTER TABLE RE-RENDER
-        // ========================================================
-
-        if (
-          admissionNumber ===
-          feeBalanceSelectedAdmissionNumber
-        ) {
-
-          row.classList.add(
-            "fee-balance-selected"
-          );
-
-          feeBalanceSelectedRow =
-            row;
-        }
-
         tbody.appendChild(row);
       }
     }
