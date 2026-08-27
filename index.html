@@ -1289,6 +1289,14 @@
   </style>
 
   <style>
+    #register_Tbl tbody tr.row-selected td {
+      background-color: #e8f1ff !important;
+    }
+
+    #register_Tbl tbody tr.selected-row td {
+      background-color: #e8f1ff !important;
+    }
+
     .register-context-menu {
       position: fixed;
       display: none;
@@ -1318,6 +1326,16 @@
       width: 16px;
       height: 16px;
       cursor: pointer;
+    }
+
+    /* Selected row */
+    #register_Tbl tbody tr.context-selected {
+      background-color: #e8f1ff !important;
+    }
+
+    /* Keep cells the same color */
+    #register_Tbl tbody tr.context-selected td {
+      background-color: #e8f1ff !important;
     }
   </style>
 
@@ -4544,13 +4562,13 @@
 
 
     // ============================================================
-    // REGISTER TABLE RIGHT-CLICK MENU
+    // REGISTER TABLE CONTEXT MENU
     // ============================================================
+
+    const registerTable = document.getElementById("register_Tbl");
 
     const registerContextMenu =
       document.getElementById("registerContextMenu");
-
-    let contextAdmissionNumber = null;
 
     const menuMeal = document.getElementById("menuMeal");
     const menuBoarding = document.getElementById("menuBoarding");
@@ -4558,11 +4576,186 @@
 
 
     // ============================================================
+    // STATE
+    // ============================================================
+
+    let contextAdmissionNumber = null;
+    let contextSelectedRow = null;
+
+    // This survives table re-rendering
+    let selectedAdmissionNumber = null;
+
+    let isAutoScrolling = false;
+
+
+    // ============================================================
+    // SELECT REGISTER ROW
+    // ============================================================
+
+    function selectRegisterRow(row) {
+
+      if (!row) return;
+
+      // Remove selection from every other row
+      document
+        .querySelectorAll("#register_Tbl tbody tr.row-selected")
+        .forEach(r => r.classList.remove("row-selected"));
+
+      // Select current row
+      row.classList.add("row-selected");
+
+      // Store row reference
+      contextSelectedRow = row;
+
+
+      // Get admission number
+      const admissionNumber = row
+        .querySelector(".student-id")
+        ?.textContent
+        .trim();
+
+      if (admissionNumber) {
+
+        contextAdmissionNumber = admissionNumber;
+
+        // Keep this even if Firebase re-renders the table
+        selectedAdmissionNumber = admissionNumber;
+      }
+    }
+
+
+    // ============================================================
+    // RESTORE SELECTED ROW
+    // Used after Firebase refreshes/re-renders the table
+    // ============================================================
+
+    function restoreSelectedRegisterRow() {
+
+      if (!selectedAdmissionNumber) return;
+
+      const rows = document.querySelectorAll(
+        "#register_Tbl tbody tr"
+      );
+
+      rows.forEach(row => {
+
+        const admissionNumber = row
+          .querySelector(".student-id")
+          ?.textContent
+          .trim();
+
+        if (admissionNumber === selectedAdmissionNumber) {
+
+          row.classList.add("row-selected");
+
+          // Update DOM reference because old row
+          // may have been replaced during rendering
+          contextSelectedRow = row;
+
+        } else {
+
+          row.classList.remove("row-selected");
+        }
+
+      });
+    }
+
+
+    // ============================================================
+    // CLOSE CONTEXT MENU
+    // DOES NOT CLEAR SELECTED ROW
+    // ============================================================
+
+    function closeRegisterContextMenu() {
+
+      if (!registerContextMenu) return;
+
+      registerContextMenu.style.display = "none";
+      registerContextMenu.style.visibility = "hidden";
+
+      // IMPORTANT:
+      // Do NOT reset:
+      //
+      // contextAdmissionNumber
+      // contextSelectedRow
+      // selectedAdmissionNumber
+    }
+
+
+    // ============================================================
+    // POSITION CONTEXT MENU
+    // ============================================================
+
+    function positionRegisterContextMenu() {
+
+      if (
+        !registerContextMenu ||
+        !contextSelectedRow
+      ) {
+        return;
+      }
+
+      const statusCell =
+        contextSelectedRow.querySelector(".col-status");
+
+      if (!statusCell) return;
+
+      const rect =
+        statusCell.getBoundingClientRect();
+
+      const menuWidth =
+        registerContextMenu.offsetWidth || 180;
+
+      let left = rect.left + 15;
+      let top = rect.bottom - 10;
+
+
+      // Keep inside right edge
+      if (left + menuWidth > window.innerWidth) {
+
+        left =
+          window.innerWidth -
+          menuWidth -
+          10;
+      }
+
+
+      // Prevent menu above viewport
+      if (top < 5) {
+        top = 5;
+      }
+
+
+      registerContextMenu.style.left = `${left}px`;
+      registerContextMenu.style.top = `${top}px`;
+    }
+
+
+    // ============================================================
+    // LEFT CLICK ON REGISTER TABLE
+    // ============================================================
+
+    registerTable?.addEventListener("click", function (e) {
+
+      const row = e.target.closest("tbody tr");
+
+      if (!row) return;
+
+      // Select clicked row
+      selectRegisterRow(row);
+
+      // Close context menu but keep selection
+      closeRegisterContextMenu();
+    });
+
+
+    // ============================================================
     // RIGHT CLICK ON REGISTER TABLE
     // ============================================================
 
-    document.getElementById("register_Tbl")
-      ?.addEventListener("contextmenu", function (e) {
+    registerTable?.addEventListener(
+      "contextmenu",
+      function (e) {
 
         const row = e.target.closest("tbody tr");
 
@@ -4570,116 +4763,173 @@
 
         e.preventDefault();
 
-        // ------------------------------------------
-        // GET ADMISSION NUMBER
-        // ------------------------------------------
 
-        const admissionNumber = row
-          .querySelector(".student-id")
-          ?.textContent
-          .trim();
+        // --------------------------------------------------------
+        // SELECT ROW
+        // --------------------------------------------------------
 
-        if (!admissionNumber) return;
+        selectRegisterRow(row);
 
-        // ------------------------------------------
-        // GET STUDENT
-        // ------------------------------------------
 
-        const student = studentsCache[admissionNumber];
+        if (!contextAdmissionNumber) {
 
-        if (!student) {
-          console.warn("Student not found:", admissionNumber);
+          console.warn("Admission number not found.");
+
           return;
         }
 
-        // Store currently selected student
-        contextAdmissionNumber = admissionNumber;
 
-        // ------------------------------------------
-        // GET EXCEPTIONS
-        // ------------------------------------------
+        // --------------------------------------------------------
+        // GET STUDENT
+        // --------------------------------------------------------
 
-        const exceptions = student.Exceptions || {};
+        const student =
+          studentsCache[contextAdmissionNumber];
 
-        // ------------------------------------------
-        // UPDATE MENU CHECKBOXES
-        // ------------------------------------------
+        if (!student) {
 
-        menuMeal.checked = exceptions.Meal === true;
+          console.warn(
+            "Student not found:",
+            contextAdmissionNumber
+          );
 
-        menuBoarding.checked = exceptions.Boarding === true;
-
-        menuSponsored.checked = exceptions.Sponsored === true;
-
-        // ------------------------------------------
-        // BOARDING DISABLES MEAL
-        // ------------------------------------------
-
-        menuMeal.disabled = menuBoarding.checked;
-
-        if (menuBoarding.checked) {
-          menuMeal.checked = false;
+          return;
         }
 
-        // ------------------------------------------
+
+        // --------------------------------------------------------
+        // GET EXCEPTIONS
+        // --------------------------------------------------------
+
+        const exceptions =
+          student.Exceptions || {};
+
+
+        // --------------------------------------------------------
+        // SET CHECKBOX VALUES
+        // --------------------------------------------------------
+
+        menuMeal.checked =
+          exceptions.Meal === true;
+
+        menuBoarding.checked =
+          exceptions.Boarding === true;
+
+        menuSponsored.checked =
+          exceptions.Sponsored === true;
+
+
+        // Boarding disables Meal
+        if (menuBoarding.checked) {
+
+          menuMeal.checked = false;
+          menuMeal.disabled = true;
+
+        } else {
+
+          menuMeal.disabled = false;
+        }
+
+
+        // --------------------------------------------------------
+        // SHOW MENU TEMPORARILY
+        // --------------------------------------------------------
+
+        registerContextMenu.style.display = "block";
+        registerContextMenu.style.visibility = "hidden";
+
+        // Force browser layout calculation
+        registerContextMenu.offsetWidth;
+
+
+        // --------------------------------------------------------
         // GET STATUS CELL
-        // ------------------------------------------
+        // --------------------------------------------------------
 
         const statusCell =
           row.querySelector(".col-status");
 
         if (!statusCell) return;
 
+
         const rect =
           statusCell.getBoundingClientRect();
-
-        // ------------------------------------------
-        // POSITION MENU
-        // ------------------------------------------
-
-        let left = rect.left + 15;
-        let top = rect.bottom - 10;
-
-        const menuWidth =
-          registerContextMenu.offsetWidth || 180;
 
         const menuHeight =
           registerContextMenu.offsetHeight || 120;
 
-        // Keep inside right side
-        if (left + menuWidth > window.innerWidth) {
-          left =
-            window.innerWidth -
-            menuWidth -
-            10;
+        const padding = 15;
+
+        const spaceBelow =
+          window.innerHeight - rect.bottom;
+
+
+        // ========================================================
+        // AUTO SCROLL WHEN MENU HAS NO SPACE BELOW
+        // ========================================================
+
+        if (spaceBelow < menuHeight + padding) {
+
+          const scrollAmount =
+            (menuHeight + padding) - spaceBelow;
+
+
+          // Prevent scroll event from closing menu
+          isAutoScrolling = true;
+
+
+          registerContextMenu.style.visibility = "visible";
+
+
+          window.scrollBy({
+            top: scrollAmount,
+            behavior: "smooth"
+          });
+
+
+          // Wait for automatic scroll to finish
+          setTimeout(() => {
+
+            isAutoScrolling = false;
+
+
+            // Restore row in case table was refreshed
+            restoreSelectedRegisterRow();
+
+
+            // Position menu again
+            positionRegisterContextMenu();
+
+            registerContextMenu.style.visibility =
+              "visible";
+
+          }, 400);
+
+        } else {
+
+          positionRegisterContextMenu();
+
+          registerContextMenu.style.visibility =
+            "visible";
         }
 
-        // If not enough space below, show above
-        if (top + menuHeight > window.innerHeight) {
-          top =
-            rect.top -
-            menuHeight -
-            4;
-        }
-
-        // ------------------------------------------
-        // SHOW MENU
-        // ------------------------------------------
-
-        registerContextMenu.style.left =
-          `${left}px`;
-
-        registerContextMenu.style.top =
-          `${top}px`;
-
-        registerContextMenu.style.display =
-          "block";
-
-      });
+      }
+    );
 
 
     // ============================================================
-    // BOARDING CHECKBOX
+    // PREVENT MENU CLICKS FROM BUBBLING
+    // ============================================================
+
+    registerContextMenu?.addEventListener("click", function (e) {
+
+      e.stopPropagation();
+
+    });
+
+
+    // ============================================================
+    // BOARDING
     // ============================================================
 
     menuBoarding?.addEventListener(
@@ -4696,13 +4946,15 @@
           menuMeal.disabled = false;
         }
 
+
         await updateStudentExceptions();
+
       }
     );
 
 
     // ============================================================
-    // MEAL CHECKBOX
+    // MEAL
     // ============================================================
 
     menuMeal?.addEventListener(
@@ -4710,12 +4962,13 @@
       async function () {
 
         await updateStudentExceptions();
+
       }
     );
 
 
     // ============================================================
-    // SPONSORED CHECKBOX
+    // SPONSORED
     // ============================================================
 
     menuSponsored?.addEventListener(
@@ -4723,30 +4976,55 @@
       async function () {
 
         await updateStudentExceptions();
+
       }
     );
 
 
     // ============================================================
-    // UPDATE FIREBASE
+    // UPDATE STUDENT EXCEPTIONS
     // ============================================================
 
     async function updateStudentExceptions() {
 
-      if (!contextAdmissionNumber) {
-        return;
-      }
+      if (!contextAdmissionNumber) return;
+
+
+      // Save before Firebase update
+      const admissionNumber =
+        contextAdmissionNumber;
 
       const admissionKey =
-        contextAdmissionNumber.replace(/\//g, "-");
+        admissionNumber.replace(/\//g, "-");
+
+
+      // Boarding and Meal cannot both be true
+      if (menuBoarding.checked) {
+
+        menuMeal.checked = false;
+        menuMeal.disabled = true;
+
+      } else {
+
+        menuMeal.disabled = false;
+      }
+
 
       const exceptions = {
+
         Meal: menuMeal.checked,
+
         Boarding: menuBoarding.checked,
+
         Sponsored: menuSponsored.checked
       };
 
+
       try {
+
+        // --------------------------------------------------------
+        // UPDATE FIREBASE
+        // --------------------------------------------------------
 
         await update(
           ref(
@@ -4758,11 +5036,50 @@
           }
         );
 
-        // Update local cache
-        if (studentsCache[contextAdmissionNumber]) {
-          studentsCache[contextAdmissionNumber].Exceptions =
+
+        // --------------------------------------------------------
+        // UPDATE LOCAL CACHE
+        // --------------------------------------------------------
+
+        if (studentsCache[admissionNumber]) {
+
+          studentsCache[admissionNumber].Exceptions =
             exceptions;
         }
+
+
+        // --------------------------------------------------------
+        // RESTORE SELECTION IMMEDIATELY
+        // --------------------------------------------------------
+
+        selectedAdmissionNumber =
+          admissionNumber;
+
+        restoreSelectedRegisterRow();
+
+
+        // --------------------------------------------------------
+        // RESTORE AGAIN AFTER FIREBASE/UI RE-RENDER
+        // --------------------------------------------------------
+
+        requestAnimationFrame(() => {
+
+          restoreSelectedRegisterRow();
+
+        });
+
+        setTimeout(() => {
+
+          restoreSelectedRegisterRow();
+
+        }, 100);
+
+
+        console.log(
+          "Exceptions updated:",
+          admissionNumber,
+          exceptions
+        );
 
       } catch (error) {
 
@@ -4780,34 +5097,76 @@
 
 
     // ============================================================
-    // CLOSE MENU WHEN CLICKING OUTSIDE
+    // MANUAL SCROLL CLOSES MENU
+    // AUTO SCROLL DOES NOT
+    // ============================================================
+
+    window.addEventListener(
+      "scroll",
+      function () {
+
+        // Ignore automatic scroll
+        if (isAutoScrolling) return;
+
+
+        // Manual scrolling closes menu only
+        if (
+          registerContextMenu &&
+          registerContextMenu.style.display === "block"
+        ) {
+
+          closeRegisterContextMenu();
+
+        }
+
+      },
+      true
+    );
+
+
+    // ============================================================
+    // CLICK OUTSIDE
     // ============================================================
 
     document.addEventListener("click", function (e) {
 
+      // Clicking inside context menu
       if (
         registerContextMenu &&
-        !registerContextMenu.contains(e.target)
+        registerContextMenu.contains(e.target)
       ) {
-        registerContextMenu.style.display = "none";
-        contextAdmissionNumber = null;
+        return;
       }
+
+
+      // Clicking inside table is handled by table
+      if (e.target.closest("#register_Tbl")) {
+        return;
+      }
+
+
+      // Click outside
+      closeRegisterContextMenu();
+
     });
 
 
     // ============================================================
-    // CLOSE MENU WHEN SCROLLING
+    // ESCAPE CLOSES MENU
     // ============================================================
 
-    window.addEventListener("scroll", function () {
+    document.addEventListener(
+      "keydown",
+      function (e) {
 
-      if (registerContextMenu) {
-        registerContextMenu.style.display = "none";
-        contextAdmissionNumber = null;
+        if (e.key === "Escape") {
+
+          closeRegisterContextMenu();
+
+        }
+
       }
-
-    }, true);
-  </script>
+    ); </script>
 </body>
 
 
