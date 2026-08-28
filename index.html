@@ -1798,257 +1798,286 @@
       </div>
 
       <div id="tab5" class="tab-panel">
-        <div class="term-page">
-          <div class="dashboard">
-            <!-- Header Section -->
-            <div class="page-header"
-              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-              <div>
-                <h1 style="font-size: 1.8rem; font-weight: 700; color: #0b2b4a; margin-bottom: 0.3rem;">Term Management
-                </h1>
-                <p style="color: #6b7e93; font-size: 0.95rem;">Manage academic terms, fees, and grade configurations</p>
+        <div class="app-wrapper">
+          <!-- Header -->
+          <header class="app-header">
+            <div class="header-content">
+              <div class="logo-section">
+                <div class="logo-icon">📚</div>
+                <div>
+                  <h1 class="app-title">EduAssess Pro</h1>
+                  <p class="app-subtitle">Multi-Subject Assessment Management · Term 1 2026</p>
+                </div>
               </div>
-              <button class="btn btn-primary" onclick="openTermDialog()"
-                style="background: #1a3a5c; color: white; padding: 0.7rem 1.5rem; border-radius: 40px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease;">
-                <span style="font-size: 1.2rem;">+</span> Add New Term
-              </button>
+              <div class="header-actions">
+                <button class="btn btn-outline" onclick="exportData()">
+                  <span>📥</span> Export Report
+                </button>
+                <button class="btn btn-primary" onclick="refreshDashboard()">
+                  <span>🔄</span> Refresh
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- Navigation Tabs -->
+          <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">
+              <span>📊</span> Dashboard
+            </button>
+            <button class="nav-tab" data-tab="students">
+              <span>👨‍🎓</span> Students
+            </button>
+            <button class="nav-tab" data-tab="assessments">
+              <span>📝</span> Assessments
+            </button>
+            <button class="nav-tab" data-tab="marks">
+              <span>📈</span> Marks Entry
+            </button>
+            <button class="nav-tab" data-tab="reports">
+              <span>📋</span> Reports
+            </button>
+          </nav>
+
+          <!-- Dashboard Section -->
+          <div class="content-section active" id="dashboard-section">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-icon">👨‍🎓</span>
+                <div class="stat-label">Total Students</div>
+                <h3 class="stat-value" id="dash-students">0</h3>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon">📝</span>
+                <div class="stat-label">Total Assessments</div>
+                <h3 class="stat-value" id="dash-assessments">0</h3>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-label">Marks Records</div>
+                <h3 class="stat-value" id="dash-marks">0</h3>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon">📈</span>
+                <div class="stat-label">Overall Average</div>
+                <h3 class="stat-value" id="dash-average">0%</h3>
+              </div>
             </div>
 
-            <!-- Term Cards Grid -->
-            <div class="term-grid"
-              style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;"
-              id="termGrid">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📊 Assessment Overview</h3>
+              </div>
+              <div id="recent-performance"></div>
+            </div>
+          </div>
 
-              <!-- Term Card Example 1 -->
-              <div class="term-card">
-                <div class="term-card-header">
-                  <span class="term-id">Term1_2026</span>
-                  <span class="term-status">Active</span>
+          <!-- Students Section -->
+          <div class="content-section" id="students-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">👨‍🎓 Student Management</h3>
+                <button class="btn btn-primary" onclick="openStudentModal()">
+                  <span>➕</span> Add Student
+                </button>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Name</th>
+                      <th>Grade</th>
+                      <th>Subjects Enrolled</th>
+                      <th>Average</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="students-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assessments Section -->
+          <div class="content-section" id="assessments-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📝 Assessment Management</h3>
+                <button class="btn btn-primary" onclick="openAssessmentModal()">
+                  <span>➕</span> Create Assessment
+                </button>
+              </div>
+              <div class="assessment-grid" id="assessments-list"></div>
+            </div>
+          </div>
+
+          <!-- Marks Entry Section -->
+          <div class="content-section" id="marks-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📈 Marks Entry & Management</h3>
+                <button class="btn btn-warning" onclick="openBulkMarksModal()">
+                  <span>📝</span> Bulk Entry
+                </button>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Select Assessment</label>
+                  <select class="form-select" id="filter-assessment" onchange="onAssessmentFilter()">
+                    <option value="">Select Assessment</option>
+                  </select>
                 </div>
-                <div class="term-dates">
-                  <span><i>📅</i> Jan 6 - Apr 30, 2026</span>
+                <div class="form-group">
+                  <label class="form-label">Select Subject</label>
+                  <select class="form-select" id="filter-subject" onchange="renderMarksTable()">
+                    <option value="">All Subjects</option>
+                  </select>
                 </div>
-                <div class="term-grades">
-                  <span class="label">Grades & Fees:</span>
-                  <div class="grade-chips">
-                    <span class="grade-chip">G1 <span class="fee">$250</span></span>
-                    <span class="grade-chip">G2 <span class="fee">$300</span></span>
-                    <span class="grade-chip">G3 <span class="fee">$350</span></span>
-                    <span class="grade-chip">G4 <span class="fee">$400</span></span>
-                  </div>
-                </div>
-                <div class="term-fees">
-                  <div class="fee-item"><span class="label">Tuition:</span> <span class="value">$1,200</span></div>
-                  <div class="fee-item"><span class="label">Activities:</span> <span class="value">$150</span></div>
-                  <div class="fee-item"><span class="label">Materials:</span> <span class="value">$80</span></div>
-                  <div class="fee-item"><span class="label">Total:</span> <span class="value">$1,430</span></div>
-                </div>
-                <div class="term-actions-card">
-                  <button class="btn btn-sm btn-secondary" onclick="editTerm('Term1_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">✏️
-                    Edit</button>
-                  <button class="btn btn-sm btn-secondary" onclick="viewTerm('Term1_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">👁️
-                    View</button>
-                  <button class="btn btn-sm btn-secondary" onclick="cloneTerm('Term1_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">📋
-                    Clone</button>
+                <div class="form-group">
+                  <label class="form-label">Filter by Grade</label>
+                  <select class="form-select" id="filter-grade" onchange="renderMarksTable()">
+                    <option value="">All Grades</option>
+                  </select>
                 </div>
               </div>
-
-              <!-- Term Card Example 2 -->
-              <div class="term-card">
-                <div class="term-card-header">
-                  <span class="term-id">Term2_2026</span>
-                  <span class="term-status inactive">Inactive</span>
-                </div>
-                <div class="term-dates">
-                  <span><i>📅</i> May 4 - Aug 28, 2026</span>
-                </div>
-                <div class="term-grades">
-                  <span class="label">Grades & Fees:</span>
-                  <div class="grade-chips">
-                    <span class="grade-chip">G1 <span class="fee">$260</span></span>
-                    <span class="grade-chip">G2 <span class="fee">$310</span></span>
-                    <span class="grade-chip">G3 <span class="fee">$360</span></span>
-                  </div>
-                </div>
-                <div class="term-fees">
-                  <div class="fee-item"><span class="label">Tuition:</span> <span class="value">$1,250</span></div>
-                  <div class="fee-item"><span class="label">Activities:</span> <span class="value">$160</span></div>
-                  <div class="fee-item"><span class="label">Materials:</span> <span class="value">$85</span></div>
-                  <div class="fee-item"><span class="label">Total:</span> <span class="value">$1,495</span></div>
-                </div>
-                <div class="term-actions-card">
-                  <button class="btn btn-sm btn-secondary" onclick="editTerm('Term2_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">✏️
-                    Edit</button>
-                  <button class="btn btn-sm btn-secondary" onclick="viewTerm('Term2_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">👁️
-                    View</button>
-                  <button class="btn btn-sm btn-secondary" onclick="cloneTerm('Term2_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">📋
-                    Clone</button>
-                </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Grade</th>
+                      <th>Subject</th>
+                      <th>Marks</th>
+                      <th>Grade</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="marks-table"></tbody>
+                </table>
               </div>
+            </div>
+          </div>
 
-              <!-- Term Card Example 3 -->
-              <div class="term-card">
-                <div class="term-card-header">
-                  <span class="term-id">Term3_2026</span>
-                  <span class="term-status closed">Closed</span>
-                </div>
-                <div class="term-dates">
-                  <span><i>📅</i> Sep 1 - Dec 18, 2026</span>
-                </div>
-                <div class="term-grades">
-                  <span class="label">Grades & Fees:</span>
-                  <div class="grade-chips">
-                    <span class="grade-chip">G1 <span class="fee">$270</span></span>
-                    <span class="grade-chip">G2 <span class="fee">$320</span></span>
-                    <span class="grade-chip">G3 <span class="fee">$370</span></span>
-                    <span class="grade-chip">G4 <span class="fee">$420</span></span>
-                    <span class="grade-chip">G5 <span class="fee">$470</span></span>
-                  </div>
-                </div>
-                <div class="term-fees">
-                  <div class="fee-item"><span class="label">Tuition:</span> <span class="value">$1,300</span></div>
-                  <div class="fee-item"><span class="label">Activities:</span> <span class="value">$170</span></div>
-                  <div class="fee-item"><span class="label">Materials:</span> <span class="value">$90</span></div>
-                  <div class="fee-item"><span class="label">Total:</span> <span class="value">$1,560</span></div>
-                </div>
-                <div class="term-actions-card">
-                  <button class="btn btn-sm btn-secondary" onclick="editTerm('Term3_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">✏️
-                    Edit</button>
-                  <button class="btn btn-sm btn-secondary" onclick="viewTerm('Term3_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">👁️
-                    View</button>
-                  <button class="btn btn-sm btn-secondary" onclick="cloneTerm('Term3_2026')"
-                    style="background: transparent; border: 1px solid #bcccdb; padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer; font-size: 0.85rem; color: #1f3a54;">📋
-                    Clone</button>
-                </div>
+          <!-- Reports Section -->
+          <div class="content-section" id="reports-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📋 Assessment Reports</h3>
               </div>
-
+              <div id="reports-content"></div>
             </div>
           </div>
         </div>
 
-        <!-- Term Dialog Modal -->
-        <div class="dialog-overlay" id="termDialogOverlay"
-          style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem;">
-          <div class="dialogue-box dialogue-box-large"
-            style="background: white; max-width: 680px; width: 100%; padding: 1.8rem; border-radius: 2rem; box-shadow: 0 40px 70px rgba(0,0,0,0.25); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
-
-            <div class="dialogue-header"
-              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <h2 style="font-size: 1.4rem; font-weight: 600; color: #0b1e2e;">Add New Term</h2>
-              <button class="close-icon" onclick="closeTermDialog()"
-                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #4a5f73;">×</button>
+        <!-- Student Modal -->
+        <div class="modal-overlay" id="student-modal">
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('student-modal')">×</button>
+            <h2 id="student-modal-title">Add Student</h2>
+            <div class="form-group" style="margin-top: 1rem;">
+              <label class="form-label">Student ID</label>
+              <input type="text" class="form-input" id="student-id" placeholder="e.g., G2-107">
             </div>
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="student-name" placeholder="e.g., John Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Grade</label>
+              <select class="form-select" id="student-grade">
+                <option value="G2">G2</option>
+                <option value="G3">G3</option>
+                <option value="G4">G4</option>
+                <option value="G5">G5</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+          </div>
+        </div>
 
-            <div class="dialogue-body" style="flex: 1; overflow-y: auto; padding-right: 0.3rem;">
-
-              <div class="form-grid-2col"
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="form-group">
-                  <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Term ID</label>
-                  <input type="text" class="form-input" id="termIdInput" placeholder="e.g., Term1_2026"
-                    style="padding: 0.5rem 0.7rem; border: 1.5px solid #dce4ec; border-radius: 8px; font-size: 0.9rem; width: 100%;">
-                </div>
-                <div class="form-group">
-                  <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Term Name</label>
-                  <input type="text" class="form-input" id="termNameInput" placeholder="e.g., First Term"
-                    style="padding: 0.5rem 0.7rem; border: 1.5px solid #dce4ec; border-radius: 8px; font-size: 0.9rem; width: 100%;">
-                </div>
+        <!-- Assessment Modal -->
+        <div class="modal-overlay" id="assessment-modal">
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('assessment-modal')">×</button>
+            <h2>Create Assessment</h2>
+            <div class="form-grid" style="margin-top: 1rem;">
+              <div class="form-group">
+                <label class="form-label">Assessment Name</label>
+                <input type="text" class="form-input" id="assessment-name" placeholder="e.g., Mid-term Exam">
               </div>
-
-              <div class="form-grid-2col"
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="form-group">
-                  <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Start Date</label>
-                  <input type="date" class="form-input" id="termStartDate"
-                    style="padding: 0.5rem 0.7rem; border: 1.5px solid #dce4ec; border-radius: 8px; font-size: 0.9rem; width: 100%;">
-                </div>
-                <div class="form-group">
-                  <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">End Date</label>
-                  <input type="date" class="form-input" id="termEndDate"
-                    style="padding: 0.5rem 0.7rem; border: 1.5px solid #dce4ec; border-radius: 8px; font-size: 0.9rem; width: 100%;">
-                </div>
+              <div class="form-group">
+                <label class="form-label">Term</label>
+                <input type="text" class="form-input" id="assessment-term" value="Term1_2026" readonly>
               </div>
-
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Status</label>
-                <select class="form-input" id="termStatus"
-                  style="padding: 0.5rem 0.7rem; border: 1.5px solid #dce4ec; border-radius: 8px; font-size: 0.9rem; width: 100%;">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="closed">Closed</option>
+              <div class="form-group">
+                <label class="form-label">Grade</label>
+                <select class="form-select" id="assessment-grade">
+                  <option value="G2">G2</option>
+                  <option value="G3">G3</option>
+                  <option value="G4">G4</option>
+                  <option value="G5">G5</option>
                 </select>
               </div>
-
-              <div class="form-group" style="margin-bottom: 0.8rem;">
-                <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Grade Fees</label>
-                <div class="grade-fees-container"
-                  style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; max-height: 120px; overflow-y: auto; padding: 0.5rem; background: #f9fcff; border-radius: 12px; border: 1.5px solid #eaf0f6;">
-                  <div class="grade-fee-row"
-                    style="display: flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.3rem; background: white; border-radius: 8px; border: 1px solid #eef2f6;">
-                    <label style="min-width: 28px; font-weight: 600; font-size: 0.8rem;">G1</label>
-                    <input type="number" placeholder="Fee"
-                      style="width: 65px; padding: 0.15rem 0.4rem; border: 1.5px solid #dce6f0; border-radius: 6px; font-size: 0.8rem; text-align: right;">
-                  </div>
-                  <div class="grade-fee-row"
-                    style="display: flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.3rem; background: white; border-radius: 8px; border: 1px solid #eef2f6;">
-                    <label style="min-width: 28px; font-weight: 600; font-size: 0.8rem;">G2</label>
-                    <input type="number" placeholder="Fee"
-                      style="width: 65px; padding: 0.15rem 0.4rem; border: 1.5px solid #dce6f0; border-radius: 6px; font-size: 0.8rem; text-align: right;">
-                  </div>
-                  <div class="grade-fee-row"
-                    style="display: flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.3rem; background: white; border-radius: 8px; border: 1px solid #eef2f6;">
-                    <label style="min-width: 28px; font-weight: 600; font-size: 0.8rem;">G3</label>
-                    <input type="number" placeholder="Fee"
-                      style="width: 65px; padding: 0.15rem 0.4rem; border: 1.5px solid #dce6f0; border-radius: 6px; font-size: 0.8rem; text-align: right;">
-                  </div>
-                </div>
+              <div class="form-group">
+                <label class="form-label">Maximum Marks per Subject</label>
+                <input type="number" class="form-input" id="assessment-max-marks" value="100" min="1" max="200">
               </div>
-
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="font-weight: 600; font-size: 0.85rem; color: #1a2a3a;">Additional Fees</label>
-                <div class="fee-grid-modal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                  <div class="fee-input-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <label style="min-width: 70px; font-size: 0.85rem;">Tuition</label>
-                    <input type="number" class="form-control-sm" placeholder="0"
-                      style="flex: 1; padding: 0.3rem 0.6rem; border: 1.5px solid #dce6f0; border-radius: 10px; text-align: right;">
-                  </div>
-                  <div class="fee-input-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <label style="min-width: 70px; font-size: 0.85rem;">Activities</label>
-                    <input type="number" class="form-control-sm" placeholder="0"
-                      style="flex: 1; padding: 0.3rem 0.6rem; border: 1.5px solid #dce6f0; border-radius: 10px; text-align: right;">
-                  </div>
-                  <div class="fee-input-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <label style="min-width: 70px; font-size: 0.85rem;">Materials</label>
-                    <input type="number" class="form-control-sm" placeholder="0"
-                      style="flex: 1; padding: 0.3rem 0.6rem; border: 1.5px solid #dce6f0; border-radius: 10px; text-align: right;">
-                  </div>
-                  <div class="fee-input-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <label style="min-width: 70px; font-size: 0.85rem;">Others</label>
-                    <input type="number" class="form-control-sm" placeholder="0"
-                      style="flex: 1; padding: 0.3rem 0.6rem; border: 1.5px solid #dce6f0; border-radius: 10px; text-align: right;">
-                  </div>
-                </div>
-              </div>
-
             </div>
 
-            <div class="dialogue-actions"
-              style="display: flex; justify-content: flex-end; gap: 0.8rem; border-top: 1px solid #e6edf4; padding-top: 1rem; margin-top: 0.5rem;">
-              <button class="btn-secondary" onclick="closeTermDialog()"
-                style="background: transparent; border: 1px solid #bcccdb; padding: 0.5rem 1.5rem; border-radius: 60px; cursor: pointer; color: #1f3a54;">Cancel</button>
-              <button class="btn-primary" onclick="saveTerm()"
-                style="background: #1a3a5c; border: none; padding: 0.5rem 1.8rem; border-radius: 60px; cursor: pointer; color: white; font-weight: 500;">Save
-                Term</button>
+            <!-- Subject Selection -->
+            <div class="form-group">
+              <label class="form-label">Select Subjects for this Assessment</label>
+              <div class="subject-tags" id="subject-selection">
+                <span class="subject-tag" data-subject="Mathematics" onclick="toggleSubject(this)">Mathematics</span>
+                <span class="subject-tag" data-subject="English" onclick="toggleSubject(this)">English</span>
+                <span class="subject-tag" data-subject="Science" onclick="toggleSubject(this)">Science</span>
+                <span class="subject-tag" data-subject="History" onclick="toggleSubject(this)">History</span>
+                <span class="subject-tag" data-subject="Geography" onclick="toggleSubject(this)">Geography</span>
+                <span class="subject-tag" data-subject="Art" onclick="toggleSubject(this)">Art</span>
+                <span class="subject-tag" data-subject="Music" onclick="toggleSubject(this)">Music</span>
+                <span class="subject-tag" data-subject="Physical Education" onclick="toggleSubject(this)">Physical
+                  Education</span>
+              </div>
             </div>
 
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="assessment-description"
+                placeholder="Assessment description..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveAssessment()">Create Assessment</button>
+          </div>
+        </div>
+
+        <!-- Edit Marks Modal -->
+        <div class="modal-overlay" id="edit-marks-modal">
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('edit-marks-modal')">×</button>
+            <h2>Edit Marks</h2>
+            <div id="edit-marks-info" style="margin: 1rem 0;"></div>
+            <div class="form-group">
+              <label class="form-label">Marks</label>
+              <input type="number" class="form-input" id="edit-marks-input" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="updateMarks()">Update Marks</button>
+          </div>
+        </div>
+
+        <!-- Bulk Marks Modal -->
+        <div class="modal-overlay" id="bulk-marks-modal">
+          <div class="modal-content" style="max-width: 900px;">
+            <button class="modal-close" onclick="closeModal('bulk-marks-modal')">×</button>
+            <h2>Bulk Marks Entry - Multi-Subject</h2>
+            <div class="form-group" style="margin: 1rem 0;">
+              <label class="form-label">Select Assessment</label>
+              <select class="form-select" id="bulk-assessment" onchange="renderBulkMarks()">
+                <option value="">Select Assessment</option>
+              </select>
+            </div>
+            <div id="bulk-marks-content"></div>
+            <button class="btn btn-success" onclick="saveBulkMarks()" style="margin-top: 1rem;">Save All Marks</button>
           </div>
         </div>
 
@@ -2846,36 +2875,727 @@
       })();
     </script>
 
-
     <script>
-      function openTermDialog() {
-        document.getElementById('termDialogOverlay').style.display = 'flex';
-        document.getElementById('termDialogOverlay').classList.add('active');
+      // ==================== DATA STORE ====================
+      let students = [];
+      let assessments = [];
+      let marks = [];
+      let currentEditMarksIndex = -1;
+      let nextAssessmentId = 1;
+      let selectedSubjects = new Set();
+
+      // ==================== INITIALIZATION ====================
+      function initializeSystem() {
+        const sampleStudents = [
+          { id: 'G2-101', name: 'Alice Johnson', grade: 'G2' },
+          { id: 'G2-102', name: 'Bob Smith', grade: 'G2' },
+          { id: 'G2-103', name: 'Charlie Brown', grade: 'G2' },
+          { id: 'G2-104', name: 'Diana Miller', grade: 'G2' },
+          { id: 'G2-105', name: 'Ethan Wilson', grade: 'G2' },
+          { id: 'G2-106', name: 'Fiona Davis', grade: 'G2' },
+          { id: 'G3-101', name: 'George Taylor', grade: 'G3' },
+          { id: 'G3-102', name: 'Hannah Moore', grade: 'G3' },
+          { id: 'G4-101', name: 'Ian Thomas', grade: 'G4' },
+          { id: 'G4-102', name: 'Julia Anderson', grade: 'G4' }
+        ];
+
+        const sampleAssessment = {
+          id: 'ASMT-001',
+          name: 'Opening Assessment',
+          term: 'Term1_2026',
+          grade: 'G2',
+          maxMarks: 100,
+          subjects: ['Mathematics', 'English', 'Science'],
+          description: 'Initial comprehensive assessment'
+        };
+
+        students = [...sampleStudents];
+        assessments = [sampleAssessment];
+        nextAssessmentId = 2;
+
+        sampleStudents.filter(s => s.grade === 'G2').forEach(student => {
+          sampleAssessment.subjects.forEach(subject => {
+            marks.push({
+              assessmentId: 'ASMT-001',
+              studentId: student.id,
+              subject: subject,
+              marks: Math.floor(Math.random() * 31) + 70
+            });
+          });
+        });
+
+        refreshAll();
       }
 
-      function closeTermDialog() {
-        document.getElementById('termDialogOverlay').style.display = 'none';
-        document.getElementById('termDialogOverlay').classList.remove('active');
+      // ==================== TAB NAVIGATION ====================
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          const tabName = this.dataset.tab;
+
+          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+
+          document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+          document.getElementById(`${tabName}-section`).classList.add('active');
+
+          switch (tabName) {
+            case 'dashboard': renderDashboard(); break;
+            case 'students': renderStudents(); break;
+            case 'assessments': renderAssessments(); break;
+            case 'marks': renderMarksTable(); break;
+            case 'reports': renderReports(); break;
+          }
+        });
+      });
+
+      // ==================== DASHBOARD ====================
+      function renderDashboard() {
+        document.getElementById('dash-students').textContent = students.length;
+        document.getElementById('dash-assessments').textContent = assessments.length;
+        document.getElementById('dash-marks').textContent = marks.length;
+
+        const totalMarks = marks.reduce((sum, m) => sum + m.marks, 0);
+        const average = marks.length > 0 ? (totalMarks / marks.length).toFixed(1) : 0;
+        document.getElementById('dash-average').textContent = `${average}%`;
+
+        const recentPerf = document.getElementById('recent-performance');
+        if (assessments.length === 0) {
+          recentPerf.innerHTML = '<p>No assessments available</p>';
+          return;
+        }
+
+        let html = '<div style="display:grid; gap:1rem;">';
+        assessments.forEach(assessment => {
+          const assessmentMarks = marks.filter(m => m.assessmentId === assessment.id);
+          const avgMarks = assessmentMarks.length > 0 ?
+            (assessmentMarks.reduce((sum, m) => sum + m.marks, 0) / assessmentMarks.length).toFixed(1) : 0;
+
+          html += `
+          <div style="padding:1rem; border:1px solid var(--border); border-radius:8px; background: linear-gradient(135deg, #f9fafb, #ffffff);">
+            <h4 style="color: var(--primary);">${assessment.name} (${assessment.id})</h4>
+            <p>Grade: ${assessment.grade} | Subjects: ${assessment.subjects.join(', ')}</p>
+            <p>Average: ${avgMarks}% | Records: ${assessmentMarks.length}</p>
+          </div>
+        `;
+        });
+        html += '</div>';
+        recentPerf.innerHTML = html;
       }
 
-      function saveTerm() {
-        alert('Term saved successfully!');
-        closeTermDialog();
+      // ==================== STUDENTS MANAGEMENT ====================
+      function renderStudents() {
+        const tbody = document.getElementById('students-table');
+
+        if (students.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No students found</td></tr>';
+          return;
+        }
+
+        let html = '';
+        students.forEach(student => {
+          const studentMarks = marks.filter(m => m.studentId === student.id);
+          const subjects = new Set(studentMarks.map(m => m.subject));
+          const avgMarks = studentMarks.length > 0 ?
+            (studentMarks.reduce((sum, m) => sum + m.marks, 0) / studentMarks.length).toFixed(1) : 'N/A';
+
+          html += `
+          <tr>
+            <td><strong>${student.id}</strong></td>
+            <td>${student.name}</td>
+            <td><span class="badge badge-info">${student.grade}</span></td>
+            <td>${subjects.size} subjects</td>
+            <td>${avgMarks}%</td>
+            <td>${avgMarks >= 75 ? '<span class="badge badge-success">Good</span>' :
+              avgMarks >= 50 ? '<span class="badge badge-warning">Average</span>' :
+                '<span class="badge badge-danger">Needs Help</span>'}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="editStudent('${student.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteStudent('${student.id}')">🗑️</button>
+            </td>
+          </tr>
+        `;
+        });
+
+        tbody.innerHTML = html;
       }
 
-      function editTerm(termId) {
-        alert('Edit term: ' + termId);
-        openTermDialog();
+      function openStudentModal() {
+        document.getElementById('student-modal-title').textContent = 'Add Student';
+        document.getElementById('student-id').value = '';
+        document.getElementById('student-name').value = '';
+        document.getElementById('student-grade').value = 'G2';
+        document.getElementById('student-modal').style.display = 'flex';
       }
 
-      function viewTerm(termId) {
-        alert('View term: ' + termId);
+      function editStudent(studentId) {
+        const student = students.find(s => s.id === studentId);
+        if (!student) return;
+
+        document.getElementById('student-modal-title').textContent = 'Edit Student';
+        document.getElementById('student-id').value = student.id;
+        document.getElementById('student-id').readOnly = true;
+        document.getElementById('student-name').value = student.name;
+        document.getElementById('student-grade').value = student.grade;
+        document.getElementById('student-modal').style.display = 'flex';
       }
 
-      function cloneTerm(termId) {
-        alert('Clone term: ' + termId);
-        openTermDialog();
+      function saveStudent() {
+        const studentId = document.getElementById('student-id').value.trim();
+        const studentName = document.getElementById('student-name').value.trim();
+        const studentGrade = document.getElementById('student-grade').value;
+
+        if (!studentId || !studentName) {
+          showToast('Please fill in all required fields', 'error');
+          return;
+        }
+
+        const existingIndex = students.findIndex(s => s.id === studentId);
+        if (existingIndex >= 0) {
+          students[existingIndex] = { ...students[existingIndex], name: studentName, grade: studentGrade };
+          showToast('Student updated successfully');
+        } else {
+          students.push({ id: studentId, name: studentName, grade: studentGrade });
+          showToast('Student added successfully');
+        }
+
+        document.getElementById('student-id').readOnly = false;
+        closeModal('student-modal');
+        renderStudents();
+        renderDashboard();
       }
+
+      function deleteStudent(studentId) {
+        if (confirm(`Delete student ${studentId}?`)) {
+          students = students.filter(s => s.id !== studentId);
+          marks = marks.filter(m => m.studentId !== studentId);
+          renderStudents();
+          renderDashboard();
+          showToast('Student deleted successfully');
+        }
+      }
+
+      // ==================== ASSESSMENTS MANAGEMENT ====================
+      function renderAssessments() {
+        const listContainer = document.getElementById('assessments-list');
+
+        if (assessments.length === 0) {
+          listContainer.innerHTML = '<p>No assessments found</p>';
+          return;
+        }
+
+        let html = '';
+        assessments.forEach(assessment => {
+          const assessmentMarks = marks.filter(m => m.assessmentId === assessment.id);
+          const avgMarks = assessmentMarks.length > 0 ?
+            (assessmentMarks.reduce((sum, m) => sum + m.marks, 0) / assessmentMarks.length).toFixed(1) : 'N/A';
+
+          html += `
+          <div class="assessment-card">
+            <div class="assessment-card-header">
+              <h4 class="assessment-card-title">${assessment.name}</h4>
+              <span class="badge badge-info">${assessment.id}</span>
+            </div>
+            <div class="assessment-card-details">
+              <p><strong>Grade:</strong> ${assessment.grade}</p>
+              <p><strong>Subjects:</strong></p>
+              <div class="subject-tags">
+                ${assessment.subjects.map(subject =>
+            `<span class="subject-tag">${subject}</span>`
+          ).join('')}
+              </div>
+              <p><strong>Max Marks per Subject:</strong> ${assessment.maxMarks}</p>
+              <p><strong>Average:</strong> ${avgMarks}%</p>
+              <p><strong>Records:</strong> ${assessmentMarks.length}</p>
+            </div>
+            <div style="margin-top: 1rem;">
+              <button class="btn btn-primary btn-sm" onclick="enterMarks('${assessment.id}')">📝 Enter Marks</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${assessment.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+        });
+
+        listContainer.innerHTML = html;
+      }
+
+      function openAssessmentModal() {
+        document.getElementById('assessment-name').value = '';
+        document.getElementById('assessment-grade').value = 'G2';
+        document.getElementById('assessment-max-marks').value = 100;
+        document.getElementById('assessment-description').value = '';
+
+        selectedSubjects.clear();
+        document.querySelectorAll('#subject-selection .subject-tag').forEach(tag => {
+          tag.classList.remove('active');
+        });
+
+        document.getElementById('assessment-modal').style.display = 'flex';
+      }
+
+      function toggleSubject(element) {
+        const subject = element.dataset.subject;
+        if (selectedSubjects.has(subject)) {
+          selectedSubjects.delete(subject);
+          element.classList.remove('active');
+        } else {
+          selectedSubjects.add(subject);
+          element.classList.add('active');
+        }
+      }
+
+      function saveAssessment() {
+        const name = document.getElementById('assessment-name').value.trim();
+        const term = document.getElementById('assessment-term').value;
+        const grade = document.getElementById('assessment-grade').value;
+        const maxMarks = parseInt(document.getElementById('assessment-max-marks').value) || 100;
+        const description = document.getElementById('assessment-description').value.trim();
+
+        if (!name) {
+          showToast('Please enter assessment name', 'error');
+          return;
+        }
+
+        if (selectedSubjects.size === 0) {
+          showToast('Please select at least one subject', 'error');
+          return;
+        }
+
+        const assessmentId = `ASMT-${String(nextAssessmentId).padStart(3, '0')}`;
+        nextAssessmentId++;
+
+        const newAssessment = {
+          id: assessmentId,
+          name: name,
+          term: term,
+          grade: grade,
+          maxMarks: maxMarks,
+          subjects: [...selectedSubjects],
+          description: description
+        };
+
+        assessments.push(newAssessment);
+
+        students.filter(s => s.grade === grade).forEach(student => {
+          selectedSubjects.forEach(subject => {
+            marks.push({
+              assessmentId: assessmentId,
+              studentId: student.id,
+              subject: subject,
+              marks: 0
+            });
+          });
+        });
+
+        closeModal('assessment-modal');
+        renderAssessments();
+        renderDashboard();
+        showToast(`Assessment "${name}" created with ${selectedSubjects.size} subjects`);
+      }
+
+      function deleteAssessment(assessmentId) {
+        if (confirm(`Delete assessment ${assessmentId}?`)) {
+          assessments = assessments.filter(a => a.id !== assessmentId);
+          marks = marks.filter(m => m.assessmentId !== assessmentId);
+          renderAssessments();
+          renderDashboard();
+          showToast('Assessment deleted successfully');
+        }
+      }
+
+      function enterMarks(assessmentId) {
+        document.querySelector('[data-tab="marks"]').click();
+        document.getElementById('filter-assessment').value = assessmentId;
+        onAssessmentFilter();
+      }
+
+      // ==================== MARKS MANAGEMENT ====================
+      function onAssessmentFilter() {
+        const assessmentId = document.getElementById('filter-assessment').value;
+        const subjectFilter = document.getElementById('filter-subject');
+
+        if (assessmentId) {
+          const assessment = assessments.find(a => a.id === assessmentId);
+          if (assessment) {
+            subjectFilter.innerHTML = '<option value="">All Subjects</option>';
+            assessment.subjects.forEach(subject => {
+              subjectFilter.innerHTML += `<option value="${subject}">${subject}</option>`;
+            });
+          }
+        } else {
+          subjectFilter.innerHTML = '<option value="">All Subjects</option>';
+          const allSubjects = new Set();
+          assessments.forEach(a => a.subjects.forEach(s => allSubjects.add(s)));
+          allSubjects.forEach(subject => {
+            subjectFilter.innerHTML += `<option value="${subject}">${subject}</option>`;
+          });
+        }
+
+        renderMarksTable();
+      }
+
+      function renderMarksTable() {
+        const filterAssessment = document.getElementById('filter-assessment');
+        filterAssessment.innerHTML = '<option value="">Select Assessment</option>';
+        assessments.forEach(assessment => {
+          filterAssessment.innerHTML += `<option value="${assessment.id}">${assessment.name} (${assessment.id})</option>`;
+        });
+
+        const filterGrade = document.getElementById('filter-grade');
+        filterGrade.innerHTML = '<option value="">All Grades</option>';
+        const uniqueGrades = [...new Set(students.map(s => s.grade))];
+        uniqueGrades.forEach(grade => {
+          filterGrade.innerHTML += `<option value="${grade}">${grade}</option>`;
+        });
+
+        const assessmentFilter = filterAssessment.value;
+        const subjectFilter = document.getElementById('filter-subject').value;
+        const gradeFilter = filterGrade.value;
+
+        let filteredMarks = [...marks];
+
+        if (assessmentFilter) {
+          filteredMarks = filteredMarks.filter(m => m.assessmentId === assessmentFilter);
+        }
+
+        if (subjectFilter) {
+          filteredMarks = filteredMarks.filter(m => m.subject === subjectFilter);
+        }
+
+        if (gradeFilter) {
+          filteredMarks = filteredMarks.filter(m => {
+            const student = students.find(s => s.id === m.studentId);
+            return student && student.grade === gradeFilter;
+          });
+        }
+
+        const tbody = document.getElementById('marks-table');
+
+        if (filteredMarks.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No marks records found</td></tr>';
+          return;
+        }
+
+        const groupedByStudent = {};
+        filteredMarks.forEach(mark => {
+          if (!groupedByStudent[mark.studentId]) {
+            groupedByStudent[mark.studentId] = [];
+          }
+          groupedByStudent[mark.studentId].push(mark);
+        });
+
+        let html = '';
+        Object.entries(groupedByStudent).forEach(([studentId, studentMarks]) => {
+          const student = students.find(s => s.id === studentId);
+          if (!student) return;
+
+          studentMarks.forEach(mark => {
+            const actualIndex = marks.indexOf(mark);
+            const assessment = assessments.find(a => a.id === mark.assessmentId);
+            const gradeBadge = mark.marks >= 75 ? 'badge-success' : mark.marks >= 50 ? 'badge-warning' : 'badge-danger';
+            const gradeText = mark.marks >= 75 ? 'A' : mark.marks >= 65 ? 'B' : mark.marks >= 50 ? 'C' : 'F';
+
+            html += `
+            <tr>
+              <td><strong>${student.name}</strong><br><small>${student.id}</small></td>
+              <td><span class="badge badge-info">${student.grade}</span></td>
+              <td><span class="subject-tag">${mark.subject}</span></td>
+              <td><strong>${mark.marks}/${assessment.maxMarks}</strong></td>
+              <td><span class="badge ${gradeBadge}">${gradeText}</span></td>
+              <td>
+                <button class="btn btn-outline btn-sm" onclick="openEditMarksModal(${actualIndex})">✏️</button>
+              </td>
+            </tr>
+          `;
+          });
+
+          if (studentMarks.length > 1) {
+            const avgMarks = (studentMarks.reduce((sum, m) => sum + m.marks, 0) / studentMarks.length).toFixed(1);
+            html += `
+            <tr style="background: var(--gray-50);">
+              <td colspan="3"><strong>Average for ${student.name}:</strong></td>
+              <td><strong>${avgMarks}</strong></td>
+              <td colspan="2"></td>
+            </tr>
+          `;
+          }
+        });
+
+        tbody.innerHTML = html;
+      }
+
+      function openEditMarksModal(index) {
+        currentEditMarksIndex = index;
+        const mark = marks[index];
+        const student = students.find(s => s.id === mark.studentId);
+        const assessment = assessments.find(a => a.id === mark.assessmentId);
+
+        document.getElementById('edit-marks-info').innerHTML = `
+        <p><strong>Student:</strong> ${student.name} (${student.id})</p>
+        <p><strong>Assessment:</strong> ${assessment.name} (${assessment.id})</p>
+        <p><strong>Subject:</strong> ${mark.subject}</p>
+        <p><strong>Maximum Marks:</strong> ${assessment.maxMarks}</p>
+      `;
+
+        document.getElementById('edit-marks-input').max = assessment.maxMarks;
+        document.getElementById('edit-marks-input').value = mark.marks;
+        document.getElementById('edit-marks-modal').style.display = 'flex';
+      }
+
+      function updateMarks() {
+        const newMarks = parseInt(document.getElementById('edit-marks-input').value);
+        if (isNaN(newMarks) || newMarks < 0) {
+          showToast('Please enter valid marks', 'error');
+          return;
+        }
+
+        const mark = marks[currentEditMarksIndex];
+        const assessment = assessments.find(a => a.id === mark.assessmentId);
+
+        if (newMarks > assessment.maxMarks) {
+          showToast(`Marks cannot exceed ${assessment.maxMarks}`, 'error');
+          return;
+        }
+
+        marks[currentEditMarksIndex].marks = newMarks;
+        closeModal('edit-marks-modal');
+        renderMarksTable();
+        renderDashboard();
+        showToast('Marks updated successfully');
+      }
+
+      // ==================== BULK MARKS ====================
+      function openBulkMarksModal() {
+        const select = document.getElementById('bulk-assessment');
+        select.innerHTML = '<option value="">Select Assessment</option>';
+
+        assessments.forEach(assessment => {
+          select.innerHTML += `<option value="${assessment.id}">${assessment.name} (${assessment.id}) - ${assessment.grade}</option>`;
+        });
+
+        document.getElementById('bulk-marks-content').innerHTML = '';
+        document.getElementById('bulk-marks-modal').style.display = 'flex';
+      }
+
+      function renderBulkMarks() {
+        const assessmentId = document.getElementById('bulk-assessment').value;
+        const content = document.getElementById('bulk-marks-content');
+
+        if (!assessmentId) {
+          content.innerHTML = '<p>Please select an assessment</p>';
+          return;
+        }
+
+        const assessment = assessments.find(a => a.id === assessmentId);
+        const gradeStudents = students.filter(s => s.grade === assessment.grade);
+
+        let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Student</th>';
+
+        assessment.subjects.forEach(subject => {
+          html += `<th>${subject}<br><small>Max: ${assessment.maxMarks}</small></th>`;
+        });
+
+        html += '<th>Average</th></tr></thead><tbody>';
+
+        gradeStudents.forEach(student => {
+          html += `<tr><td><strong>${student.name}</strong><br><small>${student.id}</small></td>`;
+
+          let totalMarks = 0;
+          assessment.subjects.forEach(subject => {
+            const existingMark = marks.find(m =>
+              m.assessmentId === assessmentId &&
+              m.studentId === student.id &&
+              m.subject === subject
+            );
+            const currentMarks = existingMark ? existingMark.marks : 0;
+            totalMarks += currentMarks;
+
+            html += `<td><input type="number" class="form-input" style="width:80px;" 
+                    data-assessment="${assessmentId}" 
+                    data-student="${student.id}" 
+                    data-subject="${subject}"
+                    value="${currentMarks}" 
+                    min="0" max="${assessment.maxMarks}"
+                    onchange="updateBulkAverage(this)"></td>`;
+          });
+
+          const avg = (totalMarks / assessment.subjects.length).toFixed(1);
+          html += `<td><strong>${avg}</strong></td></tr>`;
+        });
+
+        html += '</tbody></table></div>';
+        content.innerHTML = html;
+      }
+
+      function updateBulkAverage(input) {
+        const row = input.closest('tr');
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let total = 0;
+        inputs.forEach(inp => {
+          total += parseInt(inp.value) || 0;
+        });
+        const avg = (total / inputs.length).toFixed(1);
+        row.querySelector('td:last-child strong').textContent = avg;
+      }
+
+      function saveBulkMarks() {
+        const inputs = document.querySelectorAll('#bulk-marks-content input[type="number"]');
+        let savedCount = 0;
+
+        inputs.forEach(input => {
+          const assessmentId = input.dataset.assessment;
+          const studentId = input.dataset.student;
+          const subject = input.dataset.subject;
+          const marksValue = parseInt(input.value) || 0;
+
+          const existingIndex = marks.findIndex(m =>
+            m.assessmentId === assessmentId &&
+            m.studentId === studentId &&
+            m.subject === subject
+          );
+
+          if (existingIndex >= 0) {
+            marks[existingIndex].marks = marksValue;
+          } else {
+            marks.push({ assessmentId, studentId, subject, marks: marksValue });
+          }
+          savedCount++;
+        });
+
+        closeModal('bulk-marks-modal');
+        renderMarksTable();
+        renderDashboard();
+        showToast(`Saved ${savedCount} marks records successfully`);
+      }
+
+      // ==================== REPORTS ====================
+      function renderReports() {
+        const reportsContent = document.getElementById('reports-content');
+
+        let html = '<h3>Assessment-wise Performance</h3><br>';
+        html += '<div class="table-wrapper"><table class="data-table"><thead><tr>';
+        html += '<th>Assessment</th><th>Grade</th><th>Subjects</th><th>Average</th><th>Performance</th>';
+        html += '</tr></thead><tbody>';
+
+        assessments.forEach(assessment => {
+          const assessmentMarks = marks.filter(m => m.assessmentId === assessment.id);
+          const avgMarks = assessmentMarks.length > 0 ?
+            (assessmentMarks.reduce((sum, m) => sum + m.marks, 0) / assessmentMarks.length).toFixed(1) : 0;
+
+          html += `<tr>
+          <td><strong>${assessment.name}</strong><br><small>${assessment.id}</small></td>
+          <td><span class="badge badge-info">${assessment.grade}</span></td>
+          <td>${assessment.subjects.join(', ')}</td>
+          <td>${avgMarks}%</td>
+          <td>${avgMarks >= 75 ? '<span class="badge badge-success">Excellent</span>' :
+              avgMarks >= 50 ? '<span class="badge badge-warning">Average</span>' :
+                '<span class="badge badge-danger">Needs Improvement</span>'}</td>
+        </tr>`;
+        });
+
+        html += '</tbody></table></div>';
+
+        html += '<br><h3>Subject-wise Performance</h3><br>';
+        html += '<div class="table-wrapper"><table class="data-table"><thead><tr>';
+        html += '<th>Subject</th><th>Students</th><th>Average</th><th>Highest</th><th>Lowest</th>';
+        html += '</tr></thead><tbody>';
+
+        const subjects = new Set();
+        assessments.forEach(a => a.subjects.forEach(s => subjects.add(s)));
+
+        subjects.forEach(subject => {
+          const subjectMarks = marks.filter(m => m.subject === subject);
+          if (subjectMarks.length > 0) {
+            const avg = (subjectMarks.reduce((sum, m) => sum + m.marks, 0) / subjectMarks.length).toFixed(1);
+            const highest = Math.max(...subjectMarks.map(m => m.marks));
+            const lowest = Math.min(...subjectMarks.map(m => m.marks));
+
+            html += `<tr>
+            <td><span class="subject-tag">${subject}</span></td>
+            <td>${subjectMarks.length}</td>
+            <td>${avg}%</td>
+            <td>${highest}</td>
+            <td>${lowest}</td>
+          </tr>`;
+          }
+        });
+
+        html += '</tbody></table></div>';
+        reportsContent.innerHTML = html;
+      }
+
+      // ==================== EXPORT ====================
+      function exportData() {
+        const data = {
+          exportDate: new Date().toISOString(),
+          term: 'Term1_2026',
+          students: students,
+          assessments: assessments,
+          marks: marks,
+          summary: {
+            totalStudents: students.length,
+            totalAssessments: assessments.length,
+            totalMarksRecords: marks.length,
+            overallAverage: marks.length > 0 ?
+              (marks.reduce((sum, m) => sum + m.marks, 0) / marks.length).toFixed(2) : 0
+          }
+        };
+
+        const jsonData = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `eduassess_multisubject_report_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showToast('Report exported successfully');
+      }
+
+      // ==================== TOAST NOTIFICATIONS ====================
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'warning' ? 'toast-warning' : ''}`;
+        toast.innerHTML = `
+        <span>${type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅'}</span>
+        <span>${message}</span>
+      `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // ==================== MODAL MANAGEMENT ====================
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
+
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function (e) {
+          if (e.target === this) {
+            this.style.display = 'none';
+          }
+        });
+      });
+
+      // ==================== REFRESH ====================
+      function refreshDashboard() {
+        renderDashboard();
+        showToast('Dashboard refreshed');
+      }
+
+      function refreshAll() {
+        renderDashboard();
+        renderStudents();
+        renderAssessments();
+        renderMarksTable();
+        renderReports();
+      }
+
+      // ==================== INITIALIZE ====================
+      document.addEventListener('DOMContentLoaded', initializeSystem);
     </script>
 
 
