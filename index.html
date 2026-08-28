@@ -2848,27 +2848,27 @@
     // ============================================================
     // print student list
     // ============================================================
-    document.getElementById("printStudents")?.addEventListener("click", async () => {
+    document.getElementById("printStudents")?.addEventListener("click", () => {
 
       const studentsList = Object.entries(studentsCache).map(
         ([key, student]) => ({
-          ...student,
-
-          // Include Firebase/admission key if needed
-          S_KEY: student.S_KEY || key
+          Admission_No: student.StudentId || key,
+          Name: student.Name || "",
+          Gender: student.Gender || "",
+          Grade: student.Grade || "",
+          Phone: student.PhoneNo || "",
+          Status: student.Register_Status || ""
         })
       );
 
-      if (studentsList.length === 0) {
+      if (!studentsList.length) {
         alert("No students available to print.");
         return;
       }
 
       window.chrome.webview.postMessage({
         action: "PRINT_STUDENTS_LIST",
-
         title: "STUDENTS LIST",
-
         students: studentsList
       });
     });
