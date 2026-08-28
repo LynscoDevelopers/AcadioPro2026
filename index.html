@@ -1797,9 +1797,116 @@
         </div>
       </div>
 
+      <!-- Tab 4: Empty -->
       <div id="tab5" class="tab-panel">
-        COLLINS
+        <div class="term-page">
+          <div class="dashboard">
+            <!-- HEADER (using provided .header) -->
+            <div class="header">
+              <h1>
+                <i class="fas fa-calendar-alt"></i>
+                Term Details &amp; Fee Structure
+              </h1>
+              <div class="header-actions">
+                <button class="btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn btn-primary" id="addTermBtn"><i class="fas fa-plus"></i> New Term</button>
+              </div>
+            </div>
+
+            <!-- STATS (using provided .stats) -->
+            <div class="stats" id="statsContainer">
+              <div class="stat-card"><i class="fas fa-calendar-check"></i> <span id="totalTerms">0</span> Terms</div>
+              <div class="stat-card"><i class="fas fa-coins"></i> <span id="totalFees">0</span> Total Fees</div>
+              <div class="stat-card"><i class="fas fa-user-graduate"></i> <span id="totalGrades">0</span> Grade Levels
+              </div>
+            </div>
+
+            <!-- GRID (using provided .classes-grid) -->
+            <div class="classes-grid" id="termGrid"></div>
+          </div>
+        </div>
+
+        <!-- ===== MODAL / DIALOG (using provided .modal-overlay) ===== -->
+        <div class="modal-overlay" id="termModal">
+          <div class="modal-box modal-box-large" style="margin: 0px;">
+            <div class="modal-header" style="margin: 0px;">
+              <h2><i class="fas fa-edit"></i> <span id="modalTitle">New Term</span></h2>
+              <button class="modal-close" id="closeTermModalBtn">&times;</button>
+            </div>
+
+            <!-- Form -->
+            <form id="termForm">
+              <!-- Row 1: Term ID + Status -->
+              <div class="form-row">
+                <div class="form-group" style="flex:2;">
+                  <label for="termIdInput">Term ID *</label>
+                  <input class="form-control" id="termIdInput" placeholder="e.g. TERM-2026-01" />
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label for="statusSelect">Status</label>
+                  <select class="form-control" id="statusSelect">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 2: Start + End -->
+              <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                  <label for="startDateInput">Start Date *</label>
+                  <input class="form-control" id="startDateInput" type="date" />
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label for="endDateInput">End Date *</label>
+                  <input class="form-control" id="endDateInput" type="date" />
+                </div>
+              </div>
+
+              <!-- Fee Components -->
+              <div class="form-group">
+                <label>Fee Components</label>
+                <div class="fee-grid-modal">
+                  <div class="fee-input-group">
+                    <label>Meal</label>
+                    <input type="number" step="0.01" id="mealInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Transport</label>
+                    <input type="number" step="0.01" id="transportInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Boarding</label>
+                    <input type="number" step="0.01" id="boardingInput" value="0.00" />
+                  </div>
+                  <div class="fee-input-group">
+                    <label>Break</label>
+                    <input type="number" step="0.01" id="breakInput" value="0.00" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grade Fees -->
+              <div class="form-group">
+                <label>Grade-wise Fees</label>
+                <div class="grade-fees-container" id="gradeFeesContainer">
+                  <!-- grade rows injected by JS -->
+                </div>
+
+              </div>
+
+              <!-- Actions -->
+              <div class="modal-actions" style="margin: 0px;">
+                <button type="button" class="btn btn-outline" id="cancelTermModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Term</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
+
+     
     </div>
 
     <!-- dialog overlay (hidden by default) -->
