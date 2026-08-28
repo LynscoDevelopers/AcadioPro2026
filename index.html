@@ -1355,6 +1355,7 @@
 
 <body>
   <button id="printStudents">Prints</button>
+  <button id="printStudents2">Prints balnces</button>
 
   <div class="page-container">
 
@@ -2887,7 +2888,80 @@
       });
     });
 
+    document.getElementById("printStudents2")?.addEventListener("click", () => {
 
+      const studentsList = Object.entries(studentsCache).map(
+        ([admissionNumber, student]) => {
+          return {
+            Admission_No: admissionNumber,
+            Name: student.name || "",
+            Grade: student.class || "",
+            Status: student.Status || "",
+            // Fee balance data
+            RequiredFee: formatCurrency(getStudentRequiredFee(admissionNumber)),
+            Exemptions: formatCurrency(studentExceptions(admissionNumber)),
+            BalanceBefore: formatCurrency(getBalanceBefore(admissionNumber)),
+            Installments: formatCurrency(getInstallmentsForStudent(admissionNumber)),
+            CurrentBalance: formatCurrency(getCurrent(admissionNumber))
+          };
+        }
+      );
+
+      if (!studentsList.length) {
+        alert("No students available to print.");
+        return;
+      }
+
+      // Sort students using the same logic as populateFeeBalanceTable
+      studentsList.sort((a, b) => {
+        const gradeA = a.Grade || "";
+        const gradeB = b.Grade || "";
+
+        const isGraduateA = gradeA === "Graduate";
+        const isGraduateB = gradeB === "Graduate";
+        if (isGraduateA && !isGraduateB) return 1;
+        if (!isGraduateA && isGraduateB) return -1;
+
+        const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+        const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+        if (isInactiveA && !isInactiveB) return 1;
+        if (!isInactiveA && isInactiveB) return -1;
+
+        const getGradeNumber = (grade) => {
+          const match = grade.match(/(\d+)/);
+          return match ? parseInt(match[1]) : -1;
+        };
+
+        const getGradePrefix = (grade) => {
+          const match = grade.match(/^([A-Za-z]+)/);
+          return match ? match[1].toUpperCase() : "";
+        };
+
+        const numA = getGradeNumber(gradeA);
+        const numB = getGradeNumber(gradeB);
+
+        if (numA !== numB) {
+          if (numA === -1 && numB !== -1) return 1;
+          if (numA !== -1 && numB === -1) return -1;
+          return numB - numA;
+        }
+
+        const prefixA = getGradePrefix(gradeA);
+        const prefixB = getGradePrefix(gradeB);
+
+        const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+        const orderA = prefixOrder[prefixA] ?? 99;
+        const orderB = prefixOrder[prefixB] ?? 99;
+
+        return orderA - orderB;
+      });
+
+      window.chrome.webview.postMessage({
+        action: "PRINT_BALANCE_LIST",
+        title: "FEE BALANCE LIST",
+        students: studentsList
+      });
+    });
 
     // Function to update a single field for a student
     async function updateStudentField(admissionNumber, fieldName, fieldValue) {
