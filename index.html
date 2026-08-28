@@ -2866,6 +2866,20 @@
         return;
       }
 
+      // Sort students by Grade (alphabetically)
+      studentsList.sort((a, b) => {
+        const gradeA = (a.Grade || "").toString().toLowerCase();
+        const gradeB = (b.Grade || "").toString().toLowerCase();
+
+        if (gradeA < gradeB) return -1;
+        if (gradeA > gradeB) return 1;
+
+        // If grades are equal, sort by Name
+        const nameA = (a.Name || "").toString().toLowerCase();
+        const nameB = (b.Name || "").toString().toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
       window.chrome.webview.postMessage({
         action: "PRINT_STUDENTS_LIST",
         title: "STUDENTS LIST",
