@@ -1354,7 +1354,7 @@
 </head>
 
 <body>
-
+  <button id="printStudents">Prints</button>
 
   <div class="page-container">
 
@@ -2844,6 +2844,36 @@
         alert("Failed to save Class Details:\n" + error.message);
       }
     });
+
+    // ============================================================
+    // print student list
+    // ============================================================
+    document.getElementById("printStudents")?.addEventListener("click", async () => {
+
+      const studentsList = Object.entries(studentsCache).map(
+        ([key, student]) => ({
+          ...student,
+
+          // Include Firebase/admission key if needed
+          S_KEY: student.S_KEY || key
+        })
+      );
+
+      if (studentsList.length === 0) {
+        alert("No students available to print.");
+        return;
+      }
+
+      window.chrome.webview.postMessage({
+        action: "PRINT_STUDENTS_LIST",
+
+        title: "STUDENTS LIST",
+
+        students: studentsList
+      });
+    });
+
+
 
     // Function to update a single field for a student
     async function updateStudentField(admissionNumber, fieldName, fieldValue) {
