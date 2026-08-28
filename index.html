@@ -3347,6 +3347,28 @@
               panels[targetId].classList.add('active');
             }
           });
+
+          if (
+            e.key === "Escape"
+          ) {
+
+            closeRegisterContextMenu();
+
+          }
+
+          if (
+            e.key === "Escape" &&
+            feeBalanceMenu &&
+            feeBalanceMenu.style.display ===
+            "block"
+          ) {
+
+            closeFeeBalanceMenu();
+
+          }
+
+
+
         });
 
         // ----- Expose global function for C# to call -----
