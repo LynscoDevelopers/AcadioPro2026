@@ -2852,12 +2852,12 @@
 
       const studentsList = Object.entries(studentsCache).map(
         ([key, student]) => ({
-          Admission_No: student.StudentId || key,
-          Name: student.Name || "",
-          Gender: student.Gender || "",
-          Grade: student.Grade || "",
-          Phone: student.PhoneNo || "",
-          Status: student.Register_Status || ""
+          Admission_No: student.admissionNumber,
+          Name: student.name || "",
+          Gender: student.gender || "",
+          Grade: student.class || "",
+          Phone: student.phone || "",
+          Status: student.Status || ""
         })
       );
 
