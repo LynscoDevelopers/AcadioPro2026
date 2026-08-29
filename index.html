@@ -4114,6 +4114,10 @@
           if (p) p.classList.remove('active');
         });
 
+        
+        closeFeeBalanceMenu();
+        closeRegisterContextMenu();
+
         const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
         if (targetTab) {
           targetTab.classList.add('active');
@@ -4124,8 +4128,6 @@
         }
         return false;
 
-        closeFeeBalanceMenu();
-        closeRegisterContextMenu();
       };
 
       window.__tabPanels = panels;
