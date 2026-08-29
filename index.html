@@ -4114,7 +4114,7 @@
           if (p) p.classList.remove('active');
         });
 
-        
+
         closeFeeBalanceMenu();
         closeRegisterContextMenu();
 
@@ -5431,7 +5431,7 @@
       });
 
       // ============================================================
-      // CONTEXT MENU - REGISTER TABLE
+      // CONTEXT MENU - REGISTER TABLE (FIXED)
       // ============================================================
       const registerTable = document.getElementById("register_Tbl");
       const registerContextMenu = document.getElementById("registerContextMenu");
@@ -5443,6 +5443,7 @@
       let contextSelectedRow = null;
       let selectedAdmissionNumber = null;
       let isAutoScrolling = false;
+      let registerMenuShouldStayOpen = false; // NEW: Flag to keep menu open
 
       function selectRegisterRow(row) {
         if (!row) return;
@@ -5481,20 +5482,34 @@
         if (!registerContextMenu) return;
         registerContextMenu.style.display = "none";
         registerContextMenu.style.visibility = "hidden";
+        registerMenuShouldStayOpen = false; // Reset flag
       }
 
       function positionRegisterContextMenu() {
         if (!registerContextMenu || !contextSelectedRow) return;
+
+        // Check if row is still in DOM
+        if (!contextSelectedRow.isConnected) {
+          restoreSelectedRegisterRow();
+          if (!contextSelectedRow) return;
+        }
+
         const statusBadge = contextSelectedRow.querySelector(".col-status .status-badge");
         if (!statusBadge) return;
+
         const rect = statusBadge.getBoundingClientRect();
         const menuWidth = registerContextMenu.offsetWidth || 180;
         const menuHeight = registerContextMenu.offsetHeight || 120;
+
         let left = rect.left - 70;
         let top = rect.bottom + 5;
+
+        // Keep inside viewport
         if (left < 5) left = 5;
         if (left + menuWidth > window.innerWidth - 5) left = window.innerWidth - menuWidth - 5;
         if (top + menuHeight > window.innerHeight - 5) top = rect.top - menuHeight - 5;
+        if (top < 5) top = 5; // Ensure menu doesn't go above viewport
+
         registerContextMenu.style.position = "fixed";
         registerContextMenu.style.left = `${left}px`;
         registerContextMenu.style.top = `${top}px`;
@@ -5504,12 +5519,14 @@
       registerTable?.addEventListener("click", function (e) {
         const row = e.target.closest("tbody tr");
         if (!row) return;
+
         if (e.target.matches("input.custom-checkbox")) {
           selectRegisterRow(row);
           closeRegisterContextMenu();
           row.classList.add("row-selected");
           return;
         }
+
         selectRegisterRow(row);
         closeRegisterContextMenu();
       });
@@ -5517,61 +5534,112 @@
       registerTable?.addEventListener("contextmenu", function (e) {
         const row = e.target.closest("tbody tr");
         if (!row || !registerContextMenu) return;
+
         e.preventDefault();
         selectRegisterRow(row);
+
         if (!contextAdmissionNumber) {
           console.warn("Admission number not found.");
           return;
         }
+
         const student = studentsCache[contextAdmissionNumber];
         if (!student) {
           console.warn("Student not found:", contextAdmissionNumber);
           return;
         }
+
+        // Set checkbox states
         const exceptions = student.Exceptions || {};
         menuMeal.checked = exceptions.Meal === true;
         menuBoarding.checked = exceptions.Boarding === true;
         menuSponsored.checked = exceptions.Sponsored === true;
+
         if (menuBoarding.checked) {
           menuMeal.checked = false;
           menuMeal.disabled = true;
         } else {
           menuMeal.disabled = false;
         }
+
+        // Show menu immediately
         registerContextMenu.style.position = "fixed";
         registerContextMenu.style.display = "block";
-        registerContextMenu.style.visibility = "hidden";
-        registerContextMenu.offsetWidth;
+        registerContextMenu.style.visibility = "visible"; // CHANGED: Make visible immediately
+        registerContextMenu.style.zIndex = "999999";
+
+        // Force layout calculation
+        void registerContextMenu.offsetWidth;
+
+        // Get status badge position
         const statusBadge = row.querySelector(".col-status .status-badge");
         if (!statusBadge) {
           registerContextMenu.style.display = "none";
           return;
         }
+
         const rect = statusBadge.getBoundingClientRect();
         const menuHeight = registerContextMenu.offsetHeight || 120;
         const padding = 15;
         const spaceBelow = window.innerHeight - rect.bottom;
+
+        // Set initial position
+        positionRegisterContextMenu();
+
+        // Check if we need to scroll
         if (spaceBelow < menuHeight + padding) {
           const scrollAmount = (menuHeight + padding) - spaceBelow;
+
+          // Set flag to keep menu open during scroll
           isAutoScrolling = true;
-          registerContextMenu.style.visibility = "visible";
-          window.scrollBy({ top: scrollAmount, behavior: "smooth" });
+          registerMenuShouldStayOpen = true;
+
+          // Smooth scroll
+          window.scrollBy({
+            top: scrollAmount,
+            behavior: "smooth"
+          });
+
+          // Keep menu positioned during scroll
+          const updateMenuPosition = () => {
+            if (isAutoScrolling && registerMenuShouldStayOpen) {
+              positionRegisterContextMenu();
+              requestAnimationFrame(updateMenuPosition);
+            }
+          };
+          requestAnimationFrame(updateMenuPosition);
+
+          // After scroll completes
           setTimeout(() => {
             isAutoScrolling = false;
+            registerMenuShouldStayOpen = false;
+
+            // Restore selection and position
             restoreSelectedRegisterRow();
             positionRegisterContextMenu();
+
+            // Ensure menu remains visible
+            registerContextMenu.style.display = "block";
             registerContextMenu.style.visibility = "visible";
-          }, 450);
+          }, 600); // Increased timeout for smooth scroll completion
         } else {
+          // No scroll needed, just position
           positionRegisterContextMenu();
           registerContextMenu.style.visibility = "visible";
         }
       });
 
+      // Prevent menu from closing when clicking inside
       registerContextMenu?.addEventListener("click", function (e) {
         e.stopPropagation();
       });
 
+      // Prevent menu from closing when interacting with checkboxes
+      registerContextMenu?.addEventListener("mousedown", function (e) {
+        e.stopPropagation();
+      });
+
+      // Boarding checkbox
       menuBoarding?.addEventListener("change", async function () {
         const admissionNumber = contextAdmissionNumber;
         if (this.checked) {
@@ -5583,11 +5651,13 @@
         await updateStudentExceptions(admissionNumber);
       });
 
+      // Meal checkbox
       menuMeal?.addEventListener("change", async function () {
         const admissionNumber = contextAdmissionNumber;
         await updateStudentExceptions(admissionNumber);
       });
 
+      // Sponsored checkbox
       menuSponsored?.addEventListener("change", async function () {
         const admissionNumber = contextAdmissionNumber;
         await updateStudentExceptions(admissionNumber);
@@ -5595,35 +5665,57 @@
 
       async function updateStudentExceptions(admissionNumber) {
         if (!admissionNumber) return;
+
+        // Keep menu open during update
+        registerMenuShouldStayOpen = true;
+
         selectedAdmissionNumber = admissionNumber;
         const admissionKey = admissionNumber.replace(/\//g, "-");
+
         if (menuBoarding.checked) {
           menuMeal.checked = false;
           menuMeal.disabled = true;
         } else {
           menuMeal.disabled = false;
         }
+
         const exceptions = {
           Meal: menuMeal.checked,
           Boarding: menuBoarding.checked,
           Sponsored: menuSponsored.checked
         };
+
         try {
-          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { Exceptions: exceptions });
+          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), {
+            Exceptions: exceptions
+          });
+
+          // Update local cache
           if (studentsCache[admissionNumber]) {
             studentsCache[admissionNumber].Exceptions = exceptions;
           }
+
+          // Restore selection
           selectedAdmissionNumber = admissionNumber;
           restoreSelectedRegisterRow();
-          requestAnimationFrame(() => { restoreSelectedRegisterRow(); });
-          setTimeout(() => { restoreSelectedRegisterRow(); }, 100);
-          setTimeout(() => { restoreSelectedRegisterRow(); }, 300);
-          setTimeout(() => {
+
+          // Keep menu visible and positioned
+          requestAnimationFrame(() => {
             restoreSelectedRegisterRow();
-            if (registerContextMenu && registerContextMenu.style.display === "block") {
+            if (registerMenuShouldStayOpen) {
               positionRegisterContextMenu();
             }
-          }, 150);
+          });
+
+          setTimeout(() => {
+            restoreSelectedRegisterRow();
+            if (registerMenuShouldStayOpen) {
+              positionRegisterContextMenu();
+              registerContextMenu.style.display = "block";
+              registerContextMenu.style.visibility = "visible";
+            }
+          }, 100);
+
           console.log("Exceptions updated:", admissionNumber, exceptions);
         } catch (error) {
           console.error("Failed to update exceptions:", error);
@@ -5631,6 +5723,7 @@
         }
       }
 
+      // Window resize - keep menu positioned
       window.addEventListener("resize", function () {
         if (registerContextMenu && registerContextMenu.style.display === "block") {
           restoreSelectedRegisterRow();
@@ -5638,26 +5731,40 @@
         }
       });
 
+      // FIXED: Scroll handler - don't close menu during auto-scroll
       window.addEventListener("scroll", function () {
-        if (isAutoScrolling) {
+        if (isAutoScrolling || registerMenuShouldStayOpen) {
+          // Reposition menu during auto-scroll
           positionRegisterContextMenu();
           return;
         }
+
+        // Only close on manual scroll
         if (registerContextMenu && registerContextMenu.style.display === "block") {
           closeRegisterContextMenu();
         }
       }, true);
 
+      // Click outside - close menu
       document.addEventListener("click", function (e) {
+        // Don't close if clicking inside menu
         if (registerContextMenu && registerContextMenu.contains(e.target)) return;
+
+        // Don't close if clicking on register table
         if (e.target.closest("#register_Tbl")) return;
+
+        // Don't close during auto-scroll
+        if (isAutoScrolling || registerMenuShouldStayOpen) return;
+
         closeRegisterContextMenu();
       });
 
+      // Escape key
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeRegisterContextMenu();
+        if (e.key === "Escape") {
+          closeRegisterContextMenu();
+        }
       });
-
       // ============================================================
       // CONTEXT MENU - FEE BALANCE LIST
       // ============================================================
