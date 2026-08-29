@@ -5440,13 +5440,7 @@
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
 
 
-
-
-
       (function () {
-
-
-
         // ---------- DATA ----------
         let students = [];                 // Will be populated from studentsCache
         let assessments = [];
@@ -5463,13 +5457,19 @@
           }
 
           students = Object.entries(studentsCache).map(([key, s]) => {
-            // Extract grade exactly like the first script does
-            const grade = String(s.class || '').split('-')[0].trim() || 'Unknown';
+            // Extract full class info including stream
+            const fullClass = String(s.class || '').trim() || 'Unknown';
+            const gradeParts = fullClass.split(' - ');
+            const grade = gradeParts[0].trim() || 'Unknown';
+            const stream = gradeParts.length > 1 ? gradeParts[1].trim() : '';
 
             return {
               id: s.admissionNumber || key.replace(/-/g, '/'),  // Prefer real admission number
               name: s.name || 'Unknown',
-              grade: s.class
+              grade: grade,
+              stream: stream,
+              fullClass: fullClass,
+              admissionNumber: s.admissionNumber || key.replace(/-/g, '/')
             };
           });
         }
@@ -5482,7 +5482,7 @@
             id: 'ASMT-001',
             name: 'Opening Assessment',
             term: 'Term1_2026',
-            grade: 'G2',               // You can change this or make it dynamic
+            grade: 'Grade 2',               // Updated to match the new grade format
             maxMarks: 100,
             subjects: ['Mathematics', 'English', 'Science'],
             description: 'Initial baseline assessment'
@@ -5548,9 +5548,9 @@
               const am = marks.filter(m => m.assessmentId === a.id);
               const avg = am.length ? (am.reduce((s, m) => s + m.marks, 0) / am.length).toFixed(1) : '0';
               html += `<div style="padding:0.7rem; border:1px solid #e5e7eb; border-radius:8px;">
-                    <strong>${a.name}</strong> (${a.id}) · Grade ${a.grade}<br>
-                    <span style="font-size:0.8rem; color: #6b7280;">Avg ${avg}% · Records ${am.length}</span>
-                </div>`;
+                  <strong>${a.name}</strong> (${a.id}) · Grade ${a.grade}<br>
+                  <span style="font-size:0.8rem; color: #6b7280;">Avg ${avg}% · Records ${am.length}</span>
+              </div>`;
             });
             html += '</div>';
           }
@@ -5568,24 +5568,24 @@
             const am = marks.filter(m => m.assessmentId === a.id);
             const avg = am.length ? (am.reduce((s, m) => s + m.marks, 0) / am.length).toFixed(1) : 'N/A';
             return `<div class="assessment-card">
-                <div style="margin-bottom: 0.5rem;">
-                    <strong>${a.name}</strong> 
-                    <span class="badge badge-info">${a.id}</span>
-                </div>
-                <div style="font-size:0.8rem; color:#6b7280; margin-bottom: 0.5rem;">
-                    Grade ${a.grade} · Max ${a.maxMarks} · Term ${a.term}
-                </div>
-                <div class="subject-tags" style="margin-bottom: 0.5rem;">
-                    ${a.subjects.map(s => `<span class="subject-tag" style="cursor:default;">${s}</span>`).join('')}
-                </div>
-                <div style="font-size:0.8rem; margin-bottom: 0.75rem;">
-                    Avg ${avg}% · ${am.length} Records
-                </div>
-                <div>
-                    <button class="btn btn-outline btn-sm" onclick="enterMarks('${a.id}')">📝 Enter Marks</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${a.id}')">🗑️ Delete</button>
-                </div>
-            </div>`;
+              <div style="margin-bottom: 0.5rem;">
+                  <strong>${a.name}</strong> 
+                  <span class="badge badge-info">${a.id}</span>
+              </div>
+              <div style="font-size:0.8rem; color:#6b7280; margin-bottom: 0.5rem;">
+                  Grade ${a.grade} · Max ${a.maxMarks} · Term ${a.term}
+              </div>
+              <div class="subject-tags" style="margin-bottom: 0.5rem;">
+                  ${a.subjects.map(s => `<span class="subject-tag" style="cursor:default;">${s}</span>`).join('')}
+              </div>
+              <div style="font-size:0.8rem; margin-bottom: 0.75rem;">
+                  Avg ${avg}% · ${am.length} Records
+              </div>
+              <div>
+                  <button class="btn btn-outline btn-sm" onclick="enterMarks('${a.id}')">📝 Enter Marks</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${a.id}')">🗑️ Delete</button>
+              </div>
+          </div>`;
           }).join('');
         }
 
@@ -5617,6 +5617,11 @@
             showToast('Name and at least one subject required', 'error');
             return;
           }
+          if (!grade) {
+            showToast('Please select a grade', 'error');
+            return;
+          }
+
           const id = `ASMT-${String(nextAssessmentId++).padStart(3, '0')}`;
           const newA = {
             id,
@@ -5631,7 +5636,8 @@
 
           // Create empty mark records for all current students in that grade
           syncStudentsFromCache();
-          students.filter(s => s.grade === grade).forEach(st => {
+          const gradeStudents = students.filter(s => s.grade === grade);
+          gradeStudents.forEach(st => {
             selectedSubjects.forEach(subj => marks.push({
               assessmentId: id,
               studentId: st.id,
@@ -5644,7 +5650,7 @@
           renderAssessments();
           renderDashboard();
           populateFilters();
-          showToast('Assessment created successfully');
+          showToast(`Assessment created for ${gradeStudents.length} students in ${grade}`);
         };
 
         window.deleteAssessment = function (id) {
@@ -5666,13 +5672,15 @@
 
         // ---------- MARKS ----------
         function populateFilters() {
+          syncStudentsFromCache();
+
           const selA = document.getElementById('filter-assessment');
           selA.innerHTML = '<option value="">All Assessments</option>';
           assessments.forEach(a => selA.innerHTML += `<option value="${a.id}">${a.name} (${a.id})</option>`);
 
           const selG = document.getElementById('filter-grade');
           selG.innerHTML = '<option value="">All Grades</option>';
-          [...new Set(students.map(s => s.grade))].forEach(g => selG.innerHTML += `<option>${g}</option>`);
+          [...new Set(students.map(s => s.grade))].sort().forEach(g => selG.innerHTML += `<option>${g}</option>`);
 
           onAssessmentFilter();
         }
@@ -5729,23 +5737,27 @@
               const a = assessments.find(x => x.id === item.assessmentId);
               const gradeText = item.marks >= 75 ? 'A' : (item.marks >= 65 ? 'B' : (item.marks >= 50 ? 'C' : 'F'));
               const badgeCls = item.marks >= 75 ? 'badge-success' : (item.marks >= 50 ? 'badge-warning' : 'badge-danger');
+
+              // Display student with grade and stream
+              const displayClass = st.stream ? `${st.grade} - ${st.stream}` : st.grade;
+
               html += `<tr>
-                    <td><strong>${st.name}</strong><br><small>${st.id}</small></td>
-                    <td><span class="badge badge-info">${st.grade}</span></td>
-                    <td>${item.subject}</td>
-                    <td>${item.marks}/${a.maxMarks}</td>
-                    <td><span class="badge ${badgeCls}">${gradeText}</span></td>
-                    <td><button class="btn btn-outline btn-sm" onclick="openEditMarksModal(${item.idx})">✏️ Edit</button></td>
-                </tr>`;
+                  <td><strong>${st.name}</strong><br><small>${st.id}</small></td>
+                  <td><span class="badge badge-info">${displayClass}</span></td>
+                  <td>${item.subject}</td>
+                  <td>${item.marks}/${a.maxMarks}</td>
+                  <td><span class="badge ${badgeCls}">${gradeText}</span></td>
+                  <td><button class="btn btn-outline btn-sm" onclick="openEditMarksModal(${item.idx})">✏️ Edit</button></td>
+              </tr>`;
             });
 
             if (arr.length > 1) {
               const avg = (arr.reduce((s, i) => s + i.marks, 0) / arr.length).toFixed(1);
               html += `<tr style="background:#f9fafb;">
-                    <td colspan="3"><strong>Average for ${st.name}</strong></td>
-                    <td><strong>${avg}</strong></td>
-                    <td colspan="2"></td>
-                </tr>`;
+                  <td colspan="3"><strong>Average for ${st.name} (${st.grade}${st.stream ? ' - ' + st.stream : ''})</strong></td>
+                  <td><strong>${avg}</strong></td>
+                  <td colspan="2"></td>
+              </tr>`;
             }
           });
           tbody.innerHTML = html;
@@ -5756,8 +5768,10 @@
           const m = marks[idx];
           const st = students.find(s => s.id === m.studentId);
           const a = assessments.find(x => x.id === m.assessmentId);
+          const displayClass = st.stream ? `${st.grade} - ${st.stream}` : st.grade;
+
           document.getElementById('edit-marks-info').innerHTML =
-            `<strong>${st.name}</strong> · ${a.name} · ${m.subject} (max ${a.maxMarks})`;
+            `<strong>${st.name}</strong> · ${displayClass} · ${a.name} · ${m.subject} (max ${a.maxMarks})`;
           document.getElementById('edit-marks-input').max = a.maxMarks;
           document.getElementById('edit-marks-input').value = m.marks;
           document.getElementById('edit-marks-modal').style.display = 'flex';
@@ -5803,20 +5817,28 @@
           const a = assessments.find(x => x.id === aId);
           const gradeStudents = students.filter(s => s.grade === a.grade);
 
-          let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Student</th>';
+          if (gradeStudents.length === 0) {
+            content.innerHTML = `<p style="color:#e11d48;">No students found for grade ${a.grade}</p>`;
+            return;
+          }
+
+          let html = '<div class="table-wrapper"><table class="data-table"><thead><tr><th>Student</th><th>Class</th>';
           a.subjects.forEach(s => html += `<th>${s}</th>`);
           html += '<th>Average</th></tr></thead><tbody>';
 
           gradeStudents.forEach(st => {
-            html += `<tr><td><strong>${st.name}</strong><br><small>${st.id}</small></td>`;
+            const displayClass = st.stream ? `${st.grade} - ${st.stream}` : st.grade;
+            html += `<tr>
+                <td><strong>${st.name}</strong><br><small>${st.id}</small></td>
+                <td><span class="badge badge-info">${displayClass}</span></td>`;
             let total = 0;
             a.subjects.forEach(subj => {
               const exist = marks.find(m => m.assessmentId === aId && m.studentId === st.id && m.subject === subj);
               const val = exist ? exist.marks : 0;
               total += val;
               html += `<td><input type="number" class="form-input" style="width:70px;" 
-                    data-assessment="${aId}" data-student="${st.id}" data-subject="${subj}" 
-                    value="${val}" min="0" max="${a.maxMarks}" onchange="updateBulkAverage(this)"></td>`;
+                  data-assessment="${aId}" data-student="${st.id}" data-subject="${subj}" 
+                  value="${val}" min="0" max="${a.maxMarks}" onchange="updateBulkAverage(this)"></td>`;
             });
             const avg = (total / a.subjects.length).toFixed(1);
             html += `<td><strong>${avg}</strong></td></tr>`;
@@ -5909,6 +5931,7 @@
         // Init
         initializeSystem();
       })();
+
 
     </script>
 
