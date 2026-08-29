@@ -5469,7 +5469,7 @@
             return {
               id: s.admissionNumber || key.replace(/-/g, '/'),  // Prefer real admission number
               name: s.name || 'Unknown',
-              grade: grade
+              grade: s.class
             };
           });
         }
