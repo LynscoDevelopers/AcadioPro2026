@@ -4639,17 +4639,17 @@
         if (!searchInput) return;
         const suggestionBox = document.createElement("div");
         suggestionBox.style.cssText = `
-      position: absolute;
-      background: white;
-      width: 250px;
-      max-height: 250px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      z-index: 9999;
-      display: none;
-      font-size: 12px;
-    `;
+          position: absolute;
+          background: white;
+          width: 250px;
+          max-height: 250px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          z-index: 9999;
+          display: none;
+          font-size: 12px;
+        `;
         document.body.appendChild(suggestionBox);
         searchInput.addEventListener("input", function () {
           const searchText = this.value.trim().toLowerCase();
@@ -5394,8 +5394,20 @@
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
 
 
+
+
+
+
+
+
+
+
+
+
+
       // ---------- DATA ----------
       let students = [];
+      let studentsCache = {}; // Cache for student data with detailed fields
       let assessments = [];
       let marks = [];
       let currentEditMarksIndex = -1;
@@ -5404,18 +5416,207 @@
 
       // ---------- INIT ----------
       function initializeSystem() {
-        students = [
-          { id: 'G2-101', name: 'Alice Johnson', grade: 'G2' },
-          { id: 'G2-102', name: 'Bob Smith', grade: 'G2' },
-          { id: 'G2-103', name: 'Charlie Brown', grade: 'G2' },
-          { id: 'G2-104', name: 'Diana Miller', grade: 'G2' },
-          { id: 'G2-105', name: 'Ethan Wilson', grade: 'G2' },
-          { id: 'G2-106', name: 'Fiona Davis', grade: 'G2' },
-          { id: 'G3-101', name: 'George Taylor', grade: 'G3' },
-          { id: 'G3-102', name: 'Hannah Moore', grade: 'G3' },
-          { id: 'G4-101', name: 'Ian Thomas', grade: 'G4' },
-          { id: 'G4-102', name: 'Julia Anderson', grade: 'G4' }
-        ];
+        // Initialize studentsCache with sample data
+        studentsCache = {
+          'G2-101': {
+            name: 'Alice Johnson',
+            dob: '2012-03-15',
+            religion: 'Christian',
+            nationality: 'American',
+            gender: 'Female',
+            idNumber: 'ID-001',
+            guardian: 'John Johnson',
+            relationship: 'Father',
+            phone: '555-0101',
+            email: 'john.j@email.com',
+            address: '123 Main St',
+            admissionNumber: 'ADM-001',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G2-102': {
+            name: 'Bob Smith',
+            dob: '2012-07-22',
+            religion: 'Christian',
+            nationality: 'American',
+            gender: 'Male',
+            idNumber: 'ID-002',
+            guardian: 'Mary Smith',
+            relationship: 'Mother',
+            phone: '555-0102',
+            email: 'mary.s@email.com',
+            address: '456 Oak Ave',
+            admissionNumber: 'ADM-002',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G2-103': {
+            name: 'Charlie Brown',
+            dob: '2012-11-05',
+            religion: 'Christian',
+            nationality: 'Canadian',
+            gender: 'Male',
+            idNumber: 'ID-003',
+            guardian: 'Sarah Brown',
+            relationship: 'Mother',
+            phone: '555-0103',
+            email: 'sarah.b@email.com',
+            address: '789 Pine St',
+            admissionNumber: 'ADM-003',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G2-104': {
+            name: 'Diana Miller',
+            dob: '2012-01-18',
+            religion: 'Jewish',
+            nationality: 'American',
+            gender: 'Female',
+            idNumber: 'ID-004',
+            guardian: 'David Miller',
+            relationship: 'Father',
+            phone: '555-0104',
+            email: 'david.m@email.com',
+            address: '321 Elm St',
+            admissionNumber: 'ADM-004',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G2-105': {
+            name: 'Ethan Wilson',
+            dob: '2012-05-30',
+            religion: 'Muslim',
+            nationality: 'British',
+            gender: 'Male',
+            idNumber: 'ID-005',
+            guardian: 'Emma Wilson',
+            relationship: 'Mother',
+            phone: '555-0105',
+            email: 'emma.w@email.com',
+            address: '654 Maple St',
+            admissionNumber: 'ADM-005',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G2-106': {
+            name: 'Fiona Davis',
+            dob: '2012-09-12',
+            religion: 'Christian',
+            nationality: 'Australian',
+            gender: 'Female',
+            idNumber: 'ID-006',
+            guardian: 'Frank Davis',
+            relationship: 'Father',
+            phone: '555-0106',
+            email: 'frank.d@email.com',
+            address: '987 Cedar St',
+            admissionNumber: 'ADM-006',
+            class: 'G2',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G3-101': {
+            name: 'George Taylor',
+            dob: '2011-04-08',
+            religion: 'Christian',
+            nationality: 'American',
+            gender: 'Male',
+            idNumber: 'ID-007',
+            guardian: 'Grace Taylor',
+            relationship: 'Mother',
+            phone: '555-0107',
+            email: 'grace.t@email.com',
+            address: '147 Birch St',
+            admissionNumber: 'ADM-007',
+            class: 'G3',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G3-102': {
+            name: 'Hannah Moore',
+            dob: '2011-08-25',
+            religion: 'Hindu',
+            nationality: 'British',
+            gender: 'Female',
+            idNumber: 'ID-008',
+            guardian: 'Henry Moore',
+            relationship: 'Father',
+            phone: '555-0108',
+            email: 'henry.m@email.com',
+            address: '258 Spruce St',
+            admissionNumber: 'ADM-008',
+            class: 'G3',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G4-101': {
+            name: 'Ian Thomas',
+            dob: '2010-12-03',
+            religion: 'Christian',
+            nationality: 'American',
+            gender: 'Male',
+            idNumber: 'ID-009',
+            guardian: 'Iris Thomas',
+            relationship: 'Mother',
+            phone: '555-0109',
+            email: 'iris.t@email.com',
+            address: '369 Walnut St',
+            admissionNumber: 'ADM-009',
+            class: 'G4',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          },
+          'G4-102': {
+            name: 'Julia Anderson',
+            dob: '2010-06-14',
+            religion: 'Christian',
+            nationality: 'Canadian',
+            gender: 'Female',
+            idNumber: 'ID-010',
+            guardian: 'James Anderson',
+            relationship: 'Father',
+            phone: '555-0110',
+            email: 'james.a@email.com',
+            address: '741 Cherry St',
+            admissionNumber: 'ADM-010',
+            class: 'G4',
+            consent: true,
+            Status: 'Active',
+            Exceptions: {},
+            lastPayment: null
+          }
+        };
+
+        // Convert studentsCache to students array for compatibility
+        students = Object.keys(studentsCache).map(id => ({
+          id: id,
+          name: studentsCache[id].name,
+          grade: studentsCache[id].class
+        }));
+
         assessments = [{
           id: 'ASMT-001',
           name: 'Opening Assessment',
@@ -5425,6 +5626,7 @@
           subjects: ['Mathematics', 'English', 'Science'],
           description: 'Initial baseline assessment'
         }];
+
         marks = [];
         students.filter(s => s.grade === 'G2').forEach(student => {
           assessments[0].subjects.forEach(subject => {
@@ -5470,9 +5672,9 @@
             const am = marks.filter(m => m.assessmentId === a.id);
             const avg = am.length ? (am.reduce((s, m) => s + m.marks, 0) / am.length).toFixed(1) : '0';
             html += `<div style="padding:0.7rem; border:1px solid #e5e7eb; border-radius:8px;">
-                        <strong>${a.name}</strong> (${a.id}) · Grade ${a.grade}<br>
-                        <span style="font-size:0.8rem; color: #6b7280;">Avg ${avg}% · Records ${am.length}</span>
-                    </div>`;
+                  <strong>${a.name}</strong> (${a.id}) · Grade ${a.grade}<br>
+                  <span style="font-size:0.8rem; color: #6b7280;">Avg ${avg}% · Records ${am.length}</span>
+              </div>`;
           });
           html += '</div>';
         }
@@ -5490,24 +5692,24 @@
           const am = marks.filter(m => m.assessmentId === a.id);
           const avg = am.length ? (am.reduce((s, m) => s + m.marks, 0) / am.length).toFixed(1) : 'N/A';
           return `<div class="assessment-card">
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>${a.name}</strong> 
-                        <span class="badge badge-info">${a.id}</span>
-                    </div>
-                    <div style="font-size:0.8rem; color:#6b7280; margin-bottom: 0.5rem;">
-                        Grade ${a.grade} · Max ${a.maxMarks} · Term ${a.term}
-                    </div>
-                    <div class="subject-tags" style="margin-bottom: 0.5rem;">
-                        ${a.subjects.map(s => `<span class="subject-tag" style="cursor:default;">${s}</span>`).join('')}
-                    </div>
-                    <div style="font-size:0.8rem; margin-bottom: 0.75rem;">
-                        Avg ${avg}% · ${am.length} Records
-                    </div>
-                    <div>
-                        <button class="btn btn-outline btn-sm" onclick="enterMarks('${a.id}')">📝 Enter Marks</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${a.id}')">🗑️ Delete</button>
-                    </div>
-                </div>`;
+              <div style="margin-bottom: 0.5rem;">
+                  <strong>${a.name}</strong> 
+                  <span class="badge badge-info">${a.id}</span>
+              </div>
+              <div style="font-size:0.8rem; color:#6b7280; margin-bottom: 0.5rem;">
+                  Grade ${a.grade} · Max ${a.maxMarks} · Term ${a.term}
+              </div>
+              <div class="subject-tags" style="margin-bottom: 0.5rem;">
+                  ${a.subjects.map(s => `<span class="subject-tag" style="cursor:default;">${s}</span>`).join('')}
+              </div>
+              <div style="font-size:0.8rem; margin-bottom: 0.75rem;">
+                  Avg ${avg}% · ${am.length} Records
+              </div>
+              <div>
+                  <button class="btn btn-outline btn-sm" onclick="enterMarks('${a.id}')">📝 Enter Marks</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${a.id}')">🗑️ Delete</button>
+              </div>
+          </div>`;
         }).join('');
       }
 
@@ -5641,27 +5843,34 @@
           const st = students.find(s => s.id === sid);
           if (!st) return;
 
+          // Get additional student details from cache
+          const studentDetails = studentsCache[sid] || {};
+
           arr.forEach(item => {
             const a = assessments.find(x => x.id === item.assessmentId);
             const gradeText = item.marks >= 75 ? 'A' : (item.marks >= 65 ? 'B' : (item.marks >= 50 ? 'C' : 'F'));
             const badgeCls = item.marks >= 75 ? 'badge-success' : (item.marks >= 50 ? 'badge-warning' : 'badge-danger');
             html += `<tr>
-                        <td><strong>${st.name}</strong><br><small>${st.id}</small></td>
-                        <td><span class="badge badge-info">${st.grade}</span></td>
-                        <td>${item.subject}</td>
-                        <td>${item.marks}/${a.maxMarks}</td>
-                        <td><span class="badge ${badgeCls}">${gradeText}</span></td>
-                        <td><button class="btn btn-outline btn-sm" onclick="openEditMarksModal(${item.idx})">✏️ Edit</button></td>
-                    </tr>`;
+                  <td>
+                      <strong>${st.name}</strong><br>
+                      <small>${st.id}</small><br>
+                      <small style="color:#6b7280;">Adm: ${studentDetails.admissionNumber || 'N/A'}</small>
+                  </td>
+                  <td><span class="badge badge-info">${st.grade}</span></td>
+                  <td>${item.subject}</td>
+                  <td>${item.marks}/${a.maxMarks}</td>
+                  <td><span class="badge ${badgeCls}">${gradeText}</span></td>
+                  <td><button class="btn btn-outline btn-sm" onclick="openEditMarksModal(${item.idx})">✏️ Edit</button></td>
+              </tr>`;
           });
 
           if (arr.length > 1) {
             const avg = (arr.reduce((s, i) => s + i.marks, 0) / arr.length).toFixed(1);
             html += `<tr style="background:#f9fafb;">
-                        <td colspan="3"><strong>Average for ${st.name}</strong></td>
-                        <td><strong>${avg}</strong></td>
-                        <td colspan="2"></td>
-                    </tr>`;
+                  <td colspan="3"><strong>Average for ${st.name}</strong></td>
+                  <td><strong>${avg}</strong></td>
+                  <td colspan="2"></td>
+              </tr>`;
           }
         });
         tbody.innerHTML = html;
@@ -5672,8 +5881,11 @@
         const m = marks[idx];
         const st = students.find(s => s.id === m.studentId);
         const a = assessments.find(x => x.id === m.assessmentId);
+        const studentDetails = studentsCache[m.studentId] || {};
+
         document.getElementById('edit-marks-info').innerHTML =
-          `<strong>${st.name}</strong> · ${a.name} · ${m.subject} (max ${a.maxMarks})`;
+          `<strong>${st.name}</strong> · ${a.name} · ${m.subject} (max ${a.maxMarks})<br>
+     <small>Admission: ${studentDetails.admissionNumber || 'N/A'} | Guardian: ${studentDetails.guardian || 'N/A'}</small>`;
         document.getElementById('edit-marks-input').max = a.maxMarks;
         document.getElementById('edit-marks-input').value = m.marks;
         document.getElementById('edit-marks-modal').style.display = 'flex';
@@ -5722,15 +5934,21 @@
         html += '<th>Average</th></tr></thead><tbody>';
 
         gradeStudents.forEach(st => {
-          html += `<tr><td><strong>${st.name}</strong><br><small>${st.id}</small></td>`;
+          const studentDetails = studentsCache[st.id] || {};
+          html += `<tr>
+              <td>
+                <strong>${st.name}</strong><br>
+                <small>${st.id}</small><br>
+                <small style="color:#6b7280;">${studentDetails.admissionNumber || 'N/A'}</small>
+              </td>`;
           let total = 0;
           a.subjects.forEach(subj => {
             const exist = marks.find(m => m.assessmentId === aId && m.studentId === st.id && m.subject === subj);
             const val = exist ? exist.marks : 0;
             total += val;
             html += `<td><input type="number" class="form-input" style="width:70px;" 
-                        data-assessment="${aId}" data-student="${st.id}" data-subject="${subj}" 
-                        value="${val}" min="0" max="${a.maxMarks}" onchange="updateBulkAverage(this)"></td>`;
+                  data-assessment="${aId}" data-student="${st.id}" data-subject="${subj}" 
+                  value="${val}" min="0" max="${a.maxMarks}" onchange="updateBulkAverage(this)"></td>`;
           });
           const avg = (total / a.subjects.length).toFixed(1);
           html += `<td><strong>${avg}</strong></td></tr>`;
@@ -5773,7 +5991,10 @@
         const data = {
           exportDate: new Date().toISOString(),
           term: 'Term1_2026',
-          students,
+          students: students.map(s => ({
+            ...studentsCache[s.id],
+            id: s.id
+          })),
           assessments,
           marks,
           summary: {
@@ -5818,13 +6039,37 @@
         populateFilters();
       }
 
+      // Helper function to add/update student in cache
+      window.updateStudentCache = function (admissionNumber, studentData) {
+        studentsCache[admissionNumber] = studentData;
+        // Update the students array as well
+        const existingIndex = students.findIndex(s => s.id === admissionNumber);
+        if (existingIndex >= 0) {
+          students[existingIndex] = {
+            id: admissionNumber,
+            name: studentData.name,
+            grade: studentData.class
+          };
+        } else {
+          students.push({
+            id: admissionNumber,
+            name: studentData.name,
+            grade: studentData.class
+          });
+        }
+        refreshAll();
+      };
+
+      // Helper function to remove student from cache
+      window.removeStudentFromCache = function (admissionNumber) {
+        delete studentsCache[admissionNumber];
+        students = students.filter(s => s.id !== admissionNumber);
+        marks = marks.filter(m => m.studentId !== admissionNumber);
+        refreshAll();
+      };
+
       // Init
       initializeSystem();
-    
-
-
-
-
     </script>
 
 
