@@ -5718,7 +5718,7 @@
           const id = `ASMT-${String(nextAssessmentId++).padStart(3, '0')}`;
           const newA = {
             id,
-            name,
+            name: `${name}({term})`,
             term,
             grade,
             maxMarks,
