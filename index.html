@@ -3030,7 +3030,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Term</label>
-            <input class="form-input" id="assessment-term" value="Term1_2026" readonly>
+            <input class="form-input" id="assessment-term" value="" readonly>
           </div>
           <div class="form-group">
             <label class="form-label">Grade</label>
@@ -4419,6 +4419,7 @@
         } else {
           terms = [];
         }
+        document.getElementById("assessment-term").value=getActiveTerm();
         renderGrid();
         populateFeeBalanceTable(studentsCache);
       }, (error) => {
