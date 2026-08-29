@@ -3095,8 +3095,8 @@
         <div id="bulk-marks-content" style="flex: 1; min-height: 0; overflow-y: auto;"></div>
 
         <div class="dialogue-actions">
-          <button class="btn btn-success"  onclick="exportBulkMarksToExcel()" style="margin-top: 1rem;">Export</button>
-          <button class="btn btn-success" onclick="ImportForBulkMarks()" style="margin-top: 1rem;">Import</button>
+          <button class="btn btn-success" onclick="exportBulkMarksToExcel()" style="margin-top: 1rem;">Export</button>
+          <button class="btn btn-success" onclick="importBulkMarksFromExcel()" style="margin-top: 1rem;">Import</button>
           <button class="btn btn-success" onclick="saveBulkMarks()" style="margin-top: 1rem;">Save All Marks</button>
         </div>
 
@@ -6138,6 +6138,362 @@
         };
 
 
+        // ---------- IMPORT BULK MARKS ----------
+        window.importBulkMarksFromExcel = function () {
+          const aId = document.getElementById('bulk-assessment').value;
+
+          if (!aId) {
+            showToast('Please select an assessment first', 'error');
+            return;
+          }
+
+          const assessment = assessments.find(a => a.id === aId);
+          if (!assessment) {
+            showToast('Assessment not found', 'error');
+            return;
+          }
+
+          // Create file input element
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.accept = '.csv,.xls,.xlsx';
+
+          fileInput.onchange = function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+              const content = e.target.result;
+
+              if (file.name.endsWith('.csv')) {
+                // Parse CSV
+                parseCSVAndImport(content, assessment);
+              } else {
+                // For XLS/XLSX files, we'll need to parse HTML or use a library
+                // Simple approach: Try to parse as text and extract table data
+                parseExcelAndImport(content, assessment);
+              }
+            };
+
+            // Read as text for both CSV and simple Excel files
+            reader.readAsText(file, 'UTF-8');
+          };
+
+          fileInput.click();
+        };
+
+        // Parse CSV content and import marks
+        function parseCSVAndImport(content, assessment) {
+          const lines = content.split('\n');
+          let importCount = 0;
+          let errorCount = 0;
+          const errors = [];
+
+          // Find the data start (skip metadata if any)
+          let headerIndex = -1;
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes('Student ID')) {
+              headerIndex = i;
+              break;
+            }
+          }
+
+          if (headerIndex === -1) {
+            showToast('Invalid file format. Missing header row.', 'error');
+            return;
+          }
+
+          // Parse header to get subject columns
+          const headerLine = parseCSVLine(lines[headerIndex]);
+          const subjectColumns = [];
+
+          // Find subject columns (skip Student ID, Student Name, Class, Average)
+          headerLine.forEach((header, index) => {
+            if (index > 2 && header !== 'Average') {
+              subjectColumns.push({
+                index: index,
+                subject: header.trim()
+              });
+            }
+          });
+
+          if (subjectColumns.length === 0) {
+            showToast('No subject columns found in file', 'error');
+            return;
+          }
+
+          // Process data rows
+          for (let i = headerIndex + 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue; // Skip empty lines
+
+            const rowData = parseCSVLine(line);
+
+            if (rowData.length < 3) continue; // Skip invalid rows
+
+            const studentId = rowData[0].trim();
+            const studentName = rowData[1].trim();
+
+            // Find student by ID or name
+            let student = students.find(s => s.id === studentId);
+            if (!student && studentName) {
+              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
+            }
+
+            if (!student) {
+              errorCount++;
+              if (errors.length < 5) {
+                errors.push(`Student not found: ${studentId} - ${studentName}`);
+              }
+              continue;
+            }
+
+            // Import marks for each subject
+            subjectColumns.forEach(subjectCol => {
+              const subjectName = subjectCol.subject;
+              const markValue = parseFloat(rowData[subjectCol.index]);
+
+              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
+                // Find existing mark record
+                const existingIndex = marks.findIndex(m =>
+                  m.assessmentId === assessment.id &&
+                  m.studentId === student.id &&
+                  m.subject === subjectName
+                );
+
+                if (existingIndex >= 0) {
+                  marks[existingIndex].marks = markValue;
+                } else {
+                  marks.push({
+                    assessmentId: assessment.id,
+                    studentId: student.id,
+                    subject: subjectName,
+                    marks: markValue
+                  });
+                }
+                importCount++;
+              } else if (!isNaN(markValue) && markValue !== 0) {
+                errorCount++;
+                if (errors.length < 5) {
+                  errors.push(`Invalid mark ${markValue} for ${student.name} - ${subjectName}`);
+                }
+              }
+            });
+          }
+
+          // Show results
+          if (importCount > 0) {
+            showToast(`Successfully imported ${importCount} marks records`);
+
+            // Refresh the bulk marks view
+            renderBulkMarks();
+            renderMarksTable();
+            renderDashboard();
+          }
+
+          if (errorCount > 0) {
+            const errorMessage = errors.join('\n');
+            showToast(`${errorCount} errors occurred. ${errors.length > 0 ? errorMessage : ''}`, 'warning');
+          }
+        }
+
+        // Parse Excel (HTML format) content and import marks
+        function parseExcelAndImport(content, assessment) {
+          // Create a temporary DOM element to parse HTML
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = content;
+
+          // Find all tables
+          const tables = tempDiv.querySelectorAll('table');
+          if (tables.length === 0) {
+            showToast('No table data found in file', 'error');
+            return;
+          }
+
+          // Use the first table
+          const table = tables[0];
+          const rows = table.querySelectorAll('tr');
+
+          if (rows.length < 2) {
+            showToast('Not enough data in file', 'error');
+            return;
+          }
+
+          let importCount = 0;
+          let errorCount = 0;
+          const errors = [];
+
+          // Parse header row
+          const headerRow = rows[0];
+          const headerCells = headerRow.querySelectorAll('th, td');
+          const subjectColumns = [];
+
+          headerCells.forEach((cell, index) => {
+            const headerText = cell.textContent.trim();
+            if (index > 2 && headerText !== 'Average') {
+              subjectColumns.push({
+                index: index,
+                subject: headerText
+              });
+            }
+          });
+
+          if (subjectColumns.length === 0) {
+            showToast('No subject columns found in file', 'error');
+            return;
+          }
+
+          // Process data rows (skip header row)
+          for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll('td');
+            if (cells.length < 3) continue;
+
+            const studentId = cells[0].textContent.trim();
+            const studentName = cells[1].textContent.trim();
+
+            // Find student
+            let student = students.find(s => s.id === studentId);
+            if (!student && studentName) {
+              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
+            }
+
+            if (!student) {
+              errorCount++;
+              if (errors.length < 5) {
+                errors.push(`Student not found: ${studentId} - ${studentName}`);
+              }
+              continue;
+            }
+
+            // Import marks
+            subjectColumns.forEach(subjectCol => {
+              const subjectName = subjectCol.subject;
+              const markValue = parseFloat(cells[subjectCol.index]?.textContent.trim());
+
+              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
+                const existingIndex = marks.findIndex(m =>
+                  m.assessmentId === assessment.id &&
+                  m.studentId === student.id &&
+                  m.subject === subjectName
+                );
+
+                if (existingIndex >= 0) {
+                  marks[existingIndex].marks = markValue;
+                } else {
+                  marks.push({
+                    assessmentId: assessment.id,
+                    studentId: student.id,
+                    subject: subjectName,
+                    marks: markValue
+                  });
+                }
+                importCount++;
+              }
+            });
+          }
+
+          // Show results
+          if (importCount > 0) {
+            showToast(`Successfully imported ${importCount} marks records`);
+            renderBulkMarks();
+            renderMarksTable();
+            renderDashboard();
+          }
+
+          if (errorCount > 0) {
+            showToast(`${errorCount} errors occurred during import`, 'warning');
+          }
+        }
+
+        // Helper function to parse CSV line (handles quoted values)
+        function parseCSVLine(line) {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+              if (inQuotes && line[i + 1] === '"') {
+                // Escaped quote
+                current += '"';
+                i++;
+              } else {
+                // Toggle quotes
+                inQuotes = !inQuotes;
+              }
+            } else if (char === ',' && !inQuotes) {
+              // End of field
+              result.push(current);
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+
+          // Add last field
+          result.push(current);
+
+          return result;
+        }
+
+        // Add a template download function for import format
+        window.downloadImportTemplate = function () {
+          const aId = document.getElementById('bulk-assessment').value;
+
+          if (!aId) {
+            showToast('Please select an assessment first', 'error');
+            return;
+          }
+
+          const assessment = assessments.find(a => a.id === aId);
+          if (!assessment) {
+            showToast('Assessment not found', 'error');
+            return;
+          }
+
+          const gradeStudents = students.filter(s => s.grade === assessment.grade);
+
+          // Create template CSV
+          let csv = '\uFEFF'; // BOM for UTF-8
+          csv += 'Student ID,Student Name,Class';
+          assessment.subjects.forEach(subject => {
+            csv += `,${subject}`;
+          });
+          csv += ',Average\n';
+
+          // Add student rows with empty marks
+          gradeStudents.forEach(student => {
+            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
+            csv += `${student.id},${student.name},${displayClass}`;
+
+            // Empty values for each subject
+            assessment.subjects.forEach(() => {
+              csv += ',';
+            });
+
+            csv += ',\n'; // Empty average
+          });
+
+          // Download template
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+
+          link.setAttribute('href', url);
+          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_template.csv`);
+          link.style.visibility = 'hidden';
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          URL.revokeObjectURL(url);
+          showToast('Import template downloaded successfully');
+        };
 
 
 
