@@ -3016,404 +3016,6 @@
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
 
-    <script>
-      (function () {
-        "use strict";
-
-        // ----- DOM elements for first dialog -----
-        const overlay = document.getElementById('dialogOverlay');
-        const openBtn = document.getElementById('openDialogBtn');
-        const openBtn3 = document.getElementById('openDialogBtn3');
-
-        const SaveUpdateBtn = document.getElementById('saveStudent');
-
-        const openBtn2 = document.getElementById('openDialogBtn2');
-        const closeIcon = document.getElementById('closeDialogIcon');
-        const closeSecondary = document.getElementById('closeDialogSecondary');
-        const confirmBtn = document.getElementById('confirmDialogBtn');
-
-        // ----- DOM elements for second dialog -----
-        const overlay2 = document.getElementById('dialogOverlay2');
-        const closeIcon2 = document.getElementById('closeDialogIcon2');
-        const closeSecondary2 = document.getElementById('closeDialogSecondary2');
-        const confirmBtn2 = document.getElementById('confirmDialogBtn2');
-
-        // ----- helper functions (open / close) for first dialog -----
-        window.openDialog = function () {
-          switchDialogTab(0);
-          overlay.classList.add('active');
-
-          setTimeout(() => {
-            closeIcon.focus();
-          }, 50);
-        };
-
-        function closeDialog() {
-          overlay.classList.remove('active');
-          document.body.style.overflow = '';
-          if (openBtn) openBtn.focus();
-
-        }
-
-        // ----- helper functions for second dialog -----
-        const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
-        const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
-
-        function switchDialogTab2(index) {
-          dialogTabBtns2.forEach(btn => btn.classList.remove('active'));
-          dialogTabPanels2.forEach(panel => panel.classList.remove('active'));
-          if (dialogTabBtns2[index] && dialogTabPanels2[index]) {
-            dialogTabBtns2[index].classList.add('active');
-            dialogTabPanels2[index].classList.add('active');
-          }
-        }
-
-        window.openDialog2 = function () {
-          switchDialogTab2(0);
-          overlay2.classList.add('active');
-          setTimeout(() => {
-            closeIcon2.focus();
-          }, 50);
-          document.body.style.overflow = 'hidden';
-        }
-
-        function closeDialog2() {
-          overlay2.classList.remove('active');
-          document.body.style.overflow = '';
-          if (openBtn2) openBtn2.focus();
-        }
-
-        // ----- event listeners for first dialogue -----
-        if (openBtn) {
-
-          openBtn.addEventListener('click', openDialog);
-
-          openBtn.addEventListener('click', function () {
-
-            if (SaveUpdateBtn.textContent === "Update") {
-              const inputs = document.querySelectorAll(
-                '#dialogOverlay .form-input, #dialogOverlay textarea.form-input'
-              );
-
-              inputs.forEach(input => {
-
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                  input.checked = false;
-
-                } else if (input.tagName === 'SELECT') {
-                  input.selectedIndex = 0;
-
-                } else {
-                  input.value = '';
-                }
-              });
-
-              // Reset button
-              SaveUpdateBtn.textContent = "Complete";
-
-              if (Auto) Auto.disabled = false;
-
-              // Return to first tab
-              switchDialogTab(0);
-            }
-
-          });
-
-        }
-
-
-
-
-
-
-        // ----- FIXED: event listeners for second dialogue -----
-        if (openBtn2) {
-          openBtn2.addEventListener('click', openDialog2);  // Changed from openBtn to openBtn2
-        }
-
-        if (closeIcon) {
-          closeIcon.addEventListener('click', closeDialog);
-        }
-        if (closeSecondary) {
-          closeSecondary.addEventListener('click', closeDialog);
-        }
-        if (confirmBtn) {
-          confirmBtn.addEventListener('click', closeDialog);
-        }
-
-        if (overlay) {
-          overlay.addEventListener('click', function (e) {
-            if (e.target === overlay) {
-              closeDialog();
-            }
-          });
-
-          overlay.addEventListener('keydown', function (e) {
-            if (e.key === 'Tab') {
-              const focusable = overlay.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-              );
-              if (focusable.length === 0) return;
-              const first = focusable[0];
-              const last = focusable[focusable.length - 1];
-              if (e.shiftKey) {
-                if (document.activeElement === first) {
-                  e.preventDefault();
-                  last.focus();
-                }
-              } else {
-                if (document.activeElement === last) {
-                  e.preventDefault();
-                  first.focus();
-                }
-              }
-            }
-          });
-        }
-
-        // ----- event listeners for second dialogue -----
-        if (closeIcon2) {
-          closeIcon2.addEventListener('click', closeDialog2);
-        }
-        if (closeSecondary2) {
-          closeSecondary2.addEventListener('click', closeDialog2);
-        }
-        if (confirmBtn2) {
-          confirmBtn2.addEventListener('click', closeDialog2);
-        }
-
-        if (overlay2) {
-          overlay2.addEventListener('click', function (e) {
-            if (e.target === overlay2) {
-              closeDialog2();
-            }
-          });
-
-          overlay2.addEventListener('keydown', function (e) {
-            if (e.key === 'Tab') {
-              const focusable = overlay2.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-              );
-              if (focusable.length === 0) return;
-              const first = focusable[0];
-              const last = focusable[focusable.length - 1];
-              if (e.shiftKey) {
-                if (document.activeElement === first) {
-                  e.preventDefault();
-                  last.focus();
-                }
-              } else {
-                if (document.activeElement === last) {
-                  e.preventDefault();
-                  first.focus();
-                }
-              }
-            }
-          });
-        }
-
-        // ----- global escape key handling for both dialogs -----
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') {
-            if (overlay && overlay.classList.contains('active')) {
-              closeDialog();
-              e.preventDefault();
-            } else if (overlay2 && overlay2.classList.contains('active')) {
-              closeDialog2();
-              e.preventDefault();
-            }
-          }
-        });
-
-        window.addEventListener('beforeunload', function () {
-          document.body.style.overflow = '';
-        });
-
-        // ----- First Dialog Tab Switching Logic -----
-        const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
-        const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
-
-        function switchDialogTab(index) {
-          dialogTabBtns.forEach(btn => btn.classList.remove('active'));
-          dialogTabPanels.forEach(panel => panel.classList.remove('active'));
-          if (dialogTabBtns[index] && dialogTabPanels[index]) {
-            dialogTabBtns[index].classList.add('active');
-            dialogTabPanels[index].classList.add('active');
-          }
-        }
-
-        dialogTabBtns.forEach((btn, idx) => {
-          btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            switchDialogTab(idx);
-          });
-        });
-
-        // ----- Second Dialog Tab Switching Logic -----
-        dialogTabBtns2.forEach((btn, idx) => {
-          btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            switchDialogTab2(idx);
-          });
-        });
-
-        // ----- First Dialog: Reset and Complete buttons -----
-        const resetBtn = document.getElementById('resetBtn');
-        const completeBtn = document.getElementById('completeBtn');
-        const Auto = document.getElementById("autoGenerate");
-
-
-        if (resetBtn) {
-          resetBtn.addEventListener('click', function () {
-            if (confirm('Are you sure you want to reset all form fields?')) {
-              const inputs = document.querySelectorAll('#dialogOverlay .form-input, #dialogOverlay textarea.form-input');
-              inputs.forEach(input => {
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                  input.checked = false;
-                } else if (input.tagName === 'SELECT') {
-                  input.selectedIndex = 0;
-                } else {
-                  input.value = '';
-                }
-              });
-
-              SaveUpdateBtn.textContent = "Complete";
-              if (Auto) Auto.disabled = false;
-              switchDialogTab(0);
-            }
-          });
-        }
-
-        if (completeBtn) {
-          completeBtn.addEventListener('click', function () {
-            alert('Student record completed successfully!');
-            closeDialog();
-          });
-        }
-
-        // ----- Second Dialog: Reset and Update buttons -----
-        const editResetBtn = document.getElementById('editResetBtn');
-        const editCompleteBtn = document.getElementById('editCompleteBtn');
-
-        if (editResetBtn) {
-          editResetBtn.addEventListener('click', function () {
-            if (confirm('Are you sure you want to reset all fields?')) {
-              const inputs = document.querySelectorAll('#dialogOverlay2 .form-input, #dialogOverlay2 textarea.form-input');
-              inputs.forEach(input => {
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                  input.checked = false;
-                } else if (input.tagName === 'SELECT') {
-                  input.selectedIndex = 0;
-                } else {
-                  input.value = '';
-                }
-              });
-              switchDialogTab2(0);
-            }
-          });
-        }
-
-        if (editCompleteBtn) {
-          editCompleteBtn.addEventListener('click', function () {
-            alert('Student record updated successfully!');
-            closeDialog2();
-          });
-        }
-
-        // ----- Open second dialog via a trigger (for demo) -----
-        window.openEditDialog = function () {
-          openDialog2();
-        };
-
-        // ----- Tab Switching for Main Tabs -----
-        const tabs = document.querySelectorAll('.tab-btn');
-        const panels = {
-          tab1: document.getElementById('tab1'),
-          tab2: document.getElementById('tab2'),
-          tab3: document.getElementById('tab3'),
-          tab4: document.getElementById('tab4'),
-          tab5: document.getElementById('tab5')
-        };
-
-        tabs.forEach(tab => {
-          tab.addEventListener('click', function () {
-            tabs.forEach(t => t.classList.remove('active'));
-            Object.values(panels).forEach(p => {
-              if (p) p.classList.remove('active');
-            });
-            this.classList.add('active');
-            const targetId = this.getAttribute('data-tab');
-            if (panels[targetId]) {
-              panels[targetId].classList.add('active');
-            }
-          });
-
-         
-
-            closeRegisterContextMenu();
-
-
-       
-
-            closeFeeBalanceMenu();
-
-
-
-
-        });
-
-        // ----- Expose global function for C# to call -----
-        window.switchTab = function (tabId) {
-          const tabs = document.querySelectorAll('.tab-btn');
-          const panels = {
-            tab1: document.getElementById('tab1'),
-            tab2: document.getElementById('tab2'),
-            tab3: document.getElementById('tab3'),
-            tab4: document.getElementById('tab4'),
-            tab5: document.getElementById('tab5')
-          };
-
-          tabs.forEach(t => t.classList.remove('active'));
-          Object.values(panels).forEach(p => {
-            if (p) p.classList.remove('active');
-          });
-
-          const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
-          if (targetTab) {
-            targetTab.classList.add('active');
-            if (panels[tabId]) {
-              panels[tabId].classList.add('active');
-            }
-            return true;
-          }
-          return false;
-        };
-
-        window.__tabPanels = panels;
-
-
-
-        document.querySelectorAll('.clickable-name').forEach(nameEl => {
-          nameEl.addEventListener('click', function (e) {
-            e.stopPropagation();
-            openDialog2();
-            var S_name = document.getElementById('editStudentName').value;
-            alert("My name is" + S_name);
-          });
-        });
-
-        window.openEditDialogWithData = function (name, id, dob, grade) {
-
-
-          document.getElementById('editStudentName').value = name || '';
-          document.getElementById('editStudentID').value = id || '';
-          document.getElementById('editStudentDOB').value = dob || '';
-          openDialog2();
-        };
-
-        console.log('✅ Both dialog boxes ready. Click a student name or double-click a row to open edit dialog (tab 0 activated).');
-      })();
-    </script>
 
 
     <script>
@@ -4139,7 +3741,6 @@
       document.addEventListener('DOMContentLoaded', initializeSystem);
     </script>
 
-
     <script type="module">
       // ============================================================
       // FIREBASE IMPORTS
@@ -4220,45 +3821,316 @@
         });
       }
 
+      // ============================================================
+      // DIALOG MANAGEMENT (MERGED)
+      // ============================================================
       const overlay = document.getElementById('dialogOverlay');
       const openBtn = document.getElementById('openDialogBtn');
+      const openBtn2 = document.getElementById('openDialogBtn2');
+      const closeIcon = document.getElementById('closeDialogIcon');
+      const closeSecondary = document.getElementById('closeDialogSecondary');
+      const confirmBtn = document.getElementById('confirmDialogBtn');
+      const SaveUpdateBtn = document.getElementById('saveStudent');
+      const Auto = document.getElementById("autoGenerate");
+
+      const overlay2 = document.getElementById('dialogOverlay2');
+      const closeIcon2 = document.getElementById('closeDialogIcon2');
+      const closeSecondary2 = document.getElementById('closeDialogSecondary2');
+      const confirmBtn2 = document.getElementById('confirmDialogBtn2');
+
+      // Tab switching for first dialog
+      const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
+      const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
+
+      function switchDialogTab(index) {
+        dialogTabBtns.forEach(btn => btn.classList.remove('active'));
+        dialogTabPanels.forEach(panel => panel.classList.remove('active'));
+        if (dialogTabBtns[index] && dialogTabPanels[index]) {
+          dialogTabBtns[index].classList.add('active');
+          dialogTabPanels[index].classList.add('active');
+        }
+      }
+
+      dialogTabBtns.forEach((btn, idx) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchDialogTab(idx);
+        });
+      });
+
+      // Tab switching for second dialog
+      const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
+      const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
+
+      function switchDialogTab2(index) {
+        dialogTabBtns2.forEach(btn => btn.classList.remove('active'));
+        dialogTabPanels2.forEach(panel => panel.classList.remove('active'));
+        if (dialogTabBtns2[index] && dialogTabPanels2[index]) {
+          dialogTabBtns2[index].classList.add('active');
+          dialogTabPanels2[index].classList.add('active');
+        }
+      }
+
+      dialogTabBtns2.forEach((btn, idx) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchDialogTab2(idx);
+        });
+      });
+
+      // First dialog functions
+      window.openDialog = function () {
+        switchDialogTab(0);
+        overlay.classList.add('active');
+        setTimeout(() => {
+          closeIcon.focus();
+        }, 50);
+      };
+
       function closeDialog() {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
         if (openBtn) openBtn.focus();
       }
 
+      // Second dialog functions
+      window.openDialog2 = function () {
+        switchDialogTab2(0);
+        overlay2.classList.add('active');
+        setTimeout(() => {
+          closeIcon2.focus();
+        }, 50);
+        document.body.style.overflow = 'hidden';
+      };
+
+      function closeDialog2() {
+        overlay2.classList.remove('active');
+        document.body.style.overflow = '';
+        if (openBtn2) openBtn2.focus();
+      }
+
+      // Event listeners for first dialog
+      if (openBtn) {
+        openBtn.addEventListener('click', openDialog);
+      }
+
+      if (closeIcon) closeIcon.addEventListener('click', closeDialog);
+      if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
+      if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
+
+      if (overlay) {
+        overlay.addEventListener('click', function (e) {
+          if (e.target === overlay) closeDialog();
+        });
+
+        overlay.addEventListener('keydown', function (e) {
+          if (e.key === 'Tab') {
+            const focusable = overlay.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }
+        });
+      }
+
+      // Event listeners for second dialog
+      if (openBtn2) openBtn2.addEventListener('click', openDialog2);
+      if (closeIcon2) closeIcon2.addEventListener('click', closeDialog2);
+      if (closeSecondary2) closeSecondary2.addEventListener('click', closeDialog2);
+      if (confirmBtn2) confirmBtn2.addEventListener('click', closeDialog2);
+
+      if (overlay2) {
+        overlay2.addEventListener('click', function (e) {
+          if (e.target === overlay2) closeDialog2();
+        });
+
+        overlay2.addEventListener('keydown', function (e) {
+          if (e.key === 'Tab') {
+            const focusable = overlay2.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }
+        });
+      }
+
+      // Global escape key handling
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          if (overlay && overlay.classList.contains('active')) {
+            closeDialog();
+            e.preventDefault();
+          } else if (overlay2 && overlay2.classList.contains('active')) {
+            closeDialog2();
+            e.preventDefault();
+          }
+        }
+      });
+
+      window.addEventListener('beforeunload', function () {
+        document.body.style.overflow = '';
+      });
+
+      // Reset and Complete buttons for first dialog
+      const resetBtn = document.getElementById('resetBtn');
+      const completeBtn = document.getElementById('completeBtn');
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          if (confirm('Are you sure you want to reset all form fields?')) {
+            const inputs = document.querySelectorAll('#dialogOverlay .form-input, #dialogOverlay textarea.form-input');
+            inputs.forEach(input => {
+              if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+              } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+              } else {
+                input.value = '';
+              }
+            });
+
+            SaveUpdateBtn.textContent = "Complete";
+            if (Auto) Auto.disabled = false;
+            switchDialogTab(0);
+          }
+        });
+      }
+
+      if (completeBtn) {
+        completeBtn.addEventListener('click', function () {
+          alert('Student record completed successfully!');
+          closeDialog();
+        });
+      }
+
+      // Reset and Update buttons for second dialog
+      const editResetBtn = document.getElementById('editResetBtn');
+      const editCompleteBtn = document.getElementById('editCompleteBtn');
+
+      if (editResetBtn) {
+        editResetBtn.addEventListener('click', function () {
+          if (confirm('Are you sure you want to reset all fields?')) {
+            const inputs = document.querySelectorAll('#dialogOverlay2 .form-input, #dialogOverlay2 textarea.form-input');
+            inputs.forEach(input => {
+              if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+              } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+              } else {
+                input.value = '';
+              }
+            });
+            switchDialogTab2(0);
+          }
+        });
+      }
+
+      if (editCompleteBtn) {
+        editCompleteBtn.addEventListener('click', function () {
+          alert('Student record updated successfully!');
+          closeDialog2();
+        });
+      }
+
+      window.openEditDialog = function () {
+        openDialog2();
+      };
+
+      window.openEditDialogWithData = function (name, id, dob, grade) {
+        document.getElementById('editStudentName').value = name || '';
+        document.getElementById('editStudentID').value = id || '';
+        document.getElementById('editStudentDOB').value = dob || '';
+        openDialog2();
+      };
+
+      // ============================================================
+      // MAIN TAB SWITCHING
+      // ============================================================
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = {
+        tab1: document.getElementById('tab1'),
+        tab2: document.getElementById('tab2'),
+        tab3: document.getElementById('tab3'),
+        tab4: document.getElementById('tab4'),
+        tab5: document.getElementById('tab5')
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+          tabs.forEach(t => t.classList.remove('active'));
+          Object.values(panels).forEach(p => {
+            if (p) p.classList.remove('active');
+          });
+          this.classList.add('active');
+          const targetId = this.getAttribute('data-tab');
+          if (panels[targetId]) {
+            panels[targetId].classList.add('active');
+          }
+        });
+      });
+
+      window.switchTab = function (tabId) {
+        tabs.forEach(t => t.classList.remove('active'));
+        Object.values(panels).forEach(p => {
+          if (p) p.classList.remove('active');
+        });
+
+        const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
+        if (targetTab) {
+          targetTab.classList.add('active');
+          if (panels[tabId]) {
+            panels[tabId].classList.add('active');
+          }
+          return true;
+        }
+        return false;
+      };
+
+      window.__tabPanels = panels;
+
       // ============================================================
       // SAVE / UPDATE STUDENT
       // ============================================================
       document.getElementById("saveStudent")?.addEventListener("click", async () => {
-
         const name = document.getElementById("studentName").value.trim();
         const admissionNumber = document.getElementById("admissionNumber").value.trim();
 
         if (!name) return alert("Please enter the student's name.");
         if (!admissionNumber) return alert("Please enter the admission number.");
 
-        const genderEl = document.querySelector(
-          'input[name="gender"]:checked'
-        );
-
+        const genderEl = document.querySelector('input[name="gender"]:checked');
         const admissionKey = admissionNumber.replace(/\//g, "-");
-
-        const studentRef = ref(
-          db,
-          `Institution/ Revival/Students/${admissionKey}`
-        );
+        const studentRef = ref(db, `Institution/ Revival/Students/${admissionKey}`);
 
         try {
-
-          // Check whether the student already exists
           const snapshot = await get(studentRef);
-
-          // Preserve existing lastPayment when updating
-          const existingStudent = snapshot.exists()
-            ? snapshot.val()
-            : null;
+          const existingStudent = snapshot.exists() ? snapshot.val() : null;
 
           const studentData = {
             name,
@@ -4275,34 +4147,19 @@
             admissionNumber,
             class: document.getElementById("studentClass").value,
             consent: document.getElementById("consentCheck").checked,
-
-            // Preserve existing values when updating
             Status: existingStudent?.Status || "Active",
             Exceptions: existingStudent?.Exceptions || {},
-
-            // Keep existing payment data
             lastPayment: existingStudent?.lastPayment ?? null
           };
 
           await set(studentRef, studentData);
           closeDialog();
-          /*
-          alert(
-            existingStudent
-              ? `Student updated!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}`
-              : `Student saved!\n\nName: ${studentData.name}\nAdmission: ${admissionNumber}\nClass: ${studentData.class}`
-          );
-          */
-
         } catch (error) {
-
           console.error(error);
-
-          alert(
-            "Failed to save student:\n" + error.message
-          );
+          alert("Failed to save student:\n" + error.message);
         }
       });
+
       // ============================================================
       // SAVE PAYMENT
       // ============================================================
@@ -4336,29 +4193,17 @@
         };
 
         try {
-          const paymentRef = await push(
-            ref(db, "Institution/ Revival/Fee_payment/"),
-            paymentData
-          );
-
+          const paymentRef = await push(ref(db, "Institution/ Revival/Fee_payment/"), paymentData);
           const firebaseKey = paymentRef.key;
-
-
           const admissionKey = admissionNumber.replace(/\//g, "-");
 
-          await update(
-            ref(db, `Institution/ Revival/Students/${admissionKey}`),
-            { lastPayment: paymentData }
-          );
-
+          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { lastPayment: paymentData });
           document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
 
           alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
 
-
           window.chrome.webview.postMessage({
             action: "PRINT_RECEIPT",
-
             DateandTime: paymentData.entryDate,
             studentName: document.getElementById("Fn_Name").textContent.trim(),
             Class_Grade: paymentData.class,
@@ -4372,8 +4217,6 @@
             Account: paymentData.Account,
             Qr_Key: firebaseKey
           });
-
-
         } catch (error) {
           console.error(error);
           alert("Failed to save Payment:\n" + error.message);
@@ -4384,7 +4227,6 @@
       // SAVE CLASS DETAILS
       // ============================================================
       document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
-
         const classData = {
           grade: document.getElementById('gradeInput').value,
           stream: document.getElementById('streamInput').value,
@@ -4395,7 +4237,6 @@
 
         try {
           await push(ref(db, `Institution/ Revival/classes/`), classData);
-
           modalOverlay.classList.remove('active');
         } catch (error) {
           console.error(error);
@@ -4404,35 +4245,28 @@
       });
 
       // ============================================================
-      // print student list
+      // PRINT FUNCTIONS
       // ============================================================
       document.getElementById("printStudents")?.addEventListener("click", () => {
-
-        const studentsList = Object.entries(studentsCache).map(
-          ([key, student]) => ({
-            Admission_No: student.admissionNumber,
-            Name: student.name || "",
-            Gender: student.gender || "",
-            Grade: student.class || "",
-            Phone: student.phone || "",
-            Status: student.Status || ""
-          })
-        );
+        const studentsList = Object.entries(studentsCache).map(([key, student]) => ({
+          Admission_No: student.admissionNumber,
+          Name: student.name || "",
+          Gender: student.gender || "",
+          Grade: student.class || "",
+          Phone: student.phone || "",
+          Status: student.Status || ""
+        }));
 
         if (!studentsList.length) {
           alert("No students available to print.");
           return;
         }
 
-        // Sort students by Grade (alphabetically)
         studentsList.sort((a, b) => {
           const gradeA = (a.Grade || "").toString().toLowerCase();
           const gradeB = (b.Grade || "").toString().toLowerCase();
-
           if (gradeA < gradeB) return -1;
           if (gradeA > gradeB) return 1;
-
-          // If grades are equal, sort by Name
           const nameA = (a.Name || "").toString().toLowerCase();
           const nameB = (b.Name || "").toString().toLowerCase();
           return nameA.localeCompare(nameB);
@@ -4446,138 +4280,78 @@
       });
 
       document.getElementById("printStudents2")?.addEventListener("click", () => {
-
-        const balancesList = Object.entries(studentsCache).map(
-          ([admissionNumber, student]) => {
-            return {
-              Admission_No: admissionNumber,
-              Name: student.name || "",
-              Grade: student.class || "",
-              Status: student.Status || "",
-
-              RequiredFee: formatCurrency(
-                getStudentRequiredFee(admissionNumber)
-              ),
-
-              Exemptions: formatCurrency(
-                studentExceptions(admissionNumber)
-              ),
-
-              BalanceBefore: formatCurrency(
-                getBalanceBefore(admissionNumber)
-              ),
-
-              Installments: formatCurrency(
-                getInstallmentsForStudent(admissionNumber)
-              ),
-
-              CurrentBalance: formatCurrency(
-                getCurrent(admissionNumber)
-              )
-            };
-          }
-        );
+        const balancesList = Object.entries(studentsCache).map(([admissionNumber, student]) => ({
+          Admission_No: admissionNumber,
+          Name: student.name || "",
+          Grade: student.class || "",
+          Status: student.Status || "",
+          RequiredFee: formatCurrency(getStudentRequiredFee(admissionNumber)),
+          Exemptions: formatCurrency(studentExceptions(admissionNumber)),
+          BalanceBefore: formatCurrency(getBalanceBefore(admissionNumber)),
+          Installments: formatCurrency(getInstallmentsForStudent(admissionNumber)),
+          CurrentBalance: formatCurrency(getCurrent(admissionNumber))
+        }));
 
         if (!balancesList.length) {
           alert("No students available to print.");
           return;
         }
 
-        // Same sorting logic as populateFeeBalanceTable
         balancesList.sort((a, b) => {
-
           const gradeA = a.Grade || "";
           const gradeB = b.Grade || "";
-
-          // Graduate goes last
-          const isGraduateA =
-            gradeA.toLowerCase() === "graduate";
-
-          const isGraduateB =
-            gradeB.toLowerCase() === "graduate";
-
+          const isGraduateA = gradeA.toLowerCase() === "graduate";
+          const isGraduateB = gradeB.toLowerCase() === "graduate";
           if (isGraduateA && !isGraduateB) return 1;
           if (!isGraduateA && isGraduateB) return -1;
-
-          // Inactive goes last
-          const isInactiveA =
-            (a.Status || "").toLowerCase() === "inactive";
-
-          const isInactiveB =
-            (b.Status || "").toLowerCase() === "inactive";
-
+          const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+          const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
           if (isInactiveA && !isInactiveB) return 1;
           if (!isInactiveA && isInactiveB) return -1;
-
-          // Extract grade number
           const getGradeNumber = (grade) => {
             const match = String(grade).match(/(\d+)/);
             return match ? parseInt(match[1], 10) : -1;
           };
-
-          // Extract grade prefix
           const getGradePrefix = (grade) => {
             const match = String(grade).match(/^([A-Za-z]+)/);
             return match ? match[1].toUpperCase() : "";
           };
-
           const numA = getGradeNumber(gradeA);
           const numB = getGradeNumber(gradeB);
-
           if (numA !== numB) {
-
-            if (numA === -1 && numB !== -1)
-              return 1;
-
-            if (numA !== -1 && numB === -1)
-              return -1;
-
+            if (numA === -1 && numB !== -1) return 1;
+            if (numA !== -1 && numB === -1) return -1;
             return numB - numA;
           }
-
           const prefixA = getGradePrefix(gradeA);
           const prefixB = getGradePrefix(gradeB);
-
-          const prefixOrder = {
-            "G": 0,
-            "PP": 1,
-            "DAYCARE": 2
-          };
-
-          const orderA =
-            prefixOrder[prefixA] ?? 99;
-
-          const orderB =
-            prefixOrder[prefixB] ?? 99;
-
+          const prefixOrder = { "G": 0, "PP": 1, "DAYCARE": 2 };
+          const orderA = prefixOrder[prefixA] ?? 99;
+          const orderB = prefixOrder[prefixB] ?? 99;
           return orderA - orderB;
         });
 
-        // IMPORTANT:
-        // C# expects "balances"
         window.chrome.webview.postMessage({
           action: "PRINT_BALANCE_LIST",
           title: "FEE BALANCE LIST",
           balances: balancesList
         });
       });
-      // Function to update a single field for a student
+
+      // ============================================================
+      // HELPER FUNCTIONS FOR CALCULATIONS
+      // ============================================================
       async function updateStudentField(admissionNumber, fieldName, fieldValue) {
         if (!admissionNumber) {
           alert("Please enter the admission number.");
           return false;
         }
-
         if (!fieldName) {
           alert("Please specify the field to update.");
           return false;
         }
-
         try {
-          const updateData = {
-            [fieldName]: fieldValue
-          };
-
+          const updateData = { [fieldName]: fieldValue };
           await update(ref(db, `Institution/ Revival/Students/${admissionNumber}`), updateData);
           console.log(`Successfully updated ${fieldName} for student ${admissionNumber}`);
           return true;
@@ -4588,96 +4362,236 @@
         }
       }
 
+      function getLastPayment(admission) {
+        if (!admission || !studentsCache) return {};
+        const student = studentsCache[admission];
+        if (!student) return {};
+        return student.lastPayment || {};
+      }
+
+      function getStudentExceptions(admissionNumber) {
+        if (!admissionNumber || !studentsCache) return {};
+        const student = studentsCache[admissionNumber];
+        if (!student) {
+          console.warn(`Student not found: ${admissionNumber}`);
+          return {};
+        }
+        return student.Exceptions || {};
+      }
+
+      function getCurrent(admission) {
+        if (!admission || !studentsCache) return "0.00";
+        const student = studentsCache[admission];
+        if (!student) return "0.00";
+        const gradeFee = getStudentRequiredFee(admission);
+        if (gradeFee === "Sponsored") return "Sponsored";
+        if (!student.lastPayment) return formatCurrency(gradeFee);
+        const balance = student.lastPayment.balance;
+        const last_balance = parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
+        const activeTerm = getActiveTerm();
+        if (!activeTerm) return formatCurrency(last_balance);
+        if (student.lastPayment.term !== activeTerm) {
+          return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
+        }
+        return formatCurrency(last_balance);
+      }
+
+      function getActiveTerm() {
+        const activeTerm = terms.find(term =>
+          String(term.status || '').trim().toLowerCase() === 'active'
+        );
+        return activeTerm ? activeTerm.termId : null;
+      }
+
+      function getStudentGrade(admission) {
+        if (!admission || !studentsCache) return '';
+        const student = studentsCache[admission];
+        if (!student) return '';
+        return String(student.class || '').split('-')[0].trim();
+      }
+
+      function getStudentRequiredFee(admissionNumber) {
+        if (!admissionNumber || !studentsCache) return "0.00";
+        const student = studentsCache[admissionNumber];
+        if (!student?.class) return "0.00";
+        const grade = String(student.class).split('-')[0].trim();
+        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
+        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
+        const fees = {
+          grade: parseFloat(activeTerm.grades[grade]) || 0,
+          meal: parseFloat(activeTerm.meal) || 0,
+          transport: parseFloat(activeTerm.transport) || 0,
+          boarding: parseFloat(activeTerm.boarding) || 0,
+          break: parseFloat(activeTerm.breakFee) || 0
+        };
+        if (/[789]/.test(grade)) {
+          fees.boarding = Math.max(0, fees.boarding - 2000);
+        }
+        const ex = student.Exceptions || {};
+        if (ex.Sponsored === true) return "Sponsored";
+        let requiredFee = fees.grade;
+        if (ex.Boarding === true) {
+          return formatCurrency(requiredFee + fees.boarding);
+        }
+        requiredFee += fees.transport;
+        if (ex.meals === true) requiredFee += fees.meal;
+        if (ex.Break === true) requiredFee += fees.break;
+        return formatCurrency(requiredFee);
+      }
+
+      function studentExceptions(admissionNumber) {
+        if (!admissionNumber || !studentsCache) return "0.00";
+        const student = studentsCache[admissionNumber];
+        if (!student?.class) return "0.00";
+        const grade = String(student.class).split('-')[0].trim();
+        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
+        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
+        const fees = {
+          meal: parseFloat(activeTerm.meal) || 0,
+          transport: parseFloat(activeTerm.transport) || 0,
+          boarding: parseFloat(activeTerm.boarding) || 0,
+          break: parseFloat(activeTerm.breakFee) || 0
+        };
+        const isSeniorGrade = /[789]/.test(grade);
+        if (isSeniorGrade) {
+          fees.boarding = Math.max(0, fees.boarding - 2000);
+        }
+        const ex = student.Exceptions || {};
+        if (ex.Sponsored === true) return "Sponsored";
+        if (ex.Boarding === true) return "0.00";
+        let falseExceptionsSum = 0;
+        if (isSeniorGrade) falseExceptionsSum += fees.boarding;
+        if (ex.meals !== true) falseExceptionsSum += fees.meal;
+        if (ex.Break !== true) falseExceptionsSum += fees.break;
+        if (ex.Sponsored !== true) falseExceptionsSum += fees.transport;
+        return formatCurrency(falseExceptionsSum);
+      }
+
+      function getInstallmentsForStudent(admissionNumber) {
+        const activeTerm = getActiveTerm();
+        let totalInstallments = 0;
+        const normalizedAdmissionNumber = admissionNumber.replace(/-/g, "/");
+        if (!paymentCache || typeof paymentCache !== 'object') {
+          console.warn("Payment cache is empty or invalid");
+          return "0.00";
+        }
+        Object.values(paymentCache).forEach(payment => {
+          const paymentAdmissionNumber = payment.admissionNumber ?
+            payment.admissionNumber.replace(/-/g, "/") : "";
+          if (paymentAdmissionNumber === normalizedAdmissionNumber && payment.term === activeTerm) {
+            let paymentAmount = 0;
+            if (typeof payment.amount === 'string') {
+              paymentAmount = parseFloat(payment.amount.replace(/,/g, '')) || 0;
+            } else {
+              paymentAmount = parseFloat(payment.amount) || 0;
+            }
+            totalInstallments += paymentAmount;
+          }
+        });
+        return formatCurrency(totalInstallments);
+      }
+
+      function getBalanceBefore(admissionNumber) {
+        const normalizedAdmission = admissionNumber.replace(/-/g, "/");
+        const activeTerm = getActiveTerm();
+        let lastBalance = 0;
+        Object.values(paymentCache || {}).forEach(payment => {
+          if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission && payment.term !== activeTerm) {
+            if (typeof payment.balance === 'string') {
+              lastBalance = parseFloat(payment.balance.replace(/,/g, '')) || 0;
+            } else {
+              lastBalance = Number(payment.balance) || 0;
+            }
+          }
+        });
+        return formatCurrency(lastBalance);
+      }
+
+      function getNextAdmissionNumber() {
+        const prefix = "RS";
+        const year = new Date().getFullYear();
+        let highestNumber = 0;
+        if (studentsCache && typeof studentsCache === "object") {
+          Object.keys(studentsCache).forEach(admissionNumber => {
+            const parts = String(admissionNumber).split("-");
+            if (parts.length !== 3) return;
+            const admissionPrefix = parts[0];
+            const admissionYear = parts[1];
+            const admissionNumber1 = parseInt(parts[2], 10);
+            if (admissionPrefix === prefix && admissionYear === String(year) && !isNaN(admissionNumber1)) {
+              highestNumber = Math.max(highestNumber, admissionNumber1);
+            }
+          });
+        }
+        const nextNumber = highestNumber + 1;
+        return `${prefix}-${year}-${nextNumber}`;
+      }
+
       // ============================================================
-      // POPULATE TABLE
+      // POPULATE TABLES
       // ============================================================
       function populateStudentsTable(students) {
         const tbody = document.querySelector(".register-table tbody");
         if (!tbody) return;
-
         tbody.innerHTML = "";
         if (!students) return;
 
-        // Sort students by grade and status
         const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
           const gradeA = a.class || "";
           const gradeB = b.class || "";
-
           const isGraduateA = gradeA === "Graduate";
           const isGraduateB = gradeB === "Graduate";
           if (isGraduateA && !isGraduateB) return 1;
           if (!isGraduateA && isGraduateB) return -1;
-
           const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
           const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
           if (isInactiveA && !isInactiveB) return 1;
           if (!isInactiveA && isInactiveB) return -1;
-
           const getGradeNumber = (grade) => {
             const match = grade.match(/(\d+)/);
             return match ? parseInt(match[1]) : -1;
           };
-
           const getGradePrefix = (grade) => {
             const match = grade.match(/^([A-Za-z]+)/);
             return match ? match[1].toUpperCase() : "";
           };
-
           const numA = getGradeNumber(gradeA);
           const numB = getGradeNumber(gradeB);
-
           if (numA !== numB) {
             if (numA === -1 && numB !== -1) return 1;
             if (numA !== -1 && numB === -1) return -1;
             return numB - numA;
           }
-
           const prefixA = getGradePrefix(gradeA);
           const prefixB = getGradePrefix(gradeB);
-
           const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
           const orderA = prefixOrder[prefixA] ?? 99;
           const orderB = prefixOrder[prefixB] ?? 99;
-
           return orderA - orderB;
         });
 
         let index = 1;
-
         for (const [admissionNumber, student] of sortedStudents) {
           const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
-
           const isGraduate = student.class === "Graduate";
           const status = isGraduate ? "Graduate" : (student.Status || "—");
-          const statusClass = isGraduate ? "late" :
-            status.toLowerCase() === "inactive" ? "absent" : "";
-
+          const statusClass = isGraduate ? "late" : status.toLowerCase() === "inactive" ? "absent" : "";
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td class="col-check">
-              <input type="checkbox" class="custom-checkbox">
-            </td>
-            <td class="col-avatar">
-              <div class="avatar-wrapper">
-                <span class="avatar-placeholder">👤</span>
-              </div>
-            </td>
-            <td class="col-name">
-              <div class="student-info">
-                <span class="student-name clickable-name" data-student="${index}">
-                  ${student.name || "Unknown"}
-                </span>
-                <span class="student-id">${admissionNumber}</span>
-              </div>
-            </td>
-            <td class="col-grade">${student.class || "—"}</td>
-            <td class="col-dob">${formattedDob}</td>
-            <td class="col-national">${student.nationality || "—"}</td>
-            <td class="col-contact">${student.phone || "—"}</td>
-            <td class="col-status">
-              <span class="status-badge ${statusClass}">${status}</span>
-            </td>
-          `;
+        <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+        <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+        <td class="col-name">
+          <div class="student-info">
+            <span class="student-name clickable-name" data-student="${index}">${student.name || "Unknown"}</span>
+            <span class="student-id">${admissionNumber}</span>
+          </div>
+        </td>
+        <td class="col-grade">${student.class || "—"}</td>
+        <td class="col-dob">${formattedDob}</td>
+        <td class="col-national">${student.nationality || "—"}</td>
+        <td class="col-contact">${student.phone || "—"}</td>
+        <td class="col-status"><span class="status-badge ${statusClass}">${status}</span></td>
+      `;
           tbody.appendChild(row);
           index++;
         }
@@ -4686,142 +4600,107 @@
       function populateFeeBalanceTable(students) {
         const tbody = document.querySelector("#FeeBalanceList tbody");
         if (!tbody || !students) return;
-
         tbody.innerHTML = "";
 
         const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
           const gradeA = a.class || "";
           const gradeB = b.class || "";
-
           const isGraduateA = gradeA === "Graduate";
           const isGraduateB = gradeB === "Graduate";
           if (isGraduateA && !isGraduateB) return 1;
           if (!isGraduateA && isGraduateB) return -1;
-
           const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
           const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
           if (isInactiveA && !isInactiveB) return 1;
           if (!isInactiveA && isInactiveB) return -1;
-
           const getGradeNumber = (grade) => {
             const match = grade.match(/(\d+)/);
             return match ? parseInt(match[1]) : -1;
           };
-
           const getGradePrefix = (grade) => {
             const match = grade.match(/^([A-Za-z]+)/);
             return match ? match[1].toUpperCase() : "";
           };
-
           const numA = getGradeNumber(gradeA);
           const numB = getGradeNumber(gradeB);
-
           if (numA !== numB) {
             if (numA === -1 && numB !== -1) return 1;
             if (numA !== -1 && numB === -1) return -1;
             return numB - numA;
           }
-
           const prefixA = getGradePrefix(gradeA);
           const prefixB = getGradePrefix(gradeB);
-
           const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
           const orderA = prefixOrder[prefixA] ?? 99;
           const orderB = prefixOrder[prefixB] ?? 99;
-
           return orderA - orderB;
         });
 
         for (const [admissionNumber, student] of sortedStudents) {
-          const lp = student.lastPayment || {};
-
           const row = document.createElement("tr");
           row.innerHTML = `
-          <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
-          <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
-          <td class="col-name">
-            <div class="student-info">
-              <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
-              <span class="student-id">${admissionNumber}</span>
-            </div>
-          </td>
-          <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td> 
-          <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
-          <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
-          <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
-          <td class="col-contact">${student.class || "—"}</td>
-        `;
-
+        <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+        <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+        <td class="col-name">
+          <div class="student-info">
+            <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
+            <span class="student-id">${admissionNumber}</span>
+          </div>
+        </td>
+        <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td>
+        <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
+        <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
+        <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
+        <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
+        <td class="col-contact">${student.class || "—"}</td>
+      `;
           tbody.appendChild(row);
         }
       }
 
-      // Function to populate fee payment history table
       function populateFeePaymentHistory(paymentData, admissionNumber) {
-
         const tableBody = document.querySelector('#feepaymentHistory tbody');
         if (!tableBody) return;
-
         tableBody.innerHTML = '';
 
         const paymentDataArray = paymentData
           ? (Array.isArray(paymentData)
-            ? paymentData.map((payment, index) => ({
-              ...payment,
-              key: payment.key || index
-            }))
-            : Object.entries(paymentData).map(([key, payment]) => ({
-              ...payment,
-              key
-            }))
+            ? paymentData.map((payment, index) => ({ ...payment, key: payment.key || index }))
+            : Object.entries(paymentData).map(([key, payment]) => ({ ...payment, key }))
           )
           : [];
 
         const filteredPayments = paymentDataArray.filter(payment =>
-          String(payment.admissionNumber || '').trim() ===
-          String(admissionNumber || '').trim()
+          String(payment.admissionNumber || '').trim() === String(admissionNumber || '').trim()
         );
 
         if (filteredPayments.length === 0) {
-
           tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align:center;">
-                    No payment history available
-                </td>
-            </tr>
-        `;
-
+        <tr>
+          <td colspan="8" style="text-align:center;">No payment history available</td>
+        </tr>
+      `;
           return;
         }
 
         filteredPayments.forEach(payment => {
-
           const row = document.createElement('tr');
-
-          // Store Firebase push key in the row
           row.dataset.key = payment.key || '';
-
-          const displayDate =
-            formatDateToDDMMYYYY(payment.paymentDate) ||
-            formatDateToDDMMYYYY(payment.entryDate) ||
-            '—';
-
+          const displayDate = formatDateToDDMMYYYY(payment.paymentDate) || formatDateToDDMMYYYY(payment.entryDate) || '—';
           row.innerHTML = `
-            <td>${payment.term || '—'}</td>
-            <td>${formatCurrency(payment.fee)}</td>
-            <td>${formatCurrency(payment.Exemption)}</td>
-            <td>${formatCurrency(payment.amount)}</td>
-            <td>${formatCurrency(payment.balance)}</td>
-            <td>${displayDate}</td>
-            <td>${payment.Account || '—'}</td>
-            <td>${payment.key || '—'}</td>
-        `;
-
+        <td>${payment.term || '—'}</td>
+        <td>${formatCurrency(payment.fee)}</td>
+        <td>${formatCurrency(payment.Exemption)}</td>
+        <td>${formatCurrency(payment.amount)}</td>
+        <td>${formatCurrency(payment.balance)}</td>
+        <td>${displayDate}</td>
+        <td>${payment.Account || '—'}</td>
+        <td>${payment.key || '—'}</td>
+      `;
           tableBody.appendChild(row);
         });
       }
+
       // ============================================================
       // REAL-TIME LISTENERS
       // ============================================================
@@ -4829,8 +4708,7 @@
         studentsCache = snapshot.exists() ? snapshot.val() : {};
         populateStudentsTable(studentsCache);
         populateFeeBalanceTable(studentsCache);
-        document.getElementById('autoGenerate')
-          .dispatchEvent(new Event('change'));
+        document.getElementById('autoGenerate').dispatchEvent(new Event('change'));
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load students:\n" + error.message);
@@ -4840,20 +4718,16 @@
         paymentCache = snapshot.exists() ? snapshot.val() : {};
       }, (error) => {
         console.error("Realtime error:", error);
-        alert("Failed to load students:\n" + error.message);
+        alert("Failed to load payments:\n" + error.message);
       });
 
       let classData = [];
-
-      // ---------- DATA STORE ----------
       let terms = [];
 
-      // ---------- DOM REFS ----------
       const Termgrid = document.getElementById('termGrid');
       const totalTermsSpan = document.getElementById('totalTerms');
       const totalFeesSpan = document.getElementById('totalFees');
       const totalGradesSpan = document.getElementById('totalGrades');
-
       const modal = document.getElementById('termModal');
       const modalTitle = document.getElementById('modalTitle');
       const termIdInput = document.getElementById('termIdInput');
@@ -4868,34 +4742,27 @@
       const newGradeInput = document.getElementById('newGradeInput');
       const newGradeFeeInput = document.getElementById('newGradeFeeInput');
       const addGradeBtn = document.getElementById('addGradeBtn');
-
       const addBtn = document.getElementById('addTermBtn');
       const closeBtn = document.getElementById('closeTermModalBtn');
       const cancelBtn = document.getElementById('cancelTermModalBtn');
       const refreshBtn = document.getElementById('refreshBtn');
       const form = document.getElementById('termForm');
+      const grid = document.getElementById('classGrid');
 
-      // ---------- STATE ----------
       let editingIndex = -1;
-
-      // ---------- DEFAULT GRADES ----------
       let defaultGrades = {};
 
       const getDefaultGrades = (classData) => {
         const grades = {};
-
         classData.forEach(cls => {
           const grade = cls.grade || 'Unknown';
           grades[grade] = 0;
         });
-
         return grades;
       };
 
       onValue(classRef, (snapshot) => {
-
         if (snapshot.exists()) {
-
           classData = Object.values(snapshot.val()).map(data => ({
             grade: data.grade || '',
             stream: data.stream || '',
@@ -4903,37 +4770,25 @@
             capacity: data.capacity || 0,
             teacher: data.teacher || ''
           }));
-
         } else {
-
           classData = [];
-
         }
-
         defaultGrades = getDefaultGrades(classData);
         renderClasses(classData);
         populateClassSelect(classData);
-
       }, (error) => {
-
         console.error("Realtime error:", error);
         alert("Failed to load classes:\n" + error.message);
-
       });
 
-      const grid = document.getElementById('classGrid');
-      // render cards
       function renderClasses(classes) {
         if (!grid) return;
         grid.innerHTML = '';
-
         classes.forEach(cls => {
           const card = document.createElement('div');
           card.className = 'class-card';
-
           const headerDiv = document.createElement('div');
           headerDiv.className = 'class-header';
-
           const gradeStreamDiv = document.createElement('div');
           gradeStreamDiv.className = 'grade-stream';
           const gradeSpan = document.createElement('span');
@@ -4944,35 +4799,27 @@
           streamSpan.textContent = cls.stream;
           gradeStreamDiv.appendChild(gradeSpan);
           gradeStreamDiv.appendChild(streamSpan);
-
           const teacherBadge = document.createElement('div');
           teacherBadge.className = 'teacher-badge';
           teacherBadge.innerHTML = `<i class="fas fa-user-graduate"></i> ${cls.teacher.split(' ').slice(-1)[0]}`;
-
           headerDiv.appendChild(gradeStreamDiv);
           headerDiv.appendChild(teacherBadge);
           card.appendChild(headerDiv);
-
           const detailsDiv = document.createElement('div');
           detailsDiv.className = 'class-details';
-
           const roomRow = document.createElement('div');
           roomRow.className = 'detail-row';
           roomRow.innerHTML = `<i class="fas fa-door-open"></i><span class="detail-label">Room</span><span class="detail-value">${cls.room}</span>`;
           detailsDiv.appendChild(roomRow);
-
           const capacityRow = document.createElement('div');
           capacityRow.className = 'detail-row';
           capacityRow.innerHTML = `<i class="fas fa-user-friends"></i><span class="detail-label">Capacity</span><span class="detail-value">${cls.capacity}</span>`;
           detailsDiv.appendChild(capacityRow);
-
           const teacherRow = document.createElement('div');
           teacherRow.className = 'detail-row';
           teacherRow.innerHTML = `<i class="fas fa-chalkboard-teacher"></i><span class="detail-label">Teacher</span><span class="detail-value">${cls.teacher}</span>`;
           detailsDiv.appendChild(teacherRow);
-
           card.appendChild(detailsDiv);
-
           const footerDiv = document.createElement('div');
           footerDiv.className = 'class-footer';
           const teacherChip = document.createElement('div');
@@ -4980,72 +4827,46 @@
           teacherChip.innerHTML = `<i class="fas fa-user-tie"></i> ${cls.teacher}`;
           footerDiv.appendChild(teacherChip);
           card.appendChild(footerDiv);
-
           grid.appendChild(card);
         });
       }
 
-      // Populate class select dropdown
       function populateClassSelect(classData) {
         const select = document.getElementById('studentClass');
         if (!select) return;
-
         select.innerHTML = '';
-
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select Class';
         select.appendChild(defaultOption);
-
         const classMap = new Map();
-
         classData.forEach(cls => {
           const key = `${cls.grade}|${cls.stream}`;
           if (!classMap.has(key)) {
-            classMap.set(key, {
-              grade: cls.grade,
-              stream: cls.stream
-            });
+            classMap.set(key, { grade: cls.grade, stream: cls.stream });
           }
         });
-
         const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
           const gradeOrder = {
-            'Pre-primary': 0,
-            'Grade 1': 1,
-            'Grade 2': 2,
-            'Grade 3': 3,
-            'Grade 4': 4,
-            'Grade 5': 5,
-            'Grade 6': 6,
-            'Grade 7': 7,
-            'Grade 8': 8,
-            'Form 1': 9,
-            'Form 2': 10,
-            'Form 3': 11,
-            'Form 4': 12
+            'Pre-primary': 0, 'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3,
+            'Grade 4': 4, 'Grade 5': 5, 'Grade 6': 6, 'Grade 7': 7,
+            'Grade 8': 8, 'Form 1': 9, 'Form 2': 10, 'Form 3': 11, 'Form 4': 12
           };
-
           const aOrder = gradeOrder[a.grade] || 999;
           const bOrder = gradeOrder[b.grade] || 999;
-
           if (aOrder !== bOrder) return aOrder - bOrder;
           return (a.stream || '').localeCompare(b.stream || '');
         });
-
         uniqueClasses.forEach(cls => {
           const option = document.createElement('option');
           let displayText = cls.grade;
-          if (cls.stream) {
-            displayText += ` - ${cls.stream}`;
-          }
+          if (cls.stream) displayText += ` - ${cls.stream}`;
           option.value = displayText;
           option.textContent = displayText;
           select.appendChild(option);
         });
       }
 
-      // ---------- MODAL CONTROL ----------
       function openModal(index) {
         editingIndex = index;
         if (index === -1) {
@@ -5070,7 +4891,7 @@
           transportInput.value = (t.transport || 0).toFixed(2);
           boardingInput.value = (t.boarding || 0).toFixed(2);
           breakInput.value = (t.breakFee || 0).toFixed(2);
-          renderGradeFees(t.grades || defaultGrade);
+          renderGradeFees(t.grades || defaultGrades);
         }
         modal.classList.add('active');
       }
@@ -5080,39 +4901,20 @@
         editingIndex = -1;
       }
 
-      // ---------- RENDER GRADE FEE ROWS ----------
       function renderGradeFees(grades) {
         gradeFeesContainer.innerHTML = '';
-
-        if (!grades) grades = defaultGrades();
-
+        if (!grades) grades = defaultGrades;
         for (const [grade, fee] of Object.entries(grades)) {
-          const displayGrade = /^\d+$/.test(grade)
-            ? `Grade ${grade}`
-            : grade;
-
+          const displayGrade = /^\d+$/.test(grade) ? `Grade ${grade}` : grade;
           const row = document.createElement('div');
           row.className = 'grade-fee-row';
-
           row.innerHTML = `
-            <label>${displayGrade}</label>
-            <input 
-                type="number" 
-                step="0.01" 
-                class="grade-fee-input" 
-                data-grade="${grade}" 
-                value="${fee}" 
-            />
-            <button 
-                type="button" 
-                class="btn-remove-grade" 
-                data-grade="${grade}"
-            >✕</button>
-        `;
-
+        <label>${displayGrade}</label>
+        <input type="number" step="0.01" class="grade-fee-input" data-grade="${grade}" value="${fee}" />
+        <button type="button" class="btn-remove-grade" data-grade="${grade}">✕</button>
+      `;
           gradeFeesContainer.appendChild(row);
         }
-
         gradeFeesContainer.querySelectorAll('.btn-remove-grade').forEach(btn => {
           btn.addEventListener('click', function () {
             const row = this.closest('.grade-fee-row');
@@ -5123,65 +4925,25 @@
 
       async function saveTerm(e) {
         e.preventDefault();
-
         const termId = termIdInput.value.trim();
         const start = startDateInput.value;
         const end = endDateInput.value;
         const status = statusSelect.value;
-
         const meal = parseFloat(mealInput.value) || 0;
         const transport = parseFloat(transportInput.value) || 0;
         const boarding = parseFloat(boardingInput.value) || 0;
         const breakFee = parseFloat(breakInput.value) || 0;
-
         const grades = collectGrades();
-
-        if (!termId) {
-          alert('Term ID is required.');
-          return;
-        }
-
-        if (!start) {
-          alert('Start date is required.');
-          return;
-        }
-
-        if (!end) {
-          alert('End date is required.');
-          return;
-        }
-
-        if (new Date(start) > new Date(end)) {
-          alert('Start date must be before end date.');
-          return;
-        }
-
-        if (Object.keys(grades).length === 0) {
-          alert('Add at least one grade with fee.');
-          return;
-        }
-
-        const termObj = {
-          termId: termId,
-          start: start,
-          end: end,
-          status: status,
-          meal: meal,
-          transport: transport,
-          boarding: boarding,
-          breakFee: breakFee,
-          grades: grades
-        };
-
+        if (!termId) { alert('Term ID is required.'); return; }
+        if (!start) { alert('Start date is required.'); return; }
+        if (!end) { alert('End date is required.'); return; }
+        if (new Date(start) > new Date(end)) { alert('Start date must be before end date.'); return; }
+        if (Object.keys(grades).length === 0) { alert('Add at least one grade with fee.'); return; }
+        const termObj = { termId, start, end, status, meal, transport, boarding, breakFee, grades };
         try {
-          await set(
-            ref(db, `Institution/ Revival/terms/${termId}`),
-            termObj
-          );
-
+          await set(ref(db, `Institution/ Revival/terms/${termId}`), termObj);
           terms.push(termObj);
           closeModal();
-
         } catch (error) {
           console.error("Error saving term:", error);
           alert("Failed to save Term Details:\n" + error.message);
@@ -5189,9 +4951,7 @@
       }
 
       onValue(termRef, (snapshot) => {
-
         if (snapshot.exists()) {
-
           terms = Object.entries(snapshot.val()).map(([key, data]) => ({
             termId: key,
             start: data.start || '',
@@ -5203,176 +4963,101 @@
             breakFee: parseFloat(data.breakFee) || 0,
             grades: data.grades || {}
           }));
-
         } else {
-
           terms = [];
-
         }
-
         renderGrid();
         populateFeeBalanceTable(studentsCache);
-
       }, (error) => {
-
         console.error("Realtime error:", error);
         alert("Failed to load terms:\n" + error.message);
-
       });
 
       function collectGrades() {
         const grades = {};
-
         const inputs = gradeFeesContainer.querySelectorAll('.grade-fee-input');
-
         inputs.forEach(inp => {
           const grade = inp.dataset.grade;
           const val = parseFloat(inp.value) || 0;
-
-          if (grade) {
-            grades[grade] = val;
-          }
+          if (grade) grades[grade] = val;
         });
-
         return grades;
       }
 
-      // ---------- RENDER GRID ----------
       function renderGrid() {
         Termgrid.innerHTML = '';
-
         if (terms.length === 0) {
           Termgrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-calendar-plus"></i>
-                <p>No terms yet. Click <strong>"New Term"</strong> to add one.</p>
-            </div>
-        `;
+        <div class="empty-state">
+          <i class="fas fa-calendar-plus"></i>
+          <p>No terms yet. Click <strong>"New Term"</strong> to add one.</p>
+        </div>
+      `;
           updateStats();
           return;
         }
-
         terms.forEach((term, idx) => {
           const card = document.createElement('div');
           card.className = 'term-card';
-
-          const statusClass =
-            term.status === 'Active' ? '' :
-              term.status === 'Inactive' ? 'inactive' : 'closed';
-
+          const statusClass = term.status === 'Active' ? '' : term.status === 'Inactive' ? 'inactive' : 'closed';
           const startDate = formatDateToDDMMYYYY(term.start);
           const endDate = formatDateToDDMMYYYY(term.end);
-
           let gradesHtml = '';
           const gradeEntries = Object.entries(term.grades || {});
-
           if (gradeEntries.length > 0) {
             gradesHtml = gradeEntries.map(([g, f]) => {
-              const displayGrade = /^\d+$/.test(g)
-                ? `Grade ${g}`
-                : g;
-
-              return `
-                    <span class="grade-chip">
-                        ${displayGrade}
-                        <span class="fee">${formatCurrency(f)}</span>
-                    </span>
-                `;
+              const displayGrade = /^\d+$/.test(g) ? `Grade ${g}` : g;
+              return `<span class="grade-chip">${displayGrade}<span class="fee">${formatCurrency(f)}</span></span>`;
             }).join('');
           } else {
             gradesHtml = '<span style="color:#6b7e93;">No grades set</span>';
           }
-
           card.innerHTML = `
-            <div class="term-card-header">
-                <span class="term-id">
-                    <i class="fas fa-tag" style="color:#2a7de1; margin-right:0.3rem;"></i>
-                    ${term.termId || '—'}
-                </span>
-                <span class="term-status ${statusClass}">
-                    ${term.status || '—'}
-                </span>
-            </div>
-
-            <div class="term-dates">
-                <span>
-                    <i class="fas fa-calendar-day"></i> ${startDate}
-                </span>
-                <span>
-                    <i class="fas fa-calendar-day"></i> ${endDate}
-                </span>
-            </div>
-
-            <div class="term-fees">
-                <div class="fee-item">
-                    <span class="label">Meal</span>
-                    <span class="value">${formatCurrency(term.meal)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Transport</span>
-                    <span class="value">${formatCurrency(term.transport)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Boarding</span>
-                    <span class="value">${formatCurrency(term.boarding)}</span>
-                </div>
-
-                <div class="fee-item">
-                    <span class="label">Break</span>
-                    <span class="value">${formatCurrency(term.breakFee)}</span>
-                </div>
-            </div>
-
-            <div class="term-grades">
-                <span class="label">Grade Fees</span>
-                <div class="grade-chips">
-                    ${gradesHtml}
-                </div>
-            </div>
-
-            <div class="term-actions-card">
-                <button class="btn btn-outline btn-sm edit-btn" data-index="${idx}">
-                    <i class="fas fa-pen"></i> Edit
-                </button>
-
-                <button class="btn btn-outline btn-sm delete-btn"
-                        data-index="${idx}"
-                        style="border-color:#fca5a5; color:#991b1b;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-
+        <div class="term-card-header">
+          <span class="term-id"><i class="fas fa-tag" style="color:#2a7de1; margin-right:0.3rem;"></i>${term.termId || '—'}</span>
+          <span class="term-status ${statusClass}">${term.status || '—'}</span>
+        </div>
+        <div class="term-dates">
+          <span><i class="fas fa-calendar-day"></i> ${startDate}</span>
+          <span><i class="fas fa-calendar-day"></i> ${endDate}</span>
+        </div>
+        <div class="term-fees">
+          <div class="fee-item"><span class="label">Meal</span><span class="value">${formatCurrency(term.meal)}</span></div>
+          <div class="fee-item"><span class="label">Transport</span><span class="value">${formatCurrency(term.transport)}</span></div>
+          <div class="fee-item"><span class="label">Boarding</span><span class="value">${formatCurrency(term.boarding)}</span></div>
+          <div class="fee-item"><span class="label">Break</span><span class="value">${formatCurrency(term.breakFee)}</span></div>
+        </div>
+        <div class="term-grades">
+          <span class="label">Grade Fees</span>
+          <div class="grade-chips">${gradesHtml}</div>
+        </div>
+        <div class="term-actions-card">
+          <button class="btn btn-outline btn-sm edit-btn" data-index="${idx}"><i class="fas fa-pen"></i> Edit</button>
+          <button class="btn btn-outline btn-sm delete-btn" data-index="${idx}" style="border-color:#fca5a5; color:#991b1b;"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      `;
           Termgrid.appendChild(card);
         });
-
         Termgrid.querySelectorAll('.edit-btn').forEach(btn => {
           btn.addEventListener('click', function () {
             const idx = parseInt(this.dataset.index);
             openModal(idx);
           });
         });
-
         Termgrid.querySelectorAll('.delete-btn').forEach(btn => {
           btn.addEventListener('click', function () {
             const idx = parseInt(this.dataset.index);
-
             if (confirm('Delete this term?')) {
               terms.splice(idx, 1);
               renderGrid();
             }
           });
         });
-
         updateStats();
       }
 
-      // ---------- UPDATE STATS ----------
       function updateStats() {
         totalTermsSpan.textContent = terms.length;
-
         let totalFees = 0;
         let gradeSet = new Set();
         terms.forEach(t => {
@@ -5386,83 +5071,54 @@
       }
 
       function getFeeForGrade(grade) {
-
         if (!grade) return "0.00";
-
         grade = String(grade).split('-')[0].trim();
-
-        const activeTerm = terms.find(term =>
-          String(term.status || '').trim().toLowerCase() === 'active'
-        );
-
+        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
         if (!activeTerm) {
           console.warn("No active term found. Loaded terms:", terms);
           return "0.00";
         }
-
-        if (
-          !activeTerm.grades ||
-          !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)
-        ) {
+        if (!activeTerm.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
           return "0.00";
         }
-
         const gradeFee = parseFloat(activeTerm.grades[grade]) || 0;
         const meal = parseFloat(activeTerm.meal) || 0;
         const transport = parseFloat(activeTerm.transport) || 0;
         const boarding = parseFloat(activeTerm.boarding) || 0;
         const breakFee = parseFloat(activeTerm.breakFee) || 0;
-
         return formatCurrency(gradeFee + meal + transport + boarding + breakFee);
       }
 
-      addBtn.addEventListener('click', () => openModal(-1));
-      closeBtn.addEventListener('click', closeModal);
-      cancelBtn.addEventListener('click', closeModal);
-      form.addEventListener('submit', saveTerm);
+      addBtn?.addEventListener('click', () => openModal(-1));
+      closeBtn?.addEventListener('click', closeModal);
+      cancelBtn?.addEventListener('click', closeModal);
+      form?.addEventListener('submit', saveTerm);
 
       // ============================================================
-      // GET CHECKED STUDENT + POPULATE FORM (Exposed to C#)
+      // STUDENT SELECTION FUNCTIONS
       // ============================================================
       window.getCheckedStudentAndPopulate = function () {
-
-        // Only check checkboxes inside #register_Tbl
-        const checked = document.querySelectorAll(
-          "#register_Tbl tbody .custom-checkbox:checked"
-        );
-
+        const checked = document.querySelectorAll("#register_Tbl tbody .custom-checkbox:checked");
         if (checked.length === 0) {
           alert("Please select a student first.");
           return null;
         }
-
         if (checked.length > 1) {
           alert("Select only one student.");
           return null;
         }
-
         const row = checked[0].closest("tr");
-
-        const admissionNumber = row
-          ?.querySelector(".student-id")
-          ?.textContent
-          .trim();
-
+        const admissionNumber = row?.querySelector(".student-id")?.textContent.trim();
         if (!admissionNumber) {
           alert("Admission number not found.");
           return null;
         }
-
         const s = studentsCache[admissionNumber];
-
         if (!s) {
           alert("Student data not found.");
           return null;
         }
-
-        const set = (id, val) =>
-          document.getElementById(id).value = val || "";
-
+        const set = (id, val) => document.getElementById(id).value = val || "";
         set("studentName", s.name);
         set("studentDOB", s.dob);
         set("studentReligion", s.religion);
@@ -5475,395 +5131,46 @@
         set("guardianAddress", s.address);
         set("admissionNumber", s.admissionNumber || admissionNumber);
         set("studentClass", s.class);
-
         document.getElementById("consentCheck").checked = !!s.consent;
-
         if (s.gender) {
-          const radio = document.querySelector(
-            `input[name="gender"][value="${s.gender}"]`
-          );
-
+          const radio = document.querySelector(`input[name="gender"][value="${s.gender}"]`);
           if (radio) radio.checked = true;
         }
-
         if (typeof window.openDialog === "function") {
-
           window.openDialog();
-
           const btn = document.getElementById("saveStudent");
           const auto = document.getElementById("autoGenerate");
-
           if (btn) btn.textContent = "Update";
           if (auto) auto.disabled = true;
         }
-
         return s;
       };
-      function getLastPayment(admission) {
-
-        if (!admission || !studentsCache) {
-          return {};
-        }
-
-        const student = studentsCache[admission];
-
-        if (!student) {
-          return {};
-        }
-
-        return student.lastPayment || {};
-      }
-
-      function getStudentExceptions(admissionNumber) {
-        if (!admissionNumber || !studentsCache) {
-          return {};
-        }
-
-        const student = studentsCache[admissionNumber];
-
-        if (!student) {
-          console.warn(`Student not found: ${admissionNumber}`);
-          return {};
-        }
-
-        return student.Exceptions || {};
-      }
-
-      function getCurrent(admission) {
-        if (!admission || !studentsCache) {
-          return "0.00";
-        }
-
-        const student = studentsCache[admission];
-
-        if (!student) {
-          return "0.00";
-        }
-
-        const gradeFee = getStudentRequiredFee(admission);
-
-        if (gradeFee === "Sponsored") {
-          return "Sponsored";
-        }
-
-        if (!student.lastPayment) {
-          return formatCurrency(gradeFee);
-        }
-
-        const balance = student.lastPayment.balance;
-        const last_balance =
-          parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
-
-        const activeTerm = getActiveTerm();
-
-        if (!activeTerm) {
-          return formatCurrency(last_balance);
-        }
-
-        if (student.lastPayment.term !== activeTerm) {
-          return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
-        }
-
-        return formatCurrency(last_balance);
-      }
-
-      function getActiveTerm() {
-        const activeTerm = terms.find(term =>
-          String(term.status || '').trim().toLowerCase() === 'active'
-        );
-
-        return activeTerm ? activeTerm.termId : null;
-      }
-
-      function getStudentExceptionAmount(admissionNumber) {
-        if (!admissionNumber) return "0.00";
-
-        const exceptions = getStudentExceptions(admissionNumber) || {};
-        const activeTerm = terms.find(term =>
-          String(term.status || '').trim().toLowerCase() === 'active'
-        );
-
-        if (!activeTerm) {
-          console.warn("No active term found.");
-          return "0.00";
-        }
-
-        const fees = {
-          meal: parseFloat(activeTerm.meal) || 0,
-          boarding: parseFloat(activeTerm.boarding) || 0,
-          break: parseFloat(activeTerm.breakFee) || 0
-        };
-
-        if (exceptions.Sponsored) return formatCurrency(fees.meal + fees.boarding + fees.break);
-        if (exceptions.Boarding) return formatCurrency(fees.boarding);
-        if (exceptions.meals) return formatCurrency(fees.meal);
-        if (exceptions.Break) return formatCurrency(fees.break);
-
-        return "0.00";
-      }
-
-      function getStudentGrade(admission) {
-
-        if (!admission || !studentsCache) {
-          return '';
-        }
-
-        const student = studentsCache[admission];
-
-        if (!student) {
-          return '';
-        }
-
-        return String(student.class || '').split('-')[0].trim();
-      }
-
-      function getStudentRequiredFee(admissionNumber) {
-        if (!admissionNumber || !studentsCache) return "0.00";
-
-        const student = studentsCache[admissionNumber];
-        if (!student?.class) return "0.00";
-
-        const grade = String(student.class).split('-')[0].trim();
-        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
-
-        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
-
-        const fees = {
-          grade: parseFloat(activeTerm.grades[grade]) || 0,
-          meal: parseFloat(activeTerm.meal) || 0,
-          transport: parseFloat(activeTerm.transport) || 0,
-          boarding: parseFloat(activeTerm.boarding) || 0,
-          break: parseFloat(activeTerm.breakFee) || 0
-        };
-
-        if (/[789]/.test(grade)) {
-          fees.boarding = Math.max(0, fees.boarding - 2000);
-        }
-
-        const ex = student.Exceptions || {};
-
-        if (ex.Sponsored === true) return "Sponsored";
-
-        let requiredFee = fees.grade;
-
-        if (ex.Boarding === true) {
-          return formatCurrency(requiredFee + fees.boarding);
-        }
-
-        requiredFee += fees.transport;
-        if (ex.meals === true) requiredFee += fees.meal;
-        if (ex.Break === true) requiredFee += fees.break;
-
-        return formatCurrency(requiredFee);
-      }
-
-      function studentExceptions(admissionNumber) {
-        if (!admissionNumber || !studentsCache) return "0.00";
-
-        const student = studentsCache[admissionNumber];
-        if (!student?.class) return "0.00";
-
-        const grade = String(student.class).split('-')[0].trim();
-        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
-
-        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
-
-        const fees = {
-          meal: parseFloat(activeTerm.meal) || 0,
-          transport: parseFloat(activeTerm.transport) || 0,
-          boarding: parseFloat(activeTerm.boarding) || 0,
-          break: parseFloat(activeTerm.breakFee) || 0
-        };
-
-        const isSeniorGrade = /[789]/.test(grade);
-
-        if (isSeniorGrade) {
-          fees.boarding = Math.max(0, fees.boarding - 2000);
-        }
-
-        const ex = student.Exceptions || {};
-
-        if (ex.Sponsored === true) return "Sponsored";
-
-        if (ex.Boarding === true) return "0.00";
-
-        let falseExceptionsSum = 0;
-
-        if (isSeniorGrade) falseExceptionsSum += fees.boarding;
-        if (ex.meals !== true) falseExceptionsSum += fees.meal;
-        if (ex.Break !== true) falseExceptionsSum += fees.break;
-        if (ex.Sponsored !== true) falseExceptionsSum += fees.transport;
-
-        return formatCurrency(falseExceptionsSum);
-      }
-
-      function getInstallmentsForStudent(admissionNumber) {
-        const activeTerm = getActiveTerm();
-        let totalInstallments = 0;
-
-        const normalizedAdmissionNumber = admissionNumber.replace(/-/g, "/");
-
-        if (!paymentCache || typeof paymentCache !== 'object') {
-          console.warn("Payment cache is empty or invalid");
-          return "0.00";
-        }
-
-        Object.values(paymentCache).forEach(payment => {
-          const paymentAdmissionNumber = payment.admissionNumber ?
-            payment.admissionNumber.replace(/-/g, "/") : "";
-
-          if (paymentAdmissionNumber === normalizedAdmissionNumber &&
-            payment.term === activeTerm) {
-
-            // Fix: Remove commas before parsing
-            let paymentAmount = 0;
-            if (typeof payment.amount === 'string') {
-              paymentAmount = parseFloat(payment.amount.replace(/,/g, '')) || 0;
-            } else {
-              paymentAmount = parseFloat(payment.amount) || 0;
-            }
-
-            totalInstallments += paymentAmount;
-          }
-        });
-
-        return formatCurrency(totalInstallments);
-      }
-
-      function getBalanceBefore(admissionNumber) {
-        const normalizedAdmission = admissionNumber.replace(/-/g, "/");
-        const activeTerm = getActiveTerm();
-        let lastBalance = 0;
-
-        Object.values(paymentCache || {}).forEach(payment => {
-          if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission &&
-            payment.term !== activeTerm) {
-
-            // Fix: Remove commas before parsing
-            if (typeof payment.balance === 'string') {
-              lastBalance = parseFloat(payment.balance.replace(/,/g, '')) || 0;
-            } else {
-              lastBalance = Number(payment.balance) || 0;
-            }
-          }
-        });
-
-        return formatCurrency(lastBalance);
-      }
-
-      // ============================================================
-      // GET NEXT ADMISSION NUMBER
-      // ============================================================
-      function getNextAdmissionNumber() {
-
-        const prefix = "RS";
-        const year = new Date().getFullYear();
-
-        let highestNumber = 0;
-
-        if (studentsCache && typeof studentsCache === "object") {
-
-          Object.keys(studentsCache).forEach(admissionNumber => {
-
-            const parts = String(admissionNumber).split("-");
-
-            if (parts.length !== 3) return;
-
-            const admissionPrefix = parts[0];
-            const admissionYear = parts[1];
-            const admissionNumber1 = parseInt(parts[2], 10);
-
-            if (
-              admissionPrefix === prefix &&
-              admissionYear === String(year) &&
-              !isNaN(admissionNumber1)
-            ) {
-              highestNumber = Math.max(
-                highestNumber,
-                admissionNumber1
-              );
-            }
-
-          });
-        }
-
-        const nextNumber = highestNumber + 1;
-
-        return `${prefix}-${year}-${nextNumber}`;
-      }
-
-      // ============================================================
-      // AUTO-GENERATE ADMISSION NUMBER
-      // ============================================================
-      document.getElementById('autoGenerate').addEventListener('change', function () {
-
-        const admissionInput = document.getElementById('admissionNumber');
-        const year = new Date().getFullYear();
-        if (this.checked) {
-
-          admissionInput.value = getNextAdmissionNumber();
-          admissionInput.disabled = true;
-
-        } else {
-
-          admissionInput.value = `RS-${year}-`;
-          admissionInput.disabled = false;
-          admissionInput.focus();
-        }
-      });
 
       window.getCheckedStudentAndPopulateFee = function () {
-
-        const checked = document.querySelectorAll(
-          "#FeeBalanceList tbody .custom-checkbox:checked"
-        );
-
+        const checked = document.querySelectorAll("#FeeBalanceList tbody .custom-checkbox:checked");
         if (checked.length > 1) {
           alert("Select only one student.");
           return null;
         }
-
         if (checked.length === 0) {
-
-          if (typeof window.openDialog2 === "function") {
-            window.openDialog2();
-          }
-
+          if (typeof window.openDialog2 === "function") window.openDialog2();
           return null;
         }
-
         const row = checked[0].closest("tr");
-
-        const admissionNumber = row
-          ?.querySelector(".student-id")
-          ?.textContent
-          .trim();
-
+        const admissionNumber = row?.querySelector(".student-id")?.textContent.trim();
         if (!admissionNumber) {
-
-          if (typeof window.openDialog2 === "function") {
-            window.openDialog2();
-          }
-
+          if (typeof window.openDialog2 === "function") window.openDialog2();
           return null;
         }
-
         const s = studentsCache?.[admissionNumber];
-
         if (!s) {
-
-          if (typeof window.openDialog2 === "function") {
-            window.openDialog2();
-          }
-
+          if (typeof window.openDialog2 === "function") window.openDialog2();
           return null;
         }
-
         const set = (id, val) => {
           const el = document.getElementById(id);
           if (el) el.textContent = val ?? "";
         };
-
         set("Fn_Name", s.name);
         set("Fn_Grade", s.class);
         set("Fn_Admn", s.admissionNumber || admissionNumber);
@@ -5871,191 +5178,19 @@
         set("Fn_CurrentBalance", getCurrent(admissionNumber));
         set("Fn_studentExceptions", studentExceptions(admissionNumber));
         set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-
-        populateFeePaymentHistory(
-          paymentCache,
-          admissionNumber
-        );
-
-        if (typeof window.openDialog2 === "function") {
-          window.openDialog2(admissionNumber);
-        }
-
+        populateFeePaymentHistory(paymentCache, admissionNumber);
+        if (typeof window.openDialog2 === "function") window.openDialog2(admissionNumber);
         return s;
       };
 
-      // ----- Double-click student row to open edit dialog -----
-      document.getElementById('FeeBalanceList')?.addEventListener('dblclick', function (e) {
-
-        const row = e.target.closest('tbody tr');
-
-        if (!row || e.target.closest('.col-check')) return;
-
-        const admissionNumber =
-          row.querySelector('.student-id')?.textContent.trim();
-
-        selectStudentForFee(admissionNumber);
-      });
-
-      document.getElementById('FeeBalanceList')?.addEventListener('click', function (e) {
-
-        const row = e.target.closest('tbody tr');
-
-        if (!row || e.target.closest('.col-check')) return;
-
-        const admissionNumber = row
-          .querySelector('.student-id')
-          ?.textContent
-          .trim();
-
-        if (!admissionNumber) {
-          return alert("Admission number not found.");
-        }
-
-        const exceptions = getStudentExceptions(admissionNumber);
-
-        console.log("Admission Number:", admissionNumber);
-        console.log("Student Exceptions:", exceptions);
-
-        /*
-        alert(
-          `Admission Number: ${admissionNumber}\n\n` +
-          `Boarding: ${exceptions.Boarding}\n` +
-          `Break: ${exceptions.Break}\n` +
-          `Sponsored: ${exceptions.Sponsored}\n` +
-          `Meals: ${exceptions.meals}`
-        );
-        
-  
-  
-        const values = {
-          admissionNumber: "RS/2026/001",
-          studentName: "John Doe",
-          amount: 5000,
-          term: "Term 1"
-        };
-  
-        window.chrome.webview.postMessage(values);
-        */
-      });
-
-      function setupStudentSearch() {
-        const searchInput = document.getElementById("Searchtext");
-
-        if (!searchInput) return;
-
-        const suggestionBox = document.createElement("div");
-
-        suggestionBox.style.cssText = `
-        position: absolute;
-        background: white;
-        width: 250px;
-        max-height: 250px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        z-index: 9999;
-        display: none;
-        font-size: 12px;
-    `;
-
-        document.body.appendChild(suggestionBox);
-
-        searchInput.addEventListener("input", function () {
-
-          const searchText = this.value.trim().toLowerCase();
-
-          suggestionBox.innerHTML = "";
-
-          if (!searchText || !studentsCache) {
-            suggestionBox.style.display = "none";
-            return;
-          }
-
-          const matches = Object.entries(studentsCache)
-            .filter(([key, student]) => {
-              const name = String(student.name || "").toLowerCase();
-              return name.includes(searchText);
-            })
-            .slice(0, 10);
-
-          if (matches.length === 0) {
-            suggestionBox.style.display = "none";
-            return;
-          }
-
-          matches.forEach(([key, student]) => {
-
-            const item = document.createElement("div");
-
-            item.textContent = student.name || "Unknown Student";
-
-            item.style.cssText = `
-                padding: 8px;
-                cursor: pointer;
-                border-bottom: 1px solid #eee;
-            `;
-
-            item.addEventListener("mouseenter", () => {
-              item.style.background = "#f1f1f1";
-            });
-
-            item.addEventListener("mouseleave", () => {
-              item.style.background = "white";
-            });
-
-            item.addEventListener("click", () => {
-
-              const admissionNumber =
-                student.admissionNumber || key;
-
-              searchInput.value = student.name || "";
-
-              suggestionBox.style.display = "none";
-
-              selectStudentForFee(admissionNumber.replace(/\//g, "-"));
-            });
-
-            suggestionBox.appendChild(item);
-          });
-
-          const rect = searchInput.getBoundingClientRect();
-
-          suggestionBox.style.left =
-            `${rect.left + window.scrollX}px`;
-
-          suggestionBox.style.top =
-            `${rect.bottom + window.scrollY}px`;
-
-          suggestionBox.style.width =
-            `${rect.width}px`;
-
-          suggestionBox.style.display = "block";
-        });
-
-        document.addEventListener("click", function (e) {
-          if (
-            e.target !== searchInput &&
-            !suggestionBox.contains(e.target)
-          ) {
-            suggestionBox.style.display = "none";
-          }
-        });
-      }
-
       function selectStudentForFee(admissionNumber) {
         if (!admissionNumber) return alert("Admission number not found.");
-
         const s = studentsCache[admissionNumber];
         if (!s) return alert("Student not found.");
-
         const set = (id, val) => {
           const el = document.getElementById(id);
           if (el) el.textContent = val || "";
         };
-
-        const payment = getLastPayment(s.admissionNumber);
-
         set("Fn_Name", s.name);
         set("Fn_Grade", s.class);
         set("Fn_Admn", s.admissionNumber);
@@ -6063,187 +5198,188 @@
         set("Fn_CurrentBalance", getCurrent(admissionNumber));
         set("Fn_studentExceptions", studentExceptions(admissionNumber));
         set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-
         populateFeePaymentHistory(paymentCache, s.admissionNumber);
-
         window.openDialog2(admissionNumber);
       }
 
-      // Call after studentsCache has been populated
+      // ============================================================
+      // AUTO-GENERATE ADMISSION NUMBER
+      // ============================================================
+      document.getElementById('autoGenerate')?.addEventListener('change', function () {
+        const admissionInput = document.getElementById('admissionNumber');
+        const year = new Date().getFullYear();
+        if (this.checked) {
+          admissionInput.value = getNextAdmissionNumber();
+          admissionInput.disabled = true;
+        } else {
+          admissionInput.value = `RS-${year}-`;
+          admissionInput.disabled = false;
+          admissionInput.focus();
+        }
+      });
+
+      // ============================================================
+      // CLICKABLE NAMES
+      // ============================================================
+      document.querySelectorAll('.clickable-name').forEach(nameEl => {
+        nameEl.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openDialog2();
+          var S_name = document.getElementById('editStudentName').value;
+          alert("My name is" + S_name);
+        });
+      });
+
+      // ============================================================
+      // SEARCH FUNCTIONALITY
+      // ============================================================
+      function setupStudentSearch() {
+        const searchInput = document.getElementById("Searchtext");
+        if (!searchInput) return;
+        const suggestionBox = document.createElement("div");
+        suggestionBox.style.cssText = `
+      position: absolute;
+      background: white;
+      width: 250px;
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      z-index: 9999;
+      display: none;
+      font-size: 12px;
+    `;
+        document.body.appendChild(suggestionBox);
+        searchInput.addEventListener("input", function () {
+          const searchText = this.value.trim().toLowerCase();
+          suggestionBox.innerHTML = "";
+          if (!searchText || !studentsCache) {
+            suggestionBox.style.display = "none";
+            return;
+          }
+          const matches = Object.entries(studentsCache)
+            .filter(([key, student]) => {
+              const name = String(student.name || "").toLowerCase();
+              return name.includes(searchText);
+            })
+            .slice(0, 10);
+          if (matches.length === 0) {
+            suggestionBox.style.display = "none";
+            return;
+          }
+          matches.forEach(([key, student]) => {
+            const item = document.createElement("div");
+            item.textContent = student.name || "Unknown Student";
+            item.style.cssText = `
+          padding: 8px;
+          cursor: pointer;
+          border-bottom: 1px solid #eee;
+        `;
+            item.addEventListener("mouseenter", () => { item.style.background = "#f1f1f1"; });
+            item.addEventListener("mouseleave", () => { item.style.background = "white"; });
+            item.addEventListener("click", () => {
+              const admissionNumber = student.admissionNumber || key;
+              searchInput.value = student.name || "";
+              suggestionBox.style.display = "none";
+              selectStudentForFee(admissionNumber.replace(/\//g, "-"));
+            });
+            suggestionBox.appendChild(item);
+          });
+          const rect = searchInput.getBoundingClientRect();
+          suggestionBox.style.left = `${rect.left + window.scrollX}px`;
+          suggestionBox.style.top = `${rect.bottom + window.scrollY}px`;
+          suggestionBox.style.width = `${rect.width}px`;
+          suggestionBox.style.display = "block";
+        });
+        document.addEventListener("click", function (e) {
+          if (e.target !== searchInput && !suggestionBox.contains(e.target)) {
+            suggestionBox.style.display = "none";
+          }
+        });
+      }
+
       setupStudentSearch();
 
+      // ============================================================
+      // PAYMENT SELECTION
+      // ============================================================
       let selectedPaymentKey = null;
 
-
-      // ==========================================
-      // SELECT PAYMENT ROW
-      // ==========================================
-      document.querySelector('#feepaymentHistory tbody')
-        ?.addEventListener('click', function (e) {
-
-          const row = e.target.closest('tr');
-
-          if (!row || !row.dataset.key) return;
-
-          // Remove selection from all rows
-          document.querySelectorAll('#feepaymentHistory tbody tr')
-            .forEach(r => r.classList.remove('selected-row'));
-
-          // Highlight selected row
-          row.classList.add('selected-row');
-
-          // Store Firebase key
-          selectedPaymentKey = row.dataset.key;
-
-          console.log("Selected Payment Key:", selectedPaymentKey);
-        });
+      document.querySelector('#feepaymentHistory tbody')?.addEventListener('click', function (e) {
+        const row = e.target.closest('tr');
+        if (!row || !row.dataset.key) return;
+        document.querySelectorAll('#feepaymentHistory tbody tr').forEach(r => r.classList.remove('selected-row'));
+        row.classList.add('selected-row');
+        selectedPaymentKey = row.dataset.key;
+        console.log("Selected Payment Key:", selectedPaymentKey);
+      });
 
       // ============================================================
-      // DELETE SELECTED STUDENTS + RELATED PAYMENTS
+      // DELETE STUDENTS
       // ============================================================
-
       async function deleteSelectedStudents() {
-
-        const checked = document.querySelectorAll(
-          "#register_Tbl tbody .custom-checkbox:checked"
-        );
-
+        const checked = document.querySelectorAll("#register_Tbl tbody .custom-checkbox:checked");
         if (checked.length === 0) {
           alert("Please select at least one student.");
           return;
         }
-
         const studentsToDelete = Array.from(checked)
           .map(checkbox => {
-
             const row = checkbox.closest("tr");
-
-            const admissionNumber = row
-              ?.querySelector(".student-id")
-              ?.textContent
-              .trim();
-
-            return {
-              admissionNumber,
-              key: admissionNumber?.replace(/\//g, "-")
-            };
+            const admissionNumber = row?.querySelector(".student-id")?.textContent.trim();
+            return { admissionNumber, key: admissionNumber?.replace(/\//g, "-") };
           })
           .filter(student => student.admissionNumber);
-
         if (!studentsToDelete.length) {
           alert("No valid students selected.");
           return;
         }
-
         const confirmed = confirm(
           `Are you sure you want to delete ${studentsToDelete.length} student(s)?\n\n` +
-          studentsToDelete
-            .map(s => s.admissionNumber)
-            .join("\n")
+          studentsToDelete.map(s => s.admissionNumber).join("\n")
         );
-
         if (!confirmed) return;
-
         try {
-
-          // Get all fee payments once
-          const paymentsSnapshot = await get(
-            ref(db, "Institution/ Revival/Fee_payment/")
-          );
-
-          const payments = paymentsSnapshot.exists()
-            ? paymentsSnapshot.val()
-            : {};
-
-          // Prepare one Firebase update operation
+          const paymentsSnapshot = await get(ref(db, "Institution/ Revival/Fee_payment/"));
+          const payments = paymentsSnapshot.exists() ? paymentsSnapshot.val() : {};
           const updates = {};
-
           studentsToDelete.forEach(student => {
-
-            // --------------------------------------------
-            // DELETE STUDENT
-            // --------------------------------------------
-            updates[
-              `Institution/ Revival/Students/${student.key}`
-            ] = null;
-
-
-            // --------------------------------------------
-            // DELETE ALL RELATED PAYMENTS
-            // --------------------------------------------
-            Object.entries(payments).forEach(
-              ([paymentKey, payment]) => {
-
-                if (
-                  String(payment.admissionNumber || "").trim() ===
-                  String(student.admissionNumber).trim()
-                ) {
-
-                  updates[
-                    `Institution/ Revival/Fee_payment/${paymentKey}`
-                  ] = null;
-                }
+            updates[`Institution/ Revival/Students/${student.key}`] = null;
+            Object.entries(payments).forEach(([paymentKey, payment]) => {
+              if (String(payment.admissionNumber || "").trim() === String(student.admissionNumber).trim()) {
+                updates[`Institution/ Revival/Fee_payment/${paymentKey}`] = null;
               }
-            );
+            });
           });
-
-          // Delete students and payments in one operation
           await update(ref(db), updates);
-
-          const paymentCount = Object.keys(updates)
-            .filter(path =>
-              path.startsWith("Institution/ Revival/Fee_payment/")
-            )
-            .length;
-
-          alert(
-            `${studentsToDelete.length} student(s) deleted successfully.\n` +
-            `${paymentCount} related payment(s) deleted successfully.`
-          );
-
+          const paymentCount = Object.keys(updates).filter(path => path.startsWith("Institution/ Revival/Fee_payment/")).length;
+          alert(`${studentsToDelete.length} student(s) deleted successfully.\n${paymentCount} related payment(s) deleted successfully.`);
         } catch (error) {
-
           console.error("Delete error:", error);
-
-          alert(
-            "Failed to delete selected students:\n" +
-            error.message
-          );
+          alert("Failed to delete selected students:\n" + error.message);
         }
       }
 
-
-      // ==========================================
-      // CTRL + F + P
-      // ==========================================
+      // ============================================================
+      // KEYBOARD SHORTCUTS
+      // ============================================================
       document.addEventListener('keydown', function (e) {
-
         if (e.ctrlKey && e.key.toLowerCase() === 'p') {
-
           e.preventDefault();
-
           if (!selectedPaymentKey) {
             alert("Please select a payment first.");
             return;
           }
-
-          // Get selected payment directly from Firebase cache
           const paymentData = paymentCache[selectedPaymentKey];
-
           if (!paymentData) {
             alert("Selected payment data not found.");
             return;
           }
-
           const admissionNumber = paymentData.admissionNumber;
-
           window.chrome.webview.postMessage({
             action: "PRINT_RECEIPT",
             DateandTime: paymentData.entryDate,
-            studentName:
-              document.getElementById("Fn_Name")
-                ?.textContent
-                .trim() || '',
+            studentName: document.getElementById("Fn_Name")?.textContent.trim() || '',
             Class_Grade: paymentData.class,
             term: paymentData.term || getActiveTerm(),
             Admission_No: admissionNumber,
@@ -6254,1938 +5390,503 @@
             TransactionRef: paymentData.paymentRef,
             Account: paymentData.Account,
             Qr_Key: selectedPaymentKey
-
           });
         }
       });
 
-      // ============================================================
-      // S + DELETE SHORTCUT
-      // ============================================================
-
       let sPressed = false;
 
       document.addEventListener("keydown", async function (e) {
-
-        // Track S key
         if (e.key.toLowerCase() === "s") {
           sPressed = true;
         }
-
-        // Delete while S is held
         if (sPressed && e.key === "Delete") {
-
           e.preventDefault();
-
           await deleteSelectedStudents();
         }
       });
 
       document.addEventListener("keyup", function (e) {
-
         if (e.key.toLowerCase() === "s") {
           sPressed = false;
         }
       });
 
-
-
       // ============================================================
-      // REGISTER TABLE CONTEXT MENU
+      // CONTEXT MENU - REGISTER TABLE
       // ============================================================
-
-      const registerTable =
-        document.getElementById("register_Tbl");
-
-      const registerContextMenu =
-        document.getElementById("registerContextMenu");
-
-      const menuMeal =
-        document.getElementById("menuMeal");
-
-      const menuBoarding =
-        document.getElementById("menuBoarding");
-
-      const menuSponsored =
-        document.getElementById("menuSponsored");
-
-
-      // ============================================================
-      // STATE
-      // ============================================================
+      const registerTable = document.getElementById("register_Tbl");
+      const registerContextMenu = document.getElementById("registerContextMenu");
+      const menuMeal = document.getElementById("menuMeal");
+      const menuBoarding = document.getElementById("menuBoarding");
+      const menuSponsored = document.getElementById("menuSponsored");
 
       let contextAdmissionNumber = null;
       let contextSelectedRow = null;
-
-      // Survives table re-rendering
       let selectedAdmissionNumber = null;
-
-      // Used when this code itself scrolls the page
       let isAutoScrolling = false;
 
-
-      // ============================================================
-      // SELECT REGISTER ROW
-      // ============================================================
-
       function selectRegisterRow(row) {
-
         if (!row) return;
-
-
-        // Remove previous selection
-        document
-          .querySelectorAll(
-            "#register_Tbl tbody tr.row-selected"
-          )
-          .forEach(r => {
-
-            if (r !== row) {
-              r.classList.remove("row-selected");
-            }
-
-          });
-
-
-        // Select current row
+        document.querySelectorAll("#register_Tbl tbody tr.row-selected").forEach(r => {
+          if (r !== row) r.classList.remove("row-selected");
+        });
         row.classList.add("row-selected");
-
-
-        // Save row reference
         contextSelectedRow = row;
-
-
-        // Get admission number
-        const admissionNumber =
-          row.querySelector(".student-id")
-            ?.textContent
-            .trim();
-
-
+        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
         if (admissionNumber) {
-
-          contextAdmissionNumber =
-            admissionNumber;
-
-          selectedAdmissionNumber =
-            admissionNumber;
+          contextAdmissionNumber = admissionNumber;
+          selectedAdmissionNumber = admissionNumber;
         }
       }
-
-
-      // ============================================================
-      // RESTORE SELECTED ROW
-      // Useful when Firebase/table re-renders
-      // ============================================================
 
       function restoreSelectedRegisterRow() {
-
-        if (!selectedAdmissionNumber) {
-          return;
-        }
-
-
-        const rows =
-          document.querySelectorAll(
-            "#register_Tbl tbody tr"
-          );
-
-
+        if (!selectedAdmissionNumber) return;
+        const rows = document.querySelectorAll("#register_Tbl tbody tr");
         let foundRow = null;
-
-
         rows.forEach(row => {
-
-          const admissionNumber =
-            row.querySelector(".student-id")
-              ?.textContent
-              .trim();
-
-
-          if (
-            admissionNumber ===
-            selectedAdmissionNumber
-          ) {
-
-            row.classList.add(
-              "row-selected"
-            );
-
+          const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
+          if (admissionNumber === selectedAdmissionNumber) {
+            row.classList.add("row-selected");
             foundRow = row;
-
           } else {
-
-            row.classList.remove(
-              "row-selected"
-            );
-
+            row.classList.remove("row-selected");
           }
-
         });
-
-
-        // Update DOM reference
         if (foundRow) {
-
-          contextSelectedRow =
-            foundRow;
-
-          contextAdmissionNumber =
-            selectedAdmissionNumber;
+          contextSelectedRow = foundRow;
+          contextAdmissionNumber = selectedAdmissionNumber;
         }
       }
-
-
-      // ============================================================
-      // CLOSE CONTEXT MENU
-      // IMPORTANT:
-      // DOES NOT UNSELECT ROW
-      // DOES NOT CLEAR ADMISSION NUMBER
-      // ============================================================
 
       function closeRegisterContextMenu() {
-
-        if (!registerContextMenu) {
-          return;
-        }
-
-
-        registerContextMenu.style.display =
-          "none";
-
-        registerContextMenu.style.visibility =
-          "hidden";
+        if (!registerContextMenu) return;
+        registerContextMenu.style.display = "none";
+        registerContextMenu.style.visibility = "hidden";
       }
-
-
-      // ============================================================
-      // POSITION MENU BELOW STATUS BADGE
-      // ============================================================
 
       function positionRegisterContextMenu() {
-
-        if (
-          !registerContextMenu ||
-          !contextSelectedRow
-        ) {
-          return;
-        }
-
-
-        // IMPORTANT:
-        // Get the actual status badge,
-        // not the entire status cell.
-        const statusBadge =
-          contextSelectedRow.querySelector(
-            ".col-status .status-badge"
-          );
-
-
-        if (!statusBadge) {
-          return;
-        }
-
-
-        // Get current viewport position
-        const rect =
-          statusBadge.getBoundingClientRect();
-
-
-        const menuWidth =
-          registerContextMenu.offsetWidth || 180;
-
-        const menuHeight =
-          registerContextMenu.offsetHeight || 120;
-
-
-        // ==========================================================
-        // MENU POSITION
-        // ==========================================================
-
-        // Move slightly LEFT of the badge
-        let left =
-          rect.left - 70;
-
-
-        // Put menu directly below badge
-        let top =
-          rect.bottom + 5;
-
-
-        // ==========================================================
-        // KEEP INSIDE LEFT EDGE
-        // ==========================================================
-
-        if (left < 5) {
-
-          left = 5;
-
-        }
-
-
-        // ==========================================================
-        // KEEP INSIDE RIGHT EDGE
-        // ==========================================================
-
-        if (
-          left + menuWidth >
-          window.innerWidth - 5
-        ) {
-
-          left =
-            window.innerWidth -
-            menuWidth -
-            5;
-        }
-
-
-        // ==========================================================
-        // IF NOT ENOUGH SPACE BELOW
-        // PUT ABOVE BADGE
-        // ==========================================================
-
-        if (
-          top + menuHeight >
-          window.innerHeight - 5
-        ) {
-
-          top =
-            rect.top -
-            menuHeight -
-            5;
-        }
-
-
-        // ==========================================================
-        // APPLY FIXED POSITION
-        // ==========================================================
-
-        registerContextMenu.style.position =
-          "fixed";
-
-        registerContextMenu.style.left =
-          `${left}px`;
-
-        registerContextMenu.style.top =
-          `${top}px`;
-
-        registerContextMenu.style.zIndex =
-          "999999";
+        if (!registerContextMenu || !contextSelectedRow) return;
+        const statusBadge = contextSelectedRow.querySelector(".col-status .status-badge");
+        if (!statusBadge) return;
+        const rect = statusBadge.getBoundingClientRect();
+        const menuWidth = registerContextMenu.offsetWidth || 180;
+        const menuHeight = registerContextMenu.offsetHeight || 120;
+        let left = rect.left - 70;
+        let top = rect.bottom + 5;
+        if (left < 5) left = 5;
+        if (left + menuWidth > window.innerWidth - 5) left = window.innerWidth - menuWidth - 5;
+        if (top + menuHeight > window.innerHeight - 5) top = rect.top - menuHeight - 5;
+        registerContextMenu.style.position = "fixed";
+        registerContextMenu.style.left = `${left}px`;
+        registerContextMenu.style.top = `${top}px`;
+        registerContextMenu.style.zIndex = "999999";
       }
 
-
-      // ============================================================
-      // LEFT CLICK ON REGISTER TABLE
-      // ============================================================
-
-      registerTable?.addEventListener(
-        "click",
-        function (e) {
-
-          const row =
-            e.target.closest(
-              "tbody tr"
-            );
-
-
-          if (!row) {
-            return;
-          }
-
-
-          // ========================================================
-          // CHECKBOX CLICK
-          // ========================================================
-
-          if (
-            e.target.matches(
-              "input.custom-checkbox"
-            )
-          ) {
-
-            // Select row
-            selectRegisterRow(row);
-
-
-            // Hide context menu
-            closeRegisterContextMenu();
-
-
-            // Make absolutely sure row stays selected
-            row.classList.add(
-              "row-selected"
-            );
-
-
-            return;
-          }
-
-
-          // ========================================================
-          // NORMAL ROW CLICK
-          // ========================================================
-
+      registerTable?.addEventListener("click", function (e) {
+        const row = e.target.closest("tbody tr");
+        if (!row) return;
+        if (e.target.matches("input.custom-checkbox")) {
           selectRegisterRow(row);
-
           closeRegisterContextMenu();
-
-        }
-      );
-
-
-      // ============================================================
-      // RIGHT CLICK ON REGISTER TABLE
-      // ============================================================
-
-      registerTable?.addEventListener(
-        "contextmenu",
-        function (e) {
-
-          const row =
-            e.target.closest(
-              "tbody tr"
-            );
-
-
-          if (
-            !row ||
-            !registerContextMenu
-          ) {
-            return;
-          }
-
-
-          e.preventDefault();
-
-
-          // ========================================================
-          // SELECT NEW ROW
-          // ========================================================
-
-          selectRegisterRow(row);
-
-
-          if (!contextAdmissionNumber) {
-
-            console.warn(
-              "Admission number not found."
-            );
-
-            return;
-          }
-
-
-          // ========================================================
-          // GET STUDENT
-          // ========================================================
-
-          const student =
-            studentsCache[
-            contextAdmissionNumber
-            ];
-
-
-          if (!student) {
-
-            console.warn(
-              "Student not found:",
-              contextAdmissionNumber
-            );
-
-            return;
-          }
-
-
-          // ========================================================
-          // GET EXCEPTIONS
-          // ========================================================
-
-          const exceptions =
-            student.Exceptions || {};
-
-
-          // ========================================================
-          // SET CHECKBOXES
-          // ========================================================
-
-          menuMeal.checked =
-            exceptions.Meal === true;
-
-          menuBoarding.checked =
-            exceptions.Boarding === true;
-
-          menuSponsored.checked =
-            exceptions.Sponsored === true;
-
-
-          // ========================================================
-          // BOARDING DISABLES MEAL
-          // ========================================================
-
-          if (
-            menuBoarding.checked
-          ) {
-
-            menuMeal.checked = false;
-
-            menuMeal.disabled = true;
-
-          } else {
-
-            menuMeal.disabled = false;
-
-          }
-
-
-          // ========================================================
-          // SHOW MENU
-          // ========================================================
-
-          registerContextMenu.style.position =
-            "fixed";
-
-          registerContextMenu.style.display =
-            "block";
-
-          registerContextMenu.style.visibility =
-            "hidden";
-
-
-          // Force browser to calculate size
-          registerContextMenu.offsetWidth;
-
-
-          // ========================================================
-          // GET STATUS BADGE
-          // ========================================================
-
-          const statusBadge =
-            row.querySelector(
-              ".col-status .status-badge"
-            );
-
-
-          if (!statusBadge) {
-
-            registerContextMenu.style.display =
-              "none";
-
-            return;
-          }
-
-
-          // ========================================================
-          // CHECK SPACE BELOW BADGE
-          // ========================================================
-
-          const rect =
-            statusBadge.getBoundingClientRect();
-
-
-          const menuHeight =
-            registerContextMenu.offsetHeight ||
-            120;
-
-
-          const padding = 15;
-
-
-          const spaceBelow =
-            window.innerHeight -
-            rect.bottom;
-
-
-          // ========================================================
-          // AUTO SCROLL IF MENU DOES NOT FIT
-          // ========================================================
-
-          if (
-            spaceBelow <
-            menuHeight + padding
-          ) {
-
-            const scrollAmount =
-              (menuHeight + padding) -
-              spaceBelow;
-
-
-            // Tell scroll listener this is
-            // our own automatic scrolling
-            isAutoScrolling = true;
-
-
-            registerContextMenu.style.visibility =
-              "visible";
-
-
-            window.scrollBy({
-
-              top: scrollAmount,
-
-              behavior: "smooth"
-
-            });
-
-
-            // Wait for smooth scroll
-            setTimeout(() => {
-
-              isAutoScrolling = false;
-
-
-              // Restore selected row
-              restoreSelectedRegisterRow();
-
-
-              // Reposition menu
-              positionRegisterContextMenu();
-
-
-              registerContextMenu.style.visibility =
-                "visible";
-
-            }, 450);
-
-          } else {
-
-            // Enough space
-            positionRegisterContextMenu();
-
-
-            registerContextMenu.style.visibility =
-              "visible";
-          }
-
-        }
-      );
-
-
-      // ============================================================
-      // PREVENT MENU CLICK FROM CLOSING / UNSELECTING
-      // ============================================================
-
-      registerContextMenu?.addEventListener(
-        "click",
-        function (e) {
-
-          e.stopPropagation();
-
-        }
-      );
-
-
-      // ============================================================
-      // BOARDING CHECKBOX
-      // ============================================================
-
-      menuBoarding?.addEventListener(
-        "change",
-        async function () {
-
-          // Save current row before Firebase update
-          const admissionNumber =
-            contextAdmissionNumber;
-
-
-          if (this.checked) {
-
-            // Boarding selected
-            // Meal must be disabled
-
-            menuMeal.checked = false;
-
-            menuMeal.disabled = true;
-
-          } else {
-
-            // Boarding removed
-            // Meal enabled
-
-            menuMeal.disabled = false;
-          }
-
-
-          await updateStudentExceptions(
-            admissionNumber
-          );
-
-        }
-      );
-
-
-      // ============================================================
-      // MEAL CHECKBOX
-      // ============================================================
-
-      menuMeal?.addEventListener(
-        "change",
-        async function () {
-
-          const admissionNumber =
-            contextAdmissionNumber;
-
-
-          await updateStudentExceptions(
-            admissionNumber
-          );
-
-        }
-      );
-
-
-      // ============================================================
-      // SPONSORED CHECKBOX
-      // ============================================================
-
-      menuSponsored?.addEventListener(
-        "change",
-        async function () {
-
-          const admissionNumber =
-            contextAdmissionNumber;
-
-
-          await updateStudentExceptions(
-            admissionNumber
-          );
-
-        }
-      );
-
-
-      // ============================================================
-      // UPDATE STUDENT EXCEPTIONS
-      // ============================================================
-
-      async function updateStudentExceptions(
-        admissionNumber
-      ) {
-
-        if (!admissionNumber) {
+          row.classList.add("row-selected");
           return;
         }
+        selectRegisterRow(row);
+        closeRegisterContextMenu();
+      });
 
-
-        // ==========================================================
-        // IMPORTANT:
-        // Save selected admission number
-        // before Firebase/table refresh
-        // ==========================================================
-
-        selectedAdmissionNumber =
-          admissionNumber;
-
-
-        const admissionKey =
-          admissionNumber.replace(
-            /\//g,
-            "-"
-          );
-
-
-        // ==========================================================
-        // BOARDING + MEAL RULE
-        // ==========================================================
-
-        if (
-          menuBoarding.checked
-        ) {
-
+      registerTable?.addEventListener("contextmenu", function (e) {
+        const row = e.target.closest("tbody tr");
+        if (!row || !registerContextMenu) return;
+        e.preventDefault();
+        selectRegisterRow(row);
+        if (!contextAdmissionNumber) {
+          console.warn("Admission number not found.");
+          return;
+        }
+        const student = studentsCache[contextAdmissionNumber];
+        if (!student) {
+          console.warn("Student not found:", contextAdmissionNumber);
+          return;
+        }
+        const exceptions = student.Exceptions || {};
+        menuMeal.checked = exceptions.Meal === true;
+        menuBoarding.checked = exceptions.Boarding === true;
+        menuSponsored.checked = exceptions.Sponsored === true;
+        if (menuBoarding.checked) {
           menuMeal.checked = false;
-
           menuMeal.disabled = true;
-
         } else {
-
           menuMeal.disabled = false;
-
         }
+        registerContextMenu.style.position = "fixed";
+        registerContextMenu.style.display = "block";
+        registerContextMenu.style.visibility = "hidden";
+        registerContextMenu.offsetWidth;
+        const statusBadge = row.querySelector(".col-status .status-badge");
+        if (!statusBadge) {
+          registerContextMenu.style.display = "none";
+          return;
+        }
+        const rect = statusBadge.getBoundingClientRect();
+        const menuHeight = registerContextMenu.offsetHeight || 120;
+        const padding = 15;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < menuHeight + padding) {
+          const scrollAmount = (menuHeight + padding) - spaceBelow;
+          isAutoScrolling = true;
+          registerContextMenu.style.visibility = "visible";
+          window.scrollBy({ top: scrollAmount, behavior: "smooth" });
+          setTimeout(() => {
+            isAutoScrolling = false;
+            restoreSelectedRegisterRow();
+            positionRegisterContextMenu();
+            registerContextMenu.style.visibility = "visible";
+          }, 450);
+        } else {
+          positionRegisterContextMenu();
+          registerContextMenu.style.visibility = "visible";
+        }
+      });
 
+      registerContextMenu?.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
 
-        // ==========================================================
-        // EXCEPTIONS DATA
-        // ==========================================================
+      menuBoarding?.addEventListener("change", async function () {
+        const admissionNumber = contextAdmissionNumber;
+        if (this.checked) {
+          menuMeal.checked = false;
+          menuMeal.disabled = true;
+        } else {
+          menuMeal.disabled = false;
+        }
+        await updateStudentExceptions(admissionNumber);
+      });
 
+      menuMeal?.addEventListener("change", async function () {
+        const admissionNumber = contextAdmissionNumber;
+        await updateStudentExceptions(admissionNumber);
+      });
+
+      menuSponsored?.addEventListener("change", async function () {
+        const admissionNumber = contextAdmissionNumber;
+        await updateStudentExceptions(admissionNumber);
+      });
+
+      async function updateStudentExceptions(admissionNumber) {
+        if (!admissionNumber) return;
+        selectedAdmissionNumber = admissionNumber;
+        const admissionKey = admissionNumber.replace(/\//g, "-");
+        if (menuBoarding.checked) {
+          menuMeal.checked = false;
+          menuMeal.disabled = true;
+        } else {
+          menuMeal.disabled = false;
+        }
         const exceptions = {
-
-          Meal:
-            menuMeal.checked,
-
-          Boarding:
-            menuBoarding.checked,
-
-          Sponsored:
-            menuSponsored.checked
-
+          Meal: menuMeal.checked,
+          Boarding: menuBoarding.checked,
+          Sponsored: menuSponsored.checked
         };
-
-
         try {
-
-          // ========================================================
-          // UPDATE FIREBASE
-          // ========================================================
-
-          await update(
-
-            ref(
-              db,
-              `Institution/ Revival/Students/${admissionKey}`
-            ),
-
-            {
-              Exceptions:
-                exceptions
-            }
-
-          );
-
-
-          // ========================================================
-          // UPDATE LOCAL CACHE
-          // ========================================================
-
-          if (
-            studentsCache[
-            admissionNumber
-            ]
-          ) {
-
-            studentsCache[
-              admissionNumber
-            ].Exceptions =
-              exceptions;
+          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { Exceptions: exceptions });
+          if (studentsCache[admissionNumber]) {
+            studentsCache[admissionNumber].Exceptions = exceptions;
           }
-
-
-          // ========================================================
-          // RESTORE ROW SELECTION
-          // ========================================================
-
-          selectedAdmissionNumber =
-            admissionNumber;
-
-
+          selectedAdmissionNumber = admissionNumber;
           restoreSelectedRegisterRow();
-
-
-          // In case another Firebase listener
-          // re-rendered the table
-          requestAnimationFrame(() => {
-
-            restoreSelectedRegisterRow();
-
-          });
-
-
+          requestAnimationFrame(() => { restoreSelectedRegisterRow(); });
+          setTimeout(() => { restoreSelectedRegisterRow(); }, 100);
+          setTimeout(() => { restoreSelectedRegisterRow(); }, 300);
           setTimeout(() => {
-
             restoreSelectedRegisterRow();
-
-          }, 100);
-
-
-          setTimeout(() => {
-
-            restoreSelectedRegisterRow();
-
-          }, 300);
-
-
-          // ========================================================
-          // KEEP MENU OPEN AND POSITIONED
-          // ========================================================
-
-          setTimeout(() => {
-
-            restoreSelectedRegisterRow();
-
-            if (
-              registerContextMenu &&
-              registerContextMenu.style.display ===
-              "block"
-            ) {
-
+            if (registerContextMenu && registerContextMenu.style.display === "block") {
               positionRegisterContextMenu();
-
             }
-
           }, 150);
-
-
-          console.log(
-            "Exceptions updated:",
-            admissionNumber,
-            exceptions
-          );
-
-        }
-        catch (error) {
-
-          console.error(
-            "Failed to update exceptions:",
-            error
-          );
-
-
-          alert(
-            "Failed to update student exceptions:\n" +
-            error.message
-          );
-
+          console.log("Exceptions updated:", admissionNumber, exceptions);
+        } catch (error) {
+          console.error("Failed to update exceptions:", error);
+          alert("Failed to update student exceptions:\n" + error.message);
         }
       }
 
-
-      // ============================================================
-      // WINDOW RESIZE
-      // MENU FOLLOWS STATUS BADGE
-      // ============================================================
-
-      window.addEventListener(
-        "resize",
-        function () {
-
-          if (
-            registerContextMenu &&
-            registerContextMenu.style.display ===
-            "block"
-          ) {
-
-            restoreSelectedRegisterRow();
-
-            positionRegisterContextMenu();
-
-          }
-
+      window.addEventListener("resize", function () {
+        if (registerContextMenu && registerContextMenu.style.display === "block") {
+          restoreSelectedRegisterRow();
+          positionRegisterContextMenu();
         }
-      );
+      });
 
-
-      // ============================================================
-      // SCROLL
-      //
-      // Manual scroll:
-      //     CLOSE MENU
-      //
-      // Automatic scroll caused by the menu:
-      //     KEEP MENU OPEN + REPOSITION
-      // ============================================================
-
-      window.addEventListener(
-        "scroll",
-        function () {
-
-          // ========================================================
-          // AUTOMATIC SCROLL
-          // ========================================================
-
-          if (isAutoScrolling) {
-
-            positionRegisterContextMenu();
-
-            return;
-          }
-
-
-          // ========================================================
-          // MANUAL SCROLL
-          // ========================================================
-
-          if (
-            registerContextMenu &&
-            registerContextMenu.style.display ===
-            "block"
-          ) {
-
-            closeRegisterContextMenu();
-
-          }
-
-        },
-        true
-      );
-
-
-      // ============================================================
-      // CLICK OUTSIDE
-      // ============================================================
-
-      document.addEventListener(
-        "click",
-        function (e) {
-
-          // Clicking inside menu
-          // must NOT close or unselect
-          if (
-            registerContextMenu &&
-            registerContextMenu.contains(
-              e.target
-            )
-          ) {
-
-            return;
-          }
-
-
-          // Clicking register table
-          // is handled by the table listener
-          if (
-            e.target.closest(
-              "#register_Tbl"
-            )
-          ) {
-
-            return;
-          }
-
-
-          // Click anywhere else
+      window.addEventListener("scroll", function () {
+        if (isAutoScrolling) {
+          positionRegisterContextMenu();
+          return;
+        }
+        if (registerContextMenu && registerContextMenu.style.display === "block") {
           closeRegisterContextMenu();
-
         }
-      );
+      }, true);
 
+      document.addEventListener("click", function (e) {
+        if (registerContextMenu && registerContextMenu.contains(e.target)) return;
+        if (e.target.closest("#register_Tbl")) return;
+        closeRegisterContextMenu();
+      });
 
-      // ============================================================
-      // ESCAPE
-      // ============================================================
-
-      document.addEventListener(
-        "keydown",
-        function (e) {
-
-          if (
-            e.key === "Escape"
-          ) {
-
-            closeRegisterContextMenu();
-
-          }
-
-        }
-      );
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeRegisterContextMenu();
+      });
 
       // ============================================================
-      // FEE BALANCE LIST CONTEXT MENU
+      // CONTEXT MENU - FEE BALANCE LIST
       // ============================================================
-
-      const feeBalanceTable =
-        document.getElementById("FeeBalanceList");
-
-      const feeBalanceMenu =
-        document.getElementById("registerContextMenu");
-
-      const feeMenuMeal =
-        document.getElementById("menuMeal");
-
-      const feeMenuBoarding =
-        document.getElementById("menuBoarding");
-
-      const feeMenuSponsored =
-        document.getElementById("menuSponsored");
-
-
-      // ============================================================
-      // STATE
-      // ============================================================
+      const feeBalanceTable = document.getElementById("FeeBalanceList");
+      const feeBalanceMenu = document.getElementById("registerContextMenu");
+      const feeMenuMeal = document.getElementById("menuMeal");
+      const feeMenuBoarding = document.getElementById("menuBoarding");
+      const feeMenuSponsored = document.getElementById("menuSponsored");
 
       let feeContextAdmissionNumber = null;
       let feeContextSelectedRow = null;
       let feeSelectedAdmissionNumber = null;
-
       let feeMenuAutoScrolling = false;
       let feeMenuFollowingScroll = false;
 
-
-      // ============================================================
-      // SELECT ROW
-      // ============================================================
-
       function selectFeeBalanceRow(row) {
-
         if (!row) return;
-
-        const table =
-          document.getElementById("FeeBalanceList");
-
+        const table = document.getElementById("FeeBalanceList");
         if (!table) return;
-
-
-        // Remove previous selection ONLY
-        // inside FeeBalanceList
-        table
-          .querySelectorAll(
-            "tbody tr.fee-balance-selected"
-          )
-          .forEach(r => {
-
-            r.classList.remove(
-              "fee-balance-selected"
-            );
-
-          });
-
-
-        // Select new row
-        row.classList.add(
-          "fee-balance-selected"
-        );
-
-
+        table.querySelectorAll("tbody tr.fee-balance-selected").forEach(r => {
+          r.classList.remove("fee-balance-selected");
+        });
+        row.classList.add("fee-balance-selected");
         feeContextSelectedRow = row;
-
-
-        // Get admission number
-        const admissionNumber =
-          row.querySelector(".student-id")
-            ?.textContent
-            .trim();
-
-
+        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
         if (admissionNumber) {
-
-          feeContextAdmissionNumber =
-            admissionNumber;
-
-          feeSelectedAdmissionNumber =
-            admissionNumber;
-
+          feeContextAdmissionNumber = admissionNumber;
+          feeSelectedAdmissionNumber = admissionNumber;
         }
       }
-
-
-      // ============================================================
-      // RESTORE SELECTION
-      // ============================================================
 
       function restoreFeeBalanceSelection() {
-
-        if (!feeSelectedAdmissionNumber)
-          return;
-
-
-        const table =
-          document.getElementById(
-            "FeeBalanceList"
-          );
-
+        if (!feeSelectedAdmissionNumber) return;
+        const table = document.getElementById("FeeBalanceList");
         if (!table) return;
-
-
         let foundRow = null;
-
-
-        table
-          .querySelectorAll(
-            "tbody tr"
-          )
-          .forEach(row => {
-
-            const admissionNumber =
-              row.querySelector(
-                ".student-id"
-              )?.textContent.trim();
-
-
-            if (
-              admissionNumber ===
-              feeSelectedAdmissionNumber
-            ) {
-
-              row.classList.add(
-                "fee-balance-selected"
-              );
-
-              foundRow = row;
-
-            } else {
-
-              row.classList.remove(
-                "fee-balance-selected"
-              );
-
-            }
-
-          });
-
-
-        if (foundRow) {
-
-          feeContextSelectedRow =
-            foundRow;
-
-        }
+        table.querySelectorAll("tbody tr").forEach(row => {
+          const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
+          if (admissionNumber === feeSelectedAdmissionNumber) {
+            row.classList.add("fee-balance-selected");
+            foundRow = row;
+          } else {
+            row.classList.remove("fee-balance-selected");
+          }
+        });
+        if (foundRow) feeContextSelectedRow = foundRow;
       }
-
-
-      // ============================================================
-      // CLOSE MENU
-      // DOES NOT CLEAR ROW SELECTION
-      // ============================================================
 
       function closeFeeBalanceMenu() {
-
-        if (!feeBalanceMenu)
-          return;
-
-
-        feeBalanceMenu.style.display =
-          "none";
-
-        feeBalanceMenu.style.visibility =
-          "hidden";
-
-
-        feeMenuFollowingScroll =
-          false;
-
+        if (!feeBalanceMenu) return;
+        feeBalanceMenu.style.display = "none";
+        feeBalanceMenu.style.visibility = "hidden";
+        feeMenuFollowingScroll = false;
       }
-
-
-      // ============================================================
-      // POSITION MENU
-      // ============================================================
 
       function positionFeeBalanceMenu() {
-
-        if (
-          !feeBalanceMenu ||
-          !feeContextSelectedRow
-        ) {
-          return;
-        }
-
-
-        const row =
-          feeContextSelectedRow;
-
-
-        const anchor =
-          row.querySelector(
-            "td:last-child"
-          );
-
-
-        if (!anchor)
-          return;
-
-
-        const rect =
-          anchor.getBoundingClientRect();
-
-
-        const menuWidth =
-          feeBalanceMenu.offsetWidth ||
-          190;
-
-
-        let left =
-          rect.left - 50;
-
-
-        let top =
-          rect.bottom - 10;
-
-
-        // Keep inside left edge
-        if (left < 10) {
-          left = 10;
-        }
-
-
-        // Keep inside right edge
-        if (
-          left + menuWidth >
-          window.innerWidth
-        ) {
-
-          left =
-            window.innerWidth -
-            menuWidth -
-            10;
-
-        }
-
-
-        if (left < 10) {
-          left = 10;
-        }
-
-
-        feeBalanceMenu.style.position =
-          "fixed";
-
-        feeBalanceMenu.style.left =
-          `${left}px`;
-
-        feeBalanceMenu.style.top =
-          `${top}px`;
+        if (!feeBalanceMenu || !feeContextSelectedRow) return;
+        const row = feeContextSelectedRow;
+        const anchor = row.querySelector("td:last-child");
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        const menuWidth = feeBalanceMenu.offsetWidth || 190;
+        let left = rect.left - 50;
+        let top = rect.bottom - 10;
+        if (left < 10) left = 10;
+        if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+        if (left < 10) left = 10;
+        feeBalanceMenu.style.position = "fixed";
+        feeBalanceMenu.style.left = `${left}px`;
+        feeBalanceMenu.style.top = `${top}px`;
       }
-
-
-      // ============================================================
-      // FOLLOW MENU DURING AUTO SCROLL
-      // ============================================================
 
       function followFeeBalanceMenuDuringScroll() {
-
-        if (!feeMenuFollowingScroll)
-          return;
-
-
-        // Reposition menu
+        if (!feeMenuFollowingScroll) return;
         positionFeeBalanceMenu();
-
-
-        // Continue following
-        requestAnimationFrame(
-          followFeeBalanceMenuDuringScroll
-        );
+        requestAnimationFrame(followFeeBalanceMenuDuringScroll);
       }
-
-
-      // ============================================================
-      // OPEN MENU
-      // ============================================================
 
       function openFeeBalanceMenu(row) {
-
-        if (
-          !row ||
-          !feeBalanceMenu
-        ) {
-          return;
-        }
-
-
-        // ========================================================
-        // SELECT ROW
-        // ========================================================
-
+        if (!row || !feeBalanceMenu) return;
         selectFeeBalanceRow(row);
-
-
-        const admissionNumber =
-          row.querySelector(
-            ".student-id"
-          )?.textContent.trim();
-
-
-        if (!admissionNumber)
-          return;
-
-
-        feeContextAdmissionNumber =
-          admissionNumber;
-
-        feeSelectedAdmissionNumber =
-          admissionNumber;
-
-
-        // ========================================================
-        // GET STUDENT
-        // ========================================================
-
-        const student =
-          studentsCache?.[
-          admissionNumber
-          ];
-
-
+        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
+        if (!admissionNumber) return;
+        feeContextAdmissionNumber = admissionNumber;
+        feeSelectedAdmissionNumber = admissionNumber;
+        const student = studentsCache?.[admissionNumber];
         if (!student) {
-
-          console.warn(
-            "Student not found:",
-            admissionNumber
-          );
-
+          console.warn("Student not found:", admissionNumber);
           return;
         }
-
-
-        // ========================================================
-        // GET EXCEPTIONS
-        // ========================================================
-
-        const exceptions =
-          student.Exceptions || {};
-
-
-        // ========================================================
-        // SET CHECKBOXES
-        // ========================================================
-
-        feeMenuMeal.checked =
-          exceptions.Meal === true;
-
-        feeMenuBoarding.checked =
-          exceptions.Boarding === true;
-
-        feeMenuSponsored.checked =
-          exceptions.Sponsored === true;
-
-
-        // Boarding disables Meal
-        if (
-          feeMenuBoarding.checked
-        ) {
-
-          feeMenuMeal.checked =
-            false;
-
-          feeMenuMeal.disabled =
-            true;
-
+        const exceptions = student.Exceptions || {};
+        feeMenuMeal.checked = exceptions.Meal === true;
+        feeMenuBoarding.checked = exceptions.Boarding === true;
+        feeMenuSponsored.checked = exceptions.Sponsored === true;
+        if (feeMenuBoarding.checked) {
+          feeMenuMeal.checked = false;
+          feeMenuMeal.disabled = true;
         } else {
-
-          feeMenuMeal.disabled =
-            false;
-
+          feeMenuMeal.disabled = false;
         }
-
-
-        // ========================================================
-        // SHOW MENU IMMEDIATELY
-        // ========================================================
-
-        feeBalanceMenu.style.display =
-          "block";
-
-        feeBalanceMenu.style.visibility =
-          "hidden";
-
-        feeBalanceMenu.style.position =
-          "fixed";
-
-
-        // Force layout
+        feeBalanceMenu.style.display = "block";
+        feeBalanceMenu.style.visibility = "hidden";
+        feeBalanceMenu.style.position = "fixed";
         void feeBalanceMenu.offsetWidth;
-
-
-        // ========================================================
-        // GET ANCHOR
-        // ========================================================
-
-        const anchor =
-          row.querySelector(
-            "td:last-child"
-          );
-
-
-        if (!anchor)
-          return;
-
-
-        let rect =
-          anchor.getBoundingClientRect();
-
-
-        const menuHeight =
-          feeBalanceMenu.offsetHeight ||
-          130;
-
-
+        const anchor = row.querySelector("td:last-child");
+        if (!anchor) return;
+        let rect = anchor.getBoundingClientRect();
+        const menuHeight = feeBalanceMenu.offsetHeight || 130;
         const padding = 15;
-
-
-        let spaceBelow =
-          window.innerHeight -
-          rect.bottom;
-
-
-        // ========================================================
-        // NOT ENOUGH SPACE
-        // ========================================================
-
-        if (
-          spaceBelow <
-          menuHeight + padding
-        ) {
-
-          const scrollAmount =
-            (menuHeight + padding) -
-            spaceBelow;
-
-
-          // ----------------------------------------------------
-          // SHOW MENU NOW
-          // ----------------------------------------------------
-
-          feeBalanceMenu.style.visibility =
-            "visible";
-
-
-          // Position at current location first
+        let spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < menuHeight + padding) {
+          const scrollAmount = (menuHeight + padding) - spaceBelow;
+          feeBalanceMenu.style.visibility = "visible";
           positionFeeBalanceMenu();
-
-
-          // ----------------------------------------------------
-          // ENABLE FOLLOWING
-          // ----------------------------------------------------
-
-          feeMenuAutoScrolling =
-            true;
-
-          feeMenuFollowingScroll =
-            true;
-
-
-          // Start tracking menu position
-          requestAnimationFrame(
-            followFeeBalanceMenuDuringScroll
-          );
-
-
-          // ----------------------------------------------------
-          // AUTO SCROLL
-          // ----------------------------------------------------
-
-          window.scrollBy({
-
-            top: scrollAmount,
-
-            behavior: "smooth"
-
-          });
-
-
-          // ----------------------------------------------------
-          // STOP FOLLOWING AFTER SCROLL
-          // ----------------------------------------------------
-
+          feeMenuAutoScrolling = true;
+          feeMenuFollowingScroll = true;
+          requestAnimationFrame(followFeeBalanceMenuDuringScroll);
+          window.scrollBy({ top: scrollAmount, behavior: "smooth" });
           setTimeout(() => {
-
-            feeMenuAutoScrolling =
-              false;
-
-            feeMenuFollowingScroll =
-              false;
-
-
-            // Table might have rendered again
+            feeMenuAutoScrolling = false;
+            feeMenuFollowingScroll = false;
             restoreFeeBalanceSelection();
-
-
-            // Final position
             positionFeeBalanceMenu();
-
-
-            // Make absolutely sure it remains visible
-            feeBalanceMenu.style.display =
-              "block";
-
-            feeBalanceMenu.style.visibility =
-              "visible";
-
-
+            feeBalanceMenu.style.display = "block";
+            feeBalanceMenu.style.visibility = "visible";
           }, 600);
-
-
         } else {
-
-          // ====================================================
-          // ENOUGH SPACE
-          // ====================================================
-
           positionFeeBalanceMenu();
-
-
-          feeBalanceMenu.style.visibility =
-            "visible";
-
+          feeBalanceMenu.style.visibility = "visible";
         }
       }
 
-
-      // ============================================================
-      // CLICK ON FEE BALANCE TABLE
-      // ============================================================
-
-      document.addEventListener(
-        "click",
-        function (e) {
-
-          const table =
-            e.target.closest(
-              "#FeeBalanceList"
-            );
-
-
-          if (!table)
-            return;
-
-
-          const row =
-            e.target.closest(
-              "tbody tr"
-            );
-
-
-          if (!row)
-            return;
-
-
-          // ====================================================
-          // CHECKBOX
-          // ====================================================
-
-          if (
-            e.target.matches(
-              "input.custom-checkbox"
-            )
-          ) {
-
-            selectFeeBalanceRow(row);
-
-            closeFeeBalanceMenu();
-
-            return;
-
-          }
-
-
-          // ====================================================
-          // NORMAL CLICK
-          // ====================================================
-
+      document.addEventListener("click", function (e) {
+        const table = e.target.closest("#FeeBalanceList");
+        if (!table) return;
+        const row = e.target.closest("tbody tr");
+        if (!row) return;
+        if (e.target.matches("input.custom-checkbox")) {
           selectFeeBalanceRow(row);
-
           closeFeeBalanceMenu();
-
-        },
-        true
-      );
-
-
-      // ============================================================
-      // RIGHT CLICK
-      // ============================================================
-
-      document.addEventListener(
-        "contextmenu",
-        function (e) {
-
-          const table =
-            e.target.closest(
-              "#FeeBalanceList"
-            );
-
-
-          if (!table)
-            return;
-
-
-          const row =
-            e.target.closest(
-              "tbody tr"
-            );
-
-
-          if (!row)
-            return;
-
-
-          e.preventDefault();
-
-
-          // Open immediately
-          openFeeBalanceMenu(row);
-
-        },
-        true
-      );
-
-
-      // ============================================================
-      // MENU CLICK
-      // DON'T UNSELECT ROW
-      // ============================================================
-
-      feeBalanceMenu?.addEventListener(
-        "click",
-        function (e) {
-
-          e.stopPropagation();
-
+          return;
         }
-      );
+        selectFeeBalanceRow(row);
+        closeFeeBalanceMenu();
+      }, true);
 
+      document.addEventListener("contextmenu", function (e) {
+        const table = e.target.closest("#FeeBalanceList");
+        if (!table) return;
+        const row = e.target.closest("tbody tr");
+        if (!row) return;
+        e.preventDefault();
+        openFeeBalanceMenu(row);
+      }, true);
 
-      // ============================================================
-      // BOARDING
-      // ============================================================
+      feeBalanceMenu?.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
 
-      feeMenuBoarding?.addEventListener(
-        "change",
-        async function (e) {
-
-          e.stopPropagation();
-
-
-          if (this.checked) {
-
-            feeMenuMeal.checked =
-              false;
-
-            feeMenuMeal.disabled =
-              true;
-
-          } else {
-
-            feeMenuMeal.disabled =
-              false;
-
-          }
-
-
-          await updateFeeBalanceExceptions();
-
+      feeMenuBoarding?.addEventListener("change", async function (e) {
+        e.stopPropagation();
+        if (this.checked) {
+          feeMenuMeal.checked = false;
+          feeMenuMeal.disabled = true;
+        } else {
+          feeMenuMeal.disabled = false;
         }
-      );
+        await updateFeeBalanceExceptions();
+      });
 
+      feeMenuMeal?.addEventListener("change", async function (e) {
+        e.stopPropagation();
+        await updateFeeBalanceExceptions();
+      });
 
-      // ============================================================
-      // MEAL
-      // ============================================================
-
-      feeMenuMeal?.addEventListener(
-        "change",
-        async function (e) {
-
-          e.stopPropagation();
-
-          await updateFeeBalanceExceptions();
-
-        }
-      );
-
-
-      // ============================================================
-      // SPONSORED
-      // ============================================================
-
-      feeMenuSponsored?.addEventListener(
-        "change",
-        async function (e) {
-
-          e.stopPropagation();
-
-          await updateFeeBalanceExceptions();
-
-        }
-      );
-
-
-      // ============================================================
-      // UPDATE FIREBASE
-      // ============================================================
+      feeMenuSponsored?.addEventListener("change", async function (e) {
+        e.stopPropagation();
+        await updateFeeBalanceExceptions();
+      });
 
       async function updateFeeBalanceExceptions() {
-
-        if (
-          !feeContextAdmissionNumber
-        ) {
-          return;
-        }
-
-
-        // Preserve admission number
-        const admissionNumber =
-          feeContextAdmissionNumber;
-
-
-        const admissionKey =
-          admissionNumber.replace(
-            /\//g,
-            "-"
-          );
-
-
-        // Boarding disables Meal
-        if (
-          feeMenuBoarding.checked
-        ) {
-
-          feeMenuMeal.checked =
-            false;
-
-          feeMenuMeal.disabled =
-            true;
-
+        if (!feeContextAdmissionNumber) return;
+        const admissionNumber = feeContextAdmissionNumber;
+        const admissionKey = admissionNumber.replace(/\//g, "-");
+        if (feeMenuBoarding.checked) {
+          feeMenuMeal.checked = false;
+          feeMenuMeal.disabled = true;
         } else {
-
-          feeMenuMeal.disabled =
-            false;
-
+          feeMenuMeal.disabled = false;
         }
-
-
         const exceptions = {
-
-          Meal:
-            feeMenuMeal.checked,
-
-          Boarding:
-            feeMenuBoarding.checked,
-
-          Sponsored:
-            feeMenuSponsored.checked
-
+          Meal: feeMenuMeal.checked,
+          Boarding: feeMenuBoarding.checked,
+          Sponsored: feeMenuSponsored.checked
         };
-
-
         try {
-
-          await update(
-
-            ref(
-              db,
-              `Institution/ Revival/Students/${admissionKey}`
-            ),
-
-            {
-              Exceptions:
-                exceptions
-            }
-
-          );
-
-
-          // Update cache
-          if (
-            studentsCache &&
-            studentsCache[admissionNumber]
-          ) {
-
-            studentsCache[
-              admissionNumber
-            ].Exceptions =
-              exceptions;
-
+          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { Exceptions: exceptions });
+          if (studentsCache && studentsCache[admissionNumber]) {
+            studentsCache[admissionNumber].Exceptions = exceptions;
           }
-
-
-          // Preserve selection
-          feeSelectedAdmissionNumber =
-            admissionNumber;
-
-          feeContextAdmissionNumber =
-            admissionNumber;
-
-
+          feeSelectedAdmissionNumber = admissionNumber;
+          feeContextAdmissionNumber = admissionNumber;
           restoreFeeBalanceSelection();
-
-
           requestAnimationFrame(() => {
-
             restoreFeeBalanceSelection();
-
             positionFeeBalanceMenu();
-
           });
-
-
-          console.log(
-            "Exceptions updated:",
-            admissionNumber,
-            exceptions
-          );
-
-
+          console.log("Exceptions updated:", admissionNumber, exceptions);
         } catch (error) {
-
-          console.error(
-            "Failed to update exceptions:",
-            error
-          );
-
-
-          alert(
-            "Failed to update student exceptions:\n" +
-            error.message
-          );
-
+          console.error("Failed to update exceptions:", error);
+          alert("Failed to update student exceptions:\n" + error.message);
         }
       }
 
-
-      // ============================================================
-      // MANUAL SCROLL
-      // CLOSE MENU
-      // ============================================================
-
-      window.addEventListener(
-        "scroll",
-        function () {
-
-          // Our automatic scrolling
-          // must NOT close the menu
-          if (feeMenuAutoScrolling) {
-            return;
-          }
-
-
-          if (
-            feeBalanceMenu &&
-            feeBalanceMenu.style.display ===
-            "block"
-          ) {
-
-            closeFeeBalanceMenu();
-
-          }
-
-        },
-        true
-      );
-
-
-      // ============================================================
-      // RESIZE
-      // MENU FOLLOWS ROW
-      // ============================================================
-
-      window.addEventListener(
-        "resize",
-        function () {
-
-          if (
-            feeBalanceMenu &&
-            feeBalanceMenu.style.display ===
-            "block"
-          ) {
-
-            positionFeeBalanceMenu();
-
-          }
-
+      window.addEventListener("scroll", function () {
+        if (feeMenuAutoScrolling) return;
+        if (feeBalanceMenu && feeBalanceMenu.style.display === "block") {
+          closeFeeBalanceMenu();
         }
-      );
+      }, true);
 
-
-      // ============================================================
-      // ESCAPE
-      // ============================================================
-
-      document.addEventListener(
-        "keydown",
-        function (e) {
-
-          if (
-            e.key === "Escape" &&
-            feeBalanceMenu &&
-            feeBalanceMenu.style.display ===
-            "block"
-          ) {
-
-            closeFeeBalanceMenu();
-
-          }
-
+      window.addEventListener("resize", function () {
+        if (feeBalanceMenu && feeBalanceMenu.style.display === "block") {
+          positionFeeBalanceMenu();
         }
-      );
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && feeBalanceMenu && feeBalanceMenu.style.display === "block") {
+          closeFeeBalanceMenu();
+        }
+      });
+
+      // ============================================================
+      // DOUBLE CLICK HANDLERS
+      // ============================================================
+      document.getElementById('FeeBalanceList')?.addEventListener('dblclick', function (e) {
+        const row = e.target.closest('tbody tr');
+        if (!row || e.target.closest('.col-check')) return;
+        const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
+        selectStudentForFee(admissionNumber);
+      });
+
+      console.log('✅ All scripts merged successfully. Dialog boxes ready.');
     </script>
+
+
 </body>
 
 
