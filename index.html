@@ -3607,7 +3607,7 @@
           await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { lastPayment: paymentData });
           document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
 
-          alert(`Payment saved!\nAdmission: ${admissionNumber}\nBalance: ${formatCurrency(balance)}`);
+          showToast('Recieved');
 
           window.chrome.webview.postMessage({
             action: "PRINT_RECEIPT",
