@@ -4234,12 +4234,27 @@
 
       function populateClassSelect(classData) {
         const select = document.getElementById('studentClass');
+        const select2 = document.getElementById('assessment-grade');
+
         if (!select) return;
+        if (!select2) return;
+
         select.innerHTML = '';
+        select2.innerHTML = '';
+
+        // Default options for student class select
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select Class';
         select.appendChild(defaultOption);
+
+        // Default options for assessment grade select
+        const defaultOption2 = document.createElement('option');
+        defaultOption2.value = '';
+        defaultOption2.textContent = 'Select Grade';
+        select2.appendChild(defaultOption2);
+
+        // Create a map for unique classes (grade + stream)
         const classMap = new Map();
         classData.forEach(cls => {
           const key = `${cls.grade}|${cls.stream}`;
@@ -4247,6 +4262,8 @@
             classMap.set(key, { grade: cls.grade, stream: cls.stream });
           }
         });
+
+        // Sort classes by grade order and stream
         const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
           const gradeOrder = {
             'Pre-primary': 0, 'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3,
@@ -4258,6 +4275,8 @@
           if (aOrder !== bOrder) return aOrder - bOrder;
           return (a.stream || '').localeCompare(b.stream || '');
         });
+
+        // Populate student class select with grade + stream
         uniqueClasses.forEach(cls => {
           const option = document.createElement('option');
           let displayText = cls.grade;
@@ -4266,7 +4285,34 @@
           option.textContent = displayText;
           select.appendChild(option);
         });
+
+        // Create a set for unique grades only (no streams)
+        const gradeSet = new Set();
+        uniqueClasses.forEach(cls => {
+          gradeSet.add(cls.grade);
+        });
+
+        // Sort grades
+        const uniqueGrades = Array.from(gradeSet).sort((a, b) => {
+          const gradeOrder = {
+            'Pre-primary': 0, 'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3,
+            'Grade 4': 4, 'Grade 5': 5, 'Grade 6': 6, 'Grade 7': 7,
+            'Grade 8': 8, 'Form 1': 9, 'Form 2': 10, 'Form 3': 11, 'Form 4': 12
+          };
+          const aOrder = gradeOrder[a] || 999;
+          const bOrder = gradeOrder[b] || 999;
+          return aOrder - bOrder;
+        });
+
+        // Populate assessment grade select with grades only
+        uniqueGrades.forEach(grade => {
+          const option = document.createElement('option');
+          option.value = grade;
+          option.textContent = grade;
+          select2.appendChild(option);
+        });
       }
+
 
       function openModal(index) {
         editingIndex = index;
