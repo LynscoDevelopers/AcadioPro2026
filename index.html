@@ -3095,7 +3095,7 @@
         <div id="bulk-marks-content" style="flex: 1; min-height: 0; overflow-y: auto;"></div>
 
         <div class="dialogue-actions">
-          <button class="btn btn-success" onclick="ExportForBulkMarks()" style="margin-top: 1rem;">Export</button>
+          <button class="btn btn-success"  onclick="exportBulkMarksToExcel()" style="margin-top: 1rem;">Export</button>
           <button class="btn btn-success" onclick="ImportForBulkMarks()" style="margin-top: 1rem;">Import</button>
           <button class="btn btn-success" onclick="saveBulkMarks()" style="margin-top: 1rem;">Save All Marks</button>
         </div>
@@ -5933,6 +5933,214 @@
           renderAssessments();
           populateFilters();
         }
+
+
+        // Add this function to export bulk marks to Excel
+        window.exportBulkMarksToExcel = function () {
+          const aId = document.getElementById('bulk-assessment').value;
+
+          if (!aId) {
+            showToast('Please select an assessment first', 'error');
+            return;
+          }
+
+          const assessment = assessments.find(a => a.id === aId);
+          if (!assessment) {
+            showToast('Assessment not found', 'error');
+            return;
+          }
+
+          // Get all students for this assessment's grade
+          const gradeStudents = students.filter(s => s.grade === assessment.grade);
+
+          if (gradeStudents.length === 0) {
+            showToast('No students found for this grade', 'error');
+            return;
+          }
+
+          // Build CSV content (Excel can open CSV files directly)
+          let csv = '\uFEFF'; // BOM for Excel UTF-8 support
+
+          // Header row
+          csv += 'Student ID,Student Name,Class';
+          assessment.subjects.forEach(subject => {
+            csv += `,${subject}`;
+          });
+          csv += ',Average\n';
+
+          // Data rows
+          gradeStudents.forEach(student => {
+            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
+
+            // Escape fields that might contain commas
+            const escapeCSV = (field) => {
+              if (field === null || field === undefined) return '';
+              const str = String(field);
+              if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+              }
+              return str;
+            };
+
+            csv += `${escapeCSV(student.id)},${escapeCSV(student.name)},${escapeCSV(displayClass)}`;
+
+            let total = 0;
+            assessment.subjects.forEach(subject => {
+              const markRecord = marks.find(m =>
+                m.assessmentId === aId &&
+                m.studentId === student.id &&
+                m.subject === subject
+              );
+              const markValue = markRecord ? markRecord.marks : 0;
+              total += markValue;
+              csv += `,${markValue}`;
+            });
+
+            const average = (total / assessment.subjects.length).toFixed(1);
+            csv += `,${average}\n`;
+          });
+
+          // Add summary row
+          csv += `\nAssessment: ${assessment.name}`;
+          csv += `\nGrade: ${assessment.grade}`;
+          csv += `\nDate Exported: ${new Date().toLocaleString()}`;
+          csv += `\nTotal Students: ${gradeStudents.length}`;
+
+          // Create and download the file
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+
+          link.setAttribute('href', url);
+          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_marks_${new Date().toISOString().split('T')[0]}.csv`);
+          link.style.visibility = 'hidden';
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          URL.revokeObjectURL(url);
+          showToast('Bulk marks exported successfully');
+        };
+
+        // Alternative: Export using XLSX format (if you want true Excel format)
+        window.exportBulkMarksToXLSX = function () {
+          const aId = document.getElementById('bulk-assessment').value;
+
+          if (!aId) {
+            showToast('Please select an assessment first', 'error');
+            return;
+          }
+
+          const assessment = assessments.find(a => a.id === aId);
+          if (!assessment) {
+            showToast('Assessment not found', 'error');
+            return;
+          }
+
+          // Get all students for this assessment's grade
+          const gradeStudents = students.filter(s => s.grade === assessment.grade);
+
+          if (gradeStudents.length === 0) {
+            showToast('No students found for this grade', 'error');
+            return;
+          }
+
+          // Build HTML table for Excel
+          let tableHTML = '<table border="1">';
+
+          // Header row
+          tableHTML += '<thead><tr>';
+          tableHTML += '<th>Student ID</th><th>Student Name</th><th>Class</th>';
+          assessment.subjects.forEach(subject => {
+            tableHTML += `<th>${subject}</th>`;
+          });
+          tableHTML += '<th>Average</th>';
+          tableHTML += '</tr></thead><tbody>';
+
+          // Data rows
+          gradeStudents.forEach(student => {
+            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
+
+            tableHTML += '<tr>';
+            tableHTML += `<td>${student.id}</td>`;
+            tableHTML += `<td>${student.name}</td>`;
+            tableHTML += `<td>${displayClass}</td>`;
+
+            let total = 0;
+            assessment.subjects.forEach(subject => {
+              const markRecord = marks.find(m =>
+                m.assessmentId === aId &&
+                m.studentId === student.id &&
+                m.subject === subject
+              );
+              const markValue = markRecord ? markRecord.marks : 0;
+              total += markValue;
+              tableHTML += `<td>${markValue}</td>`;
+            });
+
+            const average = (total / assessment.subjects.length).toFixed(1);
+            tableHTML += `<td>${average}</td>`;
+            tableHTML += '</tr>';
+          });
+
+          tableHTML += '</tbody></table>';
+
+          // Create the Excel file
+          const excelContent = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                  xmlns:x="urn:schemas-microsoft-com:office:excel" 
+                  xmlns="http://www.w3.org/TR/REC-html40">
+              <head>
+                <meta charset="UTF-8">
+                <!--[if gte mso 9]>
+                <xml>
+                  <x:ExcelWorkbook>
+                    <x:ExcelWorksheets>
+                      <x:ExcelWorksheet>
+                        <x:Name>${assessment.name}</x:Name>
+                        <x:WorksheetOptions>
+                          <x:DisplayGridlines/>
+                        </x:WorksheetOptions>
+                      </x:ExcelWorksheet>
+                    </x:ExcelWorksheets>
+                  </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+                <style>
+                  table { border-collapse: collapse; }
+                  th, td { padding: 5px; text-align: left; }
+                  th { background-color: #f0f0f0; font-weight: bold; }
+                </style>
+              </head>
+              <body>
+                <h3>${assessment.name} - Marks Report</h3>
+                <p>Grade: ${assessment.grade} | Date: ${new Date().toLocaleDateString()}</p>
+                ${tableHTML}
+              </body>
+            </html>
+          `;
+
+          const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+
+          link.setAttribute('href', url);
+          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_marks_${new Date().toISOString().split('T')[0]}.xls`);
+          link.style.visibility = 'hidden';
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          URL.revokeObjectURL(url);
+          showToast('Bulk marks exported to Excel successfully');
+        };
+
+
+
+
+
 
         // Init
         initializeSystem();
