@@ -4419,7 +4419,7 @@
         } else {
           terms = [];
         }
-        document.getElementById("assessment-term").value=getActiveTerm();
+        document.getElementById("assessment-term").value = getActiveTerm();
         renderGrid();
         populateFeeBalanceTable(studentsCache);
       }, (error) => {
@@ -5485,15 +5485,17 @@
         function initializeSystem() {
           syncStudentsFromCache();
 
-          assessments = [{
-            id: 'ASMT-001',
-            name: 'Opening Assessment',
-            term: 'Term1_2026',
-            grade: 'Grade 2',               // Updated to match the new grade format
-            maxMarks: 100,
-            subjects: ['Mathematics', 'English', 'Science'],
-            description: 'Initial baseline assessment'
-          }];
+          assessments = [
+           /* {
+              id: 'ASMT-001',
+              name: 'Opening Assessment',
+              term: 'Term1_2026',
+              grade: 'Grade 2',               // Updated to match the new grade format
+              maxMarks: 100,
+              subjects: ['Mathematics', 'English', 'Science'],
+              description: 'Initial baseline assessment'
+            }*/
+          ];
 
           marks = [];
 
