@@ -3885,6 +3885,11 @@
         setTimeout(() => {
           closeIcon.focus();
         }, 50);
+
+
+        closeFeeBalanceMenu();
+        closeRegisterContextMenu();
+
       };
 
       function closeDialog() {
@@ -3901,6 +3906,11 @@
           closeIcon2.focus();
         }, 50);
         document.body.style.overflow = 'hidden';
+
+
+        closeFeeBalanceMenu();
+        closeRegisterContextMenu();
+
       };
 
       function closeDialog2() {
@@ -3911,6 +3921,7 @@
 
       // Event listeners for first dialog
       if (openBtn) {
+
         openBtn.addEventListener('click', openDialog);
       }
 
@@ -4066,6 +4077,8 @@
         document.getElementById('editStudentName').value = name || '';
         document.getElementById('editStudentID').value = id || '';
         document.getElementById('editStudentDOB').value = dob || '';
+
+
         openDialog2();
       };
 
@@ -4110,6 +4123,9 @@
           return true;
         }
         return false;
+
+        closeFeeBalanceMenu();
+        closeRegisterContextMenu();
       };
 
       window.__tabPanels = panels;
