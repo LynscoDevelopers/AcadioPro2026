@@ -1351,6 +1351,29 @@
     }
   </style>
   <style>
+    /* Modal display fix */
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #0b2b4a;
+      margin-bottom: 1rem;
+    }
+
+    /* Ensure form groups have proper spacing in modals */
+    .modal-content .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .modal-content .btn {
+      width: auto;
+      min-width: 100px;
+    }
+
+
     .app-wrapper {
       width: 100%;
       max-width: 1440px;
@@ -2322,7 +2345,7 @@
         </div>
       </div>
 
-      <!-- Tab 4: Empty -->
+      <!-- Tab 5: Empty -->
       <div id="tab5" class="tab-panel">
         <div class="app-wrapper">
           <header class="app-header">
@@ -2353,25 +2376,29 @@
                 <div>
                   <div class="stat-label">Total Students</div>
                   <div class="stat-value" id="dash-students">0</div>
-                </div><span class="stat-icon">👥</span>
+                </div>
+                <span class="stat-icon">👥</span>
               </div>
               <div class="stat-card">
                 <div>
                   <div class="stat-label">Assessments</div>
                   <div class="stat-value" id="dash-assessments">0</div>
-                </div><span class="stat-icon">📝</span>
+                </div>
+                <span class="stat-icon">📝</span>
               </div>
               <div class="stat-card">
                 <div>
                   <div class="stat-label">Marks Records</div>
                   <div class="stat-value" id="dash-marks">0</div>
-                </div><span class="stat-icon">📊</span>
+                </div>
+                <span class="stat-icon">📊</span>
               </div>
               <div class="stat-card">
                 <div>
                   <div class="stat-label">Average</div>
                   <div class="stat-value" id="dash-average">0%</div>
-                </div><span class="stat-icon">📈</span>
+                </div>
+                <span class="stat-icon">📈</span>
               </div>
             </div>
             <div class="card">
@@ -2385,8 +2412,8 @@
           <div class="content-section" id="students-section">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">👨‍🎓 Students</h3><button class="btn btn-primary" onclick="openStudentModal()">➕
-                  Add</button>
+                <h3 class="card-title">👨‍🎓 Students</h3>
+                <button class="btn btn-primary" onclick="openStudentModal()">➕ Add</button>
               </div>
               <div class="table-wrapper">
                 <table class="data-table">
@@ -2410,9 +2437,8 @@
           <div class="content-section" id="assessments-section">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">📝 Assessments</h3><button class="btn btn-primary"
-                  onclick="openAssessmentModal()">➕
-                  New</button>
+                <h3 class="card-title">📝 Assessments</h3>
+                <button class="btn btn-primary" onclick="openAssessmentModal()">➕ New</button>
               </div>
               <div class="assessment-grid" id="assessments-list"></div>
             </div>
@@ -2421,23 +2447,28 @@
           <div class="content-section" id="marks-section">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">📈 Marks Entry</h3><button class="btn btn-warning"
-                  onclick="openBulkMarksModal()">📝
-                  Bulk</button>
+                <h3 class="card-title">📈 Marks Entry</h3>
+                <button class="btn btn-warning" onclick="openBulkMarksModal()">📝 Bulk</button>
               </div>
               <div class="form-grid">
-                <div class="form-group"><label class="form-label">Assessment</label><select class="form-select"
-                    id="filter-assessment" onchange="onAssessmentFilter()">
+                <div class="form-group">
+                  <label class="form-label">Assessment</label>
+                  <select class="form-select" id="filter-assessment" onchange="onAssessmentFilter()">
                     <option value="">All</option>
-                  </select></div>
-                <div class="form-group"><label class="form-label">Subject</label><select class="form-select"
-                    id="filter-subject" onchange="renderMarksTable()">
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Subject</label>
+                  <select class="form-select" id="filter-subject" onchange="renderMarksTable()">
                     <option value="">All</option>
-                  </select></div>
-                <div class="form-group"><label class="form-label">Grade</label><select class="form-select"
-                    id="filter-grade" onchange="renderMarksTable()">
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Grade</label>
+                  <select class="form-select" id="filter-grade" onchange="renderMarksTable()">
                     <option value="">All</option>
-                  </select></div>
+                  </select>
+                </div>
               </div>
               <div class="table-wrapper">
                 <table class="data-table">
@@ -2469,76 +2500,103 @@
 
         <!-- modals -->
         <div class="modal-overlay" id="student-modal">
-          <div class="modal-content"><button class="modal-close" onclick="closeModal('student-modal')">×</button>
-            <h2 id="student-modal-title">Add Student</h2>
-            <div class="form-group" style="margin-top:1rem;"><label class="form-label">Student ID</label><input
-                class="form-input" id="student-id" placeholder="G2-108"></div>
-            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input"
-                id="student-name" placeholder="Jane Roe"></div>
-            <div class="form-group"><label class="form-label">Grade</label><select class="form-select"
-                id="student-grade">
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('student-modal')">×</button>
+            <h2 id="student-modal-title" style="margin-bottom: 1rem;">Add Student</h2>
+            <div class="form-group">
+              <label class="form-label">Student ID</label>
+              <input class="form-input" id="student-id" placeholder="G2-108">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" id="student-name" placeholder="Jane Roe">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Grade</label>
+              <select class="form-select" id="student-grade">
                 <option>G2</option>
                 <option>G3</option>
                 <option>G4</option>
                 <option>G5</option>
-              </select></div><button class="btn btn-primary" onclick="saveStudent()">Save</button>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveStudent()" style="margin-top: 1rem;">Save</button>
           </div>
         </div>
 
         <div class="modal-overlay" id="assessment-modal">
-          <div class="modal-content"><button class="modal-close" onclick="closeModal('assessment-modal')">×</button>
-            <h2>Create Assessment</h2>
-            <div class="form-grid" style="margin-top:1rem;">
-              <div class="form-group"><label>Name</label><input class="form-input" id="assessment-name"
-                  placeholder="Mid-term"></div>
-              <div class="form-group"><label>Term</label><input class="form-input" id="assessment-term"
-                  value="Term1_2026" readonly></div>
-              <div class="form-group"><label>Grade</label><select class="form-select" id="assessment-grade">
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('assessment-modal')">×</button>
+            <h2 style="margin-bottom: 1rem;">Create Assessment</h2>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Name</label>
+                <input class="form-input" id="assessment-name" placeholder="Mid-term">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Term</label>
+                <input class="form-input" id="assessment-term" value="Term1_2026" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Grade</label>
+                <select class="form-select" id="assessment-grade">
                   <option>G2</option>
                   <option>G3</option>
                   <option>G4</option>
                   <option>G5</option>
-                </select></div>
-              <div class="form-group"><label>Max Marks</label><input type="number" class="form-input"
-                  id="assessment-max-marks" value="100"></div>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Marks</label>
+                <input type="number" class="form-input" id="assessment-max-marks" value="100">
+              </div>
             </div>
-            <div class="form-group"><label>Subjects</label>
-              <div class="subject-tags" id="subject-selection"><span class="subject-tag" data-subject="Mathematics"
-                  onclick="toggleSubject(this)">Math</span><span class="subject-tag" data-subject="English"
-                  onclick="toggleSubject(this)">English</span><span class="subject-tag" data-subject="Science"
-                  onclick="toggleSubject(this)">Science</span><span class="subject-tag" data-subject="History"
-                  onclick="toggleSubject(this)">History</span><span class="subject-tag" data-subject="Geography"
-                  onclick="toggleSubject(this)">Geo</span><span class="subject-tag" data-subject="Art"
-                  onclick="toggleSubject(this)">Art</span><span class="subject-tag" data-subject="Music"
-                  onclick="toggleSubject(this)">Music</span><span class="subject-tag" data-subject="PE"
-                  onclick="toggleSubject(this)">PE</span></div>
+            <div class="form-group">
+              <label class="form-label">Subjects</label>
+              <div class="subject-tags" id="subject-selection">
+                <span class="subject-tag" data-subject="Mathematics" onclick="toggleSubject(this)">Math</span>
+                <span class="subject-tag" data-subject="English" onclick="toggleSubject(this)">English</span>
+                <span class="subject-tag" data-subject="Science" onclick="toggleSubject(this)">Science</span>
+                <span class="subject-tag" data-subject="History" onclick="toggleSubject(this)">History</span>
+                <span class="subject-tag" data-subject="Geography" onclick="toggleSubject(this)">Geo</span>
+                <span class="subject-tag" data-subject="Art" onclick="toggleSubject(this)">Art</span>
+                <span class="subject-tag" data-subject="Music" onclick="toggleSubject(this)">Music</span>
+                <span class="subject-tag" data-subject="PE" onclick="toggleSubject(this)">PE</span>
+              </div>
             </div>
-            <div class="form-group"><label>Description</label><textarea class="form-textarea"
-                id="assessment-description"></textarea></div><button class="btn btn-primary"
-              onclick="saveAssessment()">Create</button>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="assessment-description"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveAssessment()" style="margin-top: 1rem;">Create</button>
           </div>
         </div>
 
         <div class="modal-overlay" id="edit-marks-modal">
-          <div class="modal-content"><button class="modal-close" onclick="closeModal('edit-marks-modal')">×</button>
-            <h2>Edit Marks</h2>
-            <div id="edit-marks-info" style="margin:1rem 0;"></div>
-            <div class="form-group"><label>Marks</label><input type="number" class="form-input" id="edit-marks-input"
-                min="0">
-            </div><button class="btn btn-primary" onclick="updateMarks()">Update</button>
+          <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('edit-marks-modal')">×</button>
+            <h2 style="margin-bottom: 1rem;">Edit Marks</h2>
+            <div id="edit-marks-info" style="margin: 1rem 0;"></div>
+            <div class="form-group">
+              <label class="form-label">Marks</label>
+              <input type="number" class="form-input" id="edit-marks-input" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="updateMarks()" style="margin-top: 1rem;">Update</button>
           </div>
         </div>
 
         <div class="modal-overlay" id="bulk-marks-modal">
-          <div class="modal-content" style="max-width:900px;"><button class="modal-close"
-              onclick="closeModal('bulk-marks-modal')">×</button>
-            <h2>Bulk Marks Entry</h2>
-            <div class="form-group" style="margin:1rem 0;"><label>Assessment</label><select class="form-select"
-                id="bulk-assessment" onchange="renderBulkMarks()">
+          <div class="modal-content" style="max-width: 900px;">
+            <button class="modal-close" onclick="closeModal('bulk-marks-modal')">×</button>
+            <h2 style="margin-bottom: 1rem;">Bulk Marks Entry</h2>
+            <div class="form-group">
+              <label class="form-label">Assessment</label>
+              <select class="form-select" id="bulk-assessment" onchange="renderBulkMarks()">
                 <option value="">Select</option>
-              </select></div>
-            <div id="bulk-marks-content"></div><button class="btn btn-success" onclick="saveBulkMarks()"
-              style="margin-top:1rem;">Save All</button>
+              </select>
+            </div>
+            <div id="bulk-marks-content"></div>
+            <button class="btn btn-success" onclick="saveBulkMarks()" style="margin-top: 1rem;">Save All</button>
           </div>
         </div>
       </div>
