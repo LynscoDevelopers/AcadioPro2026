@@ -1385,30 +1385,40 @@
       --transition: all 0.2s ease;
     }
 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
     }
 
     
+
     .app-wrapper {
       width: 100%;
       max-width: 1400px;
+      height: 100%;
+      max-height: calc(100vh - 2rem);
       background: white;
       border-radius: 1rem;
-      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* header */
     .app-header {
+      flex-shrink: 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      margin-bottom: 1.5rem;
       padding: 1rem;
       border-bottom: 1px solid var(--border);
     }
@@ -1451,18 +1461,14 @@
 
     /* nav */
     .nav-tabs {
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      flex-shrink: 0;
       display: flex;
       flex-wrap: wrap;
       gap: 0.25rem;
       background: white;
       padding: 0.5rem;
-      border-radius: 0.75rem;
       box-shadow: var(--shadow-sm);
-      margin-bottom: 1.5rem;
-      border: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .nav-tab {
@@ -1492,15 +1498,43 @@
       color: white;
     }
 
+    /* content area */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 1.25rem;
+      scroll-behavior: smooth;
+    }
+
+    /* Scrollbar styling */
+    .content-area::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .content-area::-webkit-scrollbar-track {
+      background: var(--gray-50);
+      border-radius: 4px;
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: var(--gray-300);
+      border-radius: 4px;
+    }
+
+    .content-area::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-400);
+    }
+
     /* sections */
     .content-section {
       display: none;
       animation: fade 0.2s ease;
-      scroll-margin-top: 80px;
     }
 
     .content-section.active {
       display: block;
+      max-width: 100%;
     }
 
     @keyframes fade {
@@ -1877,9 +1911,17 @@
 
     /* responsive tweaks */
     @media (max-width: 640px) {
+      body {
+        padding: 0.5rem;
+      }
+
       .app-wrapper {
-        padding: 0.75rem;
+        max-height: calc(100vh - 1rem);
         border-radius: 0.75rem;
+      }
+
+      .content-area {
+        padding: 0.75rem;
       }
 
       .app-header {
@@ -1889,10 +1931,6 @@
       .header-actions {
         width: 100%;
         justify-content: center;
-      }
-
-      .nav-tabs {
-        border-radius: 0.5rem;
       }
 
       .nav-tab {
@@ -1918,7 +1956,6 @@
       }
     }
   </style>
-
 
 
 </head>
@@ -2400,103 +2437,104 @@
             <button class="nav-tab" data-tab="marks">📈 Marks</button>
           </nav>
 
-          <!-- Dashboard Section -->
-          <div class="content-section active" id="dashboard-section">
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div>
-                  <div class="stat-label">Total Students</div>
-                  <div class="stat-value" id="dash-students">0</div>
+          <div class="content-area">
+            <!-- Dashboard Section -->
+            <div class="content-section active" id="dashboard-section">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div>
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-value" id="dash-students">0</div>
+                  </div>
+                  <span class="stat-icon">👥</span>
                 </div>
-                <span class="stat-icon">👥</span>
+                <div class="stat-card">
+                  <div>
+                    <div class="stat-label">Assessments</div>
+                    <div class="stat-value" id="dash-assessments">0</div>
+                  </div>
+                  <span class="stat-icon">📝</span>
+                </div>
+                <div class="stat-card">
+                  <div>
+                    <div class="stat-label">Marks Records</div>
+                    <div class="stat-value" id="dash-marks">0</div>
+                  </div>
+                  <span class="stat-icon">📊</span>
+                </div>
+                <div class="stat-card">
+                  <div>
+                    <div class="stat-label">Average</div>
+                    <div class="stat-value" id="dash-average">0%</div>
+                  </div>
+                  <span class="stat-icon">📈</span>
+                </div>
               </div>
-              <div class="stat-card">
-                <div>
-                  <div class="stat-label">Assessments</div>
-                  <div class="stat-value" id="dash-assessments">0</div>
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">📌 Assessment Overview</h3>
                 </div>
-                <span class="stat-icon">📝</span>
-              </div>
-              <div class="stat-card">
-                <div>
-                  <div class="stat-label">Marks Records</div>
-                  <div class="stat-value" id="dash-marks">0</div>
-                </div>
-                <span class="stat-icon">📊</span>
-              </div>
-              <div class="stat-card">
-                <div>
-                  <div class="stat-label">Average</div>
-                  <div class="stat-value" id="dash-average">0%</div>
-                </div>
-                <span class="stat-icon">📈</span>
+                <div style="padding: 1rem 1.25rem;" id="recent-performance"></div>
               </div>
             </div>
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">📌 Assessment Overview</h3>
-              </div>
-              <div style="padding: 1rem 1.25rem;" id="recent-performance"></div>
-            </div>
-          </div>
 
-          <!-- Assessments Section -->
-          <div class="content-section" id="assessments-section">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">📝 Assessments</h3>
-                <button class="btn btn-primary" onclick="openAssessmentModal()">➕ New Assessment</button>
+            <!-- Assessments Section -->
+            <div class="content-section" id="assessments-section">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">📝 Assessments</h3>
+                  <button class="btn btn-primary" onclick="openAssessmentModal()">➕ New Assessment</button>
+                </div>
+                <div class="assessment-grid" id="assessments-list"></div>
               </div>
-              <div class="assessment-grid" id="assessments-list"></div>
             </div>
-          </div>
 
-          <!-- Marks Section -->
-          <div class="content-section" id="marks-section">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">📈 Marks Entry</h3>
-                <button class="btn btn-warning" onclick="openBulkMarksModal()">📝 Bulk Entry</button>
-              </div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label class="form-label">Assessment</label>
-                  <select class="form-select" id="filter-assessment" onchange="onAssessmentFilter()">
-                    <option value="">All Assessments</option>
-                  </select>
+            <!-- Marks Section -->
+            <div class="content-section" id="marks-section">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">📈 Marks Entry</h3>
+                  <button class="btn btn-warning" onclick="openBulkMarksModal()">📝 Bulk Entry</button>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Subject</label>
-                  <select class="form-select" id="filter-subject" onchange="renderMarksTable()">
-                    <option value="">All Subjects</option>
-                  </select>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Assessment</label>
+                    <select class="form-select" id="filter-assessment" onchange="onAssessmentFilter()">
+                      <option value="">All Assessments</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <select class="form-select" id="filter-subject" onchange="renderMarksTable()">
+                      <option value="">All Subjects</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Grade</label>
+                    <select class="form-select" id="filter-grade" onchange="renderMarksTable()">
+                      <option value="">All Grades</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Grade</label>
-                  <select class="form-select" id="filter-grade" onchange="renderMarksTable()">
-                    <option value="">All Grades</option>
-                  </select>
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Grade</th>
+                        <th>Subject</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="marks-table"></tbody>
+                  </table>
                 </div>
-              </div>
-              <div class="table-wrapper">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Student</th>
-                      <th>Grade</th>
-                      <th>Subject</th>
-                      <th>Marks</th>
-                      <th>Grade</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="marks-table"></tbody>
-                </table>
               </div>
             </div>
           </div>
         </div>
-
       </div>
 
 
@@ -3416,7 +3454,6 @@
         initializeSystem();
       })();
     </script>
-
 
     <script type="module">
       // ============================================================
