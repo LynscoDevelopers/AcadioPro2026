@@ -3582,6 +3582,7 @@
         const balance = currentBalance - amount;
 
         const paymentData = {
+
           term: getActiveTerm(),
           fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
           boarding: document.getElementById("guardianPhone").value.trim(),
@@ -3933,7 +3934,16 @@
         const nextNumber = highestNumber + 1;
         return `${prefix}-${year}-${nextNumber}`;
       }
+      function studentHasBoardingException(admissionNumber) {
+        if (!admissionNumber || !studentsCache) return false;
 
+        const student = studentsCache[admissionNumber];
+        if (!student) return false;
+
+        const ex = student.Exceptions || {};
+
+        return ex.Boarding === true;
+      }
       // ============================================================
       // POPULATE TABLES
       // ============================================================
@@ -5441,6 +5451,9 @@
         const row = e.target.closest('tbody tr');
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
+
+        alert(admissionNumber, studentHasBoardingException(admissionNumber));
+
         selectStudentForFee(admissionNumber);
       });
 
