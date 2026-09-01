@@ -3935,7 +3935,7 @@
         return `${prefix}-${year}-${nextNumber}`;
       }
       function studentHasBoardingException(admissionNumber) {
-        if (!admissionNumber || !studentsCache) return false;
+        if (!admissionNumber || !studentsCache) return "notfound";
 
         const student = studentsCache[admissionNumber];
         if (!student) return false;
