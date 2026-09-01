@@ -3598,7 +3598,8 @@
           Account: document.getElementById("Fn_Account").value,
           paymentDate: document.getElementById("Fn_PaymentDate").value,
           paymentRef: document.getElementById("Fn_PaymentRef").value,
-          Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim())
+          Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim()),
+          ReceiptNo:getLastReceiptNo()
         };
 
         try {
@@ -3618,7 +3619,7 @@
             term: getActiveTerm(),
             Admission_No: admissionNumber,
             Amount: paymentData.amount,
-            RecieptNo: "001",
+            RecieptNo: paymentData.ReceiptNo,
             Balance: paymentData.balance,
             DateofPayment: paymentData.paymentDate,
             TransactionRef: paymentData.paymentRef,
@@ -3945,13 +3946,18 @@
         return ex.Boarding === true;
       }
       function getLastReceiptNo() {
-        if (!paymentCache || Object.keys(paymentCache).length === 0) return "";
+        if (!paymentCache || Object.keys(paymentCache).length === 0) {
+          return 1;
+        }
+        const receiptNumbers = Object.values(paymentCache)
+          .map(payment => parseInt(payment?.ReceiptNo, 10))
+          .filter(num => !isNaN(num));
 
-        const payments = Object.values(paymentCache);
-
-        const lastPayment = payments[payments.length - 1];
-
-        return lastPayment?.ReceiptNo || "";
+        if (receiptNumbers.length === 0) {
+          return 1;
+        }
+        const lastReceiptNo = Math.max(...receiptNumbers);
+        return lastReceiptNo + 1;
       }
 
       // ============================================================
@@ -4858,7 +4864,7 @@
             term: paymentData.term || getActiveTerm(),
             Admission_No: admissionNumber,
             Amount: paymentData.amount,
-            RecieptNo: paymentData.receiptNo || "001",
+            RecieptNo: paymentData.receiptNo ,
             Balance: paymentData.balance,
             DateofPayment: paymentData.paymentDate,
             TransactionRef: paymentData.paymentRef,
@@ -5462,7 +5468,6 @@
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
 
-alert(getLastReceiptNo());
         selectStudentForFee(admissionNumber);
       });
 
