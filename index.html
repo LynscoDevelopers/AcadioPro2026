@@ -2091,7 +2091,8 @@
         <button class="tab-btn" data-tab="tab2">Tab 2</button>
         <button class="tab-btn" data-tab="tab3">Tab 3</button>
         <button class="tab-btn" data-tab="tab4">Tab 4</button>
-        <button class="tab-btn" data-tab="tab5">Tab 5s</button>
+        <button class="tab-btn" data-tab="tab5">Tab 5</button>
+        <button class="tab-btn" data-tab="tab6">Tab 6</button>
       </div>
     </div>
 
@@ -2634,6 +2635,30 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div id="tab6" class="tab-panel">
+        <table class="register-table" id="FeePaymentList">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" class="custom-checkbox"></th>
+              <th class="col-avatar"></th>
+              <th class="col-name">Student</th>
+              <th class="col-grade">Amount</th>
+              <th class="col-dob">Balance</th>
+              <th class="col-national">Account</th>
+              <th class="col-contact">Payment Ref</th>
+              <th class="col-status">Date</th>
+              <th class="col-status">ReciepNo
+            </tr>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 from js-->
+
+
+          </tbody>
+        </table>
       </div>
 
 
@@ -3480,7 +3505,8 @@
         tab2: document.getElementById('tab2'),
         tab3: document.getElementById('tab3'),
         tab4: document.getElementById('tab4'),
-        tab5: document.getElementById('tab5')
+        tab5: document.getElementById('tab5'),
+        tab6: document.getElementById('tab6')
       };
 
       tabs.forEach(tab => {
@@ -3599,7 +3625,7 @@
           paymentDate: document.getElementById("Fn_PaymentDate").value,
           paymentRef: document.getElementById("Fn_PaymentRef").value,
           Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim()),
-          ReceiptNo:getLastReceiptNo()
+          ReceiptNo: getLastReceiptNo()
         };
 
         try {
@@ -4091,6 +4117,113 @@
         }
       }
 
+      function populateStudentsTable(students) {
+        const tbody = document.querySelector(".register-table tbody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        if (!students) return;
+
+        const sortedStudents = Object.entries(students).sort(([, a], [, b]) => {
+          const gradeA = a.class || "";
+          const gradeB = b.class || "";
+          const isGraduateA = gradeA === "Graduate";
+          const isGraduateB = gradeB === "Graduate";
+          if (isGraduateA && !isGraduateB) return 1;
+          if (!isGraduateA && isGraduateB) return -1;
+          const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
+          const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
+          if (isInactiveA && !isInactiveB) return 1;
+          if (!isInactiveA && isInactiveB) return -1;
+          const getGradeNumber = (grade) => {
+            const match = grade.match(/(\d+)/);
+            return match ? parseInt(match[1]) : -1;
+          };
+          const getGradePrefix = (grade) => {
+            const match = grade.match(/^([A-Za-z]+)/);
+            return match ? match[1].toUpperCase() : "";
+          };
+          const numA = getGradeNumber(gradeA);
+          const numB = getGradeNumber(gradeB);
+          if (numA !== numB) {
+            if (numA === -1 && numB !== -1) return 1;
+            if (numA !== -1 && numB === -1) return -1;
+            return numB - numA;
+          }
+          const prefixA = getGradePrefix(gradeA);
+          const prefixB = getGradePrefix(gradeB);
+          const prefixOrder = { 'G': 0, 'PP': 1, 'DAYCARE': 2 };
+          const orderA = prefixOrder[prefixA] ?? 99;
+          const orderB = prefixOrder[prefixB] ?? 99;
+          return orderA - orderB;
+        });
+
+        let index = 1;
+        for (const [admissionNumber, student] of sortedStudents) {
+          const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
+          const isGraduate = student.class === "Graduate";
+          const status = isGraduate ? "Graduate" : (student.Status || "—");
+          const statusClass = isGraduate ? "late" : status.toLowerCase() === "inactive" ? "absent" : "";
+          const row = document.createElement("tr");
+          row.innerHTML = `
+        <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+        <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+        <td class="col-name">
+          <div class="student-info">
+            <span class="student-name clickable-name" data-student="${index}">${student.name || "Unknown"}</span>
+            <span class="student-id">${admissionNumber}</span>
+          </div>
+        </td>
+        <td class="col-grade">${student.class || "—"}</td>
+        <td class="col-dob">${formattedDob}</td>
+        <td class="col-national">${student.nationality || "—"}</td>
+        <td class="col-contact">${student.phone || "—"}</td>
+        <td class="col-status"><span class="status-badge ${statusClass}">${status}</span></td>
+      `;
+          tbody.appendChild(row);
+          index++;
+        }
+      }
+
+      function populateFeeBalanceTable(Payments) {
+        const tbody = document.querySelector("#FeePaymentList tbody");
+        if (!tbody || !Payments) return;
+        tbody.innerHTML = "";
+
+        // Convert object to array for iteration
+        const paymentArray = Object.entries(Payments).map(([key, value]) => ({
+          id: key,
+          ...value
+        }));
+
+        // Iterate through payments (unsorted)
+        for (let i = 0; i < paymentArray.length; i++) {
+          const payment = paymentArray[i];
+
+          // Extract data from your payment structure
+          const admissionNumber = payment.admissionNumber || 'N/A';
+          const studentName = payment.studentName || payment.name || "Unknown";
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+            <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+            <td class="col-name">
+                <div class="student-info">
+                    <span class="student-name clickable-name" data-student="${admissionNumber}">${studentName}</span>
+                    <span class="student-id">${admissionNumber}</span>
+                </div>
+            </td>
+            <td class="col-grade">${payment.amount || '0.00'}</td>
+            <td class="col-dob">${payment.balance || '0.00'}</td>
+            <td class="col-national">${payment.Account || '0.00'}</td>
+            <td class="col-contact">${payment.amount || '0.00'}</td>
+            <td class="col-contact">${payment.paymentRef || '—'}</td>
+            <td class="col-contact">${payment.entryDate || '—'}</td>
+            <td class="col-contact">${payment.ReceiptNo || '—'}</td>
+        `;
+          tbody.appendChild(row);
+        }
+      }
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
         if (!tableBody) return;
@@ -4152,6 +4285,8 @@
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load payments:\n" + error.message);
+        populateFeePaymentsTable(paymentCache);
+
       });
 
       let classData = [];
@@ -4864,7 +4999,7 @@
             term: paymentData.term || getActiveTerm(),
             Admission_No: admissionNumber,
             Amount: paymentData.amount,
-            RecieptNo: paymentData.receiptNo ,
+            RecieptNo: paymentData.receiptNo,
             Balance: paymentData.balance,
             DateofPayment: paymentData.paymentDate,
             TransactionRef: paymentData.paymentRef,
