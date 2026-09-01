@@ -3984,7 +3984,14 @@
         }
         const lastReceiptNo = Math.max(...receiptNumbers);
         return lastReceiptNo + 1;
+      } 
+      // Alternative simpler version if you're sure about the structure:
+      function getStudentName(admissionNumber) {
+        if (!studentsCache || !admissionNumber) return 'Unknown';
+        const student = studentsCache[String(admissionNumber)];
+        return student?.name || student?.studentName || 'Unknown';
       }
+
 
       // ============================================================
       // POPULATE TABLES
@@ -4142,7 +4149,7 @@
             <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
             <td class="col-name">
                 <div class="student-info">
-                    <span class="student-name clickable-name" data-student="${admissionNumber}">${studentName}</span>
+                    <span class="student-name clickable-name" data-student="${admissionNumber}">${getStudentName(admissionNumber)}</span>
                     <span class="student-id">${admissionNumber}</span>
                 </div>
             </td>
@@ -4163,7 +4170,7 @@
         }
       }
 
-     
+
 
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
