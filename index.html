@@ -4130,37 +4130,17 @@
 
         const text = String(value);
 
+        // Match: Carried from Term1- 2025
         if (text.includes("Carried from")) {
           return text.replace(
             /Carried from\s+(.+)/i,
-            (_, term) => `C.F(${term.trim().replace(/^Term/i, "T")})`
+            (_, term) => {
+              return `C.F(${term.trim().replace(/^Term/i, "T")})`;
+            }
           );
         }
 
         return value;
-      }
-
-      function parseEntryDate(dateValue) {
-        if (!dateValue) return 0;
-
-        const text = String(dateValue).trim();
-
-        // Format: DD/MM/YYYY
-        const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-
-        if (match) {
-          const [, day, month, year] = match;
-          return new Date(
-            Number(year),
-            Number(month) - 1,
-            Number(day)
-          ).getTime();
-        }
-
-        // Try normal JavaScript date format
-        const parsed = new Date(text).getTime();
-
-        return isNaN(parsed) ? 0 : parsed;
       }
 
       function populateFeePaymentsTable(Payments) {
@@ -4169,31 +4149,26 @@
 
         tbody.innerHTML = "";
 
-        // Convert object to array
+        // Convert object to array for iteration
         const paymentArray = Object.entries(Payments).map(([key, value]) => ({
           id: key,
           ...value
         }));
 
-        // SORT BY entryDate — newest first
-        paymentArray.sort((a, b) => {
-          return parseEntryDate(b.entryDate) - parseEntryDate(a.entryDate);
-        });
-
-        // Display payments
+        // Iterate through payments
         for (let i = 0; i < paymentArray.length; i++) {
-
           const payment = paymentArray[i];
 
-          const admissionNumber = payment.admissionNumber || "N/A";
+          const admissionNumber = payment.admissionNumber || 'N/A';
           const studentName = getStudentName(admissionNumber);
 
-          const amount = formatCarriedFrom(payment.amount || "0.00");
-          const balance = formatCarriedFrom(payment.balance || "0.00");
-          const account = formatCarriedFrom(payment.Account || "—");
-          const paymentRef = formatCarriedFrom(payment.paymentRef || "—");
-          const entryDate = formatCarriedFrom(payment.entryDate || "—");
-          const receiptNo = formatCarriedFrom(payment.ReceiptNo || "—");
+          // Format all fields
+          const amount = formatCarriedFrom(payment.amount || '0.00');
+          const balance = formatCarriedFrom(payment.balance || '0.00');
+          const account = formatCarriedFrom(payment.Account || '—');
+          const paymentRef = formatCarriedFrom(payment.paymentRef || '—');
+          const entryDate = formatCarriedFrom(payment.entryDate || '—');
+          const receiptNo = formatCarriedFrom(payment.ReceiptNo || '—');
 
           const row = document.createElement("tr");
 
@@ -4219,6 +4194,7 @@
           tbody.appendChild(row);
         }
       }
+
 
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
