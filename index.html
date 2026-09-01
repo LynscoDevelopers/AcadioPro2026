@@ -3573,6 +3573,7 @@
       document.getElementById("savePaymentBtn")?.addEventListener("click", async () => {
         const admissionNumber = document.getElementById("Fn_Admn").textContent.trim();
         if (!admissionNumber) return alert("Please enter the admission number.");
+        const admissionKey = admissionNumber.replace(/\//g, "-");
 
         const getValue = id =>
           parseFloat(String(document.getElementById(id).value || 0).replace(/,/g, "")) || 0;
@@ -3585,7 +3586,7 @@
 
           term: getActiveTerm(),
           fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
-          boarding: document.getElementById("guardianPhone").value.trim(),
+          boarding: studentHasBoardingException(admissionKey),
           class: document.getElementById("Fn_Grade").textContent.trim(),
           entryDate: (() => {
             const d = new Date();
@@ -3603,7 +3604,6 @@
         try {
           const paymentRef = await push(ref(db, "Institution/ Revival/Fee_payment/"), paymentData);
           const firebaseKey = paymentRef.key;
-          const admissionKey = admissionNumber.replace(/\//g, "-");
 
           await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { lastPayment: paymentData });
           document.getElementById("Fn_CurrentBalance").textContent = formatCurrency(balance);
@@ -3938,12 +3938,22 @@
         if (!admissionNumber || !studentsCache) return "notfound";
 
         const student = studentsCache[admissionNumber];
-        if (!student) return  "notfound";
+        if (!student) return "notfound";
 
         const ex = student.Exceptions || {};
 
         return ex.Boarding === true;
       }
+      function getLastReceiptNo() {
+        if (!paymentCache || Object.keys(paymentCache).length === 0) return "";
+
+        const payments = Object.values(paymentCache);
+
+        const lastPayment = payments[payments.length - 1];
+
+        return lastPayment?.ReceiptNo || "";
+      }
+
       // ============================================================
       // POPULATE TABLES
       // ============================================================
@@ -4655,11 +4665,6 @@
           const el = document.getElementById(id);
           if (el) el.textContent = val || "";
         };
-
-alert( admissionNumber);
-alert( studentHasBoardingException(admissionNumber));
-
-
         set("Fn_Name", s.name);
         set("Fn_Grade", s.class);
         set("Fn_Admn", s.admissionNumber);
@@ -5457,7 +5462,7 @@ alert( studentHasBoardingException(admissionNumber));
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
 
-        
+alert(getLastReceiptNo());
         selectStudentForFee(admissionNumber);
       });
 
