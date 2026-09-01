@@ -2641,7 +2641,6 @@
         <table class="register-table" id="FeePaymentList">
           <thead>
             <tr>
-              <th class="col-check"><input type="checkbox" class="custom-checkbox"></th>
               <th class="col-avatar"></th>
               <th class="col-name">Student</th>
               <th class="col-grade">Amount</th>
@@ -4148,7 +4147,6 @@
 
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
             <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
             <td class="col-name">
                 <div class="student-info">
@@ -4156,18 +4154,12 @@
                     <span class="student-id">${admissionNumber}</span>
                 </div>
             </td>
-            <td class="col-grade">${payment.fee || '0.00'}</td>
-            <td class="col-dob">${payment.Exemption || '0.00'}</td>
-            <td class="col-national">${payment.balance || '0.00'}</td>
             <td class="col-contact">${payment.amount || '0.00'}</td>
-            <td class="col-contact">${payment.paymentDate || '—'}</td>
-            <td class="col-contact">${payment.class || '—'}</td>
-            <td class="col-contact">${payment.term || '—'}</td>
-            <td class="col-contact">${payment.ReceiptNo || '—'}</td>
-            <td class="col-contact">${payment.paymentRef || '—'}</td>
+            <td class="col-national">${payment.balance || '0.00'}</td>
             <td class="col-contact">${payment.Account || '—'}</td>
+            <td class="col-contact">${payment.paymentRef || '—'}</td>
             <td class="col-contact">${payment.entryDate || '—'}</td>
-            <td class="col-contact">${payment.boarding ? 'Yes' : 'No'}</td>
+            <td class="col-contact">${payment.ReceiptNo || '—'}</td>
         `;
           tbody.appendChild(row);
         }
