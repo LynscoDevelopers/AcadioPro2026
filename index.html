@@ -3938,7 +3938,7 @@
         if (!admissionNumber || !studentsCache) return "notfound";
 
         const student = studentsCache[admissionNumber];
-        if (!student) return false;
+        if (!student) return  "notfound";
 
         const ex = student.Exceptions || {};
 
