@@ -3152,7 +3152,6 @@
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
 
-
     <script type="module">
       // ============================================================
       // FIREBASE IMPORTS
@@ -3204,29 +3203,19 @@
       // ============================================================
       function formatDateToDDMMYYYY(dateString) {
         if (!dateString) return '';
-
-        // If already in DD/MM/YYYY format, return as-is
         if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
           return dateString;
         }
-
         const d = new Date(dateString);
         if (isNaN(d)) return dateString;
-
         return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
       }
 
-      // Currency formatter - formats to 0,000.00
       function formatCurrency(value) {
         if (value === null || value === undefined || value === "") return "0.00";
         if (value === "Sponsored") return "Sponsored";
-
-        // Remove any existing commas and parse as float
         const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
-
         if (isNaN(num)) return "0.00";
-
-        // Format with commas and 2 decimal places
         return num.toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -3250,7 +3239,6 @@
       const closeSecondary2 = document.getElementById('closeDialogSecondary2');
       const confirmBtn2 = document.getElementById('confirmDialogBtn2');
 
-      // Tab switching for first dialog
       const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
       const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
 
@@ -3270,7 +3258,6 @@
         });
       });
 
-      // Tab switching for second dialog
       const dialogTabBtns2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-btn');
       const dialogTabPanels2 = document.querySelectorAll('#dialogOverlay2 .dialog-tab-panel');
 
@@ -3290,18 +3277,13 @@
         });
       });
 
-      // First dialog functions
       window.openDialog = function () {
         switchDialogTab(0);
         overlay.classList.add('active');
         setTimeout(() => {
           closeIcon.focus();
         }, 50);
-
-
-        closeFeeBalanceMenu();
-        closeRegisterContextMenu();
-
+        closeContextMenu();
       };
 
       function closeDialog() {
@@ -3310,7 +3292,6 @@
         if (openBtn) openBtn.focus();
       }
 
-      // Second dialog functions
       window.openDialog2 = function () {
         switchDialogTab2(0);
         overlay2.classList.add('active');
@@ -3318,11 +3299,7 @@
           closeIcon2.focus();
         }, 50);
         document.body.style.overflow = 'hidden';
-
-
-        closeFeeBalanceMenu();
-        closeRegisterContextMenu();
-
+        closeContextMenu();
       };
 
       function closeDialog2() {
@@ -3331,12 +3308,7 @@
         if (openBtn2) openBtn2.focus();
       }
 
-      // Event listeners for first dialog
-      if (openBtn) {
-
-        openBtn.addEventListener('click', openDialog);
-      }
-
+      if (openBtn) openBtn.addEventListener('click', openDialog);
       if (closeIcon) closeIcon.addEventListener('click', closeDialog);
       if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
       if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
@@ -3369,7 +3341,6 @@
         });
       }
 
-      // Event listeners for second dialog
       if (openBtn2) openBtn2.addEventListener('click', openDialog2);
       if (closeIcon2) closeIcon2.addEventListener('click', closeDialog2);
       if (closeSecondary2) closeSecondary2.addEventListener('click', closeDialog2);
@@ -3403,7 +3374,6 @@
         });
       }
 
-      // Global escape key handling
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
           if (overlay && overlay.classList.contains('active')) {
@@ -3420,7 +3390,6 @@
         document.body.style.overflow = '';
       });
 
-      // Reset and Complete buttons for first dialog
       const resetBtn = document.getElementById('resetBtn');
       const completeBtn = document.getElementById('completeBtn');
 
@@ -3452,7 +3421,6 @@
         });
       }
 
-      // Reset and Update buttons for second dialog
       const editResetBtn = document.getElementById('editResetBtn');
       const editCompleteBtn = document.getElementById('editCompleteBtn');
 
@@ -3489,8 +3457,6 @@
         document.getElementById('editStudentName').value = name || '';
         document.getElementById('editStudentID').value = id || '';
         document.getElementById('editStudentDOB').value = dob || '';
-
-
         openDialog2();
       };
 
@@ -3527,9 +3493,7 @@
           if (p) p.classList.remove('active');
         });
 
-
-        closeFeeBalanceMenu();
-        closeRegisterContextMenu();
+        closeContextMenu();
 
         const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
         if (targetTab) {
@@ -3540,7 +3504,6 @@
           return true;
         }
         return false;
-
       };
 
       window.__tabPanels = panels;
@@ -3607,7 +3570,6 @@
         const balance = currentBalance - amount;
 
         const paymentData = {
-
           term: getActiveTerm(),
           fee: formatCurrency(document.getElementById("Fn_CurrentFee").textContent.trim()),
           boarding: studentHasBoardingException(admissionKey),
@@ -3959,16 +3921,15 @@
         const nextNumber = highestNumber + 1;
         return `${prefix}-${year}-${nextNumber}`;
       }
+
       function studentHasBoardingException(admissionNumber) {
         if (!admissionNumber || !studentsCache) return "notfound";
-
         const student = studentsCache[admissionNumber];
         if (!student) return "notfound";
-
         const ex = student.Exceptions || {};
-
         return ex.Boarding === true;
       }
+
       function getLastReceiptNo() {
         if (!paymentCache || Object.keys(paymentCache).length === 0) {
           return 1;
@@ -3984,15 +3945,12 @@
         return lastReceiptNo + 1;
       }
 
-      // Alternative simpler version if you're sure about the structure:
       function getStudentName(admissionNumber) {
-
         if (!studentsCache || !admissionNumber) return 'Unknown';
         const key = String(admissionNumber).replace(/\//g, '-');
         const student = studentsCache[key];
         return student?.name || student?.studentName || 'Unknown';
       }
-
 
       // ============================================================
       // POPULATE TABLES
@@ -4127,10 +4085,7 @@
 
       function formatCarriedFrom(value) {
         if (value === null || value === undefined) return value;
-
         const text = String(value);
-
-        // Match: Carried from Term1- 2025
         if (text.includes("Carried from")) {
           return text.replace(
             /Carried from\s+(.+)/i,
@@ -4139,59 +4094,42 @@
             }
           );
         }
-
         return value;
       }
 
       function populateFeePaymentsTable(Payments) {
         const tbody = document.querySelector("#FeePaymentList tbody");
         if (!tbody || !Payments) return;
-
         tbody.innerHTML = "";
 
-        // Convert object to array for iteration
         const paymentArray = Object.entries(Payments).map(([key, value]) => ({
           id: key,
           ...value
         }));
 
-        // Sort by receiptNo: numeric first (descending), then non-numeric (descending)
         paymentArray.sort((a, b) => {
           const receiptA = (a.ReceiptNo || '').toString();
           const receiptB = (b.ReceiptNo || '').toString();
-
           const numA = parseFloat(receiptA);
           const numB = parseFloat(receiptB);
           const isNumA = !isNaN(numA) && receiptA.trim() !== '';
           const isNumB = !isNaN(numB) && receiptB.trim() !== '';
-
-          // If both are numeric, sort in descending order
           if (isNumA && isNumB) {
             return numB - numA;
           }
-
-          // If only A is numeric, A comes first
           if (isNumA && !isNumB) {
             return -1;
           }
-
-          // If only B is numeric, B comes first
           if (!isNumA && isNumB) {
             return 1;
           }
-
-          // If both are non-numeric, sort alphabetically in descending order
           return receiptB.localeCompare(receiptA);
         });
 
-        // Iterate through payments
         for (let i = 0; i < paymentArray.length; i++) {
           const payment = paymentArray[i];
-
           const admissionNumber = payment.admissionNumber || 'N/A';
           const studentName = getStudentName(admissionNumber);
-
-          // Format all fields
           const amount = formatCarriedFrom(payment.amount || '0.00');
           const balance = formatCarriedFrom(payment.balance || '0.00');
           const account = formatCarriedFrom(payment.Account || '—');
@@ -4200,7 +4138,6 @@
           const receiptNo = formatCarriedFrom(payment.ReceiptNo || '—');
 
           const row = document.createElement("tr");
-
           row.innerHTML = `
             <td class="col-name">
                 <div class="student-info">
@@ -4211,7 +4148,6 @@
                     <span class="student-id">${admissionNumber}</span>
                 </div>
             </td>
-
             <td class="col-contact">${amount}</td>
             <td class="col-national">${balance}</td>
             <td class="col-contact">${account}</td>
@@ -4219,10 +4155,10 @@
             <td class="col-contact">${entryDate}</td>
             <td class="col-contact">${receiptNo}</td>
         `;
-
           tbody.appendChild(row);
         }
       }
+
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
         if (!tableBody) return;
@@ -4407,19 +4343,16 @@
         select.innerHTML = '';
         select2.innerHTML = '';
 
-        // Default options for student class select
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select Class';
         select.appendChild(defaultOption);
 
-        // Default options for assessment grade select
         const defaultOption2 = document.createElement('option');
         defaultOption2.value = '';
         defaultOption2.textContent = 'Select Grade';
         select2.appendChild(defaultOption2);
 
-        // Create a map for unique classes (grade + stream)
         const classMap = new Map();
         classData.forEach(cls => {
           const key = `${cls.grade}|${cls.stream}`;
@@ -4428,7 +4361,6 @@
           }
         });
 
-        // Sort classes by grade order and stream
         const uniqueClasses = Array.from(classMap.values()).sort((a, b) => {
           const gradeOrder = {
             'Pre-primary': 0, 'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3,
@@ -4441,7 +4373,6 @@
           return (a.stream || '').localeCompare(b.stream || '');
         });
 
-        // Populate student class select with grade + stream
         uniqueClasses.forEach(cls => {
           const option = document.createElement('option');
           let displayText = cls.grade;
@@ -4451,13 +4382,11 @@
           select.appendChild(option);
         });
 
-        // Create a set for unique grades only (no streams)
         const gradeSet = new Set();
         uniqueClasses.forEach(cls => {
           gradeSet.add(cls.grade);
         });
 
-        // Sort grades
         const uniqueGrades = Array.from(gradeSet).sort((a, b) => {
           const gradeOrder = {
             'Pre-primary': 0, 'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3,
@@ -4469,7 +4398,6 @@
           return aOrder - bOrder;
         });
 
-        // Populate assessment grade select with grades only
         uniqueGrades.forEach(grade => {
           const option = document.createElement('option');
           option.value = grade;
@@ -4477,7 +4405,6 @@
           select2.appendChild(option);
         });
       }
-
 
       function openModal(index) {
         editingIndex = index;
@@ -5026,572 +4953,389 @@
       });
 
       // ============================================================
-      // CONTEXT MENU - REGISTER TABLE (FIXED)
+      // UNIFIED CONTEXT MENU
+      // AUTO-SCROLLS .page-container — NOT WINDOW
+      // Works with:
+      //   1. #register_Tbl
+      //   2. #FeeBalanceList
       // ============================================================
+
+      // Context menu initialization
+      const pageContainer = document.querySelector(".page-container");
       const registerTable = document.getElementById("register_Tbl");
-      const registerContextMenu = document.getElementById("registerContextMenu");
+      const feeBalanceTable = document.getElementById("FeeBalanceList");
+      const contextMenu = document.getElementById("registerContextMenu");
       const menuMeal = document.getElementById("menuMeal");
       const menuBoarding = document.getElementById("menuBoarding");
       const menuSponsored = document.getElementById("menuSponsored");
 
-      let contextAdmissionNumber = null;
-      let contextSelectedRow = null;
+      let activeTable = null;
+      let selectedRow = null;
       let selectedAdmissionNumber = null;
       let isAutoScrolling = false;
-      let registerMenuShouldStayOpen = false; // NEW: Flag to keep menu open
+      let menuShouldStayOpen = false;
+      let scrollAnimationFrame = null;
+      let lastScrollPosition = 0;
+      let scrollCheckTimeout = null;
 
-      function selectRegisterRow(row) {
-        if (!row) return;
-        document.querySelectorAll("#register_Tbl tbody tr.row-selected").forEach(r => {
-          if (r !== row) r.classList.remove("row-selected");
-        });
-        row.classList.add("row-selected");
-        contextSelectedRow = row;
-        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
-        if (admissionNumber) {
-          contextAdmissionNumber = admissionNumber;
-          selectedAdmissionNumber = admissionNumber;
-        }
+      function getAdmissionNumber(row) {
+        if (!row) return null;
+        return row.querySelector(".student-id")?.textContent?.trim() || null;
       }
 
-      function restoreSelectedRegisterRow() {
-        if (!selectedAdmissionNumber) return;
-        const rows = document.querySelectorAll("#register_Tbl tbody tr");
+      function selectRow(row, table) {
+        if (!row || !table) return;
+        document.querySelectorAll("#register_Tbl tbody tr.row-selected").forEach(r => {
+          r.classList.remove("row-selected");
+        });
+        document.querySelectorAll("#FeeBalanceList tbody tr.fee-balance-selected").forEach(r => {
+          r.classList.remove("fee-balance-selected");
+        });
+        if (table === registerTable) {
+          row.classList.add("row-selected");
+        } else if (table === feeBalanceTable) {
+          row.classList.add("fee-balance-selected");
+        }
+        activeTable = table;
+        selectedRow = row;
+        selectedAdmissionNumber = getAdmissionNumber(row);
+      }
+
+      function restoreSelectedRow() {
+        if (!selectedAdmissionNumber || !activeTable) return;
+        const rows = activeTable.querySelectorAll("tbody tr");
         let foundRow = null;
         rows.forEach(row => {
-          const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
+          const admissionNumber = getAdmissionNumber(row);
           if (admissionNumber === selectedAdmissionNumber) {
-            row.classList.add("row-selected");
             foundRow = row;
+            if (activeTable === registerTable) {
+              row.classList.add("row-selected");
+            } else if (activeTable === feeBalanceTable) {
+              row.classList.add("fee-balance-selected");
+            }
           } else {
             row.classList.remove("row-selected");
+            row.classList.remove("fee-balance-selected");
           }
         });
         if (foundRow) {
-          contextSelectedRow = foundRow;
-          contextAdmissionNumber = selectedAdmissionNumber;
+          selectedRow = foundRow;
         }
       }
 
-      function closeRegisterContextMenu() {
-        if (!registerContextMenu) return;
-        registerContextMenu.style.display = "none";
-        registerContextMenu.style.visibility = "hidden";
-        registerMenuShouldStayOpen = false; // Reset flag
-      }
-
-      function positionRegisterContextMenu() {
-        if (!registerContextMenu || !contextSelectedRow) return;
-
-        // Check if row is still in DOM
-        if (!contextSelectedRow.isConnected) {
-          restoreSelectedRegisterRow();
-          if (!contextSelectedRow) return;
+      function getSelectedStudent() {
+        if (!selectedAdmissionNumber || typeof studentsCache === "undefined") {
+          return null;
         }
-
-        const statusBadge = contextSelectedRow.querySelector(".col-status .status-badge");
-        if (!statusBadge) return;
-
-        const rect = statusBadge.getBoundingClientRect();
-        const menuWidth = registerContextMenu.offsetWidth || 180;
-        const menuHeight = registerContextMenu.offsetHeight || 120;
-
-        let left = rect.left - 70;
-        let top = rect.bottom + 5;
-
-        // Keep inside viewport
-        if (left < 5) left = 5;
-        if (left + menuWidth > window.innerWidth - 5) left = window.innerWidth - menuWidth - 5;
-        if (top + menuHeight > window.innerHeight - 5) top = rect.top - menuHeight - 5;
-        if (top < 5) top = 5; // Ensure menu doesn't go above viewport
-
-        registerContextMenu.style.position = "fixed";
-        registerContextMenu.style.left = `${left}px`;
-        registerContextMenu.style.top = `${top}px`;
-        registerContextMenu.style.zIndex = "999999";
+        return studentsCache[selectedAdmissionNumber] || null;
       }
 
-      registerTable?.addEventListener("click", function (e) {
-        const row = e.target.closest("tbody tr");
-        if (!row) return;
-
-        if (e.target.matches("input.custom-checkbox")) {
-          selectRegisterRow(row);
-          closeRegisterContextMenu();
-          row.classList.add("row-selected");
+      function loadMenuValues() {
+        const student = getSelectedStudent();
+        if (!student) {
+          console.warn("Student not found:", selectedAdmissionNumber);
           return;
         }
+        const exceptions = student.Exceptions || {};
+        if (menuMeal) menuMeal.checked = exceptions.Meal === true;
+        if (menuBoarding) menuBoarding.checked = exceptions.Boarding === true;
+        if (menuSponsored) menuSponsored.checked = exceptions.Sponsored === true;
+        if (menuMeal) menuMeal.disabled = menuBoarding?.checked === true;
+      }
 
-        selectRegisterRow(row);
-        closeRegisterContextMenu();
-      });
+      function showContextMenu() {
+        if (!contextMenu || !selectedRow) return;
+        menuShouldStayOpen = true;
+        isAutoScrolling = false;
+        contextMenu.style.position = "fixed";
+        contextMenu.style.display = "block";
+        contextMenu.style.visibility = "hidden";
+        contextMenu.style.zIndex = "999999";
+        void contextMenu.offsetWidth;
+        positionContextMenu();
+        autoScrollForMenu();
+      }
+
+      function positionContextMenu() {
+        if (!contextMenu || !selectedRow) return;
+        if (!selectedRow.isConnected) {
+          restoreSelectedRow();
+          if (!selectedRow) return;
+        }
+        let anchor = selectedRow.querySelector(".col-status");
+        if (activeTable === feeBalanceTable) {
+          anchor = selectedRow.querySelector("td:last-child") || anchor;
+        }
+        if (!anchor) {
+          anchor = selectedRow.querySelector("td:last-child");
+        }
+        if (!anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        const menuWidth = contextMenu.offsetWidth || 190;
+        const menuHeight = contextMenu.offsetHeight || 130;
+        const margin = 8;
+        let left = rect.left - 60;
+        if (left + menuWidth > window.innerWidth - margin) {
+          left = window.innerWidth - menuWidth - margin;
+        }
+        if (left < margin) left = margin;
+        let top = rect.bottom + 5;
+        if (top + menuHeight > window.innerHeight - margin) {
+          top = rect.top - menuHeight - 5;
+        }
+        if (top < margin) top = margin;
+        contextMenu.style.left = `${left}px`;
+        contextMenu.style.top = `${top}px`;
+        contextMenu.style.display = "block";
+        contextMenu.style.visibility = "visible";
+      }
+
+      function autoScrollForMenu() {
+        if (!pageContainer || !selectedRow || !contextMenu) return;
+        const rowRect = selectedRow.getBoundingClientRect();
+        const containerRect = pageContainer.getBoundingClientRect();
+        const menuHeight = contextMenu.offsetHeight || 130;
+        const padding = 20;
+        const requiredBottom = rowRect.bottom + menuHeight + padding;
+        if (requiredBottom > containerRect.bottom) {
+          const amount = requiredBottom - containerRect.bottom;
+          scrollPageContainer(amount);
+          return;
+        }
+        const requiredTop = rowRect.top - padding;
+        if (requiredTop < containerRect.top) {
+          const amount = requiredTop - containerRect.top;
+          scrollPageContainer(amount);
+          return;
+        }
+        positionContextMenu();
+      }
+
+      function scrollPageContainer(amount) {
+        if (!pageContainer) return;
+        if (!amount) {
+          isAutoScrolling = false;
+          positionContextMenu();
+          return;
+        }
+        if (scrollAnimationFrame) {
+          cancelAnimationFrame(scrollAnimationFrame);
+          scrollAnimationFrame = null;
+        }
+        const start = pageContainer.scrollTop;
+        const maxScroll = pageContainer.scrollHeight - pageContainer.clientHeight;
+        let target = start + amount;
+        target = Math.max(0, Math.min(target, maxScroll));
+        const distance = target - start;
+        if (Math.abs(distance) < 1) {
+          isAutoScrolling = false;
+          positionContextMenu();
+          return;
+        }
+        isAutoScrolling = true;
+        menuShouldStayOpen = true;
+        const duration = 350;
+        const startTime = performance.now();
+        function animate(currentTime) {
+          if (!isAutoScrolling) return;
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          pageContainer.scrollTop = start + distance * eased;
+          positionContextMenu();
+          if (progress < 1) {
+            scrollAnimationFrame = requestAnimationFrame(animate);
+          } else {
+            scrollAnimationFrame = null;
+            isAutoScrolling = false;
+            menuShouldStayOpen = false;
+            restoreSelectedRow();
+            positionContextMenu();
+            contextMenu.style.display = "block";
+            contextMenu.style.visibility = "visible";
+          }
+        }
+        scrollAnimationFrame = requestAnimationFrame(animate);
+      }
 
       registerTable?.addEventListener("contextmenu", function (e) {
         const row = e.target.closest("tbody tr");
-        if (!row || !registerContextMenu) return;
-
+        if (!row) return;
         e.preventDefault();
-        selectRegisterRow(row);
+        e.stopPropagation();
+        selectRow(row, registerTable);
+        loadMenuValues();
+        showContextMenu();
+      });
 
-        if (!contextAdmissionNumber) {
-          console.warn("Admission number not found.");
+      feeBalanceTable?.addEventListener("contextmenu", function (e) {
+        const row = e.target.closest("tbody tr");
+        if (!row) return;
+        e.preventDefault();
+        e.stopPropagation();
+        selectRow(row, feeBalanceTable);
+        loadMenuValues();
+        showContextMenu();
+      });
+
+      // Page container scroll - FIXED
+      pageContainer?.addEventListener("scroll", function () {
+        const currentScrollPosition = pageContainer.scrollTop;
+        if (isAutoScrolling) {
+          positionContextMenu();
+          lastScrollPosition = currentScrollPosition;
           return;
         }
-
-        const student = studentsCache[contextAdmissionNumber];
-        if (!student) {
-          console.warn("Student not found:", contextAdmissionNumber);
-          return;
+        if (menuShouldStayOpen) {
+          const scrollDelta = Math.abs(currentScrollPosition - lastScrollPosition);
+          if (scrollDelta > 5) {
+            closeContextMenu();
+          } else {
+            positionContextMenu();
+          }
         }
-
-        // Set checkbox states
-        const exceptions = student.Exceptions || {};
-        menuMeal.checked = exceptions.Meal === true;
-        menuBoarding.checked = exceptions.Boarding === true;
-        menuSponsored.checked = exceptions.Sponsored === true;
-
-        if (menuBoarding.checked) {
-          menuMeal.checked = false;
-          menuMeal.disabled = true;
-        } else {
-          menuMeal.disabled = false;
+        lastScrollPosition = currentScrollPosition;
+        if (scrollCheckTimeout) {
+          clearTimeout(scrollCheckTimeout);
         }
+        scrollCheckTimeout = setTimeout(() => {
+          // Safety check
+        }, 100);
+      }, { passive: true });
 
-        // Show menu immediately
-        registerContextMenu.style.position = "fixed";
-        registerContextMenu.style.display = "block";
-        registerContextMenu.style.visibility = "visible"; // CHANGED: Make visible immediately
-        registerContextMenu.style.zIndex = "999999";
-
-        // Force layout calculation
-        void registerContextMenu.offsetWidth;
-
-        // Get status badge position
-        const statusBadge = row.querySelector(".col-status .status-badge");
-        if (!statusBadge) {
-          registerContextMenu.style.display = "none";
-          return;
+      // Wheel event - Detect mouse wheel scroll
+      pageContainer?.addEventListener("wheel", function (e) {
+        if (contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
+          closeContextMenu();
         }
+      }, { passive: true });
 
-        const rect = statusBadge.getBoundingClientRect();
-        const menuHeight = registerContextMenu.offsetHeight || 120;
-        const padding = 15;
-        const spaceBelow = window.innerHeight - rect.bottom;
+      // Touch scroll detection
+      let touchStartY = 0;
+      pageContainer?.addEventListener("touchstart", function (e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
 
-        // Set initial position
-        positionRegisterContextMenu();
+      pageContainer?.addEventListener("touchmove", function (e) {
+        if (contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
+          const touchCurrentY = e.touches[0].clientY;
+          const touchDelta = Math.abs(touchCurrentY - touchStartY);
+          if (touchDelta > 10) {
+            closeContextMenu();
+          }
+        }
+      }, { passive: true });
 
-        // Check if we need to scroll
-        if (spaceBelow < menuHeight + padding) {
-          const scrollAmount = (menuHeight + padding) - spaceBelow;
-
-          // Set flag to keep menu open during scroll
-          isAutoScrolling = true;
-          registerMenuShouldStayOpen = true;
-
-          // Smooth scroll
-          window.scrollBy({
-            top: scrollAmount,
-            behavior: "smooth"
-          });
-
-          // Keep menu positioned during scroll
-          const updateMenuPosition = () => {
-            if (isAutoScrolling && registerMenuShouldStayOpen) {
-              positionRegisterContextMenu();
-              requestAnimationFrame(updateMenuPosition);
-            }
-          };
-          requestAnimationFrame(updateMenuPosition);
-
-          // After scroll completes
-          setTimeout(() => {
-            isAutoScrolling = false;
-            registerMenuShouldStayOpen = false;
-
-            // Restore selection and position
-            restoreSelectedRegisterRow();
-            positionRegisterContextMenu();
-
-            // Ensure menu remains visible
-            registerContextMenu.style.display = "block";
-            registerContextMenu.style.visibility = "visible";
-          }, 600); // Increased timeout for smooth scroll completion
-        } else {
-          // No scroll needed, just position
-          positionRegisterContextMenu();
-          registerContextMenu.style.visibility = "visible";
+      // Keyboard scroll detection
+      document.addEventListener("keydown", function (e) {
+        const scrollKeys = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
+        if (scrollKeys.includes(e.key) && contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
+          closeContextMenu();
         }
       });
 
-      // Prevent menu from closing when clicking inside
-      registerContextMenu?.addEventListener("click", function (e) {
+      // Resize
+      window.addEventListener("resize", function () {
+        if (contextMenu.style.display === "block") {
+          positionContextMenu();
+        }
+      });
+
+      // Click inside menu
+      contextMenu?.addEventListener("mousedown", function (e) {
         e.stopPropagation();
       });
 
-      // Prevent menu from closing when interacting with checkboxes
-      registerContextMenu?.addEventListener("mousedown", function (e) {
+      contextMenu?.addEventListener("click", function (e) {
         e.stopPropagation();
       });
 
-      // Boarding checkbox
-      menuBoarding?.addEventListener("change", async function () {
-        const admissionNumber = contextAdmissionNumber;
-        if (this.checked) {
-          menuMeal.checked = false;
-          menuMeal.disabled = true;
-        } else {
-          menuMeal.disabled = false;
+      // Click outside
+      document.addEventListener("click", function (e) {
+        if (contextMenu.contains(e.target)) return;
+        if (e.target.closest("#register_Tbl")) return;
+        if (e.target.closest("#FeeBalanceList")) return;
+        if (isAutoScrolling) return;
+        closeContextMenu();
+      });
+
+      // Escape
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeContextMenu();
         }
-        await updateStudentExceptions(admissionNumber);
       });
 
-      // Meal checkbox
-      menuMeal?.addEventListener("change", async function () {
-        const admissionNumber = contextAdmissionNumber;
-        await updateStudentExceptions(admissionNumber);
-      });
-
-      // Sponsored checkbox
-      menuSponsored?.addEventListener("change", async function () {
-        const admissionNumber = contextAdmissionNumber;
-        await updateStudentExceptions(admissionNumber);
-      });
-
-      async function updateStudentExceptions(admissionNumber) {
-        if (!admissionNumber) return;
-
-        // Keep menu open during update
-        registerMenuShouldStayOpen = true;
-
-        selectedAdmissionNumber = admissionNumber;
-        const admissionKey = admissionNumber.replace(/\//g, "-");
-
-        if (menuBoarding.checked) {
-          menuMeal.checked = false;
-          menuMeal.disabled = true;
-        } else {
-          menuMeal.disabled = false;
+      function closeContextMenu() {
+        if (!contextMenu) return;
+        if (scrollAnimationFrame) {
+          cancelAnimationFrame(scrollAnimationFrame);
+          scrollAnimationFrame = null;
         }
+        isAutoScrolling = false;
+        menuShouldStayOpen = false;
+        contextMenu.style.display = "none";
+        contextMenu.style.visibility = "hidden";
+      }
 
+      // Checkbox change events
+      async function updateStudentExceptions() {
+        if (!selectedAdmissionNumber) return;
+        if (menuBoarding?.checked) {
+          if (menuMeal) {
+            menuMeal.checked = false;
+            menuMeal.disabled = true;
+          }
+        } else {
+          if (menuMeal) {
+            menuMeal.disabled = false;
+          }
+        }
         const exceptions = {
-          Meal: menuMeal.checked,
-          Boarding: menuBoarding.checked,
-          Sponsored: menuSponsored.checked
+          Meal: menuMeal?.checked || false,
+          Boarding: menuBoarding?.checked || false,
+          Sponsored: menuSponsored?.checked || false
         };
-
+        const admissionKey = selectedAdmissionNumber.replace(/\//g, "-");
         try {
           await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), {
             Exceptions: exceptions
           });
-
-          // Update local cache
-          if (studentsCache[admissionNumber]) {
-            studentsCache[admissionNumber].Exceptions = exceptions;
+          if (studentsCache[selectedAdmissionNumber]) {
+            studentsCache[selectedAdmissionNumber].Exceptions = exceptions;
           }
-
-          // Restore selection
-          selectedAdmissionNumber = admissionNumber;
-          restoreSelectedRegisterRow();
-
-          // Keep menu visible and positioned
+          restoreSelectedRow();
           requestAnimationFrame(() => {
-            restoreSelectedRegisterRow();
-            if (registerMenuShouldStayOpen) {
-              positionRegisterContextMenu();
-            }
+            restoreSelectedRow();
+            positionContextMenu();
           });
-
-          setTimeout(() => {
-            restoreSelectedRegisterRow();
-            if (registerMenuShouldStayOpen) {
-              positionRegisterContextMenu();
-              registerContextMenu.style.display = "block";
-              registerContextMenu.style.visibility = "visible";
-            }
-          }, 100);
-
-          console.log("Exceptions updated:", admissionNumber, exceptions);
+          console.log("Exceptions updated:", selectedAdmissionNumber, exceptions);
         } catch (error) {
           console.error("Failed to update exceptions:", error);
           alert("Failed to update student exceptions:\n" + error.message);
         }
       }
 
-      // Window resize - keep menu positioned
-      window.addEventListener("resize", function () {
-        if (registerContextMenu && registerContextMenu.style.display === "block") {
-          restoreSelectedRegisterRow();
-          positionRegisterContextMenu();
-        }
-      });
-
-      // FIXED: Scroll handler - don't close menu during auto-scroll
-      window.addEventListener("scroll", function () {
-        if (isAutoScrolling || registerMenuShouldStayOpen) {
-          // Reposition menu during auto-scroll
-          positionRegisterContextMenu();
-          return;
-        }
-
-        // Only close on manual scroll
-        if (registerContextMenu && registerContextMenu.style.display === "block") {
-          closeRegisterContextMenu();
-        }
-      }, true);
-
-      // Click outside - close menu
-      document.addEventListener("click", function (e) {
-        // Don't close if clicking inside menu
-        if (registerContextMenu && registerContextMenu.contains(e.target)) return;
-
-        // Don't close if clicking on register table
-        if (e.target.closest("#register_Tbl")) return;
-
-        // Don't close during auto-scroll
-        if (isAutoScrolling || registerMenuShouldStayOpen) return;
-
-        closeRegisterContextMenu();
-      });
-
-      // Escape key
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") {
-          closeRegisterContextMenu();
-        }
-      });
-      // ============================================================
-      // CONTEXT MENU - FEE BALANCE LIST
-      // ============================================================
-      const feeBalanceTable = document.getElementById("FeeBalanceList");
-      const feeBalanceMenu = document.getElementById("registerContextMenu");
-      const feeMenuMeal = document.getElementById("menuMeal");
-      const feeMenuBoarding = document.getElementById("menuBoarding");
-      const feeMenuSponsored = document.getElementById("menuSponsored");
-
-      let feeContextAdmissionNumber = null;
-      let feeContextSelectedRow = null;
-      let feeSelectedAdmissionNumber = null;
-      let feeMenuAutoScrolling = false;
-      let feeMenuFollowingScroll = false;
-
-      function selectFeeBalanceRow(row) {
-        if (!row) return;
-        const table = document.getElementById("FeeBalanceList");
-        if (!table) return;
-        table.querySelectorAll("tbody tr.fee-balance-selected").forEach(r => {
-          r.classList.remove("fee-balance-selected");
-        });
-        row.classList.add("fee-balance-selected");
-        feeContextSelectedRow = row;
-        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
-        if (admissionNumber) {
-          feeContextAdmissionNumber = admissionNumber;
-          feeSelectedAdmissionNumber = admissionNumber;
-        }
-      }
-
-      function restoreFeeBalanceSelection() {
-        if (!feeSelectedAdmissionNumber) return;
-        const table = document.getElementById("FeeBalanceList");
-        if (!table) return;
-        let foundRow = null;
-        table.querySelectorAll("tbody tr").forEach(row => {
-          const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
-          if (admissionNumber === feeSelectedAdmissionNumber) {
-            row.classList.add("fee-balance-selected");
-            foundRow = row;
-          } else {
-            row.classList.remove("fee-balance-selected");
-          }
-        });
-        if (foundRow) feeContextSelectedRow = foundRow;
-      }
-
-      function closeFeeBalanceMenu() {
-        if (!feeBalanceMenu) return;
-        feeBalanceMenu.style.display = "none";
-        feeBalanceMenu.style.visibility = "hidden";
-        feeMenuFollowingScroll = false;
-      }
-
-      function positionFeeBalanceMenu() {
-        if (!feeBalanceMenu || !feeContextSelectedRow) return;
-        const row = feeContextSelectedRow;
-        const anchor = row.querySelector("td:last-child");
-        if (!anchor) return;
-        const rect = anchor.getBoundingClientRect();
-        const menuWidth = feeBalanceMenu.offsetWidth || 190;
-        let left = rect.left - 50;
-        let top = rect.bottom - 10;
-        if (left < 10) left = 10;
-        if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
-        if (left < 10) left = 10;
-        feeBalanceMenu.style.position = "fixed";
-        feeBalanceMenu.style.left = `${left}px`;
-        feeBalanceMenu.style.top = `${top}px`;
-      }
-
-      function followFeeBalanceMenuDuringScroll() {
-        if (!feeMenuFollowingScroll) return;
-        positionFeeBalanceMenu();
-        requestAnimationFrame(followFeeBalanceMenuDuringScroll);
-      }
-
-      function openFeeBalanceMenu(row) {
-        if (!row || !feeBalanceMenu) return;
-        selectFeeBalanceRow(row);
-        const admissionNumber = row.querySelector(".student-id")?.textContent.trim();
-        if (!admissionNumber) return;
-        feeContextAdmissionNumber = admissionNumber;
-        feeSelectedAdmissionNumber = admissionNumber;
-        const student = studentsCache?.[admissionNumber];
-        if (!student) {
-          console.warn("Student not found:", admissionNumber);
-          return;
-        }
-        const exceptions = student.Exceptions || {};
-        feeMenuMeal.checked = exceptions.Meal === true;
-        feeMenuBoarding.checked = exceptions.Boarding === true;
-        feeMenuSponsored.checked = exceptions.Sponsored === true;
-        if (feeMenuBoarding.checked) {
-          feeMenuMeal.checked = false;
-          feeMenuMeal.disabled = true;
-        } else {
-          feeMenuMeal.disabled = false;
-        }
-        feeBalanceMenu.style.display = "block";
-        feeBalanceMenu.style.visibility = "hidden";
-        feeBalanceMenu.style.position = "fixed";
-        void feeBalanceMenu.offsetWidth;
-        const anchor = row.querySelector("td:last-child");
-        if (!anchor) return;
-        let rect = anchor.getBoundingClientRect();
-        const menuHeight = feeBalanceMenu.offsetHeight || 130;
-        const padding = 15;
-        let spaceBelow = window.innerHeight - rect.bottom;
-        if (spaceBelow < menuHeight + padding) {
-          const scrollAmount = (menuHeight + padding) - spaceBelow;
-          feeBalanceMenu.style.visibility = "visible";
-          positionFeeBalanceMenu();
-          feeMenuAutoScrolling = true;
-          feeMenuFollowingScroll = true;
-          requestAnimationFrame(followFeeBalanceMenuDuringScroll);
-          window.scrollBy({ top: scrollAmount, behavior: "smooth" });
-          setTimeout(() => {
-            feeMenuAutoScrolling = false;
-            feeMenuFollowingScroll = false;
-            restoreFeeBalanceSelection();
-            positionFeeBalanceMenu();
-            feeBalanceMenu.style.display = "block";
-            feeBalanceMenu.style.visibility = "visible";
-          }, 600);
-        } else {
-          positionFeeBalanceMenu();
-          feeBalanceMenu.style.visibility = "visible";
-        }
-      }
-
-      document.addEventListener("click", function (e) {
-        const table = e.target.closest("#FeeBalanceList");
-        if (!table) return;
-        const row = e.target.closest("tbody tr");
-        if (!row) return;
-        if (e.target.matches("input.custom-checkbox")) {
-          selectFeeBalanceRow(row);
-          closeFeeBalanceMenu();
-          return;
-        }
-        selectFeeBalanceRow(row);
-        closeFeeBalanceMenu();
-      }, true);
-
-      document.addEventListener("contextmenu", function (e) {
-        const table = e.target.closest("#FeeBalanceList");
-        if (!table) return;
-        const row = e.target.closest("tbody tr");
-        if (!row) return;
-        e.preventDefault();
-        openFeeBalanceMenu(row);
-      }, true);
-
-      feeBalanceMenu?.addEventListener("click", function (e) {
+      menuBoarding?.addEventListener("change", async function (e) {
         e.stopPropagation();
+        await updateStudentExceptions();
       });
 
-      feeMenuBoarding?.addEventListener("change", async function (e) {
+      menuMeal?.addEventListener("change", async function (e) {
         e.stopPropagation();
-        if (this.checked) {
-          feeMenuMeal.checked = false;
-          feeMenuMeal.disabled = true;
-        } else {
-          feeMenuMeal.disabled = false;
-        }
-        await updateFeeBalanceExceptions();
+        await updateStudentExceptions();
       });
 
-      feeMenuMeal?.addEventListener("change", async function (e) {
+      menuSponsored?.addEventListener("change", async function (e) {
         e.stopPropagation();
-        await updateFeeBalanceExceptions();
+        await updateStudentExceptions();
       });
 
-      feeMenuSponsored?.addEventListener("change", async function (e) {
-        e.stopPropagation();
-        await updateFeeBalanceExceptions();
-      });
-
-      async function updateFeeBalanceExceptions() {
-        if (!feeContextAdmissionNumber) return;
-        const admissionNumber = feeContextAdmissionNumber;
-        const admissionKey = admissionNumber.replace(/\//g, "-");
-        if (feeMenuBoarding.checked) {
-          feeMenuMeal.checked = false;
-          feeMenuMeal.disabled = true;
-        } else {
-          feeMenuMeal.disabled = false;
-        }
-        const exceptions = {
-          Meal: feeMenuMeal.checked,
-          Boarding: feeMenuBoarding.checked,
-          Sponsored: feeMenuSponsored.checked
-        };
-        try {
-          await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), { Exceptions: exceptions });
-          if (studentsCache && studentsCache[admissionNumber]) {
-            studentsCache[admissionNumber].Exceptions = exceptions;
-          }
-          feeSelectedAdmissionNumber = admissionNumber;
-          feeContextAdmissionNumber = admissionNumber;
-          restoreFeeBalanceSelection();
-          requestAnimationFrame(() => {
-            restoreFeeBalanceSelection();
-            positionFeeBalanceMenu();
-          });
-          console.log("Exceptions updated:", admissionNumber, exceptions);
-        } catch (error) {
-          console.error("Failed to update exceptions:", error);
-          alert("Failed to update student exceptions:\n" + error.message);
-        }
-      }
-
-      window.addEventListener("scroll", function () {
-        if (feeMenuAutoScrolling) return;
-        if (feeBalanceMenu && feeBalanceMenu.style.display === "block") {
-          closeFeeBalanceMenu();
-        }
-      }, true);
-
-      window.addEventListener("resize", function () {
-        if (feeBalanceMenu && feeBalanceMenu.style.display === "block") {
-          positionFeeBalanceMenu();
-        }
-      });
-
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && feeBalanceMenu && feeBalanceMenu.style.display === "block") {
-          closeFeeBalanceMenu();
-        }
-      });
+      // Expose functions
+      window.closeRegisterContextMenu = closeContextMenu;
+      window.positionRegisterContextMenu = positionContextMenu;
+      window.closeFeeBalanceMenu = closeContextMenu;
 
       // ============================================================
       // DOUBLE CLICK HANDLERS
@@ -5600,7 +5344,6 @@
         const row = e.target.closest('tbody tr');
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
-
         selectStudentForFee(admissionNumber);
       });
 
@@ -5608,7 +5351,7 @@
 
       (function () {
         // ---------- DATA ----------
-        let students = [];                 // Will be populated from studentsCache
+        let students = [];
         let assessments = [];
         let marks = [];
         let currentEditMarksIndex = -1;
@@ -5627,14 +5370,13 @@
           }
 
           students = Object.entries(studentsCache).map(([key, s]) => {
-            // Extract full class info including stream
             const fullClass = String(s.class || '').trim() || 'Unknown';
             const gradeParts = fullClass.split(' - ');
             const grade = gradeParts[0].trim() || 'Unknown';
             const stream = gradeParts.length > 1 ? gradeParts[1].trim() : '';
 
             return {
-              id: s.admissionNumber || key.replace(/-/g, '/'),  // Prefer real admission number
+              id: s.admissionNumber || key.replace(/-/g, '/'),
               name: s.name || 'Unknown',
               grade: grade,
               stream: stream,
@@ -5652,7 +5394,6 @@
               const data = snapshot.val();
               assessments = Object.values(data);
 
-              // Update nextAssessmentId based on existing assessments
               if (assessments.length > 0) {
                 const maxId = assessments.reduce((max, a) => {
                   const num = parseInt(a.id.replace('ASMT-', '')) || 0;
@@ -5677,7 +5418,6 @@
               const data = snapshot.val();
               marks = [];
 
-              // Flatten the marks structure
               Object.entries(data).forEach(([key, value]) => {
                 if (Array.isArray(value)) {
                   marks.push(...value);
@@ -5718,7 +5458,6 @@
         async function initializeSystem() {
           syncStudentsFromCache();
 
-          // Load data from Firebase
           await Promise.all([
             loadAssessmentsFromFirebase(),
             loadMarksFromFirebase()
@@ -5783,7 +5522,7 @@
 
         // ---------- DASHBOARD ----------
         function renderDashboard() {
-          syncStudentsFromCache(); // always use latest
+          syncStudentsFromCache();
 
           document.getElementById('dash-students').textContent = students.length;
           document.getElementById('dash-assessments').textContent = assessments.length;
@@ -5887,7 +5626,6 @@
           };
           assessments.push(newA);
 
-          // Create empty mark records for all current students in that grade
           syncStudentsFromCache();
           const gradeStudents = students.filter(s => s.grade === grade);
           gradeStudents.forEach(st => {
@@ -5899,7 +5637,6 @@
             }));
           });
 
-          // Save to Firebase
           await Promise.all([
             saveAssessmentsToFirebase(),
             saveMarksToFirebase()
@@ -5917,7 +5654,6 @@
             assessments = assessments.filter(a => a.id !== id);
             marks = marks.filter(m => m.assessmentId !== id);
 
-            // Save to Firebase
             await Promise.all([
               saveAssessmentsToFirebase(),
               saveMarksToFirebase()
@@ -5967,7 +5703,7 @@
         };
 
         function renderMarksTable() {
-          syncStudentsFromCache(); // keep data fresh
+          syncStudentsFromCache();
 
           const aFilter = document.getElementById('filter-assessment').value;
           const sFilter = document.getElementById('filter-subject').value;
@@ -6004,7 +5740,6 @@
               const gradeText = item.marks >= 75 ? 'A' : (item.marks >= 65 ? 'B' : (item.marks >= 50 ? 'C' : 'F'));
               const badgeCls = item.marks >= 75 ? 'badge-success' : (item.marks >= 50 ? 'badge-warning' : 'badge-danger');
 
-              // Display student with grade and stream
               const displayClass = st.stream ? `${st.grade} - ${st.stream}` : st.grade;
 
               html += `<tr>
@@ -6057,7 +5792,6 @@
           }
           marks[currentEditMarksIndex].marks = val;
 
-          // Save to Firebase
           await saveMarksToFirebase();
 
           closeModal('edit-marks-modal');
@@ -6141,7 +5875,6 @@
             count++;
           });
 
-          // Save to Firebase
           await saveMarksToFirebase();
 
           closeModal('bulk-marks-modal');
@@ -6217,7 +5950,6 @@
             return;
           }
 
-          // Get all students for this assessment's grade
           const gradeStudents = students.filter(s => s.grade === assessment.grade);
 
           if (gradeStudents.length === 0) {
@@ -6225,21 +5957,17 @@
             return;
           }
 
-          // Build CSV content (Excel can open CSV files directly)
-          let csv = '\uFEFF'; // BOM for Excel UTF-8 support
+          let csv = '\uFEFF';
 
-          // Header row
           csv += 'Student ID,Student Name,Class';
           assessment.subjects.forEach(subject => {
             csv += `,${subject}`;
           });
           csv += ',Average\n';
 
-          // Data rows
           gradeStudents.forEach(student => {
             const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
 
-            // Escape fields that might contain commas
             const escapeCSV = (field) => {
               if (field === null || field === undefined) return '';
               const str = String(field);
@@ -6267,13 +5995,11 @@
             csv += `,${average}\n`;
           });
 
-          // Add summary row
           csv += `\nAssessment: ${assessment.name}`;
           csv += `\nGrade: ${assessment.grade}`;
           csv += `\nDate Exported: ${new Date().toLocaleString()}`;
           csv += `\nTotal Students: ${gradeStudents.length}`;
 
-          // Create and download the file
           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
           const link = document.createElement('a');
           const url = URL.createObjectURL(blob);
@@ -6305,7 +6031,6 @@
             return;
           }
 
-          // Get all students for this assessment's grade
           const gradeStudents = students.filter(s => s.grade === assessment.grade);
 
           if (gradeStudents.length === 0) {
@@ -6313,10 +6038,8 @@
             return;
           }
 
-          // Build HTML table for Excel
           let tableHTML = '<table border="1">';
 
-          // Header row
           tableHTML += '<thead><tr>';
           tableHTML += '<th>Student ID</th><th>Student Name</th><th>Class</th>';
           assessment.subjects.forEach(subject => {
@@ -6325,7 +6048,6 @@
           tableHTML += '<th>Average</th>';
           tableHTML += '</tr></thead><tbody>';
 
-          // Data rows
           gradeStudents.forEach(student => {
             const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
 
@@ -6353,7 +6075,6 @@
 
           tableHTML += '</tbody></table>';
 
-          // Create the Excel file
           const excelContent = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" 
                   xmlns:x="urn:schemas-microsoft-com:office:excel" 
@@ -6419,7 +6140,6 @@
             return;
           }
 
-          // Create file input element
           const fileInput = document.createElement('input');
           fileInput.type = 'file';
           fileInput.accept = '.csv,.xls,.xlsx';
@@ -6434,33 +6154,26 @@
               const content = e.target.result;
 
               if (file.name.endsWith('.csv')) {
-                // Parse CSV
                 await parseCSVAndImport(content, assessment);
               } else {
-                // For XLS/XLSX files, we'll need to parse HTML or use a library
-                // Simple approach: Try to parse as text and extract table data
                 await parseExcelAndImport(content, assessment);
               }
 
-              // Save to Firebase after import
               await saveMarksToFirebase();
             };
 
-            // Read as text for both CSV and simple Excel files
             reader.readAsText(file, 'UTF-8');
           };
 
           fileInput.click();
         };
 
-        // Parse CSV content and import marks
         async function parseCSVAndImport(content, assessment) {
           const lines = content.split('\n');
           let importCount = 0;
           let errorCount = 0;
           const errors = [];
 
-          // Find the data start (skip metadata if any)
           let headerIndex = -1;
           for (let i = 0; i < lines.length; i++) {
             if (lines[i].includes('Student ID')) {
@@ -6474,11 +6187,9 @@
             return;
           }
 
-          // Parse header to get subject columns
           const headerLine = parseCSVLine(lines[headerIndex]);
           const subjectColumns = [];
 
-          // Find subject columns (skip Student ID, Student Name, Class, Average)
           headerLine.forEach((header, index) => {
             if (index > 2 && header !== 'Average') {
               subjectColumns.push({
@@ -6493,19 +6204,17 @@
             return;
           }
 
-          // Process data rows
           for (let i = headerIndex + 1; i < lines.length; i++) {
             const line = lines[i].trim();
-            if (!line) continue; // Skip empty lines
+            if (!line) continue;
 
             const rowData = parseCSVLine(line);
 
-            if (rowData.length < 3) continue; // Skip invalid rows
+            if (rowData.length < 3) continue;
 
             const studentId = rowData[0].trim();
             const studentName = rowData[1].trim();
 
-            // Find student by ID or name
             let student = students.find(s => s.id === studentId);
             if (!student && studentName) {
               student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
@@ -6519,13 +6228,11 @@
               continue;
             }
 
-            // Import marks for each subject
             subjectColumns.forEach(subjectCol => {
               const subjectName = subjectCol.subject;
               const markValue = parseFloat(rowData[subjectCol.index]);
 
               if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
-                // Find existing mark record
                 const existingIndex = marks.findIndex(m =>
                   m.assessmentId === assessment.id &&
                   m.studentId === student.id &&
@@ -6552,11 +6259,8 @@
             });
           }
 
-          // Show results
           if (importCount > 0) {
             showToast(`Successfully imported ${importCount} marks records`);
-
-            // Refresh the bulk marks view
             renderBulkMarks();
             renderMarksTable();
             renderDashboard();
@@ -6568,20 +6272,16 @@
           }
         }
 
-        // Parse Excel (HTML format) content and import marks
         async function parseExcelAndImport(content, assessment) {
-          // Create a temporary DOM element to parse HTML
           const tempDiv = document.createElement('div');
           tempDiv.innerHTML = content;
 
-          // Find all tables
           const tables = tempDiv.querySelectorAll('table');
           if (tables.length === 0) {
             showToast('No table data found in file', 'error');
             return;
           }
 
-          // Use the first table
           const table = tables[0];
           const rows = table.querySelectorAll('tr');
 
@@ -6594,7 +6294,6 @@
           let errorCount = 0;
           const errors = [];
 
-          // Parse header row
           const headerRow = rows[0];
           const headerCells = headerRow.querySelectorAll('th, td');
           const subjectColumns = [];
@@ -6614,7 +6313,6 @@
             return;
           }
 
-          // Process data rows (skip header row)
           for (let i = 1; i < rows.length; i++) {
             const cells = rows[i].querySelectorAll('td');
             if (cells.length < 3) continue;
@@ -6622,7 +6320,6 @@
             const studentId = cells[0].textContent.trim();
             const studentName = cells[1].textContent.trim();
 
-            // Find student
             let student = students.find(s => s.id === studentId);
             if (!student && studentName) {
               student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
@@ -6636,7 +6333,6 @@
               continue;
             }
 
-            // Import marks
             subjectColumns.forEach(subjectCol => {
               const subjectName = subjectCol.subject;
               const markValue = parseFloat(cells[subjectCol.index]?.textContent.trim());
@@ -6663,7 +6359,6 @@
             });
           }
 
-          // Show results
           if (importCount > 0) {
             showToast(`Successfully imported ${importCount} marks records`);
             renderBulkMarks();
@@ -6676,7 +6371,6 @@
           }
         }
 
-        // Helper function to parse CSV line (handles quoted values)
         function parseCSVLine(line) {
           const result = [];
           let current = '';
@@ -6687,15 +6381,12 @@
 
             if (char === '"') {
               if (inQuotes && line[i + 1] === '"') {
-                // Escaped quote
                 current += '"';
                 i++;
               } else {
-                // Toggle quotes
                 inQuotes = !inQuotes;
               }
             } else if (char === ',' && !inQuotes) {
-              // End of field
               result.push(current);
               current = '';
             } else {
@@ -6703,13 +6394,11 @@
             }
           }
 
-          // Add last field
           result.push(current);
 
           return result;
         }
 
-        // Add a template download function for import format
         window.downloadImportTemplate = function () {
           const aId = document.getElementById('bulk-assessment').value;
 
@@ -6726,28 +6415,24 @@
 
           const gradeStudents = students.filter(s => s.grade === assessment.grade);
 
-          // Create template CSV
-          let csv = '\uFEFF'; // BOM for UTF-8
+          let csv = '\uFEFF';
           csv += 'Student ID,Student Name,Class';
           assessment.subjects.forEach(subject => {
             csv += `,${subject}`;
           });
           csv += ',Average\n';
 
-          // Add student rows with empty marks
           gradeStudents.forEach(student => {
             const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
             csv += `${student.id},${student.name},${displayClass}`;
 
-            // Empty values for each subject
             assessment.subjects.forEach(() => {
               csv += ',';
             });
 
-            csv += ',\n'; // Empty average
+            csv += ',\n';
           });
 
-          // Download template
           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
           const link = document.createElement('a');
           const url = URL.createObjectURL(blob);
@@ -6769,7 +6454,6 @@
       })();
 
     </script>
-
 
 </body>
 
