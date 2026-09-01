@@ -4155,7 +4155,7 @@
           ...value
         }));
 
-        // Sort by receiptNo
+        // Sort by receiptNo in descending order (largest first)
         paymentArray.sort((a, b) => {
           const receiptA = (a.ReceiptNo || '').toString();
           const receiptB = (b.ReceiptNo || '').toString();
@@ -4165,11 +4165,11 @@
           const numB = parseFloat(receiptB);
 
           if (!isNaN(numA) && !isNaN(numB)) {
-            return numA - numB;
+            return numB - numA; // Descending order
           }
 
-          // Fall back to string comparison
-          return receiptA.localeCompare(receiptB);
+          // Fall back to string comparison (descending)
+          return receiptB.localeCompare(receiptA);
         });
 
         // Iterate through payments
@@ -4211,7 +4211,6 @@
           tbody.appendChild(row);
         }
       }
-
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
         if (!tableBody) return;
