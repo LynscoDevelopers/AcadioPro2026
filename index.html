@@ -3984,11 +3984,14 @@
         }
         const lastReceiptNo = Math.max(...receiptNumbers);
         return lastReceiptNo + 1;
-      } 
+      }
+
       // Alternative simpler version if you're sure about the structure:
       function getStudentName(admissionNumber) {
+
         if (!studentsCache || !admissionNumber) return 'Unknown';
-        const student = studentsCache[String(admissionNumber)];
+        const key = String(admissionNumber).replace(/\//g, '-');
+        const student = studentsCache[key];
         return student?.name || student?.studentName || 'Unknown';
       }
 
