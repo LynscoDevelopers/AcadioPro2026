@@ -4203,6 +4203,7 @@
       }
       
       window.searchStudent = function (searchText) {
+        closeContextMenu();
         try {
           searchText = String(searchText || '').toLowerCase().trim();
 
