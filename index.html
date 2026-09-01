@@ -4141,7 +4141,7 @@
 
           // Extract data from your payment structure
           const admissionNumber = payment.admissionNumber || 'N/A';
-          const studentName = payment.studentName || payment.name || "Unknown";
+          const studentName = getStudentName(admissionNumber);
 
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -4149,7 +4149,7 @@
             <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
             <td class="col-name">
                 <div class="student-info">
-                    <span class="student-name clickable-name" data-student="${admissionNumber}">${getStudentName(admissionNumber)}</span>
+                    <span class="student-name clickable-name" data-student="${admissionNumber}">${studentName}</span>
                     <span class="student-id">${admissionNumber}</span>
                 </div>
             </td>
