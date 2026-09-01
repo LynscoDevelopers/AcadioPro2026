@@ -4155,20 +4155,32 @@
           ...value
         }));
 
-        // Sort by receiptNo in descending order (largest first)
+        // Sort by receiptNo: numeric first (descending), then non-numeric (descending)
         paymentArray.sort((a, b) => {
           const receiptA = (a.ReceiptNo || '').toString();
           const receiptB = (b.ReceiptNo || '').toString();
 
-          // Try numeric comparison first
           const numA = parseFloat(receiptA);
           const numB = parseFloat(receiptB);
+          const isNumA = !isNaN(numA) && receiptA.trim() !== '';
+          const isNumB = !isNaN(numB) && receiptB.trim() !== '';
 
-          if (!isNaN(numA) && !isNaN(numB)) {
-            return numB - numA; // Descending order
+          // If both are numeric, sort in descending order
+          if (isNumA && isNumB) {
+            return numB - numA;
           }
 
-          // Fall back to string comparison (descending)
+          // If only A is numeric, A comes first
+          if (isNumA && !isNumB) {
+            return -1;
+          }
+
+          // If only B is numeric, B comes first
+          if (!isNumA && isNumB) {
+            return 1;
+          }
+
+          // If both are non-numeric, sort alphabetically in descending order
           return receiptB.localeCompare(receiptA);
         });
 
