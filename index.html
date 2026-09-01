@@ -4155,6 +4155,23 @@
           ...value
         }));
 
+        // Sort by receiptNo
+        paymentArray.sort((a, b) => {
+          const receiptA = (a.ReceiptNo || '').toString();
+          const receiptB = (b.ReceiptNo || '').toString();
+
+          // Try numeric comparison first
+          const numA = parseFloat(receiptA);
+          const numB = parseFloat(receiptB);
+
+          if (!isNaN(numA) && !isNaN(numB)) {
+            return numA - numB;
+          }
+
+          // Fall back to string comparison
+          return receiptA.localeCompare(receiptB);
+        });
+
         // Iterate through payments
         for (let i = 0; i < paymentArray.length; i++) {
           const payment = paymentArray[i];
@@ -4194,7 +4211,6 @@
           tbody.appendChild(row);
         }
       }
-
 
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
