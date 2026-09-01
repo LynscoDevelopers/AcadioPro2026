@@ -3152,7 +3152,7 @@
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
 
-    <script type="module">
+<script type="module">
       // ============================================================
       // FIREBASE IMPORTS
       // ============================================================
@@ -4954,9 +4954,13 @@
 
       // ============================================================
       // UNIFIED CONTEXT MENU
-      // Scrolls first, then shows menu
+      // AUTO-SCROLLS .page-container — NOT WINDOW
+      // Works with:
+      //   1. #register_Tbl
+      //   2. #FeeBalanceList
       // ============================================================
 
+      // Context menu initialization
       const pageContainer = document.querySelector(".page-container");
       const registerTable = document.getElementById("register_Tbl");
       const feeBalanceTable = document.getElementById("FeeBalanceList");
@@ -4969,7 +4973,10 @@
       let selectedRow = null;
       let selectedAdmissionNumber = null;
       let isAutoScrolling = false;
+      let menuShouldStayOpen = false;
       let scrollAnimationFrame = null;
+      let lastScrollPosition = 0;
+      let scrollCheckTimeout = null;
 
       function getAdmissionNumber(row) {
         if (!row) return null;
@@ -5037,6 +5044,19 @@
         if (menuMeal) menuMeal.disabled = menuBoarding?.checked === true;
       }
 
+      function showContextMenu() {
+        if (!contextMenu || !selectedRow) return;
+        menuShouldStayOpen = true;
+        isAutoScrolling = false;
+        contextMenu.style.position = "fixed";
+        contextMenu.style.display = "block";
+        contextMenu.style.visibility = "hidden";
+        contextMenu.style.zIndex = "999999";
+        void contextMenu.offsetWidth;
+        positionContextMenu();
+        autoScrollForMenu();
+      }
+
       function positionContextMenu() {
         if (!contextMenu || !selectedRow) return;
         if (!selectedRow.isConnected) {
@@ -5067,24 +5087,36 @@
         if (top < margin) top = margin;
         contextMenu.style.left = `${left}px`;
         contextMenu.style.top = `${top}px`;
-      }
-
-      function showContextMenu() {
-        if (!contextMenu || !selectedRow) return;
-        contextMenu.style.position = "fixed";
         contextMenu.style.display = "block";
         contextMenu.style.visibility = "visible";
-        contextMenu.style.zIndex = "999999";
+      }
+
+      function autoScrollForMenu() {
+        if (!pageContainer || !selectedRow || !contextMenu) return;
+        const rowRect = selectedRow.getBoundingClientRect();
+        const containerRect = pageContainer.getBoundingClientRect();
+        const menuHeight = contextMenu.offsetHeight || 130;
+        const padding = 20;
+        const requiredBottom = rowRect.bottom + menuHeight + padding;
+        if (requiredBottom > containerRect.bottom) {
+          const amount = requiredBottom - containerRect.bottom;
+          scrollPageContainer(amount);
+          return;
+        }
+        const requiredTop = rowRect.top - padding;
+        if (requiredTop < containerRect.top) {
+          const amount = requiredTop - containerRect.top;
+          scrollPageContainer(amount);
+          return;
+        }
         positionContextMenu();
       }
 
-      function scrollPageContainer(amount, callback) {
-        if (!pageContainer) {
-          if (callback) callback();
-          return;
-        }
+      function scrollPageContainer(amount) {
+        if (!pageContainer) return;
         if (!amount) {
-          if (callback) callback();
+          isAutoScrolling = false;
+          positionContextMenu();
           return;
         }
         if (scrollAnimationFrame) {
@@ -5097,10 +5129,12 @@
         target = Math.max(0, Math.min(target, maxScroll));
         const distance = target - start;
         if (Math.abs(distance) < 1) {
-          if (callback) callback();
+          isAutoScrolling = false;
+          positionContextMenu();
           return;
         }
         isAutoScrolling = true;
+        menuShouldStayOpen = true;
         const duration = 350;
         const startTime = performance.now();
         function animate(currentTime) {
@@ -5109,39 +5143,20 @@
           const progress = Math.min(elapsed / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
           pageContainer.scrollTop = start + distance * eased;
+          positionContextMenu();
           if (progress < 1) {
             scrollAnimationFrame = requestAnimationFrame(animate);
           } else {
             scrollAnimationFrame = null;
             isAutoScrolling = false;
-            if (callback) callback();
+            menuShouldStayOpen = false;
+            restoreSelectedRow();
+            positionContextMenu();
+            contextMenu.style.display = "block";
+            contextMenu.style.visibility = "visible";
           }
         }
         scrollAnimationFrame = requestAnimationFrame(animate);
-      }
-
-      function openContextMenuAfterScroll() {
-        // First scroll if needed, then show menu
-        if (!pageContainer || !selectedRow || !contextMenu) return;
-        const rowRect = selectedRow.getBoundingClientRect();
-        const containerRect = pageContainer.getBoundingClientRect();
-        const menuHeight = contextMenu.offsetHeight || 130;
-        const padding = 20;
-        const requiredBottom = rowRect.bottom + menuHeight + padding;
-        let scrollAmount = 0;
-        if (requiredBottom > containerRect.bottom) {
-          scrollAmount = requiredBottom - containerRect.bottom;
-        } else {
-          const requiredTop = rowRect.top - padding;
-          if (requiredTop < containerRect.top) {
-            scrollAmount = requiredTop - containerRect.top;
-          }
-        }
-        scrollPageContainer(scrollAmount, function () {
-          // After scroll completes, show the menu
-          restoreSelectedRow();
-          showContextMenu();
-        });
       }
 
       registerTable?.addEventListener("contextmenu", function (e) {
@@ -5149,10 +5164,9 @@
         if (!row) return;
         e.preventDefault();
         e.stopPropagation();
-        closeContextMenu();
         selectRow(row, registerTable);
         loadMenuValues();
-        openContextMenuAfterScroll();
+        showContextMenu();
       });
 
       feeBalanceTable?.addEventListener("contextmenu", function (e) {
@@ -5160,32 +5174,71 @@
         if (!row) return;
         e.preventDefault();
         e.stopPropagation();
-        closeContextMenu();
         selectRow(row, feeBalanceTable);
         loadMenuValues();
-        openContextMenuAfterScroll();
+        showContextMenu();
       });
 
-      // Close menu on manual scroll
+      // Page container scroll - FIXED
       pageContainer?.addEventListener("scroll", function () {
-        if (isAutoScrolling) return;
-        if (contextMenu && contextMenu.style.display === "block") {
+        const currentScrollPosition = pageContainer.scrollTop;
+        if (isAutoScrolling) {
+          positionContextMenu();
+          lastScrollPosition = currentScrollPosition;
+          return;
+        }
+        if (menuShouldStayOpen) {
+          const scrollDelta = Math.abs(currentScrollPosition - lastScrollPosition);
+          if (scrollDelta > 5) {
+            closeContextMenu();
+          } else {
+            positionContextMenu();
+          }
+        }
+        lastScrollPosition = currentScrollPosition;
+        if (scrollCheckTimeout) {
+          clearTimeout(scrollCheckTimeout);
+        }
+        scrollCheckTimeout = setTimeout(() => {
+          // Safety check
+        }, 100);
+      }, { passive: true });
+
+      // Wheel event - Detect mouse wheel scroll
+      pageContainer?.addEventListener("wheel", function (e) {
+        if (contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
           closeContextMenu();
         }
       }, { passive: true });
 
-      // Close menu on wheel
-      pageContainer?.addEventListener("wheel", function () {
-        if (isAutoScrolling) return;
-        if (contextMenu && contextMenu.style.display === "block") {
-          closeContextMenu();
+      // Touch scroll detection
+      let touchStartY = 0;
+      pageContainer?.addEventListener("touchstart", function (e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      pageContainer?.addEventListener("touchmove", function (e) {
+        if (contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
+          const touchCurrentY = e.touches[0].clientY;
+          const touchDelta = Math.abs(touchCurrentY - touchStartY);
+          if (touchDelta > 10) {
+            closeContextMenu();
+          }
         }
       }, { passive: true });
 
-      // Close menu on resize
+      // Keyboard scroll detection
+      document.addEventListener("keydown", function (e) {
+        const scrollKeys = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
+        if (scrollKeys.includes(e.key) && contextMenu.style.display === "block" && !isAutoScrolling && !menuShouldStayOpen) {
+          closeContextMenu();
+        }
+      });
+
+      // Resize
       window.addEventListener("resize", function () {
-        if (contextMenu && contextMenu.style.display === "block") {
-          closeContextMenu();
+        if (contextMenu.style.display === "block") {
+          positionContextMenu();
         }
       });
 
@@ -5200,7 +5253,7 @@
 
       // Click outside
       document.addEventListener("click", function (e) {
-        if (contextMenu && contextMenu.contains(e.target)) return;
+        if (contextMenu.contains(e.target)) return;
         if (e.target.closest("#register_Tbl")) return;
         if (e.target.closest("#FeeBalanceList")) return;
         if (isAutoScrolling) return;
@@ -5221,6 +5274,7 @@
           scrollAnimationFrame = null;
         }
         isAutoScrolling = false;
+        menuShouldStayOpen = false;
         contextMenu.style.display = "none";
         contextMenu.style.visibility = "hidden";
       }
@@ -5282,7 +5336,6 @@
       window.closeRegisterContextMenu = closeContextMenu;
       window.positionRegisterContextMenu = positionContextMenu;
       window.closeFeeBalanceMenu = closeContextMenu;
-      window.closeContextMenu = closeContextMenu;
 
       // ============================================================
       // DOUBLE CLICK HANDLERS
