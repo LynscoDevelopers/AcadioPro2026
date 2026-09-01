@@ -2641,7 +2641,6 @@
         <table class="register-table" id="FeePaymentList">
           <thead>
             <tr>
-              <th class="col-avatar"></th>
               <th class="col-name">Student</th>
               <th class="col-grade">Amount</th>
               <th class="col-dob">Balance</th>
@@ -4126,9 +4125,28 @@
         }
       }
 
+      function formatCarriedFrom(value) {
+        if (value === null || value === undefined) return value;
+
+        const text = String(value);
+
+        // Match: Carried from Term1- 2025
+        if (text.includes("Carried from")) {
+          return text.replace(
+            /Carried from\s+(.+)/i,
+            (_, term) => {
+              return `C.F(${term.trim().replace(/^Term/i, "T")})`;
+            }
+          );
+        }
+
+        return value;
+      }
+
       function populateFeePaymentsTable(Payments) {
         const tbody = document.querySelector("#FeePaymentList tbody");
         if (!tbody || !Payments) return;
+
         tbody.innerHTML = "";
 
         // Convert object to array for iteration
@@ -4137,34 +4155,45 @@
           ...value
         }));
 
-        // Iterate through payments (unsorted)
+        // Iterate through payments
         for (let i = 0; i < paymentArray.length; i++) {
           const payment = paymentArray[i];
 
-          // Extract data from your payment structure
           const admissionNumber = payment.admissionNumber || 'N/A';
           const studentName = getStudentName(admissionNumber);
 
+          // Format all fields
+          const amount = formatCarriedFrom(payment.amount || '0.00');
+          const balance = formatCarriedFrom(payment.balance || '0.00');
+          const account = formatCarriedFrom(payment.Account || '—');
+          const paymentRef = formatCarriedFrom(payment.paymentRef || '—');
+          const entryDate = formatCarriedFrom(payment.entryDate || '—');
+          const receiptNo = formatCarriedFrom(payment.ReceiptNo || '—');
+
           const row = document.createElement("tr");
+
           row.innerHTML = `
-            <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
             <td class="col-name">
                 <div class="student-info">
-                    <span class="student-name clickable-name" data-student="${admissionNumber}">${studentName}</span>
+                    <span class="student-name clickable-name"
+                          data-student="${admissionNumber}">
+                        ${studentName}
+                    </span>
                     <span class="student-id">${admissionNumber}</span>
                 </div>
             </td>
-            <td class="col-contact">${payment.amount || '0.00'}</td>
-            <td class="col-national">${payment.balance || '0.00'}</td>
-            <td class="col-contact">${payment.Account || '—'}</td>
-            <td class="col-contact">${payment.paymentRef || '—'}</td>
-            <td class="col-contact">${payment.entryDate || '—'}</td>
-            <td class="col-contact">${payment.ReceiptNo || '—'}</td>
+
+            <td class="col-contact">${amount}</td>
+            <td class="col-national">${balance}</td>
+            <td class="col-contact">${account}</td>
+            <td class="col-contact">${paymentRef}</td>
+            <td class="col-contact">${entryDate}</td>
+            <td class="col-contact">${receiptNo}</td>
         `;
+
           tbody.appendChild(row);
         }
       }
-
 
 
       function populateFeePaymentHistory(paymentData, admissionNumber) {
