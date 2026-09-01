@@ -5452,7 +5452,7 @@
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
 
-        alert(admissionNumber, studentHasBoardingException(admissionNumber));
+        alert(admissionNumber.replace(/\//g, "-"), studentHasBoardingException(admissionNumber));
 
         selectStudentForFee(admissionNumber);
       });
