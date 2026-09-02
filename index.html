@@ -676,6 +676,16 @@
       flex-direction: column !important;
     }
 
+    .dialogue-box-largeX {
+      max-width: 750px !important;
+      width: 100% !important;
+      padding:5px!important;
+      max-height: 90vh !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
     /* Dialog Tab Styles */
     .dialog-tabs-container {
       background: transparent;
@@ -2058,6 +2068,108 @@
     }
   </style>
 
+<style>
+      
+
+        .main-card {
+            background-color: white;
+            border: 0.05px solid rgb(104, 100, 100);
+            border-radius: 15px;
+            width: 100%;
+            box-shadow: 2px 2px 10px rgba(119, 119, 119, 0.1);
+            padding: 1px;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border: 1px solid black;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            column-gap: 20px;
+            row-gap: 20px;
+            flex-grow: 1;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-item h4 {
+            margin: 0;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+
+        .detail-item p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .bottom-section {
+            border: 0.1px solid rgb(48, 47, 47);
+            border-radius: 15px;
+            padding: 3px 5%;
+        }
+
+        .guardian-header {
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .guardian-name {
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .guardian-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 40px;
+            row-gap: 15px;
+        }
+
+        .guardian-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .guardian-info-item strong {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .guardian-info-item span {
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+
+
 </head>
 
 <body>
@@ -2084,6 +2196,7 @@
     <button class="open-dialog-btn" id="openDialogBtn3" aria-haspopup="dialog" style="visibility: visible;">
       <span>📬</span> Open dialogue
     </button>
+
     <!-- Tabs Container -->
     <div class="tabs-container">
       <div class="tabs-header">
@@ -2862,6 +2975,143 @@
       </div>
     </div>
 
+
+    <!-- THIRD DIALOG BOX (fully independent) -->
+    <div class="dialog-overlay" id="dialogOverlay3" role="dialog" aria-modal="true" aria-labelledby="dialogTitle2" style="margin: 0px; padding: 0px;">
+      <div class="dialogue-box dialogue-box-largeX">
+        <div class="dialogue-header">
+          <h2 id="dialogTitle3"> Student Profile </h2>
+          <button class="close-icon" id="closeDialogIcon3" aria-label="Close dialogue">✕</button>
+        </div>
+
+        <!-- Tab Navigation inside Dialog -->
+        <div class="dialog-tabs-container">
+          <div class="dialog-tabs-header">
+            <button class="dialog-tab-btn active" data-tab="edit0"> Student's  Bio-Data</button>
+            <button class="dialog-tab-btn" data-tab="edit1">Finance</button>
+            <button class="dialog-tab-btn" data-tab="edit1">Academics</button>
+          </div>
+
+        </div>
+
+        <!-- Tab Content -->
+        <div class="dialog-tab-content-wrapper" style="margin: 0px; padding: 0px;">
+          <!-- Tab 1: Personal Information -->
+          <div class="dialog-tab-panel active" id="editTab0" style="margin: 0px; padding: 0px;">
+            <div class="dialogue-body" style="height: 52vh;" style="margin: 0px; padding: 0px;">
+
+
+              <div class="main-card">
+
+                <!-- Top Section -->
+                <div class="top-section">
+                  <div class="profile-pic">
+                    Profile Pic
+                  </div>
+
+                  <div class="details-grid">
+                    <div class="detail-item">
+                      <h4>Student's Name</h4>
+                      <p>Student's Name</p>
+                    </div>
+                    <div class="detail-item">
+                      <h4>Admission No.</h4>
+                      <p>RS/2026/002</p>
+                    </div>
+                    <div class="detail-item">
+                      <h4>B. Certificate No.</h4>
+                      <p>012345678</p>
+                    </div>
+
+                    <div class="detail-item">
+                      <h4>D.O.B</h4>
+                      <p>01.01.2026</p>
+                    </div>
+                    <div class="detail-item">
+                      <h4>Nationality</h4>
+                      <p>Kenyan</p>
+                    </div>
+                    <div class="detail-item">
+                      <h4>Gender</h4>
+                      <p>Male</p>
+                    </div>
+
+                    <div class="detail-item">
+                      <h4>Religion</h4>
+                      <p>Christian</p>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                      <h4>Current Grade: G2-WEST</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bottom Section -->
+                <div class="bottom-section">
+                  <div class="guardian-header">Parent/Guardian Name:</div>
+                  <div class="guardian-name">Parent/Guardian (Relationship)</div>
+
+                  <div class="guardian-details">
+                    <div class="guardian-info-item">
+                      <strong>Phone Number:</strong>
+                      <span>+254790041547</span>
+                    </div>
+                    <div class="guardian-info-item">
+                      <strong>Physical Address:</strong>
+                      <span>614-30200</span>
+                      <span>Kitale</span>
+                    </div>
+
+                    <div class="guardian-info-item">
+                      <strong>Email:</strong>
+                      <span>parent.email@yahoo.com</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+
+            </div>
+          </div>
+
+          <!-- Tab 2: Contact Information -->
+          <div class="dialog-tab-panel" id="editTab1">
+            <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
+
+
+
+              <table id="feepaymentHistory" style="width:100%; table-layout:fixed; border-collapse:collapse;">
+
+                <thead>
+                  <tr style="text-align:left; font-size:small;">
+                    <th>Term</th>
+                    <th>Fee</th>
+                    <th>Exemption</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                    <th>Date Paid</th>
+                    <th>Account</th>
+                    <th>Transaction ID</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <!-- Your rows -->
+                </tbody>
+
+              </table>
+
+            </div>
+          </div>
+
+
+        </div>
+
+
+      </div>
+    </div>
+
     <!-- Assessment Modal -->
     <div class="modal-overlay" id="assessment-modal">
       <div class="modal-content">
@@ -3020,7 +3270,7 @@
       const termRef = ref(db, `Institution/ Revival/terms/`);
 
 
-     
+
 
       // ============================================================
       // UTILITY FUNCTIONS
@@ -3052,6 +3302,8 @@
       const overlay = document.getElementById('dialogOverlay');
       const openBtn = document.getElementById('openDialogBtn');
       const openBtn2 = document.getElementById('openDialogBtn2');
+      const openBtn3 = document.getElementById('openDialogBtn3');
+
       const closeIcon = document.getElementById('closeDialogIcon');
       const closeSecondary = document.getElementById('closeDialogSecondary');
       const confirmBtn = document.getElementById('confirmDialogBtn');
@@ -3062,6 +3314,13 @@
       const closeIcon2 = document.getElementById('closeDialogIcon2');
       const closeSecondary2 = document.getElementById('closeDialogSecondary2');
       const confirmBtn2 = document.getElementById('confirmDialogBtn2');
+
+      const overlay3 = document.getElementById('dialogOverlay3');
+      const closeIcon3 = document.getElementById('closeDialogIcon3');
+      const closeSecondary3 = document.getElementById('closeDialogSecondary3');
+      const confirmBtn3 = document.getElementById('confirmDialogBtn3');
+
+
 
       const dialogTabBtns = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
       const dialogTabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
@@ -3101,6 +3360,31 @@
         });
       });
 
+
+      const dialogTabBtns3 = document.querySelectorAll('#dialogOverlay3 .dialog-tab-btn');
+      const dialogTabPanels3 = document.querySelectorAll('#dialogOverlay3 .dialog-tab-panel');
+
+      function switchDialogTab3(index) {
+        dialogTabBtns3.forEach(btn => btn.classList.remove('active'));
+        dialogTabPanels3.forEach(panel => panel.classList.remove('active'));
+        if (dialogTabBtns3[index] && dialogTabPanels3[index]) {
+          dialogTabBtns3[index].classList.add('active');
+          dialogTabPanels3[index].classList.add('active');
+        }
+      }
+      dialogTabBtns3.forEach((btn, idx) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchDialogTab3(idx);
+        });
+      });
+
+
+
+
+
+
+
       window.openDialog = function () {
         switchDialogTab(0);
         overlay.classList.add('active');
@@ -3131,6 +3415,27 @@
         document.body.style.overflow = '';
         if (openBtn2) openBtn2.focus();
       }
+
+
+      window.openDialog3 = function () {
+        switchDialogTab3(0);
+        overlay3.classList.add('active');
+        setTimeout(() => {
+          closeIcon3.focus();
+        }, 50);
+        document.body.style.overflow = 'hidden';
+        closeContextMenu();
+      };
+
+      function closeDialog3() {
+        overlay3.classList.remove('active');
+        document.body.style.overflow = '';
+        if (openBtn3) openBtn3.focus();
+      }
+
+
+
+
 
       if (openBtn) openBtn.addEventListener('click', openDialog);
       if (closeIcon) closeIcon.addEventListener('click', closeDialog);
@@ -3197,6 +3502,45 @@
           }
         });
       }
+
+
+      if (openBtn3) openBtn2.addEventListener('click', openDialog3);
+      if (closeIcon3) closeIcon3.addEventListener('click', closeDialog3);
+      if (closeSecondary3) closeSecondary3.addEventListener('click', closeDialog3);
+      if (confirmBtn3) confirmBtn3.addEventListener('click', closeDialog3);
+
+      if (overlay3) {
+        overlay3.addEventListener('click', function (e) {
+          if (e.target === overlay3) closeDialog3();
+        });
+
+        overlay3.addEventListener('keydown', function (e) {
+          if (e.key === 'Tab') {
+            const focusable = overlay3.querySelectorAll(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+              }
+            } else {
+              if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+              }
+            }
+          }
+        });
+      }
+
+
+
+
+
 
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
@@ -5311,6 +5655,13 @@
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
         selectStudentForFee(admissionNumber);
+      });
+
+      document.getElementById('register_Tbl')?.addEventListener('dblclick', function (e) {
+        const row = e.target.closest('tbody tr');
+        if (!row || e.target.closest('.col-check')) return;
+        const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
+        window.openDialog3(admissionNumber);
       });
 
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
