@@ -3019,37 +3019,37 @@
                   <div class="details-grid">
                     <div class="detail-item">
                       <h4>Student's Name</h4>
-                      <p>Student's Name</p>
+                      <p id="pfl_name">Student's Name</p>
                     </div>
                     <div class="detail-item">
                       <h4>Admission No.</h4>
-                      <p>RS/2026/002</p>
+                      <p id="pfl_admn">RS/2026/002</p>
                     </div>
                     <div class="detail-item">
                       <h4>B. Certificate No.</h4>
-                      <p>012345678</p>
+                      <p id="pfl_BirthNo">012345678</p>
                     </div>
 
                     <div class="detail-item">
                       <h4>D.O.B</h4>
-                      <p>01.01.2026</p>
+                      <p id="pfl_DoB">01.01.2026</p>
                     </div>
                     <div class="detail-item">
                       <h4>Nationality</h4>
-                      <p>Kenyan</p>
+                      <p id="pfl_nationality">Kenyan</p>
                     </div>
                     <div class="detail-item">
                       <h4>Gender</h4>
-                      <p>Male</p>
+                      <p id="pfl_gender">Male</p>
                     </div>
 
                     <div class="detail-item">
                       <h4>Religion</h4>
-                      <p>Christian</p>
+                      <p id="pfl_Religion">Christian</p>
                     </div>
                     <div class="detail-item" style="grid-column: span 2;">
                       <h4>Current Grade</h4>
-                      <p>G2-WEST</p>
+                      <p id="pfl_class">G2-WEST</p>
                     </div>
                   </div>
                 </div>
@@ -3057,21 +3057,22 @@
                 <!-- Bottom Section -->
                 <div class="bottom-section">
                   <div class="guardian-header">Parent/Guardian Name:</div>
-                  <div class="guardian-name">Parent/Guardian (Relationship)</div>
+                  <div class="guardian-name" id="pfl_guardian_name">Parent/Guardian <span
+                      id="pfl_guardian_relationship"></span></div>
 
                   <div class="guardian-details">
                     <div class="guardian-info-item">
                       <strong>Phone Number:</strong>
-                      <span>+254790041547</span>
+                      <span id="pfl_phone">+254790041547</span>
                     </div>
                     <div class="guardian-info-item">
                       <strong>Physical Address:</strong>
-                      <span>614-30200, Kitale</span>
+                      <span id="pfl_Address">614-30200, Kitale</span>
                     </div>
 
                     <div class="guardian-info-item">
                       <strong>Email:</strong>
-                      <span>parent.email@yahoo.com</span>
+                      <span id="pfl_Email">parent.email@yahoo.com</span>
                     </div>
                   </div>
                 </div>
@@ -5663,11 +5664,108 @@
         selectStudentForFee(admissionNumber);
       });
 
-      document.getElementById('register_Tbl')?.addEventListener('dblclick', function (e) {
-        const row = e.target.closest('tbody tr');
-        if (!row || e.target.closest('.col-check')) return;
-        const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
-        window.openDialog3(admissionNumber);
+
+      document.getElementById("register_Tbl")?.addEventListener("dblclick", function (e) {
+        try {
+          const row = e.target?.closest("tbody tr");
+          if (!row || e.target?.closest(".col-check")) return;
+
+          const admissionNumber = row.querySelector(".student-id")?.textContent?.trim();
+          if (!admissionNumber) {
+            alert("Unable to identify this student.");
+            return;
+          }
+
+          if (typeof studentsCache !== "object" || !studentsCache) {
+            alert("Student data is currently unavailable. Please refresh and try again.");
+            return;
+          }
+
+          const s = studentsCache[admissionNumber] ||
+            studentsCache[admissionNumber.replace(/\s+/g, "")];
+
+          if (!s || typeof s !== "object") {
+            alert(`Student data for ${admissionNumber} is not available.`);
+            return;
+          }
+
+          const set = (id, value, fallback = "") => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            if (value === null || value === undefined || value === "") {
+              el.textContent = fallback;
+            } else if (typeof value === "object") {
+              try { el.textContent = JSON.stringify(value); }
+              catch { el.textContent = fallback; }
+            } else {
+              el.textContent = String(value);
+            }
+          };
+
+          const getValue = (...keys) => {
+            for (const key of keys) {
+              const value = s?.[key];
+              if (value !== undefined && value !== null && String(value).trim() !== "") {
+                return value;
+              }
+            }
+            return "";
+          };
+
+          // Format date to DD-Month-YYYY (e.g., 01-July-1995)
+          const formatDate = (dateValue) => {
+            if (!dateValue) return "";
+
+            try {
+              const date = new Date(dateValue);
+              if (isNaN(date.getTime())) return String(dateValue);
+
+              const day = String(date.getDate()).padStart(2, '0');
+              const months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+              const month = months[date.getMonth()];
+              const year = date.getFullYear();
+
+              return `${day}-${month}-${year}`;
+            } catch {
+              return String(dateValue);
+            }
+          };
+
+          // Student Bio-Data
+          set("pfl_name", getValue("name", "studentName"));
+          set("pfl_admn", getValue("admissionNumber", "admissionNo") || admissionNumber);
+          set("pfl_BirthNo", getValue("idNumber", "birthCertificateNo", "birthNo"));
+          set("pfl_DoB", formatDate(getValue("dob", "dateOfBirth")));
+          set("pfl_nationality", getValue("nationality"));
+          set("pfl_gender", getValue("gender", "sex"));
+          set("pfl_Religion", getValue("religion"));
+          set("pfl_class", getValue("class", "grade"));
+
+          // Guardian Information
+          set("pfl_guardian_name", getValue("guardian", "guardianName", "parentName"));
+          set("pfl_guardian_relationship", getValue("relationship", "guardianRelationship"));
+          set("pfl_phone", getValue("phone", "phoneNo", "guardianPhone"));
+          set("pfl_Email", getValue("email", "guardianEmail"));
+          set("pfl_Address", getValue("address", "physicalAddress"));
+
+          if (typeof window.openDialog3 !== "function") {
+            alert("The student profile window could not be opened.");
+            return;
+          }
+
+          try {
+            window.openDialog3(admissionNumber);
+          } catch (error) {
+            console.error("Error opening Student Profile dialog:", error);
+            alert("Unable to open the student profile. Please try again.");
+          }
+
+        } catch (error) {
+          console.error("Unexpected error while opening Student Profile:", error);
+          alert("An unexpected error occurred while loading the student profile.");
+        }
       });
 
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
