@@ -1297,6 +1297,11 @@
     #feepaymentHistory tbody tr.selected-row {
       background: #dbeafe;
     }
+
+
+     #feeStatement tbody tr.selected-row {
+      background: #dbeafe;
+    }
   </style>
 
   <style>
@@ -2136,7 +2141,9 @@
     }
 
     .bottom-section {
-      border: 0.1px solid rgb(48, 47, 47);
+      height: 24vh;
+      margin-top:50px;
+      border-top: 0.1px solid rgb(48, 47, 47);
       border-radius: 15px;
       padding: 3px 5%;
     }
@@ -2995,8 +3002,8 @@
         <div class="dialog-tabs-container">
           <div class="dialog-tabs-header">
             <button class="dialog-tab-btn active" data-tab="edit0"> Student's Bio-Data</button>
-            <button class="dialog-tab-btn" data-tab="edit1">Finance</button>
-            <button class="dialog-tab-btn" data-tab="edit1">Academics</button>
+            <button class="dialog-tab-btn" data-tab="edit1">Fee Statement</button>
+            <button class="dialog-tab-btn" data-tab="edit1">Academics Transcript</button>
           </div>
 
         </div>
@@ -3005,10 +3012,10 @@
         <div class="dialog-tab-content-wrapper">
           <!-- Tab 1: Personal Information -->
           <div class="dialog-tab-panel active" id="editTab0">
-            <div class="dialogue-body">
+            <div class="dialogue-body" style="height: 55vh;">
 
 
-              <div class="main-card">
+              <div class="main-card"style="height: 55vh;">
 
                 <!-- Top Section -->
                 <div class="top-section">
@@ -3089,7 +3096,7 @@
 
 
 
-              <table id="feepaymentHistory" style="width:100%; table-layout:fixed; border-collapse:collapse;">
+              <table id="feeStatement" style="width:100%; table-layout:fixed; border-collapse:collapse; font-size: small;">
 
                 <thead>
                   <tr style="text-align:left; font-size:small;">
@@ -3112,6 +3119,17 @@
 
             </div>
           </div>
+
+
+           <!-- Tab 2: Contact Information -->
+          <div class="dialog-tab-panel" id="editTab2">
+            <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
+
+              The Exams transcripts goes here !
+
+            </div>
+          </div>
+
 
 
         </div>
@@ -4380,6 +4398,50 @@
         });
       }
 
+      function populateStatement(paymentData, admissionNumber) {
+        const tableBody = document.querySelector('#feeStatement tbody');
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+
+        const paymentDataArray = paymentData
+          ? (Array.isArray(paymentData)
+            ? paymentData.map((payment, index) => ({ ...payment, key: payment.key || index }))
+            : Object.entries(paymentData).map(([key, payment]) => ({ ...payment, key }))
+          )
+          : [];
+
+        const filteredPayments = paymentDataArray.filter(payment =>
+          String(payment.admissionNumber || '').trim() === String(admissionNumber || '').trim()
+        );
+
+        if (filteredPayments.length === 0) {
+          tableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center;">No payment history available</td>
+        </tr>
+      `;
+          return;
+        }
+
+        filteredPayments.forEach(payment => {
+          const row = document.createElement('tr');
+          row.dataset.key = payment.key || '';
+          const displayDate = formatDateToDDMMYYYY(payment.paymentDate) || formatDateToDDMMYYYY(payment.entryDate) || '—';
+          row.innerHTML = `
+        <td>${payment.term || '—'}</td>
+        <td>${formatCurrency(payment.fee)}</td>
+        <td>${formatCurrency(payment.Exemption)}</td>
+        <td>${formatCurrency(payment.amount)}</td>
+        <td>${formatCurrency(payment.balance)}</td>
+        <td>${displayDate}</td>
+        <td>${payment.Account || '—'}</td>
+        <td>${payment.key || '—'}</td>
+      `;
+          tableBody.appendChild(row);
+        });
+      }
+
+
       window.searchStudent = function (searchText) {
         closeContextMenu();
         try {
@@ -5177,7 +5239,7 @@
       // ============================================================
       // PAYMENT SELECTION
       // ============================================================
-      let selectedPaymentKey = null;
+      let selectedPaymentKey = null
 
       document.querySelector('#feepaymentHistory tbody')?.addEventListener('click', function (e) {
         const row = e.target.closest('tr');
@@ -5187,6 +5249,18 @@
         selectedPaymentKey = row.dataset.key;
         console.log("Selected Payment Key:", selectedPaymentKey);
       });
+
+      document.querySelector('#feeStatement tbody')?.addEventListener('click', function (e) {
+        const row = e.target.closest('tr');
+        if (!row || !row.dataset.key) return;
+        document.querySelectorAll('#feeStatement tbody tr').forEach(r => r.classList.remove('selected-row'));
+        row.classList.add('selected-row');
+        selectedPaymentKey = row.dataset.key;
+        console.log("Selected Payment Key:", selectedPaymentKey);
+      });
+
+
+
 
       // ============================================================
       // DELETE STUDENTS
@@ -5749,6 +5823,9 @@
           set("pfl_phone", getValue("phone", "phoneNo", "guardianPhone"));
           set("pfl_Email", getValue("email", "guardianEmail"));
           set("pfl_Address", getValue("address", "physicalAddress"));
+
+        populateStatement(paymentCache, s.admissionNumber);
+
 
           if (typeof window.openDialog3 !== "function") {
             alert("The student profile window could not be opened.");
