@@ -4201,7 +4201,7 @@
           tableBody.appendChild(row);
         });
       }
-      
+
       window.searchStudent = function (searchText) {
         closeContextMenu();
         try {
@@ -4271,13 +4271,104 @@
       };
 
       // ============================================================
-      // REAL-TIME LISTENERS
+      // REAL-TIME DATA SYNC WITHOUT AUTOMATIC UI RE-RENDERING
       // ============================================================
+      // Firebase remains realtime, but incoming changes only update the
+      // in-memory caches. The visible UI is rebuilt ONLY when the user
+      // explicitly refreshes it. This prevents rows, selections, menus,
+      // search results, scroll position, dialogs and filters from being
+      // destroyed by background Firebase updates.
+      const realtimeState = {
+        students: false,
+        payments: false,
+        classes: false,
+        terms: false,
+        assessments: false,
+        marks: false
+      };
+
+      let uiInitialRenderDone = false;
+      let uiRefreshRequired = false;
+      let uiRefreshInProgress = false;
+
+      function markRealtimeDataLoaded(source) {
+        if (Object.prototype.hasOwnProperty.call(realtimeState, source)) {
+          realtimeState[source] = true;
+        }
+
+        uiRefreshRequired = true;
+
+        // Perform one initial render after the primary data sources have
+        // supplied their first snapshots. After that, realtime callbacks
+        // never touch the DOM.
+        if (
+          !uiInitialRenderDone &&
+          realtimeState.students &&
+          realtimeState.payments &&
+          realtimeState.classes &&
+          realtimeState.terms
+        ) {
+          refreshUIFromFirebase(false);
+        }
+      }
+
+      function refreshUIFromFirebase(showMessage = true) {
+        if (uiRefreshInProgress) return;
+
+        uiRefreshInProgress = true;
+
+        try {
+          // Rebuild only because the user explicitly requested a refresh.
+          populateStudentsTable(studentsCache);
+          populateFeeBalanceTable(studentsCache);
+          populateFeePaymentsTable(paymentCache);
+          renderClasses(classData);
+          populateClassSelect(classData);
+          renderGrid();
+
+          const assessmentTerm = document.getElementById('assessment-term');
+          if (assessmentTerm) {
+            assessmentTerm.value = getActiveTerm() || '';
+          }
+
+          // Keep the automatic admission number synchronized after an
+          // explicit refresh, but never do this from a realtime callback.
+          const autoGenerate = document.getElementById('autoGenerate');
+          if (autoGenerate && autoGenerate.checked) {
+            autoGenerate.dispatchEvent(new Event('change'));
+          }
+
+          // Assessment/marks UI lives inside the second module. It is
+          // exposed through window.__refreshAssessmentUI below.
+          if (typeof window.__refreshAssessmentUI === 'function') {
+            window.__refreshAssessmentUI();
+          }
+
+          uiRefreshRequired = false;
+          uiInitialRenderDone = true;
+
+          if (showMessage && typeof window.showToast === 'function') {
+            window.showToast('UI refreshed with the latest Firebase data');
+          }
+        } catch (error) {
+          console.error('UI refresh error:', error);
+          if (showMessage) {
+            alert('Failed to refresh the UI:\n' + error.message);
+          }
+        } finally {
+          uiRefreshInProgress = false;
+        }
+      }
+
+      // Public manual refresh function. Any refresh button in the page can
+      // call this without knowing how the different UI sections are built.
+      window.refreshUIFromFirebase = function () {
+        refreshUIFromFirebase(true);
+      };
+
       onValue(studentsRef, (snapshot) => {
         studentsCache = snapshot.exists() ? snapshot.val() : {};
-        populateStudentsTable(studentsCache);
-        populateFeeBalanceTable(studentsCache);
-        document.getElementById('autoGenerate').dispatchEvent(new Event('change'));
+        markRealtimeDataLoaded('students');
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load students:\n" + error.message);
@@ -4285,7 +4376,7 @@
 
       onValue(feepaymentRef, (snapshot) => {
         paymentCache = snapshot.exists() ? snapshot.val() : {};
-        populateFeePaymentsTable(paymentCache);
+        markRealtimeDataLoaded('payments');
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load payments:\n" + error.message);
@@ -4344,8 +4435,7 @@
           classData = [];
         }
         defaultGrades = getDefaultGrades(classData);
-        renderClasses(classData);
-        populateClassSelect(classData);
+        markRealtimeDataLoaded('classes');
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load classes:\n" + error.message);
@@ -4549,8 +4639,8 @@
         const termObj = { termId, start, end, status, meal, transport, boarding, breakFee, grades };
         try {
           await set(ref(db, `Institution/ Revival/terms/${termId}`), termObj);
-          terms.push(termObj);
           closeModal();
+          uiRefreshRequired = true;
         } catch (error) {
           console.error("Error saving term:", error);
           alert("Failed to save Term Details:\n" + error.message);
@@ -4573,9 +4663,7 @@
         } else {
           terms = [];
         }
-        document.getElementById("assessment-term").value = getActiveTerm();
-        renderGrid();
-        populateFeeBalanceTable(studentsCache);
+        markRealtimeDataLoaded('terms');
       }, (error) => {
         console.error("Realtime error:", error);
         alert("Failed to load terms:\n" + error.message);
@@ -5518,13 +5606,18 @@
         }
 
         // ---------- REAL-TIME LISTENERS FOR ASSESSMENTS AND MARKS ----------
+        // IMPORTANT: These listeners update the data model only. They do NOT
+        // call refreshAll(), so external Firebase changes cannot rebuild the
+        // visible assessment/marks UI while the user is working.
         onValue(assessmentsRef, (snapshot) => {
           if (snapshot.exists()) {
             assessments = Object.values(snapshot.val());
           } else {
             assessments = [];
           }
-          refreshAll();
+          if (typeof markRealtimeDataLoaded === 'function') {
+            markRealtimeDataLoaded('assessments');
+          }
         }, (error) => {
           console.error("Realtime assessments error:", error);
         });
@@ -5543,19 +5636,15 @@
           } else {
             marks = [];
           }
-          refreshAll();
+          if (typeof markRealtimeDataLoaded === 'function') {
+            markRealtimeDataLoaded('marks');
+          }
         }, (error) => {
           console.error("Realtime marks error:", error);
         });
 
-        // Periodically re-sync in case studentsCache is updated by the Firebase listener
-        setInterval(() => {
-          const prevCount = students.length;
-          syncStudentsFromCache();
-          if (students.length !== prevCount) {
-            refreshAll();
-          }
-        }, 3000);
+        // No polling interval is needed. Firebase onValue already keeps the
+        // caches synchronized in the background without changing the DOM.
 
         // ---------- NAV ----------
         document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -5984,6 +6073,20 @@
           renderDashboard();
           renderAssessments();
           populateFilters();
+        }
+
+        // Allow the outer module's single manual-refresh controller to refresh
+        // this assessment/marks module without exposing its internal functions.
+        window.__refreshAssessmentUI = refreshAll;
+
+        // The existing Refresh button is now the explicit UI refresh action.
+        // Firebase changes are allowed to accumulate in the background until
+        // this button is pressed.
+        if (refreshBtn) {
+          refreshBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.refreshUIFromFirebase();
+          });
         }
 
         // Add this function to export bulk marks to Excel
