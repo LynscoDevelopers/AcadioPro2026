@@ -7388,6 +7388,206 @@
       })();
 
 
+// Function to toggle assessment selection on click
+function toggleAssessmentSelection(assessmentId, event) {
+  // Prevent default behavior if needed
+  event.preventDefault();
+  event.stopPropagation();
+  
+  // Find the assessment card element
+  const assessmentCard = document.querySelector(`[data-assessment-id="${assessmentId}"]`);
+  
+  if (!assessmentCard) {
+    console.error(`Assessment card with ID "${assessmentId}" not found`);
+    return;
+  }
+  
+  // Toggle the 'selected' class
+  const isSelected = assessmentCard.classList.contains('selected');
+  
+  if (isSelected) {
+    // Deselect
+    assessmentCard.classList.remove('selected');
+    assessmentCard.style.borderColor = '#e5e7eb'; // Restore default border
+    assessmentCard.style.backgroundColor = 'white'; // Restore default background
+    assessmentCard.style.boxShadow = 'none'; // Remove shadow
+    console.log(`Assessment ${assessmentId} deselected`);
+  } else {
+    // Select
+    assessmentCard.classList.add('selected');
+    assessmentCard.style.borderColor = '#2a7de1'; // Blue border
+    assessmentCard.style.backgroundColor = '#f0f7ff'; // Light blue background
+    assessmentCard.style.boxShadow = '0 4px 12px rgba(42, 125, 225, 0.2)'; // Blue shadow
+    console.log(`Assessment ${assessmentId} selected`);
+  }
+  
+  // Optional: Update any hidden input or store selection state
+  updateSelectedAssessments();
+}
+
+// Function to track all selected assessments
+function updateSelectedAssessments() {
+  const selectedCards = document.querySelectorAll('.assessment-card.selected');
+  const selectedIds = Array.from(selectedCards).map(card => card.dataset.assessmentId);
+  
+  // Store in a global variable or update UI
+  window.selectedAssessments = selectedIds;
+  
+  // Update UI element if it exists
+  const selectionCountElement = document.getElementById('selected-assessments-count');
+  if (selectionCountElement) {
+    selectionCountElement.textContent = `${selectedIds.length} assessment(s) selected`;
+  }
+  
+  console.log('Selected assessments:', selectedIds);
+}
+
+// Function to initialize selection on all assessment cards
+function initializeAssessmentSelection() {
+  const assessmentCards = document.querySelectorAll('.assessment-card');
+  
+  assessmentCards.forEach(card => {
+    // Make card clickable
+    card.style.cursor = 'pointer';
+    
+    // Add data attribute to identify the card (if not already present)
+    if (!card.dataset.assessmentId) {
+      // Try to get the ID from the assessment info inside the card
+      const assessmentIdElement = card.querySelector('.badge-info');
+      if (assessmentIdElement) {
+        card.dataset.assessmentId = assessmentIdElement.textContent.trim();
+      }
+    }
+    
+    // Add click event listener
+    card.addEventListener('click', function(e) {
+      toggleAssessmentSelection(card.dataset.assessmentId, e);
+    });
+    
+    // Add hover effect
+    card.addEventListener('mouseenter', function() {
+      if (!card.classList.contains('selected')) {
+        card.style.transform = 'translateY(-2px)';
+        card.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)';
+      }
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      if (!card.classList.contains('selected')) {
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = 'none';
+      }
+    });
+  });
+}
+
+// Function to select all assessments
+function selectAllAssessments() {
+  const assessmentCards = document.querySelectorAll('.assessment-card');
+  assessmentCards.forEach(card => {
+    card.classList.add('selected');
+    card.style.borderColor = '#2a7de1';
+    card.style.backgroundColor = '#f0f7ff';
+    card.style.boxShadow = '0 4px 12px rgba(42, 125, 225, 0.2)';
+  });
+  updateSelectedAssessments();
+}
+
+// Function to deselect all assessments
+function deselectAllAssessments() {
+  const assessmentCards = document.querySelectorAll('.assessment-card');
+  assessmentCards.forEach(card => {
+    card.classList.remove('selected');
+    card.style.borderColor = '#e5e7eb';
+    card.style.backgroundColor = 'white';
+    card.style.boxShadow = 'none';
+  });
+  updateSelectedAssessments();
+}
+
+// Function to get selected assessment data
+function getSelectedAssessmentsData() {
+  const selectedIds = window.selectedAssessments || [];
+  const selectedData = assessments.filter(assessment => 
+    selectedIds.includes(assessment.id)
+  );
+  
+  return selectedData;
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  initializeAssessmentSelection();
+});
+
+// Add to renderAssessments function to include data-assessment-id attribute
+// Update the renderAssessments function to add the data attribute:
+
+function renderAssessments() {
+  const container = document.getElementById('assessments-list');
+  if (!assessments.length) {
+    container.innerHTML = '<p style="color: #6b7280;">No assessments yet. Click "New Assessment" to create one.</p>';
+    return;
+  }
+  
+  container.innerHTML = assessments.map(a => {
+    const am = marks.filter(m => m.assessmentId === a.id);
+    const avg = am.length ? (am.reduce((s, m) => s + m.marks, 0) / am.length).toFixed(1) : 'N/A';
+    
+    // Check if this assessment is currently selected
+    const isSelected = window.selectedAssessments && window.selectedAssessments.includes(a.id);
+    
+    return `<div class="assessment-card" data-assessment-id="${a.id}" style="cursor: pointer; ${isSelected ? 'border-color: #2a7de1; background-color: #f0f7ff; box-shadow: 0 4px 12px rgba(42, 125, 225, 0.2);' : ''}">
+        <div style="margin-bottom: 0.5rem;">
+            <strong>${a.name}</strong> 
+            <span class="badge badge-info">${a.id}</span>
+        </div>
+        <div style="font-size:0.8rem; color:#6b7280; margin-bottom: 0.5rem;">
+            Grade ${a.grade} · Max ${a.maxMarks} · Term ${a.term}
+        </div>
+        <div class="subject-tags" style="margin-bottom: 0.5rem;">
+            ${a.subjects.map(s => `<span class="subject-tag" style="cursor:default;">${s}</span>`).join('')}
+        </div>
+        <div style="font-size:0.8rem; margin-bottom: 0.75rem;">
+            Avg ${avg}% · ${am.length} Records
+        </div>
+        <div>
+            <button class="btn btn-outline btn-sm" onclick="enterMarks('${a.id}')">📝 Enter Marks</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAssessment('${a.id}')">🗑️ Delete</button>
+        </div>
+    </div>`;
+  }).join('');
+  
+  // Re-initialize selection after rendering
+  initializeAssessmentSelection();
+}
+
+    // Add CSS for selected state (add to your stylesheet)
+    const selectedAssessmentCSS = `
+    .assessment-card.selected {
+      border-color: #2a7de1 !important;
+      background-color: #f0f7ff !important;
+      box-shadow: 0 4px 12px rgba(42, 125, 225, 0.2) !important;
+    }
+
+    .assessment-card.selected:hover {
+      border-color: #1a5eb8 !important;
+      background-color: #e3f0ff !important;
+    }
+    `;
+
+    // Inject CSS
+    const styleElement = document.createElement('style');
+    styleElement.textContent = selectedAssessmentCSS;
+    document.head.appendChild(styleElement);
+
+
+
+
+
+
+
+      
       // ============================================================
       // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
       // ============================================================
