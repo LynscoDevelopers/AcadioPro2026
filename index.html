@@ -6234,9 +6234,9 @@
       });
 
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
-      
-      
-      
+
+
+
       (function () {
         // ---------- DATA ----------
         let students = [];
@@ -7379,6 +7379,9 @@
       })();
 
 
+
+
+
       // ============================================================
       // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
       // ============================================================
@@ -7504,19 +7507,85 @@
               const assessment = item.assessment;
               const marks = item.marks;
 
-              const assessmentTotal = marks.reduce((sum, m) => sum + parseFloat(m.marks), 0);
-              const assessmentAvg = marks.length > 0 ? (assessmentTotal / marks.length).toFixed(1) : '0';
+              // Current student's assessment average
+              const assessmentTotal = marks.reduce(
+                (sum, m) => sum + (parseFloat(m.marks) || 0),
+                0
+              );
+
+              const assessmentAvg = marks.length > 0
+                ? (assessmentTotal / marks.length).toFixed(1)
+                : '0';
+
+              // ==========================================
+              // RANK STUDENTS BY THEIR ASSESSMENT AVERAGE
+              // ==========================================
+
+              const studentAssessmentTotals = {};
+
+              allMarksData
+                .filter(mark => mark.assessmentId === assessment.id)
+                .forEach(mark => {
+                  const studentId = String(mark.studentId).replace(/-/g, '/');
+
+                  if (!studentAssessmentTotals[studentId]) {
+                    studentAssessmentTotals[studentId] = {
+                      total: 0,
+                      count: 0
+                    };
+                  }
+
+                  studentAssessmentTotals[studentId].total +=
+                    parseFloat(mark.marks) || 0;
+
+                  studentAssessmentTotals[studentId].count++;
+                });
+
+              // Calculate average for every student
+              const rankedStudents = Object.entries(studentAssessmentTotals)
+                .map(([studentId, data]) => ({
+                  studentId,
+                  average: data.count > 0
+                    ? data.total / data.count
+                    : 0
+                }))
+                .sort((a, b) => b.average - a.average);
+
+              // Current student's admission number
+              const currentStudentId =
+                String(admissionNumber).replace(/-/g, '/');
+
+              // Find current student's rank
+              const studentRankIndex = rankedStudents.findIndex(
+                student => student.studentId === currentStudentId
+              );
+
+              const assessmentRank = studentRankIndex >= 0
+                ? `${studentRankIndex + 1}/${rankedStudents.length}`
+                : '—';
+
+              // ==========================================
+              // BUILD ASSESSMENT ROW
+              // ==========================================
 
               assessmentRows += `
-          <tr>
-            <td><strong>${assessment.name}</strong></td>
-            <td>${assessment.id}</td>
-            <td>${assessment.grade || '—'}</td>
-            <td>${assessmentAvg}/${assessment.maxMarks}</td>
-            <td><span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">${getGradeLetter(assessmentAvg)}</span></td>
-            <td>${marks.length} subjects</td>
-          </tr>
-        `;
+                <tr>
+                  <td><strong>${assessment.name}</strong></td>
+                  <td>${assessment.id}</td>
+                  <td>${assessment.grade || '—'}</td>
+                  <td>${assessmentAvg}/${assessment.maxMarks}</td>
+                  <td>
+                    <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">
+                      ${getGradeLetter(assessmentAvg)}
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
+                    <span class="rank-badge">
+                      <strong>${assessmentRank}</strong>
+                    </span>
+                  </td>
+                </tr>
+              `;
             });
 
             // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
@@ -7643,25 +7712,23 @@
 
               // Build individual assessment cells
               let assessmentCells = '';
+
               allTermAssessmentIds.forEach(assessmentId => {
                 const assessmentData = data.assessments[assessmentId];
+
                 if (assessmentData) {
                   const mark = assessmentData.marks;
                   const max = assessmentData.maxMarks;
-                  const percent = max > 0 ? (mark / max * 100).toFixed(0) : '0';
-                  const markGrade = percent >= 80 ? 'A' : percent >= 70 ? 'B' : percent >= 60 ? 'C' : percent >= 50 ? 'D' : 'F';
 
                   assessmentCells += `
-              <td style="text-align: center;">
-                <div>
-                  <strong>${mark}/${max}</strong>
-                  <br>
-                  <span class="grade-badge-exam ${getGradeClass(percent)}" style="font-size: 0.65rem;">${markGrade}</span>
-                </div>
-              </td>
-            `;
+                      <td style="text-align: center;">
+                        <strong>${mark}/${max}</strong>
+                      </td>
+                    `;
                 } else {
-                  assessmentCells += '<td style="text-align: center; color: #9ca3af;">—</td>';
+                  assessmentCells += `
+                      <td style="text-align: center; color: #9ca3af;">—</td>
+                    `;
                 }
               });
 
@@ -7740,7 +7807,7 @@
                   <th>Grade</th>
                   <th>Avg Score</th>
                   <th>Grade</th>
-                  <th>Details</th>
+                  <th>Position</th>
                 </tr>
               </thead>
               <tbody>
