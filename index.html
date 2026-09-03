@@ -1299,7 +1299,7 @@
     }
 
 
-     #feeStatement tbody tr.selected-row {
+    #feeStatement tbody tr.selected-row {
       background: #dbeafe;
     }
   </style>
@@ -2142,7 +2142,7 @@
 
     .bottom-section {
       height: 24vh;
-      margin-top:50px;
+      margin-top: 50px;
       border-top: 0.1px solid rgb(48, 47, 47);
       border-radius: 15px;
       padding: 3px 5%;
@@ -2183,6 +2183,264 @@
     }
   </style>
 
+  <style>
+    /* ===== Collapsible Section Styles for Transcripts ===== */
+    .collapsible-section {
+      margin-bottom: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .collapsible-header {
+      width: 100%;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: none;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a2a3a;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .collapsible-header:hover {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .collapsible-header.collapsed {
+      border-bottom: none;
+      border-radius: 10px;
+    }
+
+    .collapsible-icon {
+      font-size: 0.75rem;
+      transition: transform 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+    }
+
+    .collapsible-section.collapsed .collapsible-icon {
+      transform: rotate(-90deg);
+    }
+
+    .collapsible-title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .term-badge {
+      background: #2a7de1;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(42, 125, 225, 0.3);
+    }
+
+    .term-subtitle {
+      font-size: 0.8rem;
+      color: #6b7e93;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .collapsible-count {
+      font-size: 0.8rem;
+      color: #6b7e93;
+      font-weight: 500;
+      background: white;
+      padding: 2px 10px;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .collapsible-content {
+      padding: 12px 16px;
+      animation: slideDown 0.3s ease;
+      background: white;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        max-height: 100%;
+        transform: translateY(0);
+      }
+    }
+
+    .collapsible-section.collapsed .collapsible-content {
+      display: none;
+    }
+
+    /* Transcript table styles */
+    .transcript-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .transcript-table th {
+      background: #f8fafc;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #1a2a3a;
+      border-bottom: 2px solid #e5e7eb;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .transcript-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e2f3f;
+    }
+
+    .transcript-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .subject-badge {
+      background: #e9f2fa;
+      color: #2a5f7a;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .grade-badge-exam {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .grade-a {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .grade-b {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .grade-c {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .grade-d {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .grade-f {
+      background: #fecaca;
+      color: #7f1d1d;
+    }
+
+    /* Summary row */
+    .transcript-summary {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .summary-item {
+      flex: 1;
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 0.75rem;
+      color: #6b7e93;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a2a3a;
+    }
+
+    /* Empty state */
+    .transcript-empty {
+      text-align: center;
+      padding: 30px 20px;
+      color: #6b7e93;
+    }
+
+    .transcript-empty i {
+      font-size: 2.5rem;
+      color: #bcccdb;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .transcript-empty p {
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    /* Loading state */
+    .loading-spinner {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading-spinner i {
+      font-size: 1.5rem;
+      color: #2a7de1;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 
 </head>
 
@@ -3015,7 +3273,7 @@
             <div class="dialogue-body" style="height: 55vh;">
 
 
-              <div class="main-card"style="height: 55vh;">
+              <div class="main-card" style="height: 55vh;">
 
                 <!-- Top Section -->
                 <div class="top-section">
@@ -3096,7 +3354,8 @@
 
 
 
-              <table id="feeStatement" style="width:100%; table-layout:fixed; border-collapse:collapse; font-size: small;">
+              <table id="feeStatement"
+                style="width:100%; table-layout:fixed; border-collapse:collapse; font-size: small;">
 
                 <thead>
                   <tr style="text-align:left; font-size:small;">
@@ -3121,11 +3380,18 @@
           </div>
 
 
-           <!-- Tab 2: Contact Information -->
+          <!-- Tab 2: Contact Information -->
           <div class="dialog-tab-panel" id="editTab2">
             <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
 
-              The Exams transcripts goes here !
+              <!-- Term Transcripts Container -->
+              <div id="termTranscriptsContainer">
+                <!-- Term collapsible sections will be injected here by JavaScript -->
+                <div class="transcript-empty" id="noTranscriptsMessage">
+                  <i class="fas fa-file-alt"></i>
+                  <p>No assessment transcripts available</p>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -5736,6 +6002,7 @@
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
         selectStudentForFee(admissionNumber);
+         loadStudentTranscripts(admissionNumber);
       });
 
 
@@ -5824,7 +6091,7 @@
           set("pfl_Email", getValue("email", "guardianEmail"));
           set("pfl_Address", getValue("address", "physicalAddress"));
 
-        populateStatement(paymentCache, s.admissionNumber);
+          populateStatement(paymentCache, s.admissionNumber);
 
 
           if (typeof window.openDialog3 !== "function") {
@@ -6961,10 +7228,335 @@
           URL.revokeObjectURL(url);
           showToast('Import template downloaded successfully');
         };
-
         // Init
         initializeSystem();
       })();
+
+
+
+
+
+
+      // ============================================================
+      // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
+      // ============================================================
+
+      // Variable to store all marks data for transcript calculation
+      let allMarksData = [];
+      let allAssessmentsData = [];
+
+      // Initialize transcripts system
+      async function initTranscriptsSystem() {
+        try {
+          // Load assessments and marks from Firebase
+          const assessmentsSnapshot = await get(ref(db, 'Institution/ Revival/Assessments'));
+          const marksSnapshot = await get(ref(db, 'Institution/ Revival/Marks'));
+
+          allAssessmentsData = assessmentsSnapshot.exists() ? Object.values(assessmentsSnapshot.val()) : [];
+          allMarksData = marksSnapshot.exists() ? Object.values(marksSnapshot.val()) : [];
+
+          console.log('Transcripts system initialized:', {
+            assessments: allAssessmentsData.length,
+            marks: allMarksData.length
+          });
+        } catch (error) {
+          console.error('Error initializing transcripts system:', error);
+        }
+      }
+
+      // Toggle collapsible section
+      window.toggleCollapsible = function (header) {
+        const section = header.closest('.collapsible-section');
+        section.classList.toggle('collapsed');
+      };
+
+      // Load transcripts for a specific student
+      async function loadStudentTranscripts(admissionNumber) {
+        const container = document.getElementById('termTranscriptsContainer');
+        const noMessage = document.getElementById('noTranscriptsMessage');
+
+        if (!container) return;
+
+        // Show loading state
+        container.innerHTML = `
+    <div class="loading-spinner">
+      <i class="fas fa-spinner"></i>
+      <p>Loading transcripts...</p>
+    </div>
+  `;
+
+        try {
+          // Ensure we have the latest data
+          await initTranscriptsSystem();
+
+          // Get student's marks
+          const studentMarks = allMarksData.filter(mark =>
+            mark.studentId === admissionNumber ||
+            mark.studentId === admissionNumber.replace(/-/g, '/')
+          );
+
+          if (studentMarks.length === 0) {
+            container.innerHTML = `
+        <div class="transcript-empty">
+          <i class="fas fa-file-alt"></i>
+          <p>No assessment records found for this student</p>
+        </div>
+      `;
+            return;
+          }
+
+          // Get all unique assessment IDs from student marks
+          const assessmentIds = [...new Set(studentMarks.map(mark => mark.assessmentId))];
+
+          // Get assessments for these IDs
+          const studentAssessments = allAssessmentsData.filter(assessment =>
+            assessmentIds.includes(assessment.id)
+          );
+
+          // Group assessments by term
+          const termsMap = {};
+
+          studentAssessments.forEach(assessment => {
+            const term = assessment.term || 'Unknown Term';
+
+            if (!termsMap[term]) {
+              termsMap[term] = [];
+            }
+
+            termsMap[term].push({
+              assessment: assessment,
+              marks: studentMarks.filter(mark => mark.assessmentId === assessment.id)
+            });
+          });
+
+          // Sort terms (you can customize this logic)
+          const sortedTerms = Object.keys(termsMap).sort((a, b) => {
+            const termOrder = { 'Term1': 1, 'Term2': 2, 'Term3': 3, 'Term1_2026': 1, 'Term2_2026': 2, 'Term3_2026': 3 };
+            return (termOrder[a] || 99) - (termOrder[b] || 99);
+          });
+
+          // Build HTML for each term
+          let html = '';
+
+          sortedTerms.forEach((term, termIndex) => {
+            const termData = termsMap[term];
+            const isFirst = termIndex === 0;
+
+            // Calculate term statistics
+            let totalMarks = 0;
+            let totalMaxMarks = 0;
+            let subjectCount = new Set();
+
+            termData.forEach(item => {
+              item.marks.forEach(mark => {
+                totalMarks += parseFloat(mark.marks) || 0;
+                totalMaxMarks += parseFloat(mark.assessment?.maxMarks) || 100;
+                subjectCount.add(mark.subject);
+              });
+            });
+
+            const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
+            const grade = average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'F';
+
+            // Build rows for assessments
+            let assessmentRows = '';
+
+            termData.forEach(item => {
+              const assessment = item.assessment;
+              const marks = item.marks;
+
+              // Calculate assessment average
+              const assessmentTotal = marks.reduce((sum, m) => sum + parseFloat(m.marks), 0);
+              const assessmentAvg = marks.length > 0 ? (assessmentTotal / marks.length).toFixed(1) : '0';
+
+              assessmentRows += `
+          <tr>
+            <td><strong>${assessment.name}</strong></td>
+            <td>${assessment.id}</td>
+            <td>${assessment.grade || '—'}</td>
+            <td>${assessmentAvg}/${assessment.maxMarks}</td>
+            <td><span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">${getGradeLetter(assessmentAvg)}</span></td>
+            <td>${marks.length} subjects</td>
+          </tr>
+        `;
+            });
+
+            // Build subject-wise breakdown
+            let subjectRows = '';
+            const subjectMap = {};
+
+            termData.forEach(item => {
+              item.marks.forEach(mark => {
+                if (!subjectMap[mark.subject]) {
+                  subjectMap[mark.subject] = { total: 0, count: 0, max: 0 };
+                }
+                subjectMap[mark.subject].total += parseFloat(mark.marks) || 0;
+                subjectMap[mark.subject].count++;
+                subjectMap[mark.subject].max += parseFloat(item.assessment?.maxMarks) || 100;
+              });
+            });
+
+            Object.entries(subjectMap).forEach(([subject, data]) => {
+              const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
+              const subjectGrade = subjectAvg >= 80 ? 'A' : subjectAvg >= 70 ? 'B' : subjectAvg >= 60 ? 'C' : subjectAvg >= 50 ? 'D' : 'F';
+
+              subjectRows += `
+          <tr>
+            <td><span class="subject-badge">${subject}</span></td>
+            <td>${data.count} exam(s)</td>
+            <td><strong>${subjectAvg}%</strong></td>
+            <td><span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span></td>
+            <td>${data.total}/${data.max}</td>
+          </tr>
+        `;
+            });
+
+            // Build the collapsible section HTML
+            html += `
+        <div class="collapsible-section ${isFirst ? '' : ''}">
+          <button class="collapsible-header" onclick="toggleCollapsible(this)">
+            <span class="collapsible-icon">▼</span>
+            <span class="collapsible-title">
+              <span class="term-badge">${term}</span>
+              <span class="term-subtitle">
+                ${termData.length} assessment(s) · ${new Set(termData.flatMap(item => item.marks.map(m => m.subject))).size} subjects
+              </span>
+            </span>
+            <span class="collapsible-count">Avg: ${average}%</span>
+          </button>
+          
+          <div class="collapsible-content">
+            <!-- Term Summary -->
+            <div class="transcript-summary">
+              <div class="summary-item">
+                <div class="summary-label">Average</div>
+                <div class="summary-value">${average}%</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Grade</div>
+                <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Assessments</div>
+                <div class="summary-value">${termData.length}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Subjects</div>
+                <div class="summary-value">${new Set(termData.flatMap(item => item.marks.map(m => m.subject))).size}</div>
+              </div>
+            </div>
+            
+            <!-- Assessment Overview -->
+            <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
+              <i class="fas fa-clipboard-list"></i> Assessment Overview
+            </h4>
+            <table class="transcript-table">
+              <thead>
+                <tr>
+                  <th>Assessment</th>
+                  <th>ID</th>
+                  <th>Grade</th>
+                  <th>Avg Score</th>
+                  <th>Grade</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${assessmentRows}
+              </tbody>
+            </table>
+            
+            <!-- Subject-wise Breakdown -->
+            <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
+              <i class="fas fa-book-open"></i> Subject Performance
+            </h4>
+            <table class="transcript-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Assessments</th>
+                  <th>Average</th>
+                  <th>Grade</th>
+                  <th>Total Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${subjectRows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+          });
+
+          container.innerHTML = html;
+
+        } catch (error) {
+          console.error('Error loading transcripts:', error);
+          container.innerHTML = `
+      <div class="transcript-empty">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Error loading transcripts: ${error.message}</p>
+      </div>
+    `;
+        }
+      }
+
+      // Helper functions
+      function getGradeClass(marks) {
+        marks = parseFloat(marks) || 0;
+        if (marks >= 80) return 'grade-a';
+        if (marks >= 70) return 'grade-b';
+        if (marks >= 60) return 'grade-c';
+        if (marks >= 50) return 'grade-d';
+        return 'grade-f';
+      }
+
+      function getGradeLetter(marks) {
+        marks = parseFloat(marks) || 0;
+        if (marks >= 80) return 'A';
+        if (marks >= 70) return 'B';
+        if (marks >= 60) return 'C';
+        if (marks >= 50) return 'D';
+        return 'F';
+      }
+
+      function getGradeColor(grade) {
+        const colors = {
+          'A': '#065f46',
+          'B': '#075985',
+          'C': '#92400e',
+          'D': '#991b1b',
+          'F': '#7f1d1d'
+        };
+        return colors[grade] || '#1a2a3a';
+      }
+
+      // Update the double-click handler to load transcripts
+      // In your existing dblclick handler for register_Tbl, modify it to call:
+      // loadStudentTranscripts(admissionNumber);
+
+      // Also update the openDialog3 function to initialize transcripts
+      window.openDialog3 = function (admissionNumber) {
+        switchDialogTab3(0);
+        overlay3.classList.add('active');
+        setTimeout(() => {
+          closeIcon3.focus();
+        }, 50);
+        document.body.style.overflow = 'hidden';
+        closeContextMenu();
+
+        // Load transcripts if we have an admission number
+        if (admissionNumber) {
+          loadStudentTranscripts(admissionNumber);
+        }
+      };
+
+      // Initialize when page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        initTranscriptsSystem();
+      });
+
 
     </script>
 
