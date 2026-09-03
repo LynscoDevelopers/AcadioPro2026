@@ -2186,26 +2186,26 @@
   <style>
     /* ===== Collapsible Section Styles for Transcripts ===== */
     .collapsible-section {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       border: 1px solid #e5e7eb;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
       background: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .collapsible-header {
       width: 100%;
-      padding: 14px 16px;
+      padding: 8px 10px;
       background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border: none;
       border-bottom: 1px solid #e5e7eb;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #1a2a3a;
       transition: all 0.2s ease;
@@ -2214,22 +2214,21 @@
 
     .collapsible-header:hover {
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
     }
 
     .collapsible-header.collapsed {
       border-bottom: none;
-      border-radius: 10px;
+      border-radius: 8px;
     }
 
     .collapsible-icon {
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       transition: transform 0.3s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
       background: white;
       border-radius: 50%;
       border: 1px solid #e5e7eb;
@@ -2244,38 +2243,38 @@
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
     }
 
     .term-badge {
       background: #2a7de1;
       color: white;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.65rem;
       font-weight: 600;
-      box-shadow: 0 2px 4px rgba(42, 125, 225, 0.3);
+      box-shadow: 0 1px 3px rgba(42, 125, 225, 0.3);
     }
 
     .term-subtitle {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       color: #6b7e93;
       font-weight: 400;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .collapsible-count {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       color: #6b7e93;
       font-weight: 500;
       background: white;
-      padding: 2px 10px;
-      border-radius: 20px;
+      padding: 2px 8px;
+      border-radius: 12px;
       border: 1px solid #e5e7eb;
     }
 
     .collapsible-content {
-      padding: 12px 16px;
+      padding: 8px 10px;
       animation: slideDown 0.3s ease;
       background: white;
     }
@@ -2284,7 +2283,7 @@
       from {
         opacity: 0;
         max-height: 0;
-        transform: translateY(-5px);
+        transform: translateY(-3px);
       }
 
       to {
@@ -2298,52 +2297,112 @@
       display: none;
     }
 
-    /* Transcript table styles */
+    /* Transcript table styles - RESPONSIVE WITHOUT HORIZONTAL SCROLL */
     .transcript-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
+      font-size: 0.75rem;
+      margin-bottom: 5px;
+      table-layout: auto;
+      /* Changed from fixed to auto for better content fitting */
     }
 
     .transcript-table th {
       background: #f8fafc;
-      padding: 10px 12px;
+      padding: 6px 4px;
       text-align: left;
       font-weight: 600;
       color: #1a2a3a;
       border-bottom: 2px solid #e5e7eb;
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .transcript-table td {
-      padding: 10px 12px;
+      padding: 6px 4px;
       border-bottom: 1px solid #f1f5f9;
       color: #1e2f3f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      /* Prevent extremely wide columns */
     }
 
     .transcript-table tr:hover td {
       background: #f8fafc;
     }
 
+    /* Subject column - compact width */
+    .transcript-table th:first-child,
+    .transcript-table td:first-child {
+      min-width: 80px;
+      max-width: 100px;
+      text-align: left;
+    }
+
+    /* Assessment columns - auto width with max constraint */
+    .transcript-table th:not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)),
+    .transcript-table td:not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)) {
+      min-width: 60px;
+      max-width: 100px;
+      text-align: center;
+      padding: 4px 2px;
+      /* Reduced padding for assessment cells */
+    }
+
+    /* Average column */
+    .transcript-table th:nth-last-child(3),
+    .transcript-table td:nth-last-child(3) {
+      min-width: 70px;
+      max-width: 80px;
+      text-align: center;
+    }
+
+    /* Grade column */
+    .transcript-table th:nth-last-child(2),
+    .transcript-table td:nth-last-child(2) {
+      min-width: 50px;
+      max-width: 60px;
+      text-align: center;
+    }
+
+    /* Rank column */
+    .transcript-table th:last-child,
+    .transcript-table td:last-child {
+      min-width: 60px;
+      max-width: 70px;
+      text-align: center;
+    }
+
+    /* Compact subject badge */
     .subject-badge {
       background: #e9f2fa;
       color: #2a5f7a;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
+      padding: 1px 4px;
+      border-radius: 6px;
+      font-size: 0.6rem;
       font-weight: 500;
       display: inline-block;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
+    /* Compact grade badges */
     .grade-badge-exam {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
+      padding: 1px 4px;
+      border-radius: 6px;
+      font-size: 0.6rem;
       font-weight: 600;
+      min-width: 18px;
+      text-align: center;
     }
 
     .grade-a {
@@ -2371,14 +2430,14 @@
       color: #7f1d1d;
     }
 
-    /* Summary row */
+    /* Summary row - compact */
     .transcript-summary {
       display: flex;
-      gap: 15px;
-      margin-top: 10px;
-      padding: 10px;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px;
       background: #f8fafc;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #e5e7eb;
     }
 
@@ -2388,14 +2447,14 @@
     }
 
     .summary-label {
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       color: #6b7e93;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .summary-value {
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #1a2a3a;
     }
@@ -2403,32 +2462,94 @@
     /* Empty state */
     .transcript-empty {
       text-align: center;
-      padding: 30px 20px;
+      padding: 20px 15px;
       color: #6b7e93;
     }
 
     .transcript-empty i {
-      font-size: 2.5rem;
+      font-size: 1.8rem;
       color: #bcccdb;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       display: block;
     }
 
     .transcript-empty p {
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       margin: 0;
     }
 
     /* Loading state */
     .loading-spinner {
       text-align: center;
-      padding: 20px;
+      padding: 15px;
     }
 
     .loading-spinner i {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       color: #2a7de1;
       animation: spin 1s linear infinite;
+    }
+
+    /* Rank badges - compact */
+    .rank-badge {
+      display: inline-block;
+      padding: 1px 4px;
+      border-radius: 6px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .rank-top {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .rank-mid {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .rank-bottom {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    /* Assessment header names - truncated */
+    .assessment-header {
+      display: block;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.6rem;
+    }
+
+    /* Wrapper for subject performance table to handle overflow gracefully */
+    .subject-performance-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -5px;
+      /* Negative margin to counteract padding */
+      padding: 0 5px;
+    }
+
+    .subject-performance-wrapper .transcript-table {
+      min-width: 100%;
+      width: auto;
+    }
+
+    /* Make assessment cells more compact */
+    .transcript-table .assessment-cell {
+      font-size: 0.65rem;
+      line-height: 1.1;
+    }
+
+    .transcript-table .assessment-cell strong {
+      display: block;
+      font-size: 0.7rem;
     }
 
     @keyframes spin {
@@ -6002,7 +6123,7 @@
         if (!row || e.target.closest('.col-check')) return;
         const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
         selectStudentForFee(admissionNumber);
-         loadStudentTranscripts(admissionNumber);
+        loadStudentTranscripts(admissionNumber);
       });
 
 
@@ -6113,7 +6234,9 @@
       });
 
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
-
+      
+      
+      
       (function () {
         // ---------- DATA ----------
         let students = [];
@@ -6190,6 +6313,13 @@
                   marks.push(value);
                 }
               });
+
+              // Filter out any marks records that don't have the expected structure
+              marks = marks.filter(m => m &&
+                m.assessmentId !== undefined &&
+                m.studentId !== undefined &&
+                m.subject !== undefined &&
+                m.marks !== undefined);
             } else {
               marks = [];
             }
@@ -6212,7 +6342,14 @@
         // ---------- SAVE MARKS TO FIREBASE ----------
         async function saveMarksToFirebase() {
           try {
-            await set(marksRef, marks);
+            // Filter out any records that might have been created with average data
+            const cleanMarks = marks.filter(m => m &&
+              m.assessmentId !== undefined &&
+              m.studentId !== undefined &&
+              m.subject !== undefined &&
+              m.marks !== undefined);
+
+            await set(marksRef, cleanMarks);
           } catch (error) {
             console.error("Error saving marks:", error);
             showToast('Failed to save marks to Firebase', 'error');
@@ -6259,6 +6396,13 @@
                 marks.push(value);
               }
             });
+
+            // Filter out any marks records that might have been created with average data
+            marks = marks.filter(m => m &&
+              m.assessmentId !== undefined &&
+              m.studentId !== undefined &&
+              m.subject !== undefined &&
+              m.marks !== undefined);
           } else {
             marks = [];
           }
@@ -6971,7 +7115,8 @@
           const subjectColumns = [];
 
           headerLine.forEach((header, index) => {
-            if (index > 2 && header !== 'Average') {
+            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
+            if (index > 2 && header.trim().toLowerCase() !== 'average') {
               subjectColumns.push({
                 index: index,
                 subject: header.trim()
@@ -7080,7 +7225,8 @@
 
           headerCells.forEach((cell, index) => {
             const headerText = cell.textContent.trim();
-            if (index > 2 && headerText !== 'Average') {
+            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
+            if (index > 2 && headerText.toLowerCase() !== 'average') {
               subjectColumns.push({
                 index: index,
                 subject: headerText
@@ -7233,10 +7379,6 @@
       })();
 
 
-
-
-
-
       // ============================================================
       // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
       // ============================================================
@@ -7273,17 +7415,16 @@
       // Load transcripts for a specific student
       async function loadStudentTranscripts(admissionNumber) {
         const container = document.getElementById('termTranscriptsContainer');
-        const noMessage = document.getElementById('noTranscriptsMessage');
 
         if (!container) return;
 
         // Show loading state
         container.innerHTML = `
-    <div class="loading-spinner">
-      <i class="fas fa-spinner"></i>
-      <p>Loading transcripts...</p>
-    </div>
-  `;
+          <div class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p>Loading transcripts...</p>
+          </div>
+        `;
 
         try {
           // Ensure we have the latest data
@@ -7297,11 +7438,11 @@
 
           if (studentMarks.length === 0) {
             container.innerHTML = `
-        <div class="transcript-empty">
-          <i class="fas fa-file-alt"></i>
-          <p>No assessment records found for this student</p>
-        </div>
-      `;
+              <div class="transcript-empty">
+                <i class="fas fa-file-alt"></i>
+                <p>No assessment records found for this student</p>
+              </div>
+            `;
             return;
           }
 
@@ -7329,7 +7470,7 @@
             });
           });
 
-          // Sort terms (you can customize this logic)
+          // Sort terms
           const sortedTerms = Object.keys(termsMap).sort((a, b) => {
             const termOrder = { 'Term1': 1, 'Term2': 2, 'Term3': 3, 'Term1_2026': 1, 'Term2_2026': 2, 'Term3_2026': 3 };
             return (termOrder[a] || 99) - (termOrder[b] || 99);
@@ -7345,13 +7486,11 @@
             // Calculate term statistics
             let totalMarks = 0;
             let totalMaxMarks = 0;
-            let subjectCount = new Set();
 
             termData.forEach(item => {
               item.marks.forEach(mark => {
                 totalMarks += parseFloat(mark.marks) || 0;
-                totalMaxMarks += parseFloat(mark.assessment?.maxMarks) || 100;
-                subjectCount.add(mark.subject);
+                totalMaxMarks += parseFloat(item.assessment?.maxMarks) || 100;
               });
             });
 
@@ -7365,7 +7504,6 @@
               const assessment = item.assessment;
               const marks = item.marks;
 
-              // Calculate assessment average
               const assessmentTotal = marks.reduce((sum, m) => sum + parseFloat(m.marks), 0);
               const assessmentAvg = marks.length > 0 ? (assessmentTotal / marks.length).toFixed(1) : '0';
 
@@ -7381,34 +7519,178 @@
         `;
             });
 
-            // Build subject-wise breakdown
-            let subjectRows = '';
+            // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
+
+            // Build subject map
             const subjectMap = {};
 
             termData.forEach(item => {
+              const assessment = item.assessment;
+
               item.marks.forEach(mark => {
                 if (!subjectMap[mark.subject]) {
-                  subjectMap[mark.subject] = { total: 0, count: 0, max: 0 };
+                  subjectMap[mark.subject] = {
+                    assessments: {},
+                    total: 0,
+                    count: 0,
+                    max: 0
+                  };
                 }
+
+                subjectMap[mark.subject].assessments[assessment.id] = {
+                  assessmentName: assessment.name,
+                  marks: parseFloat(mark.marks) || 0,
+                  maxMarks: parseFloat(assessment.maxMarks) || 100
+                };
+
                 subjectMap[mark.subject].total += parseFloat(mark.marks) || 0;
                 subjectMap[mark.subject].count++;
-                subjectMap[mark.subject].max += parseFloat(item.assessment?.maxMarks) || 100;
+                subjectMap[mark.subject].max += parseFloat(assessment.maxMarks) || 100;
               });
             });
+
+            // Get all unique assessment IDs for this term
+            const allTermAssessmentIds = [...new Set(termData.flatMap(item =>
+              item.marks.map(m => m.assessmentId)
+            ))];
+
+            // Build the assessment header columns
+            let assessmentHeaders = '';
+            allTermAssessmentIds.forEach(assessmentId => {
+              const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
+              if (assessment) {
+                const shortName = assessment.name.length > 15 ?
+                  assessment.name.substring(0, 12) + '...' :
+                  assessment.name;
+                assessmentHeaders += `<th title="${assessment.name}">${shortName}</th>`;
+              }
+            });
+
+            // Calculate ranks for each subject
+            const subjectRanks = {};
+            const allStudentsForTerm = {};
+
+            // Fetch all students from cache
+            if (typeof studentsCache !== 'undefined') {
+              Object.entries(studentsCache).forEach(([key, student]) => {
+                const studentId = student.admissionNumber || key.replace(/-/g, '/');
+
+                // Get this student's marks for this term
+                const termAssessmentIds = termData.map(item => item.assessment.id);
+
+                const studentSubjectMarks = {};
+
+                allMarksData.forEach(mark => {
+                  if (
+                    (mark.studentId === studentId || mark.studentId === key) &&
+                    termAssessmentIds.includes(mark.assessmentId)
+                  ) {
+                    if (!studentSubjectMarks[mark.subject]) {
+                      studentSubjectMarks[mark.subject] = { total: 0, count: 0, max: 0 };
+                    }
+
+                    const assessment = allAssessmentsData.find(a => a.id === mark.assessmentId);
+                    const maxMarks = assessment ? parseFloat(assessment.maxMarks) || 100 : 100;
+
+                    studentSubjectMarks[mark.subject].total += parseFloat(mark.marks) || 0;
+                    studentSubjectMarks[mark.subject].count++;
+                    studentSubjectMarks[mark.subject].max += maxMarks;
+                  }
+                });
+
+                // Calculate averages for each subject
+                Object.entries(studentSubjectMarks).forEach(([subject, data]) => {
+                  const avg = data.max > 0 ? (data.total / data.max * 100) : 0;
+
+                  if (!allStudentsForTerm[subject]) {
+                    allStudentsForTerm[subject] = [];
+                  }
+
+                  allStudentsForTerm[subject].push({
+                    studentId: studentId,
+                    name: student.name || 'Unknown',
+                    average: avg,
+                    total: data.total,
+                    max: data.max
+                  });
+                });
+              });
+
+              // Calculate ranks
+              Object.entries(allStudentsForTerm).forEach(([subject, students]) => {
+                students.sort((a, b) => b.average - a.average);
+
+                students.forEach((student, index) => {
+                  if (!subjectRanks[subject]) {
+                    subjectRanks[subject] = {};
+                  }
+                  subjectRanks[subject][student.studentId] = index + 1;
+                });
+              });
+            }
+
+            // Build subject rows with individual marks and ranks
+            let subjectRows = '';
 
             Object.entries(subjectMap).forEach(([subject, data]) => {
               const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
               const subjectGrade = subjectAvg >= 80 ? 'A' : subjectAvg >= 70 ? 'B' : subjectAvg >= 60 ? 'C' : subjectAvg >= 50 ? 'D' : 'F';
 
+              // Get rank for this subject
+              const rank = subjectRanks[subject]?.[admissionNumber] ||
+                subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
+              const totalStudents = allStudentsForTerm[subject]?.length || 0;
+
+              // Build individual assessment cells
+              let assessmentCells = '';
+              allTermAssessmentIds.forEach(assessmentId => {
+                const assessmentData = data.assessments[assessmentId];
+                if (assessmentData) {
+                  const mark = assessmentData.marks;
+                  const max = assessmentData.maxMarks;
+                  const percent = max > 0 ? (mark / max * 100).toFixed(0) : '0';
+                  const markGrade = percent >= 80 ? 'A' : percent >= 70 ? 'B' : percent >= 60 ? 'C' : percent >= 50 ? 'D' : 'F';
+
+                  assessmentCells += `
+              <td style="text-align: center;">
+                <div>
+                  <strong>${mark}/${max}</strong>
+                  <br>
+                  <span class="grade-badge-exam ${getGradeClass(percent)}" style="font-size: 0.65rem;">${markGrade}</span>
+                </div>
+              </td>
+            `;
+                } else {
+                  assessmentCells += '<td style="text-align: center; color: #9ca3af;">—</td>';
+                }
+              });
+
+              // Determine rank class
+              let rankClass = 'rank-bottom';
+              if (rank !== '—') {
+                if (rank <= 3) rankClass = 'rank-top';
+                else if (rank <= Math.ceil(totalStudents / 2)) rankClass = 'rank-mid';
+              }
+
               subjectRows += `
-          <tr>
-            <td><span class="subject-badge">${subject}</span></td>
-            <td>${data.count} exam(s)</td>
-            <td><strong>${subjectAvg}%</strong></td>
-            <td><span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span></td>
-            <td>${data.total}/${data.max}</td>
-          </tr>
-        `;
+              <tr>
+                <td><span class="subject-badge">${subject}</span></td>
+                ${assessmentCells}
+                <td style="text-align: center;">
+                  <strong>${subjectAvg}%</strong>
+                  <br>
+                  <span style="font-size: 0.7rem; color: #6b7e93;">${data.total}/${data.max}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="rank-badge ${rankClass}">
+                    <strong>${rank}${totalStudents > 0 ? `/${totalStudents}` : ''}</strong>
+                  </span>
+                </td>
+              </tr>
+            `;
             });
 
             // Build the collapsible section HTML
@@ -7419,7 +7701,7 @@
             <span class="collapsible-title">
               <span class="term-badge">${term}</span>
               <span class="term-subtitle">
-                ${termData.length} assessment(s) · ${new Set(termData.flatMap(item => item.marks.map(m => m.subject))).size} subjects
+                ${termData.length} assessment(s) · ${Object.keys(subjectMap).length} subjects
               </span>
             </span>
             <span class="collapsible-count">Avg: ${average}%</span>
@@ -7442,7 +7724,7 @@
               </div>
               <div class="summary-item">
                 <div class="summary-label">Subjects</div>
-                <div class="summary-value">${new Set(termData.flatMap(item => item.marks.map(m => m.subject))).size}</div>
+                <div class="summary-value">${Object.keys(subjectMap).length}</div>
               </div>
             </div>
             
@@ -7466,27 +7748,29 @@
               </tbody>
             </table>
             
-            <!-- Subject-wise Breakdown -->
+            <!-- Subject-wise Breakdown with Individual Marks -->
             <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
               <i class="fas fa-book-open"></i> Subject Performance
             </h4>
-            <table class="transcript-table">
-              <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th>Assessments</th>
-                  <th>Average</th>
-                  <th>Grade</th>
-                  <th>Total Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${subjectRows}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
+                <div class="subject-performance-wrapper">
+                  <table class="transcript-table subject-performance-table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        ${assessmentHeaders}
+                        <th>Avg</th>
+                        <th>Grade</th>
+                        <th>Rank</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${subjectRows}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
           });
 
           container.innerHTML = html;
@@ -7494,11 +7778,11 @@
         } catch (error) {
           console.error('Error loading transcripts:', error);
           container.innerHTML = `
-      <div class="transcript-empty">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Error loading transcripts: ${error.message}</p>
-      </div>
-    `;
+            <div class="transcript-empty">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Error loading transcripts: ${error.message}</p>
+            </div>
+          `;
         }
       }
 
@@ -7556,7 +7840,6 @@
       document.addEventListener('DOMContentLoaded', function () {
         initTranscriptsSystem();
       });
-
 
     </script>
 
