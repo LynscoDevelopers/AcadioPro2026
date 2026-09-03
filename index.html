@@ -6235,8 +6235,6 @@
 
       console.log('✅ All scripts merged successfully. Dialog boxes ready.');
 
-
-
       (function () {
         // ---------- DATA ----------
         let students = [];
@@ -6369,9 +6367,6 @@
         }
 
         // ---------- REAL-TIME LISTENERS FOR ASSESSMENTS AND MARKS ----------
-        // IMPORTANT: These listeners update the data model only. They do NOT
-        // call refreshAll(), so external Firebase changes cannot rebuild the
-        // visible assessment/marks UI while the user is working.
         onValue(assessmentsRef, (snapshot) => {
           if (snapshot.exists()) {
             assessments = Object.values(snapshot.val());
@@ -6412,9 +6407,6 @@
         }, (error) => {
           console.error("Realtime marks error:", error);
         });
-
-        // No polling interval is needed. Firebase onValue already keeps the
-        // caches synchronized in the background without changing the DOM.
 
         // ---------- NAV ----------
         document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -6845,13 +6837,8 @@
           populateFilters();
         }
 
-        // Allow the outer module's single manual-refresh controller to refresh
-        // this assessment/marks module without exposing its internal functions.
         window.__refreshAssessmentUI = refreshAll;
 
-        // The existing Refresh button is now the explicit UI refresh action.
-        // Firebase changes are allowed to accumulate in the background until
-        // this button is pressed.
         if (refreshBtn) {
           refreshBtn.addEventListener('click', function (e) {
             e.preventDefault();
@@ -6859,7 +6846,7 @@
           });
         }
 
-        // Add this function to export bulk marks to Excel
+        // ---------- EXPORT BULK MARKS TO EXCEL ----------
         window.exportBulkMarksToExcel = function () {
           const aId = document.getElementById('bulk-assessment').value;
 
@@ -7049,7 +7036,7 @@
           showToast('Bulk marks exported to Excel successfully');
         };
 
-        // ---------- IMPORT BULK MARKS ----------
+        // ---------- IMPORT BULK MARKS (NO AUTO-SAVE) ----------
         window.importBulkMarksFromExcel = function () {
           const aId = document.getElementById('bulk-assessment').value;
 
@@ -7083,7 +7070,8 @@
                 await parseExcelAndImport(content, assessment);
               }
 
-              await saveMarksToFirebase();
+              // ✅ NO AUTO-SAVE HERE - User must click "Save Marks" manually
+              // The marks are only updated in local memory and UI
             };
 
             reader.readAsText(file, 'UTF-8');
@@ -7185,7 +7173,8 @@
           }
 
           if (importCount > 0) {
-            showToast(`Successfully imported ${importCount} marks records`);
+            // ✅ Updated message to indicate manual save is required
+            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
             renderBulkMarks();
             renderMarksTable();
             renderDashboard();
@@ -7286,7 +7275,8 @@
           }
 
           if (importCount > 0) {
-            showToast(`Successfully imported ${importCount} marks records`);
+            // ✅ Updated message to indicate manual save is required
+            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
             renderBulkMarks();
             renderMarksTable();
             renderDashboard();
@@ -7374,12 +7364,10 @@
           URL.revokeObjectURL(url);
           showToast('Import template downloaded successfully');
         };
+
         // Init
         initializeSystem();
       })();
-
-
-
 
 
       // ============================================================
