@@ -3408,7 +3408,7 @@
                       <p id="pfl_name">Student's Name</p>
                     </div>
                     <div class="detail-item">
-                      <h4>Admission No.</h4>
+                      <h4 id="btnViewTermResults">Admission No.</h4>
                       <p id="pfl_admn">RS/2026/002</p>
                     </div>
                     <div class="detail-item">
@@ -5734,7 +5734,7 @@
             DateandTime: paymentData.entryDate,
             studentName: document.getElementById("Fn_Name")?.textContent.trim() || '',
             Class_Grade: paymentData.class,
-            term: paymentData.term || getActiveTerm(),
+            term: paymentData.term,
             Admission_No: admissionNumber,
             Amount: paymentData.amount,
             RecieptNo: paymentData.ReceiptNo,
@@ -7929,6 +7929,95 @@
       // Initialize when page loads
       document.addEventListener('DOMContentLoaded', function () {
         initTranscriptsSystem();
+      });
+
+
+      // Simple function to get and send term assessment results to C#
+      async function getTermResults(admissionNo, term) {
+        try {
+          // Normalize admission number
+          const studentId = String(admissionNo);
+
+          // Get student's marks for the term
+          const termAssessments = allAssessmentsData.filter(a => a.term === term);
+          const termIds = termAssessments.map(a => a.id);
+
+          const results = allMarksData
+            .filter(m => m.studentId === studentId && termIds.includes(m.assessmentId))
+            .map(m => {
+              const assessment = termAssessments.find(a => a.id === m.assessmentId);
+              return {
+                assessmentId: m.assessmentId,
+                assessmentName: assessment?.name || 'Unknown',
+                subject: m.subject || 'General',
+                marks: m.marks,
+                maxMarks: assessment?.maxMarks || 100,
+                percentage: ((parseFloat(m.marks) / (assessment?.maxMarks || 100)) * 100).toFixed(1),
+                grade: getGradeLetter(parseFloat(m.marks))
+              };
+            });
+
+          // Calculate average
+          const totalMarks = results.reduce((sum, r) => sum + parseFloat(r.marks), 0);
+          const totalMax = results.reduce((sum, r) => sum + parseFloat(r.maxMarks), 0);
+          const average = totalMax > 0 ? ((totalMarks / totalMax) * 100).toFixed(1) : '0';
+
+          // Prepare message data
+          const messageData = {
+            action: "GET_TERM_ASSESSMENT_RESULTS",
+            Admission_No: admissionNo,
+            Term: term,
+            Average: average,
+            Grade: getGradeLetter(average),
+            TotalResults: results.length,
+            Results: results
+          };
+
+          // Send to C# only if WebView is available
+          if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+            window.chrome.webview.postMessage(messageData);
+            console.log('Sent term results to C#:', messageData);
+          } else {
+            console.log('WebView not available. Results:', messageData);
+
+            /*
+            // Optional: Show results in browser for testing
+            alert(`Term Results for ${admissionNo} (${term}):\n\n` +
+              `Average: ${average}%\n` +
+              `Grade: ${getGradeLetter(average)}\n` +
+              `Total Assessments: ${results.length}\n\n` +
+              results.map(r => `${r.subject}: ${r.marks}/${r.maxMarks} (${r.percentage}%) - ${r.grade}`).join('\n')
+            );
+
+            */
+          }
+
+          return { success: true, average, results };
+
+        } catch (error) {
+          console.error('Error getting term results:', error);
+
+          // Send error to C# only if WebView is available
+          if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+            window.chrome.webview.postMessage({
+              action: "GET_TERM_ASSESSMENT_RESULTS",
+              Admission_No: admissionNo,
+              Term: term,
+              Error: error.message,
+              Results: []
+            });
+          }
+
+          return { success: false, error: error.message };
+        }
+      }
+
+      // When user clicks a button or selects a term
+      document.getElementById('btnViewTermResults').addEventListener('click', async function () {
+        const admissionNumber = document.getElementById('pfl_admn').textContent.trim();
+
+        // Call the correct function name
+        await getTermResults(admissionNumber, getActiveTerm());
       });
 
     </script>
