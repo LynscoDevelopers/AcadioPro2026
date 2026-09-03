@@ -5258,22 +5258,40 @@
         const boarding = parseFloat(boardingInput.value) || 0;
         const breakFee = parseFloat(breakInput.value) || 0;
         const grades = collectGrades();
+
         if (!termId) { alert('Term ID is required.'); return; }
         if (!start) { alert('Start date is required.'); return; }
         if (!end) { alert('End date is required.'); return; }
         if (new Date(start) > new Date(end)) { alert('Start date must be before end date.'); return; }
         if (Object.keys(grades).length === 0) { alert('Add at least one grade with fee.'); return; }
+
         const termObj = { termId, start, end, status, meal, transport, boarding, breakFee, grades };
+
         try {
           await set(ref(db, `Institution/ Revival/terms/${termId}`), termObj);
           closeModal();
           uiRefreshRequired = true;
+
+          // Force UI refresh after saving term details
+          if (typeof window.refreshUIFromFirebase === 'function') {
+            window.refreshUIFromFirebase();
+          } else {
+            // Fallback to manual refresh
+            renderGrid();
+            populateClassSelect(classData);
+            populateStudentsTable(studentsCache);
+            populateFeeBalanceTable(studentsCache);
+            populateFeePaymentsTable(paymentCache);
+
+            if (typeof window.__refreshAssessmentUI === 'function') {
+              window.__refreshAssessmentUI();
+            }
+          }
         } catch (error) {
           console.error("Error saving term:", error);
           alert("Failed to save Term Details:\n" + error.message);
         }
       }
-
       onValue(termRef, (snapshot) => {
         if (snapshot.exists()) {
           terms = Object.entries(snapshot.val()).map(([key, data]) => ({
@@ -7397,10 +7415,26 @@
         }
       }
 
-      // Toggle collapsible section
+      // Toggle collapsible section (accordion behavior)
       window.toggleCollapsible = function (header) {
         const section = header.closest('.collapsible-section');
-        section.classList.toggle('collapsed');
+        const container = section.parentElement;
+        const isCurrentlyCollapsed = section.classList.contains('collapsed');
+
+        // Close all sections
+        const allSections = container.querySelectorAll('.collapsible-section');
+        allSections.forEach(sec => {
+          sec.classList.add('collapsed');
+          const icon = sec.querySelector('.collapsible-icon');
+          if (icon) icon.textContent = '▶';
+        });
+
+        // If the clicked section was collapsed, open it
+        if (isCurrentlyCollapsed) {
+          section.classList.remove('collapsed');
+          const icon = section.querySelector('.collapsible-icon');
+          if (icon) icon.textContent = '▼';
+        }
       };
 
       // Load transcripts for a specific student
@@ -7411,11 +7445,11 @@
 
         // Show loading state
         container.innerHTML = `
-          <div class="loading-spinner">
-            <i class="fas fa-spinner"></i>
-            <p>Loading transcripts...</p>
-          </div>
-        `;
+    <div class="loading-spinner">
+      <i class="fas fa-spinner"></i>
+      <p>Loading transcripts...</p>
+    </div>
+  `;
 
         try {
           // Ensure we have the latest data
@@ -7429,11 +7463,11 @@
 
           if (studentMarks.length === 0) {
             container.innerHTML = `
-              <div class="transcript-empty">
-                <i class="fas fa-file-alt"></i>
-                <p>No assessment records found for this student</p>
-              </div>
-            `;
+        <div class="transcript-empty">
+          <i class="fas fa-file-alt"></i>
+          <p>No assessment records found for this student</p>
+        </div>
+      `;
             return;
           }
 
@@ -7472,7 +7506,8 @@
 
           sortedTerms.forEach((term, termIndex) => {
             const termData = termsMap[term];
-            const isFirst = termIndex === 0;
+            const isLast = termIndex === sortedTerms.length - 1; // Check if this is the last term
+            const isCollapsed = !isLast; // All except the last one should be collapsed
 
             // Calculate term statistics
             let totalMarks = 0;
@@ -7557,23 +7592,23 @@
               // ==========================================
 
               assessmentRows += `
-                <tr>
-                  <td><strong>${assessment.name}</strong></td>
-                  <td>${assessment.id}</td>
-                  <td>${assessment.grade || '—'}</td>
-                  <td>${assessmentAvg}/${assessment.maxMarks}</td>
-                  <td>
-                    <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">
-                      ${getGradeLetter(assessmentAvg)}
-                    </span>
-                  </td>
-                  <td style="text-align: center;">
-                    <span class="rank-badge">
-                      <strong>${assessmentRank}</strong>
-                    </span>
-                  </td>
-                </tr>
-              `;
+          <tr>
+            <td><strong>${assessment.name}</strong></td>
+            <td>${assessment.id}</td>
+            <td>${assessment.grade || '—'}</td>
+            <td>${assessmentAvg}/${assessment.maxMarks}</td>
+            <td>
+              <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">
+                ${getGradeLetter(assessmentAvg)}
+              </span>
+            </td>
+            <td style="text-align: center;">
+              <span class="rank-badge">
+                <strong>${assessmentRank}</strong>
+              </span>
+            </td>
+          </tr>
+        `;
             });
 
             // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
@@ -7709,14 +7744,14 @@
                   const max = assessmentData.maxMarks;
 
                   assessmentCells += `
-                      <td style="text-align: center;">
-                        <strong>${mark}/${max}</strong>
-                      </td>
-                    `;
+                <td style="text-align: center;">
+                  <strong>${mark}/${max}</strong>
+                </td>
+              `;
                 } else {
                   assessmentCells += `
-                      <td style="text-align: center; color: #9ca3af;">—</td>
-                    `;
+                <td style="text-align: center; color: #9ca3af;">—</td>
+              `;
                 }
               });
 
@@ -7728,104 +7763,104 @@
               }
 
               subjectRows += `
-              <tr>
-                <td><span class="subject-badge">${subject}</span></td>
-                ${assessmentCells}
-                <td style="text-align: center;">
-                  <strong>${subjectAvg}%</strong>
-                  <br>
-                  <span style="font-size: 0.7rem; color: #6b7e93;">${data.total}/${data.max}</span>
-                </td>
-                <td style="text-align: center;">
-                  <span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span>
-                </td>
-                <td style="text-align: center;">
-                  <span class="rank-badge ${rankClass}">
-                    <strong>${rank}${totalStudents > 0 ? `/${totalStudents}` : ''}</strong>
-                  </span>
-                </td>
-              </tr>
-            `;
+        <tr>
+          <td><span class="subject-badge">${subject}</span></td>
+          ${assessmentCells}
+          <td style="text-align: center;">
+            <strong>${subjectAvg}%</strong>
+            <br>
+            <span style="font-size: 0.7rem; color: #6b7e93;">${data.total}/${data.max}</span>
+          </td>
+          <td style="text-align: center;">
+            <span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span>
+          </td>
+          <td style="text-align: center;">
+            <span class="rank-badge ${rankClass}">
+              <strong>${rank}${totalStudents > 0 ? `/${totalStudents}` : ''}</strong>
+            </span>
+          </td>
+        </tr>
+      `;
             });
 
             // Build the collapsible section HTML
             html += `
-        <div class="collapsible-section ${isFirst ? '' : ''}">
-          <button class="collapsible-header" onclick="toggleCollapsible(this)">
-            <span class="collapsible-icon">▼</span>
-            <span class="collapsible-title">
-              <span class="term-badge">${term}</span>
-              <span class="term-subtitle">
-                ${termData.length} assessment(s) · ${Object.keys(subjectMap).length} subjects
-              </span>
-            </span>
-            <span class="collapsible-count">Avg: ${average}%</span>
-          </button>
-          
-          <div class="collapsible-content">
-            <!-- Term Summary -->
-            <div class="transcript-summary">
-              <div class="summary-item">
-                <div class="summary-label">Average</div>
-                <div class="summary-value">${average}%</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Grade</div>
-                <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Assessments</div>
-                <div class="summary-value">${termData.length}</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Subjects</div>
-                <div class="summary-value">${Object.keys(subjectMap).length}</div>
-              </div>
+    <div class="collapsible-section ${isCollapsed ? 'collapsed' : ''}">
+      <button class="collapsible-header" onclick="toggleCollapsible(this)">
+        <span class="collapsible-icon">${isCollapsed ? '▶' : '▼'}</span>
+        <span class="collapsible-title">
+          <span class="term-badge">${term}</span>
+          <span class="term-subtitle">
+            ${termData.length} assessment(s) · ${Object.keys(subjectMap).length} subjects
+          </span>
+        </span>
+        <span class="collapsible-count">Avg: ${average}%</span>
+      </button>
+      
+      <div class="collapsible-content">
+        <!-- Term Summary -->
+        <div class="transcript-summary">
+          <div class="summary-item">
+            <div class="summary-label">Average</div>
+            <div class="summary-value">${average}%</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Grade</div>
+            <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Assessments</div>
+            <div class="summary-value">${termData.length}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Subjects</div>
+            <div class="summary-value">${Object.keys(subjectMap).length}</div>
+          </div>
+        </div>
+        
+        <!-- Assessment Overview -->
+        <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
+          <i class="fas fa-clipboard-list"></i> Assessment Overview
+        </h4>
+        <table class="transcript-table">
+          <thead>
+            <tr>
+              <th>Assessment</th>
+              <th>ID</th>
+              <th>Grade</th>
+              <th>Avg Score</th>
+              <th>Grade</th>
+              <th>Position</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${assessmentRows}
+          </tbody>
+        </table>
+        
+        <!-- Subject-wise Breakdown with Individual Marks -->
+        <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
+          <i class="fas fa-book-open"></i> Subject Performance
+        </h4>
+            <div class="subject-performance-wrapper">
+              <table class="transcript-table subject-performance-table">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    ${assessmentHeaders}
+                    <th>Avg</th>
+                    <th>Grade</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${subjectRows}
+                </tbody>
+              </table>
             </div>
-            
-            <!-- Assessment Overview -->
-            <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
-              <i class="fas fa-clipboard-list"></i> Assessment Overview
-            </h4>
-            <table class="transcript-table">
-              <thead>
-                <tr>
-                  <th>Assessment</th>
-                  <th>ID</th>
-                  <th>Grade</th>
-                  <th>Avg Score</th>
-                  <th>Grade</th>
-                  <th>Position</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${assessmentRows}
-              </tbody>
-            </table>
-            
-            <!-- Subject-wise Breakdown with Individual Marks -->
-            <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
-              <i class="fas fa-book-open"></i> Subject Performance
-            </h4>
-                <div class="subject-performance-wrapper">
-                  <table class="transcript-table subject-performance-table">
-                    <thead>
-                      <tr>
-                        <th>Subject</th>
-                        ${assessmentHeaders}
-                        <th>Avg</th>
-                        <th>Grade</th>
-                        <th>Rank</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${subjectRows}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          `;
+          </div>
+        </div>
+      `;
           });
 
           container.innerHTML = html;
@@ -7833,11 +7868,11 @@
         } catch (error) {
           console.error('Error loading transcripts:', error);
           container.innerHTML = `
-            <div class="transcript-empty">
-              <i class="fas fa-exclamation-triangle"></i>
-              <p>Error loading transcripts: ${error.message}</p>
-            </div>
-          `;
+      <div class="transcript-empty">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Error loading transcripts: ${error.message}</p>
+      </div>
+    `;
         }
       }
 
