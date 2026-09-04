@@ -2870,6 +2870,7 @@
               </div>
             </div>
             <div class="header-actions">
+               <button class="btn btn-outline" id="ReportCardExpo">📥 Generate Report Cards</button>
               <button class="btn btn-outline" onclick="exportData()">📥 Export</button>
               <button class="btn btn-primary" onclick="refreshDashboard()">🔄 Refresh</button>
             </div>
@@ -8094,6 +8095,7 @@
 
           // Make sure assessments have been selected
           if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
+             showToast('No assessments selected.', 'error');
             throw new Error("No assessments selected.");
           }
 
@@ -8102,8 +8104,11 @@
             selectedAssessmentIds.includes(String(a.id))
           );
 
+          collins
+
           if (selectedAssessments.length === 0) {
-            throw new Error("Selected assessments were not found.");
+
+            showToast('Selected assessments were not found.', 'error');
           }
 
           // ---------------------------------------------------------
@@ -8118,10 +8123,16 @@
             )
           ];
 
+
+
           if (grades.length > 1) {
+
+             showToast('Selected assessments must be from the same grade.', 'error');
+
             throw new Error(
               `Selected assessments must be from the same grade. ` +
               `Selected grades: ${grades.join(', ')}`
+              
             );
           }
 
@@ -8347,7 +8358,9 @@
           };
         }
       }
-      document.getElementById('clickFor').addEventListener('click', async function () {
+
+
+      document.getElementById('ReportCardExpo').addEventListener('click', async function () {
         await getTermResults1();
       });
 
