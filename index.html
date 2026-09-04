@@ -2870,7 +2870,7 @@
               </div>
             </div>
             <div class="header-actions">
-               <button class="btn btn-outline" id="ReportCardExpo">📥 Generate Report Cards</button>
+              <button class="btn btn-outline" id="ReportCardExpo">📥 Generate Report Cards</button>
               <button class="btn btn-outline" onclick="exportData()">📥 Export</button>
               <button class="btn btn-primary" onclick="refreshDashboard()">🔄 Refresh</button>
             </div>
@@ -8092,10 +8092,9 @@
       // Terms do NOT matter.
       async function getTermResults1(admissionNo = null) {
         try {
-
           // Make sure assessments have been selected
           if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
-             showToast('No assessments selected.', 'error');
+            showToast('No assessments selected.', 'error');
             throw new Error("No assessments selected.");
           }
 
@@ -8104,10 +8103,13 @@
             selectedAssessmentIds.includes(String(a.id))
           );
 
-
           if (selectedAssessments.length === 0) {
-
             showToast('Selected assessments were not found.', 'error');
+            // Don't send anything to C# - just return failure
+            return {
+              success: false,
+              error: "Selected assessments were not found."
+            };
           }
 
           // ---------------------------------------------------------
@@ -8122,16 +8124,11 @@
             )
           ];
 
-
-
           if (grades.length > 1) {
-
-             showToast('Selected assessments must be from the same grade.', 'error');
-
+            showToast('Selected assessments must be from the same grade.', 'error');
             throw new Error(
               `Selected assessments must be from the same grade. ` +
               `Selected grades: ${grades.join(', ')}`
-              
             );
           }
 
@@ -8153,7 +8150,6 @@
           // If admission number was supplied, return only that student
           if (admissionNo) {
             const studentId = String(admissionNo);
-
             marks = marks.filter(m =>
               String(m.studentId) === studentId
             );
@@ -8164,7 +8160,6 @@
           // ---------------------------------------------------------
 
           const results = marks.map(m => {
-
             const assessment = selectedAssessments.find(a =>
               String(a.id) === String(m.assessmentId)
             );
@@ -8178,25 +8173,16 @@
 
             return {
               studentId: String(m.studentId),
-
               assessmentId: String(m.assessmentId),
-
               assessmentName: assessment?.name || 'Unknown',
-
               subject: m.subject || 'General',
-
               grade: assessment?.grade ||
                 assessment?.class ||
                 selectedGrade,
-
               term: assessment?.term || '',
-
               marks: mark,
-
               maxMarks: maxMarks,
-
               percentage: percentage.toFixed(1),
-
               markGrade: getGradeLetter(percentage)
             };
           });
@@ -8208,7 +8194,6 @@
           const studentResults = {};
 
           results.forEach(result => {
-
             if (!studentResults[result.studentId]) {
               studentResults[result.studentId] = {
                 Admission_No: result.studentId,
@@ -8220,11 +8205,8 @@
             }
 
             const student = studentResults[result.studentId];
-
             student.Results.push(result);
-
             student.TotalMarks += result.marks;
-
             student.TotalMaxMarks += result.maxMarks;
           });
 
@@ -8233,7 +8215,6 @@
           // ---------------------------------------------------------
 
           const students = Object.values(studentResults).map(student => {
-
             const average =
               student.TotalMaxMarks > 0
                 ? (student.TotalMarks / student.TotalMaxMarks) * 100
@@ -8241,19 +8222,12 @@
 
             return {
               Admission_No: student.Admission_No,
-
               Grade: student.Grade,
-
               Average: average.toFixed(1),
-
               GradeLetter: getGradeLetter(average),
-
               TotalResults: student.Results.length,
-
               TotalMarks: student.TotalMarks,
-
               TotalMaxMarks: student.TotalMaxMarks,
-
               Results: student.Results
             };
           });
@@ -8264,13 +8238,10 @@
 
           const messageData = {
             action: "GET_TERM_ASSESSMENT_RESULTS",
-
             // No single term because assessments can belong
             // to different terms.
             Term: "Multiple",
-
             SelectedAssessmentIds: [...assessmentIds],
-
             SelectedAssessments: selectedAssessments.map(a => ({
               id: String(a.id),
               name: a.name || 'Unknown',
@@ -8278,13 +8249,9 @@
               term: a.term || '',
               maxMarks: parseFloat(a.maxMarks) || 100
             })),
-
             SelectedGrade: selectedGrade,
-
             TotalStudents: students.length,
-
             Students: students,
-
             // Keep Results for compatibility if you are expecting
             // a Results property in C#
             Results: results
@@ -8299,20 +8266,10 @@
             window.chrome.webview &&
             window.chrome.webview.postMessage
           ) {
-
             window.chrome.webview.postMessage(messageData);
-
-            console.log(
-              'Sent selected assessment results to C#:',
-              messageData
-            );
-
+            console.log('Sent selected assessment results to C#:', messageData);
           } else {
-
-            console.log(
-              'WebView not available. Results:',
-              messageData
-            );
+            console.log('WebView not available. Results:', messageData);
           }
 
           return {
@@ -8325,28 +8282,20 @@
           };
 
         } catch (error) {
+          console.error('Error getting selected assessment results:', error);
 
-          console.error(
-            'Error getting selected assessment results:',
-            error
-          );
-
+          // Only send error to C# if it's NOT a "no assessments selected" error
           if (
+            error.message !== "No assessments selected." &&
             window.chrome &&
             window.chrome.webview &&
             window.chrome.webview.postMessage
           ) {
-
             window.chrome.webview.postMessage({
               action: "GET_TERM_ASSESSMENT_RESULTS",
-
               Error: error.message,
-
-              SelectedAssessmentIds:
-                selectedAssessmentIds || [],
-
+              SelectedAssessmentIds: selectedAssessmentIds || [],
               Results: [],
-
               Students: []
             });
           }
@@ -8357,7 +8306,6 @@
           };
         }
       }
-
 
       document.getElementById('ReportCardExpo').addEventListener('click', async function () {
         await getTermResults1();
