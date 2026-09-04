@@ -8092,17 +8092,12 @@
       async function getTermResults1(admissionNo = null) {
         try {
 
-          // Make sure assessments have been selected 
+          // Make sure assessments have been selected
           if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
             throw new Error("No assessments selected.");
           }
 
-          // CHECK: Less than 3 assessments selected
-          if (selectedAssessmentIds.length < 3) {
-            throw new Error(`At least 3 assessments must be selected. Currently selected: ${selectedAssessmentIds.length}`);
-          }
-
-          // Get selected assessment records 
+          // Get selected assessment records
           const selectedAssessments = allAssessmentsData.filter(a =>
             selectedAssessmentIds.includes(String(a.id))
           );
@@ -8111,14 +8106,9 @@
             throw new Error("Selected assessments were not found.");
           }
 
-          // CHECK: Less than 3 assessments found in data
-          if (selectedAssessments.length < 3) {
-            throw new Error(`At least 3 valid assessments are required. Only ${selectedAssessments.length} found.`);
-          }
-
-          // --------------------------------------------------------- 
-          // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE
+          // ---------------------------------------------------------
 
           const grades = [
             ...new Set(
@@ -8137,20 +8127,20 @@
 
           const selectedGrade = grades[0] || '';
 
-          // Selected assessment IDs 
+          // Selected assessment IDs
           const assessmentIds = new Set(
             selectedAssessments.map(a => String(a.id))
           );
 
-          // --------------------------------------------------------- 
-          // GET MARKS 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // GET MARKS
+          // ---------------------------------------------------------
 
           let marks = allMarksData.filter(m =>
             assessmentIds.has(String(m.assessmentId))
           );
 
-          // If admission number was supplied, return only that student 
+          // If admission number was supplied, return only that student
           if (admissionNo) {
             const studentId = String(admissionNo);
 
@@ -8159,9 +8149,9 @@
             );
           }
 
-          // --------------------------------------------------------- 
-          // BUILD RESULTS 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // BUILD RESULTS
+          // ---------------------------------------------------------
 
           const results = marks.map(m => {
 
@@ -8201,9 +8191,9 @@
             };
           });
 
-          // --------------------------------------------------------- 
-          // GROUP RESULTS BY STUDENT 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // GROUP RESULTS BY STUDENT
+          // ---------------------------------------------------------
 
           const studentResults = {};
 
@@ -8228,9 +8218,9 @@
             student.TotalMaxMarks += result.maxMarks;
           });
 
-          // --------------------------------------------------------- 
-          // CALCULATE EACH STUDENT'S AVERAGE 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // CALCULATE EACH STUDENT'S AVERAGE
+          // ---------------------------------------------------------
 
           const students = Object.values(studentResults).map(student => {
 
@@ -8258,15 +8248,15 @@
             };
           });
 
-          // --------------------------------------------------------- 
-          // MESSAGE TO C# 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // MESSAGE TO C#
+          // ---------------------------------------------------------
 
           const messageData = {
             action: "GET_TERM_ASSESSMENT_RESULTS",
 
-            // No single term because assessments can belong 
-            // to different terms. 
+            // No single term because assessments can belong
+            // to different terms.
             Term: "Multiple",
 
             SelectedAssessmentIds: [...assessmentIds],
@@ -8285,14 +8275,14 @@
 
             Students: students,
 
-            // Keep Results for compatibility if you are expecting 
-            // a Results property in C# 
+            // Keep Results for compatibility if you are expecting
+            // a Results property in C#
             Results: results
           };
 
-          // --------------------------------------------------------- 
-          // SEND TO C# 
-          // --------------------------------------------------------- 
+          // ---------------------------------------------------------
+          // SEND TO C#
+          // ---------------------------------------------------------
 
           if (
             window.chrome &&
@@ -8331,9 +8321,6 @@
             error
           );
 
-          // Show user-friendly error message
-          alert(error.message);
-
           if (
             window.chrome &&
             window.chrome.webview &&
@@ -8360,7 +8347,6 @@
           };
         }
       }
-
       document.getElementById('clickFor').addEventListener('click', async function () {
         await getTermResults1();
       });
