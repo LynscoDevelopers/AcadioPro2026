@@ -2607,7 +2607,8 @@
     <!-- Tabs Container -->
     <div class="tabs-container">
       <div class="tabs-header">
-        <button class="tab-btn active" data-tab="tab1">Register</button>
+         <button class="tab-btn active" data-tab="tab0">Dashboard</button>
+        <button class="tab-btn " data-tab="tab1">Register</button>
         <button class="tab-btn" data-tab="tab2">Tab 2</button>
         <button class="tab-btn" data-tab="tab3">Tab 3</button>
         <button class="tab-btn" data-tab="tab4">Tab 4</button>
@@ -2618,6 +2619,11 @@
 
     <!-- Tab Content -->
     <div class="tab-content-wrapper">
+
+      <!-- Tab 0: Dashboard -->
+      <div id="tab0" class="tab-panel active">
+       
+      </div>
 
       <!-- Tab 1: Student Register -->
       <div id="tab1" class="tab-panel ">
@@ -2642,7 +2648,7 @@
       </div>
 
       <!-- Tab 2: Empty -->
-      <div id="tab2" class="tab-panel active">
+      <div id="tab2" class="tab-panel">
         <table class="register-table" id="FeeBalanceList">
           <thead>
             <tr>
@@ -4061,6 +4067,7 @@
       // ============================================================
       const tabs = document.querySelectorAll('.tab-btn');
       const panels = {
+        tab0: document.getElementById('tab0'),
         tab1: document.getElementById('tab1'),
         tab2: document.getElementById('tab2'),
         tab3: document.getElementById('tab3'),
