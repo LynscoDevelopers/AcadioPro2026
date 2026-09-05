@@ -2620,7 +2620,7 @@
       --table-pad: 10px 20px;
       --fee-pad: 20px;
       --fee-total: 2.5rem;
-      --bottom-h: 220px;
+      --bottom-h: 250px;
       --mini-chart-h: 150px;
       --activity-max: 160px;
       --avatar: 32px;
@@ -3517,7 +3517,7 @@
         --table-pad: 6px 12px;
         --fee-pad: 12px;
         --fee-total: 1.75rem;
-        --bottom-h: 155px;
+        --bottom-h: 255px;
         --avatar: 26px;
         --icon-sm: 24px;
         --gap-lg: 10px;
@@ -3545,7 +3545,7 @@
         --table-pad: 5px 10px;
         --fee-pad: 10px;
         --fee-total: 1.5rem;
-        --bottom-h: 135px;
+        --bottom-h: 225px;
         --avatar: 24px;
         --icon-sm: 22px;
         --gap-lg: 8px;
@@ -3577,7 +3577,7 @@
         --table-pad: 4px 8px;
         --fee-pad: 8px;
         --fee-total: 1.3rem;
-        --bottom-h: 115px;
+        --bottom-h: 205px;
         --avatar: 22px;
         --icon-sm: 20px;
         --fs-xs: 0.52rem;
@@ -3599,8 +3599,178 @@
         font-size: 0.95rem;
       }
     }
-  </style>
 
+    /* ========== ADDITIONAL BREAKPOINTS FOR SMALLER HEIGHTS ========== */
+
+    @media (max-height: 500px) {
+      :root {
+        --dash-pad: 6px;
+        --dash-gap: 4px;
+        --stat-pad: 4px;
+        --stat-value: 0.95rem;
+        --stat-icon: 20px;
+        --card-header-pad: 4px 6px;
+        --table-pad: 3px 6px;
+        --fee-pad: 6px;
+        --fee-total: 1.1rem;
+        --bottom-h: 180px;
+        --avatar: 18px;
+        --icon-sm: 18px;
+        --fs-xs: 0.48rem;
+        --fs-sm: 0.52rem;
+        --fs-base: 0.58rem;
+        --fs-md: 0.62rem;
+        --fs-lg: 0.65rem;
+      }
+
+      .top-header {
+        padding: 6px 10px;
+      }
+
+      .welcome-banner {
+        padding: 6px 10px;
+      }
+
+      .welcome-text {
+        font-size: 0.85rem;
+      }
+
+      .welcome-subtext {
+        font-size: 0.6rem;
+      }
+
+      .search-box {
+        width: 180px;
+        padding: 4px 8px;
+      }
+
+      .header-icon {
+        width: var(--stat-icon);
+        height: var(--stat-icon);
+      }
+
+      .notification-badge {
+        width: 12px;
+        height: 12px;
+        font-size: 0.4rem;
+      }
+    }
+
+    @media (max-height: 400px) {
+      :root {
+        --dash-pad: 4px;
+        --dash-gap: 3px;
+        --stat-pad: 3px;
+        --stat-value: 0.85rem;
+        --stat-icon: 18px;
+        --card-header-pad: 3px 5px;
+        --table-pad: 2px 5px;
+        --fee-pad: 4px;
+        --fee-total: 0.95rem;
+        --bottom-h: 160px;
+        --avatar: 16px;
+        --icon-sm: 16px;
+        --fs-xs: 0.45rem;
+        --fs-sm: 0.48rem;
+        --fs-base: 0.52rem;
+        --fs-md: 0.55rem;
+        --fs-lg: 0.58rem;
+      }
+
+      .top-header {
+        padding: 4px 8px;
+      }
+
+      .welcome-banner {
+        padding: 4px 8px;
+      }
+
+      .welcome-text {
+        font-size: 0.75rem;
+      }
+
+      .welcome-subtext {
+        font-size: 0.55rem;
+      }
+
+      .welcome-btn {
+        padding: 4px 8px;
+        font-size: 0.55rem;
+      }
+
+      .search-box {
+        width: 150px;
+        padding: 3px 6px;
+      }
+
+      .header-icon {
+        width: var(--stat-icon);
+        height: var(--stat-icon);
+      }
+
+      .stat-trend {
+        padding: 1px 4px;
+        font-size: var(--fs-sm);
+      }
+
+      .stat-comparison {
+        font-size: var(--fs-xs);
+      }
+    }
+
+    @media (max-height: 300px) {
+      :root {
+        --dash-pad: 2px;
+        --dash-gap: 2px;
+        --stat-pad: 2px;
+        --stat-value: 0.75rem;
+        --stat-icon: 16px;
+        --card-header-pad: 2px 4px;
+        --table-pad: 1px 4px;
+        --fee-pad: 3px;
+        --fee-total: 0.8rem;
+        --bottom-h: 140px;
+        --avatar: 14px;
+        --icon-sm: 14px;
+        --fs-xs: 0.4rem;
+        --fs-sm: 0.42rem;
+        --fs-base: 0.46rem;
+        --fs-md: 0.48rem;
+        --fs-lg: 0.5rem;
+      }
+
+      .top-header {
+        padding: 2px 6px;
+      }
+
+      .welcome-banner {
+        padding: 2px 6px;
+      }
+
+      .welcome-text {
+        font-size: 0.65rem;
+      }
+
+      .welcome-subtext {
+        font-size: 0.5rem;
+      }
+
+      .welcome-btn {
+        padding: 2px 6px;
+        font-size: 0.45rem;
+      }
+
+      .search-box {
+        width: 120px;
+        padding: 2px 4px;
+      }
+
+      .header-icon {
+        width: var(--stat-icon);
+        height: var(--stat-icon);
+      }
+    }
+</style>
 
 
 </head>
