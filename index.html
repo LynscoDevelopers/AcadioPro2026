@@ -2577,6 +2577,1032 @@
     }
   </style>
 
+
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --border: #e5e7eb;
+
+      /* Base scalable sizes */
+      --dash-pad: 24px;
+      --dash-gap: 20px;
+      --card-radius: 12px;
+      --header-pad-y: 16px;
+      --header-pad-x: 24px;
+      --stat-pad: 16px;
+      --stat-value: 1.8rem;
+      --stat-icon: 40px;
+      --card-header-pad: 14px 20px;
+      --table-pad: 10px 20px;
+      --fee-pad: 20px;
+      --fee-total: 2.5rem;
+      --bottom-h: 220px;
+      --mini-chart-h: 150px;
+      --activity-max: 160px;
+      --avatar: 32px;
+      --icon-sm: 28px;
+      --gap-sm: 8px;
+      --gap-md: 12px;
+      --gap-lg: 16px;
+      --fs-xs: 0.65rem;
+      --fs-sm: 0.7rem;
+      --fs-base: 0.8rem;
+      --fs-md: 0.85rem;
+      --fs-lg: 0.9rem;
+      --fs-xl: 1.2rem;
+    }
+
+    .DashbordTab {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f8fafc;
+      display: flex;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Top Header */
+    .top-header {
+      background: white;
+      padding: var(--header-pad-y) var(--header-pad-x);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-lg);
+    }
+
+    .header-title {
+      font-size: clamp(1rem, 1.8vh, 1.3rem);
+      font-weight: 800;
+      color: var(--gray-800);
+      letter-spacing: -0.02em;
+    }
+
+    .header-date {
+      font-size: var(--fs-sm);
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-md);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--gray-100);
+      border-radius: 50px;
+      padding: 8px 16px;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      width: 280px;
+    }
+
+    .search-box:focus-within {
+      background: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: var(--fs-base);
+      color: var(--gray-700);
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .search-box i {
+      color: var(--gray-400);
+      font-size: 0.85rem;
+    }
+
+    .header-icon {
+      width: var(--stat-icon);
+      height: var(--stat-icon);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .header-icon:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      background: var(--danger);
+      border-radius: 50%;
+      border: 2px solid white;
+      font-size: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .header-avatar {
+      width: var(--stat-icon);
+      height: var(--stat-icon);
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Dashboard Area */
+    .dashboard-area {
+      flex: 1;
+      min-height: 0;
+      padding: var(--dash-pad);
+      display: flex;
+      flex-direction: column;
+      gap: var(--dash-gap);
+      overflow: hidden;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      border-radius: 16px;
+      padding: clamp(12px, 2vh, 20px) clamp(16px, 2.5vh, 24px);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .welcome-text {
+      font-size: clamp(1rem, 2vh, 1.2rem);
+      font-weight: 700;
+    }
+
+    .welcome-subtext {
+      font-size: clamp(0.7rem, 1.3vh, 0.8rem);
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .welcome-actions {
+      display: flex;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-btn {
+      padding: clamp(6px, 1.2vh, 8px) clamp(12px, 2vh, 16px);
+      border-radius: 8px;
+      border: none;
+      font-size: clamp(0.65rem, 1.2vh, 0.75rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .welcome-btn.white {
+      background: white;
+      color: var(--primary);
+    }
+
+    .welcome-btn.white:hover {
+      background: var(--gray-100);
+    }
+
+    .welcome-btn.transparent {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .welcome-btn.transparent:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap-lg);
+      flex-shrink: 0;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: var(--stat-pad);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: clamp(6px, 1.2vh, 12px);
+    }
+
+    .stat-title {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-icon {
+      width: var(--stat-icon);
+      height: var(--stat-icon);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(0.9rem, 1.8vh, 1.1rem);
+    }
+
+    .stat-icon.blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .stat-icon.green {
+      background: #ecfdf5;
+      color: #10b981;
+    }
+
+    .stat-icon.orange {
+      background: #fffbeb;
+      color: #f59e0b;
+    }
+
+    .stat-icon.purple {
+      background: #faf5ff;
+      color: #a855f7;
+    }
+
+    .stat-value {
+      font-size: var(--stat-value);
+      font-weight: 800;
+      color: var(--gray-800);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: clamp(4px, 1vh, 8px);
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 20px;
+    }
+
+    .stat-trend.up {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .stat-trend.down {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .stat-comparison {
+      font-size: var(--fs-xs);
+      color: var(--gray-400);
+    }
+
+    /* Main Grid Row */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--dash-gap);
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--card-radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--card-header-pad);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .card-action {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .card-action:hover {
+      background: var(--gray-100);
+    }
+
+    .card-body {
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Table */
+    .table-container {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead th {
+      background: var(--gray-50);
+      text-align: left;
+      padding: var(--table-pad);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .data-table tbody td {
+      padding: var(--table-pad);
+      border-bottom: 1px solid var(--gray-100);
+      font-size: var(--fs-base);
+      vertical-align: middle;
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--gray-50);
+    }
+
+    .student-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .student-avatar {
+      width: var(--avatar);
+      height: var(--avatar);
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .student-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .student-name {
+      font-weight: 600;
+      color: var(--gray-800);
+      font-size: var(--fs-base);
+    }
+
+    .student-id {
+      font-size: var(--fs-xs);
+      color: var(--gray-400);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: var(--fs-sm);
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: var(--success-light);
+      color: #065f46;
+    }
+
+    .badge-warning {
+      background: var(--warning-light);
+      color: #92400e;
+    }
+
+    .badge-danger {
+      background: var(--danger-light);
+      color: #b91c1c;
+    }
+
+    .badge-blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .action-btn {
+      width: var(--icon-sm);
+      height: var(--icon-sm);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* Fee Card */
+    .fee-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-lg);
+      padding: var(--fee-pad);
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .fee-total {
+      text-align: center;
+      padding: clamp(4px, 1vh, 10px);
+      flex-shrink: 0;
+    }
+
+    .fee-total-value {
+      font-size: var(--fee-total);
+      font-weight: 800;
+      color: var(--gray-800);
+      letter-spacing: -0.02em;
+    }
+
+    .fee-total-label {
+      font-size: var(--fs-sm);
+      color: var(--gray-500);
+      margin-top: 4px;
+    }
+
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.5vh, 12px);
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      justify-content: space-around;
+    }
+
+    .progress-item {
+      width: 100%;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .progress-label {
+      font-size: var(--fs-base);
+      font-weight: 600;
+      color: var(--gray-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-value {
+      font-size: var(--fs-base);
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .progress-track {
+      height: 6px;
+      background: var(--gray-200);
+      border-radius: 50px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 50px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.green {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .progress-fill.orange {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .progress-fill.blue {
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+
+    /* Bottom Row */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--dash-gap);
+      flex-shrink: 0;
+      height: var(--bottom-h);
+      overflow: hidden;
+    }
+
+    .card-bottom {
+      background: white;
+      border-radius: var(--card-radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .card-bottom-header {
+      padding: var(--card-header-pad);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .card-bottom-title {
+      font-size: var(--fs-md);
+      font-weight: 700;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-bottom-title i {
+      color: var(--primary);
+    }
+
+    .card-bottom-body {
+      flex: 1;
+      min-height: 0;
+      padding: clamp(10px, 1.8vh, 16px) clamp(12px, 2vh, 20px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mini Bar Chart */
+    .mini-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .chart-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .chart-bar-value {
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      color: var(--gray-600);
+    }
+
+    .chart-bar-fill {
+      width: 70%;
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+      transition: all 0.3s;
+    }
+
+    .chart-bar-fill:hover {
+      opacity: 0.8;
+    }
+
+    .chart-bar-label {
+      font-size: var(--fs-xs);
+      color: var(--gray-400);
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1.2vh, 12px);
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      justify-content: space-around;
+    }
+
+    .quick-stat {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(4px, 0.8vh, 8px) 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .quick-stat:last-child {
+      border-bottom: none;
+    }
+
+    .quick-stat-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quick-stat-icon {
+      width: var(--avatar);
+      height: var(--avatar);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .quick-stat-icon.green {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .quick-stat-icon.orange {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+
+    .quick-stat-icon.red {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .quick-stat-icon.blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .quick-stat-label {
+      font-size: var(--fs-base);
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    .quick-stat-value {
+      font-size: clamp(0.85rem, 1.8vh, 1rem);
+      font-weight: 800;
+      color: var(--gray-800);
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1.2vh, 10px);
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      justify-content: space-around;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: clamp(2px, 0.6vh, 6px) 0;
+    }
+
+    .activity-icon {
+      width: clamp(24px, 3.5vh, 30px);
+      height: clamp(24px, 3.5vh, 30px);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.green {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .activity-icon.blue {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .activity-icon.orange {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+
+    .activity-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .activity-text {
+      font-size: var(--fs-base);
+      font-weight: 600;
+      color: var(--gray-700);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .activity-time {
+      font-size: var(--fs-xs);
+      color: var(--gray-400);
+    }
+
+    /* ========== HEIGHT RESPONSIVE SCALING ========== */
+    /* Shrink content proportionally so everything stays visible */
+
+    @media (max-height: 900px) {
+      :root {
+        --dash-pad: 16px;
+        --dash-gap: 14px;
+        --stat-pad: 12px;
+        --stat-value: 1.5rem;
+        --stat-icon: 34px;
+        --card-header-pad: 10px 16px;
+        --table-pad: 8px 14px;
+        --fee-pad: 14px;
+        --fee-total: 2rem;
+        --bottom-h: 180px;
+        --avatar: 28px;
+        --icon-sm: 26px;
+        --gap-lg: 12px;
+        --gap-md: 10px;
+        --fs-xs: 0.6rem;
+        --fs-sm: 0.65rem;
+        --fs-base: 0.75rem;
+        --fs-md: 0.8rem;
+        --fs-lg: 0.85rem;
+      }
+    }
+
+    @media (max-height: 800px) {
+      :root {
+        --dash-pad: 12px;
+        --dash-gap: 10px;
+        --stat-pad: 10px;
+        --stat-value: 1.35rem;
+        --stat-icon: 30px;
+        --card-header-pad: 8px 12px;
+        --table-pad: 6px 12px;
+        --fee-pad: 12px;
+        --fee-total: 1.75rem;
+        --bottom-h: 155px;
+        --avatar: 26px;
+        --icon-sm: 24px;
+        --gap-lg: 10px;
+        --gap-md: 8px;
+        --fs-xs: 0.58rem;
+        --fs-sm: 0.62rem;
+        --fs-base: 0.7rem;
+        --fs-md: 0.75rem;
+        --fs-lg: 0.8rem;
+      }
+
+      .welcome-banner {
+        padding: 10px 16px;
+      }
+    }
+
+    @media (max-height: 700px) {
+      :root {
+        --dash-pad: 10px;
+        --dash-gap: 8px;
+        --stat-pad: 8px;
+        --stat-value: 1.2rem;
+        --stat-icon: 28px;
+        --card-header-pad: 6px 10px;
+        --table-pad: 5px 10px;
+        --fee-pad: 10px;
+        --fee-total: 1.5rem;
+        --bottom-h: 135px;
+        --avatar: 24px;
+        --icon-sm: 22px;
+        --gap-lg: 8px;
+        --fs-xs: 0.55rem;
+        --fs-sm: 0.6rem;
+        --fs-base: 0.68rem;
+        --fs-md: 0.72rem;
+        --fs-lg: 0.75rem;
+      }
+
+      .header-title {
+        font-size: 1.05rem;
+      }
+
+      .search-box {
+        width: 220px;
+        padding: 6px 12px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      :root {
+        --dash-pad: 8px;
+        --dash-gap: 6px;
+        --stat-pad: 6px;
+        --stat-value: 1.05rem;
+        --stat-icon: 24px;
+        --card-header-pad: 5px 8px;
+        --table-pad: 4px 8px;
+        --fee-pad: 8px;
+        --fee-total: 1.3rem;
+        --bottom-h: 115px;
+        --avatar: 22px;
+        --icon-sm: 20px;
+        --fs-xs: 0.52rem;
+        --fs-sm: 0.56rem;
+        --fs-base: 0.62rem;
+        --fs-md: 0.68rem;
+        --fs-lg: 0.7rem;
+      }
+
+      .top-header {
+        padding: 8px 12px;
+      }
+
+      .welcome-banner {
+        padding: 8px 12px;
+      }
+
+      .welcome-text {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+
+
+
 </head>
 
 <body>
@@ -2607,7 +3633,7 @@
     <!-- Tabs Container -->
     <div class="tabs-container">
       <div class="tabs-header">
-         <button class="tab-btn active" data-tab="tab0">Dashboard</button>
+        <button class="tab-btn active" data-tab="tab0">Dashboard</button>
         <button class="tab-btn " data-tab="tab1">Register</button>
         <button class="tab-btn" data-tab="tab2">Tab 2</button>
         <button class="tab-btn" data-tab="tab3">Tab 3</button>
@@ -2622,6 +3648,241 @@
 
       <!-- Tab 0: Dashboard -->
       <div id="tab0" class="tab-panel active">
+        <div class="DashbordTab">
+           <main class="main-content">
+          <!-- Dashboard Area -->
+          <div class="dashboard-area">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+              <div>
+                <div class="welcome-text">Good Morning, Admin! 👋</div>
+                <div class="welcome-subtext">Here's what's happening at your school today.</div>
+              </div>
+              <div class="welcome-actions">
+                <button class="welcome-btn white" onclick="alert('Add Student')">
+                  <i class="fas fa-user-plus"></i> Add Student
+                </button>
+                <button class="welcome-btn transparent" onclick="alert('View Report')">
+                  <i class="fas fa-chart-line"></i> View Report
+                </button>
+              </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-top">
+                  <div class="stat-title">Total Students</div>
+                  <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-value" id="statStudents">0</div>
+                <div class="stat-bottom">
+                  <span class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> 12%
+                  </span>
+                  <span class="stat-comparison">vs last term</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-top">
+                  <div class="stat-title">Active Students</div>
+                  <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                </div>
+                <div class="stat-value" id="statActive">0</div>
+                <div class="stat-bottom">
+                  <span class="stat-trend up">
+                    <i class="fas fa-check"></i> Active
+                  </span>
+                  <span class="stat-comparison">Current</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-top">
+                  <div class="stat-title">Fees Collected</div>
+                  <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <div class="stat-value" id="statFees">0</div>
+                <div class="stat-bottom">
+                  <span class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> 8%
+                  </span>
+                  <span class="stat-comparison">this month</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-top">
+                  <div class="stat-title">Assessments</div>
+                  <div class="stat-icon purple"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-value" id="statAssessments">0</div>
+                <div class="stat-bottom">
+                  <span class="stat-trend up">
+                    <i class="fas fa-info-circle"></i> Live
+                  </span>
+                  <span class="stat-comparison">Active</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="main-grid">
+              <!-- Recent Students Table -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-user-graduate"></i> Recent Students</h3>
+                  <button class="card-action" onclick="alert('View All')">
+                    View All <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Student</th>
+                          <th>Class</th>
+                          <th>Status</th>
+                          <th>Fee Balance</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="recentStudentsTable">
+                        <!-- Populated by JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fee Summary -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fas fa-chart-pie"></i> Fee Summary</h3>
+                </div>
+                <div class="card-body">
+                  <div class="fee-content">
+                    <div class="fee-total">
+                      <div class="fee-total-value" id="feeTotal">0</div>
+                      <div class="fee-total-label">Total Collected</div>
+                    </div>
+
+                    <div class="progress-list">
+                      <div class="progress-item">
+                        <div class="progress-header">
+                          <span class="progress-label"><i class="fas fa-book"></i> Term 1</span>
+                          <span class="progress-value" id="term1Pct">0%</span>
+                        </div>
+                        <div class="progress-track">
+                          <div class="progress-fill green" id="term1Bar" style="width: 0%"></div>
+                        </div>
+                      </div>
+
+                      <div class="progress-item">
+                        <div class="progress-header">
+                          <span class="progress-label"><i class="fas fa-book-open"></i> Term 2</span>
+                          <span class="progress-value" id="term2Pct">0%</span>
+                        </div>
+                        <div class="progress-track">
+                          <div class="progress-fill orange" id="term2Bar" style="width: 0%"></div>
+                        </div>
+                      </div>
+
+                      <div class="progress-item">
+                        <div class="progress-header">
+                          <span class="progress-label"><i class="fas fa-bookmark"></i> Term 3</span>
+                          <span class="progress-value" id="term3Pct">0%</span>
+                        </div>
+                        <div class="progress-track">
+                          <div class="progress-fill blue" id="term3Bar" style="width: 0%"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Row -->
+            <div class="bottom-row">
+              <!-- Subject Performance -->
+              <div class="card-bottom">
+                <div class="card-bottom-header">
+                  <h3 class="card-bottom-title">
+                    <i class="fas fa-chart-bar"></i> Subject Performance
+                  </h3>
+                </div>
+                <div class="card-bottom-body">
+                  <div class="mini-chart" id="subjectChart">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="card-bottom">
+                <div class="card-bottom-header">
+                  <h3 class="card-bottom-title">
+                    <i class="fas fa-tachometer-alt"></i> Quick Stats
+                  </h3>
+                </div>
+                <div class="card-bottom-body">
+                  <div class="quick-stats">
+                    <div class="quick-stat">
+                      <div class="quick-stat-info">
+                        <div class="quick-stat-icon green"><i class="fas fa-user-check"></i></div>
+                        <span class="quick-stat-label">Attendance Today</span>
+                      </div>
+                      <span class="quick-stat-value" id="attendanceToday">0%</span>
+                    </div>
+
+                    <div class="quick-stat">
+                      <div class="quick-stat-info">
+                        <div class="quick-stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        <span class="quick-stat-label">Present</span>
+                      </div>
+                      <span class="quick-stat-value" id="presentCount">0</span>
+                    </div>
+
+                    <div class="quick-stat">
+                      <div class="quick-stat-info">
+                        <div class="quick-stat-icon orange"><i class="fas fa-clock"></i></div>
+                        <span class="quick-stat-label">Late Arrivals</span>
+                      </div>
+                      <span class="quick-stat-value" id="lateCount">0</span>
+                    </div>
+
+                    <div class="quick-stat">
+                      <div class="quick-stat-info">
+                        <div class="quick-stat-icon red"><i class="fas fa-user-times"></i></div>
+                        <span class="quick-stat-label">Absent</span>
+                      </div>
+                      <span class="quick-stat-value" id="absentCount">0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Activity -->
+              <div class="card-bottom">
+                <div class="card-bottom-header">
+                  <h3 class="card-bottom-title">
+                    <i class="fas fa-bolt"></i> Recent Activity
+                  </h3>
+                </div>
+                <div class="card-bottom-body">
+                  <div class="activity-feed" id="activityFeed">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        </div>
        
       </div>
 
