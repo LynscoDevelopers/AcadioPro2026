@@ -1401,8 +1401,6 @@
       --transition: all 0.2s ease;
     }
 
-
-
     html {
       scroll-behavior: smooth;
       width: 100%;
@@ -2636,11 +2634,7 @@
       --fs-xl: 1.2rem;
     }
 
-    .DashbordTab {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #f8fafc;
-      display: flex;
-    }
+    
 
     .main-content {
       flex: 1;
@@ -3076,7 +3070,7 @@
     .student-cell {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 5px;
     }
 
     .student-avatar {
@@ -3088,8 +3082,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.5rem;
+      font-weight: 300;
       flex-shrink: 0;
     }
 
@@ -3730,7 +3724,7 @@
         --fee-pad: 3px;
         --fee-total: 0.8rem;
         --bottom-h: 140px;
-        --avatar: 14px;
+        --avatar: 8px;
         --icon-sm: 14px;
         --fs-xs: 0.4rem;
         --fs-sm: 0.42rem;
@@ -3770,7 +3764,7 @@
         height: var(--stat-icon);
       }
     }
-</style>
+  </style>
 
 
 </head>
@@ -3817,240 +3811,238 @@
     <div class="tab-content-wrapper">
 
       <!-- Tab 0: Dashboard -->
-      <div id="tab0" class="tab-panel active">
-        <div class="DashbordTab">
-           <main class="main-content">
-          <!-- Dashboard Area -->
-          <div class="dashboard-area">
-            <!-- Welcome Banner -->
-            <div class="welcome-banner">
-              <div>
-                <div class="welcome-text">Good Morning, Admin! 👋</div>
-                <div class="welcome-subtext">Here's what's happening at your school today.</div>
-              </div>
-              <div class="welcome-actions">
-                <button class="welcome-btn white" onclick="alert('Add Student')">
-                  <i class="fas fa-user-plus"></i> Add Student
-                </button>
-                <button class="welcome-btn transparent" onclick="alert('View Report')">
-                  <i class="fas fa-chart-line"></i> View Report
-                </button>
-              </div>
-            </div>
-
-            <!-- Stats Row -->
-            <div class="stats-row">
-              <div class="stat-card">
-                <div class="stat-top">
-                  <div class="stat-title">Total Students</div>
-                  <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+      <div id="tab0" class="tab-panel active" >
+          <main class="main-content" >
+            <!-- Dashboard Area -->
+            <div class="dashboard-area" style="overflow: hidden;">
+              <!-- Welcome Banner -->
+              <div class="welcome-banner">
+                <div>
+                  <div class="welcome-text">Good Morning, Admin! 👋</div>
+                  <div class="welcome-subtext">Here's what's happening at your school today.</div>
                 </div>
-                <div class="stat-value" id="statStudents">0</div>
-                <div class="stat-bottom">
-                  <span class="stat-trend up">
-                    <i class="fas fa-arrow-up"></i> 12%
-                  </span>
-                </div>
-              </div>
-
-              <div class="stat-card">
-                <div class="stat-top">
-                  <div class="stat-title">Active Students</div>
-                  <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
-                </div>
-                <div class="stat-value" id="statActive">0</div>
-                <div class="stat-bottom">
-                  <span class="stat-trend up">
-                    <i class="fas fa-check"></i> Active
-                  </span>
-                </div>
-              </div>
-
-              <div class="stat-card">
-                <div class="stat-top">
-                  <div class="stat-title">Fees Collected</div>
-                  <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
-                </div>
-                <div class="stat-value" id="statFees">0</div>
-                <div class="stat-bottom">
-                  <span class="stat-trend up">
-                    <i class="fas fa-arrow-up"></i> 8%
-                  </span>
-                </div>
-              </div>
-
-              <div class="stat-card">
-                <div class="stat-top">
-                  <div class="stat-title">Assessments</div>
-                  <div class="stat-icon purple"><i class="fas fa-clipboard-list"></i></div>
-                </div>
-                <div class="stat-value" id="statAssessments">0</div>
-                <div class="stat-bottom">
-                  <span class="stat-trend up">
-                    <i class="fas fa-info-circle"></i> Live
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Main Grid -->
-            <div class="main-grid">
-              <!-- Recent Students Table -->
-              <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title"><i class="fas fa-user-graduate"></i> Recent Students</h3>
-                  <button class="card-action" onclick="alert('View All')">
-                    View All <i class="fas fa-arrow-right"></i>
+                <div class="welcome-actions">
+                  <button class="welcome-btn white" onclick="alert('Add Student')">
+                    <i class="fas fa-user-plus"></i> Add Student
+                  </button>
+                  <button class="welcome-btn transparent" onclick="alert('View Report')">
+                    <i class="fas fa-chart-line"></i> View Report
                   </button>
                 </div>
-                <div class="card-body">
-                  <div class="table-container">
-                    <table class="data-table">
-                      <thead>
-                        <tr>
-                          <th>Student</th>
-                          <th>Class</th>
-                          <th>Status</th>
-                          <th>Fee Balance</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody id="recentStudentsTable">
-                        <!-- Populated by JS -->
-                      </tbody>
-                    </table>
+              </div>
+
+              <!-- Stats Row -->
+              <div class="stats-row">
+                <div class="stat-card">
+                  <div class="stat-top">
+                    <div class="stat-title">Total Students</div>
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                  </div>
+                  <div class="stat-value" id="statStudents">0</div>
+                  <div class="stat-bottom">
+                    <span class="stat-trend up">
+                      <i class="fas fa-arrow-up"></i> 12%
+                    </span>
+                  </div>
+                </div>
+
+                <div class="stat-card">
+                  <div class="stat-top">
+                    <div class="stat-title">Active Students</div>
+                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                  </div>
+                  <div class="stat-value" id="statActive">0</div>
+                  <div class="stat-bottom">
+                    <span class="stat-trend up">
+                      <i class="fas fa-check"></i> Active
+                    </span>
+                  </div>
+                </div>
+
+                <div class="stat-card">
+                  <div class="stat-top">
+                    <div class="stat-title">Fees Collected</div>
+                    <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
+                  </div>
+                  <div class="stat-value" id="statFees">0</div>
+                  <div class="stat-bottom">
+                    <span class="stat-trend up">
+                      <i class="fas fa-arrow-up"></i> 8%
+                    </span>
+                  </div>
+                </div>
+
+                <div class="stat-card">
+                  <div class="stat-top">
+                    <div class="stat-title">Assessments</div>
+                    <div class="stat-icon purple"><i class="fas fa-clipboard-list"></i></div>
+                  </div>
+                  <div class="stat-value" id="statAssessments">0</div>
+                  <div class="stat-bottom">
+                    <span class="stat-trend up">
+                      <i class="fas fa-info-circle"></i> Live
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <!-- Fee Summary -->
-              <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title"><i class="fas fa-chart-pie"></i> Fee Summary</h3>
-                </div>
-                <div class="card-body">
-                  <div class="fee-content">
-                    <div class="fee-total">
-                      <div class="fee-total-value" id="feeTotal">0</div>
-                      <div class="fee-total-label">Total Collected</div>
+              <!-- Main Grid -->
+              <div class="main-grid">
+                <!-- Recent Students Table -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user-graduate"></i> Recent Students</h3>
+                    <button class="card-action" onclick="alert('View All')">
+                      View All <i class="fas fa-arrow-right"></i>
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-container">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Student</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                            <th>Fee Balance</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="recentStudentsTable">
+                          <!-- Populated by JS -->
+                        </tbody>
+                      </table>
                     </div>
+                  </div>
+                </div>
 
-                    <div class="progress-list">
-                      <div class="progress-item">
-                        <div class="progress-header">
-                          <span class="progress-label"><i class="fas fa-book"></i> Term 1</span>
-                          <span class="progress-value" id="term1Pct">0%</span>
-                        </div>
-                        <div class="progress-track">
-                          <div class="progress-fill green" id="term1Bar" style="width: 0%"></div>
-                        </div>
+                <!-- Fee Summary -->
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-chart-pie"></i> Fee Summary</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="fee-content">
+                      <div class="fee-total">
+                        <div class="fee-total-value" id="feeTotal">0</div>
+                        <div class="fee-total-label">Total Collected</div>
                       </div>
 
-                      <div class="progress-item">
-                        <div class="progress-header">
-                          <span class="progress-label"><i class="fas fa-book-open"></i> Term 2</span>
-                          <span class="progress-value" id="term2Pct">0%</span>
+                      <div class="progress-list">
+                        <div class="progress-item">
+                          <div class="progress-header">
+                            <span class="progress-label"><i class="fas fa-book"></i> Term 1</span>
+                            <span class="progress-value" id="term1Pct">0%</span>
+                          </div>
+                          <div class="progress-track">
+                            <div class="progress-fill green" id="term1Bar" style="width: 0%"></div>
+                          </div>
                         </div>
-                        <div class="progress-track">
-                          <div class="progress-fill orange" id="term2Bar" style="width: 0%"></div>
+
+                        <div class="progress-item">
+                          <div class="progress-header">
+                            <span class="progress-label"><i class="fas fa-book-open"></i> Term 2</span>
+                            <span class="progress-value" id="term2Pct">0%</span>
+                          </div>
+                          <div class="progress-track">
+                            <div class="progress-fill orange" id="term2Bar" style="width: 0%"></div>
+                          </div>
                         </div>
+
+                        <div class="progress-item">
+                          <div class="progress-header">
+                            <span class="progress-label"><i class="fas fa-bookmark"></i> Term 3</span>
+                            <span class="progress-value" id="term3Pct">0%</span>
+                          </div>
+                          <div class="progress-track">
+                            <div class="progress-fill blue" id="term3Bar" style="width: 0%"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Row -->
+              <div class="bottom-row">
+                <!-- Subject Performance -->
+                <div class="card-bottom">
+                  <div class="card-bottom-header">
+                    <h3 class="card-bottom-title">
+                      <i class="fas fa-chart-bar"></i> Subject Performance
+                    </h3>
+                  </div>
+                  <div class="card-bottom-body">
+                    <div class="mini-chart" id="subjectChart">
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card-bottom">
+                  <div class="card-bottom-header">
+                    <h3 class="card-bottom-title">
+                      <i class="fas fa-tachometer-alt"></i> Quick Stats
+                    </h3>
+                  </div>
+                  <div class="card-bottom-body">
+                    <div class="quick-stats">
+                      <div class="quick-stat">
+                        <div class="quick-stat-info">
+                          <div class="quick-stat-icon green"><i class="fas fa-user-check"></i></div>
+                          <span class="quick-stat-label">Attendance Today</span>
+                        </div>
+                        <span class="quick-stat-value" id="attendanceToday">0%</span>
                       </div>
 
-                      <div class="progress-item">
-                        <div class="progress-header">
-                          <span class="progress-label"><i class="fas fa-bookmark"></i> Term 3</span>
-                          <span class="progress-value" id="term3Pct">0%</span>
+                      <div class="quick-stat">
+                        <div class="quick-stat-info">
+                          <div class="quick-stat-icon green"><i class="fas fa-check-circle"></i></div>
+                          <span class="quick-stat-label">Present</span>
                         </div>
-                        <div class="progress-track">
-                          <div class="progress-fill blue" id="term3Bar" style="width: 0%"></div>
-                        </div>
+                        <span class="quick-stat-value" id="presentCount">0</span>
                       </div>
+
+                      <div class="quick-stat">
+                        <div class="quick-stat-info">
+                          <div class="quick-stat-icon orange"><i class="fas fa-clock"></i></div>
+                          <span class="quick-stat-label">Late Arrivals</span>
+                        </div>
+                        <span class="quick-stat-value" id="lateCount">0</span>
+                      </div>
+
+                      <div class="quick-stat">
+                        <div class="quick-stat-info">
+                          <div class="quick-stat-icon red"><i class="fas fa-user-times"></i></div>
+                          <span class="quick-stat-label">Absent</span>
+                        </div>
+                        <span class="quick-stat-value" id="absentCount">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card-bottom">
+                  <div class="card-bottom-header">
+                    <h3 class="card-bottom-title">
+                      <i class="fas fa-bolt"></i> Recent Activity
+                    </h3>
+                  </div>
+                  <div class="card-bottom-body">
+                    <div class="activity-feed" id="activityFeed">
+                      <!-- Populated by JS -->
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Bottom Row -->
-            <div class="bottom-row">
-              <!-- Subject Performance -->
-              <div class="card-bottom">
-                <div class="card-bottom-header">
-                  <h3 class="card-bottom-title">
-                    <i class="fas fa-chart-bar"></i> Subject Performance
-                  </h3>
-                </div>
-                <div class="card-bottom-body">
-                  <div class="mini-chart" id="subjectChart">
-                    <!-- Populated by JS -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Quick Stats -->
-              <div class="card-bottom">
-                <div class="card-bottom-header">
-                  <h3 class="card-bottom-title">
-                    <i class="fas fa-tachometer-alt"></i> Quick Stats
-                  </h3>
-                </div>
-                <div class="card-bottom-body">
-                  <div class="quick-stats">
-                    <div class="quick-stat">
-                      <div class="quick-stat-info">
-                        <div class="quick-stat-icon green"><i class="fas fa-user-check"></i></div>
-                        <span class="quick-stat-label">Attendance Today</span>
-                      </div>
-                      <span class="quick-stat-value" id="attendanceToday">0%</span>
-                    </div>
-
-                    <div class="quick-stat">
-                      <div class="quick-stat-info">
-                        <div class="quick-stat-icon green"><i class="fas fa-check-circle"></i></div>
-                        <span class="quick-stat-label">Present</span>
-                      </div>
-                      <span class="quick-stat-value" id="presentCount">0</span>
-                    </div>
-
-                    <div class="quick-stat">
-                      <div class="quick-stat-info">
-                        <div class="quick-stat-icon orange"><i class="fas fa-clock"></i></div>
-                        <span class="quick-stat-label">Late Arrivals</span>
-                      </div>
-                      <span class="quick-stat-value" id="lateCount">0</span>
-                    </div>
-
-                    <div class="quick-stat">
-                      <div class="quick-stat-info">
-                        <div class="quick-stat-icon red"><i class="fas fa-user-times"></i></div>
-                        <span class="quick-stat-label">Absent</span>
-                      </div>
-                      <span class="quick-stat-value" id="absentCount">0</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Recent Activity -->
-              <div class="card-bottom">
-                <div class="card-bottom-header">
-                  <h3 class="card-bottom-title">
-                    <i class="fas fa-bolt"></i> Recent Activity
-                  </h3>
-                </div>
-                <div class="card-bottom-body">
-                  <div class="activity-feed" id="activityFeed">
-                    <!-- Populated by JS -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
+          </main>
 
         </div>
-       
-      </div>
+
 
       <!-- Tab 1: Student Register -->
       <div id="tab1" class="tab-panel ">
@@ -6402,6 +6394,10 @@
           renderClasses(classData);
           populateClassSelect(classData);
           renderGrid();
+
+          if (typeof updateDashboard === 'function') {
+            updateDashboard();
+          }
 
           const assessmentTerm = document.getElementById('assessment-term');
           if (assessmentTerm) {
@@ -9758,7 +9754,279 @@
 
 
 
+      // ============================================================
+      // DASHBOARD UPDATE FUNCTION
+      // Insert this into the previous script (e.g. near other UI helpers)
+      // Call it from refreshUIFromFirebase() and after initial data load
+      // ============================================================
+      function updateDashboard() {
+        // ---------- Helpers (local to keep it self-contained) ----------
+        function formatCurrency(value) {
+          if (value === null || value === undefined || value === "") return "0.00";
+          if (value === "Sponsored") return "Sponsored";
+          const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
+          if (isNaN(num)) return "0.00";
+          return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function getInitials(name) {
+          if (!name) return '?';
+          return name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
+        }
+
+        function getActiveTerm() {
+          const active = (typeof terms !== 'undefined' ? terms : []).find(
+            t => String(t.status || '').toLowerCase() === 'active'
+          );
+          return active ? active.termId : null;
+        }
+
+        function getStudentRequiredFee(admission) {
+          if (!admission || !studentsCache?.[admission]) return "0.00";
+          const student = studentsCache[admission];
+          if (!student.class) return "0.00";
+
+          const grade = String(student.class).split('-')[0].trim();
+          const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
+            t => String(t.status || '').toLowerCase() === 'active'
+          );
+          if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+            return "0.00";
+          }
+
+          const fees = {
+            grade: parseFloat(activeTerm.grades[grade]) || 0,
+            meal: parseFloat(activeTerm.meal) || 0,
+            transport: parseFloat(activeTerm.transport) || 0,
+            boarding: parseFloat(activeTerm.boarding) || 0,
+            break: parseFloat(activeTerm.breakFee) || 0
+          };
+
+          if (/[789]/.test(grade)) {
+            fees.boarding = Math.max(0, fees.boarding - 2000);
+          }
+
+          const ex = student.Exceptions || {};
+          if (ex.Sponsored === true) return "Sponsored";
+
+          let requiredFee = fees.grade;
+          if (ex.Boarding === true) {
+            return formatCurrency(requiredFee + fees.boarding);
+          }
+
+          requiredFee += fees.transport;
+          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
+          if (ex.Break === true) requiredFee += fees.break;
+
+          return formatCurrency(requiredFee);
+        }
+
+        function getCurrentBalance(admission) {
+          if (!admission || !studentsCache?.[admission]) return "0.00";
+          const student = studentsCache[admission];
+          const gradeFee = getStudentRequiredFee(admission);
+          if (gradeFee === "Sponsored") return "Sponsored";
+          if (!student.lastPayment) return formatCurrency(gradeFee);
+
+          const balance = parseFloat(String(student.lastPayment.balance || 0).replace(/,/g, '')) || 0;
+          const activeTerm = getActiveTerm();
+
+          if (activeTerm && student.lastPayment.term !== activeTerm) {
+            return formatCurrency(balance + parseFloat(String(gradeFee).replace(/,/g, '') || 0));
+          }
+          return formatCurrency(balance);
+        }
+
+        function getTotalFeesCollected() {
+          let total = 0;
+          const activeTerm = getActiveTerm();
+          if (!paymentCache || typeof paymentCache !== 'object') return 0;
+
+          Object.values(paymentCache).forEach(p => {
+            if (!activeTerm || p.term === activeTerm) {
+              total += parseFloat(String(p.amount || 0).replace(/,/g, '')) || 0;
+            }
+          });
+          return total;
+        }
+
+        // ---------- Safe DOM access ----------
+        const el = id => document.getElementById(id);
+        if (!el('statStudents')) return; // Dashboard not present on this page
+
+        // ---------- Stats ----------
+        const totalStudents = Object.keys(studentsCache || {}).length;
+        const activeStudents = Object.values(studentsCache || {}).filter(
+          s => s.Status !== 'Inactive' && s.Status !== 'Graduate' && s.class !== 'Graduate'
+        ).length;
+
+        // Assessments count (exposed by the assessment module if available)
+        let totalAssessments = 0;
+        if (typeof window.__getAssessmentsCount === 'function') {
+          totalAssessments = window.__getAssessmentsCount();
+        } else if (typeof assessments !== 'undefined' && Array.isArray(assessments)) {
+          totalAssessments = assessments.length;
+        }
+
+        const totalFees = getTotalFeesCollected();
+
+        el('statStudents').textContent = totalStudents;
+        el('statActive').textContent = activeStudents;
+        el('statFees').textContent = formatCurrency(totalFees);
+        if (el('statAssessments')) el('statAssessments').textContent = totalAssessments;
+
+        // Fee Summary
+        if (el('feeTotal')) el('feeTotal').textContent = formatCurrency(totalFees);
+
+        // Progress bars (estimated targets – adjust as needed)
+        const target1 = 2000000;
+        const target2 = 1800000;
+        const target3 = 1500000;
+
+        const pct1 = Math.min(100, (totalFees / target1) * 100);
+        const pct2 = Math.min(100, (totalFees / target2) * 100 * 0.8);
+        const pct3 = Math.min(100, (totalFees / target3) * 100 * 0.5);
+
+        if (el('term1Bar')) {
+          el('term1Bar').style.width = `${pct1}%`;
+          if (el('term1Pct')) el('term1Pct').textContent = `${pct1.toFixed(0)}%`;
+        }
+        if (el('term2Bar')) {
+          el('term2Bar').style.width = `${pct2}%`;
+          if (el('term2Pct')) el('term2Pct').textContent = `${pct2.toFixed(0)}%`;
+        }
+        if (el('term3Bar')) {
+          el('term3Bar').style.width = `${pct3}%`;
+          if (el('term3Pct')) el('term3Pct').textContent = `${pct3.toFixed(0)}%`;
+        }
+
+        // Attendance (placeholder logic – replace with real attendance data when available)
+        const attendancePct = Math.min(95, 70 + Math.min(totalStudents, 25));
+        if (el('attendanceToday')) el('attendanceToday').textContent = `${attendancePct.toFixed(0)}%`;
+        if (el('presentCount')) el('presentCount').textContent = Math.round(totalStudents * attendancePct / 100);
+        if (el('lateCount')) el('lateCount').textContent = Math.round(totalStudents * 0.03);
+        if (el('absentCount')) el('absentCount').textContent = Math.round(totalStudents * (1 - attendancePct / 100 - 0.03));
+
+        // ---------- Recent Students Table ----------
+        const tableBody = el('recentStudentsTable');
+        if (tableBody) {
+          const recentStudents = Object.entries(studentsCache || {})
+            .sort((a, b) => {
+              const dateA = a[1].lastPayment?.entryDate || a[1].lastPayment?.paymentDate || '';
+              const dateB = b[1].lastPayment?.entryDate || b[1].lastPayment?.paymentDate || '';
+              // Simple string compare works for DD/MM/YYYY in most cases; improve if needed
+              return dateB.localeCompare(dateA);
+            })
+            .slice(0, 4);
+
+          tableBody.innerHTML = '';
+          recentStudents.forEach(([admissionNo, student]) => {
+            const balance = getCurrentBalance(admissionNo);
+            const isPaid = balance === 'Sponsored' || parseFloat(String(balance).replace(/,/g, '')) === 0;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td>
+          <div class="student-cell">
+            <div class="student-avatar">${getInitials(student.name)}</div>
+            <div class="student-info">
+              <span class="student-name">${student.name || 'Unknown'}</span>
+              <span class="student-id">${admissionNo}</span>
+            </div>
+          </div>
+        </td>
+        <td>${student.class || '—'}</td>
+        <td>
+          <span class="badge ${student.Status === 'Active' ? 'badge-success' : 'badge-blue'}">
+            ${student.Status || '—'}
+          </span>
+        </td>
+        <td>
+          <span class="badge ${isPaid ? 'badge-success' : 'badge-warning'}">
+            ${balance}
+          </span>
+        </td>
+        <td>
+          <button class="action-btn" onclick="alert('View ${admissionNo}')">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>
+      `;
+            tableBody.appendChild(row);
+          });
+        }
+
+        // ---------- Subject Performance Chart (static demo data) ----------
+        const subjectChart = el('subjectChart');
+        if (subjectChart) {
+          const subjects = [
+            { name: 'Math', score: 78, color: '#3b82f6' },
+            { name: 'Eng', score: 82, color: '#10b981' },
+            { name: 'Kis', score: 74, color: '#f59e0b' },
+            { name: 'Sci', score: 85, color: '#8b5cf6' },
+            { name: 'SST', score: 79, color: '#ec4899' },
+            { name: 'CA', score: 88, color: '#06b6d4' }
+          ];
+
+          subjectChart.innerHTML = '';
+          subjects.forEach(subject => {
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar';
+            bar.innerHTML = `
+        <span class="chart-bar-value">${subject.score}%</span>
+        <div class="chart-bar-fill" style="height: ${subject.score}%; background: ${subject.color};"></div>
+        <span class="chart-bar-label">${subject.name}</span>
+      `;
+            subjectChart.appendChild(bar);
+          });
+        }
+
+        // ---------- Recent Activity (static demo) ----------
+        const activityFeed = el('activityFeed');
+        if (activityFeed) {
+          const activities = [
+            { icon: 'green', iconClass: 'fas fa-money-bill-wave', text: 'Payment received from J. Mwangi', time: '5 min ago' },
+            { icon: 'blue', iconClass: 'fas fa-user-plus', text: 'New student enrolled: A. Kipchoge', time: '30 min ago' },
+            { icon: 'orange', iconClass: 'fas fa-clipboard-list', text: 'Math assessment created for Grade 5', time: '1 hr ago' },
+            { icon: 'green', iconClass: 'fas fa-check-circle', text: 'Attendance marked for Grade 3', time: '2 hrs ago' }
+          ];
+
+          activityFeed.innerHTML = '';
+          activities.forEach(activity => {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+        <div class="activity-icon ${activity.icon}">
+          <i class="${activity.iconClass}"></i>
+        </div>
+        <div class="activity-content">
+          <span class="activity-text">${activity.text}</span>
+          <span class="activity-time">${activity.time}</span>
+        </div>
+      `;
+            activityFeed.appendChild(item);
+          });
+        }
+
+        // Current date (if element exists)
+        const currentDateEl = el('currentDate');
+        if (currentDateEl) {
+          const today = new Date();
+          currentDateEl.textContent = today.toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+          });
+        }
+      }
+
+      // Expose it globally so it can be called from refreshUIFromFirebase
+      window.updateDashboard = updateDashboard;
+
+
     </script>
+
+
+
+
+
 
 </body>
 
