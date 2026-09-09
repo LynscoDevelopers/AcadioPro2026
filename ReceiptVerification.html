@@ -975,6 +975,14 @@
         const db = getDatabase(app);
 
         // ============================================================
+        // GLOBAL STATE
+        // ============================================================
+        let studentsCache = {};
+
+        // Students Reference
+        const studentsRef = ref(db, "Institution/ Revival/Students");
+
+        // ============================================================
         // UTILITY FUNCTIONS
         // ============================================================
         function formatCurrency(value) {
@@ -1001,8 +1009,39 @@
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
         }
 
+        // ============================================================
+        // GET STUDENT NAME FROM FIREBASE
+        // ============================================================
+        function getStudentName(admissionNumber) {
+            if (!studentsCache || !admissionNumber) return 'Unknown';
+            const key = String(admissionNumber).replace(/\//g, '-');
+            const student = studentsCache[key];
+            return student?.name || student?.studentName || 'Unknown';
+        }
+
+        // ============================================================
+        // LOAD STUDENTS CACHE
+        // ============================================================
+        async function loadStudentsCache() {
+            try {
+                const snapshot = await get(studentsRef);
+                if (snapshot.exists()) {
+                    studentsCache = snapshot.val();
+                    console.log('Students cache loaded:', Object.keys(studentsCache).length, 'students');
+                } else {
+                    studentsCache = {};
+                    console.log('No students found in database');
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+                studentsCache = {};
+            }
+        }
+
+        // ============================================================
+        // EXTRACT FIREBASE KEY FROM URL
+        // ============================================================
         function extractFirebaseKey(input) {
-            // If input is a URL, extract the last part
             if (input.includes('http')) {
                 try {
                     const url = new URL(input);
@@ -1013,7 +1052,6 @@
                 }
             }
             
-            // If input contains slashes or dashes, clean it
             const cleaned = input.trim().replace(/^\/+|\/+$/g, '');
             return cleaned || null;
         }
@@ -1027,23 +1065,23 @@
             document.getElementById('receiptContainer').classList.remove('active');
             document.getElementById('errorState').classList.remove('active');
 
+            // Load students cache first
+            await loadStudentsCache();
+
             // Extract receipt key from URL
             const urlParams = new URLSearchParams(window.location.search);
             let receiptKey = null;
 
-            // Check various parameter names
             receiptKey = urlParams.get('receipt') || 
                         urlParams.get('key') || 
                         urlParams.get('id') || 
                         urlParams.get('ref') ||
                         urlParams.get('t');
 
-            // If not in query params, check hash
             if (!receiptKey && window.location.hash) {
                 receiptKey = window.location.hash.replace('#', '');
             }
 
-            // If still not found, try to extract from path
             if (!receiptKey) {
                 const pathParts = window.location.pathname.split('/').filter(p => p);
                 if (pathParts.length > 1) {
@@ -1051,7 +1089,6 @@
                 }
             }
 
-            // If no key found, show error
             if (!receiptKey) {
                 document.getElementById('loadingState').classList.remove('active');
                 document.getElementById('errorState').classList.add('active');
@@ -1059,7 +1096,6 @@
                 return;
             }
 
-            // Clean the key
             receiptKey = extractFirebaseKey(receiptKey);
 
             if (!receiptKey) {
@@ -1126,9 +1162,13 @@
         // DISPLAY RECEIPT
         // ============================================================
         function displayReceipt(paymentData, firebaseKey) {
+            // Get student name from studentsCache using admission number
+            const admissionNumber = paymentData.admissionNumber || 'N/A';
+            const studentName = getStudentName(admissionNumber) || paymentData.studentName || 'Unknown Student';
+
             // Student Info
-            document.getElementById('studentName').textContent = paymentData.studentName || 'Unknown Student';
-            document.getElementById('admissionNumber').textContent = paymentData.admissionNumber || 'N/A';
+            document.getElementById('studentName').textContent = studentName;
+            document.getElementById('admissionNumber').textContent = admissionNumber;
             document.getElementById('studentClass').textContent = paymentData.class || 'N/A';
             
             // Receipt Info
