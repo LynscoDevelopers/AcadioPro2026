@@ -5646,7 +5646,7 @@
             window.chrome.webview.postMessage({
               action: "PRINT_RECEIPT",
               DateandTime: paymentData.entryDate,
-              studentName: document.getElementById("Fn_Name")?.textContent.trim() || "",
+              studentName: getStudentName(admissionNumber),
               Class_Grade: paymentData.class,
               term: paymentData.term,
               Admission_No: admissionNumber,
@@ -7209,7 +7209,7 @@
           window.chrome.webview.postMessage({
             action: "PRINT_RECEIPT",
             DateandTime: paymentData.entryDate,
-            studentName: document.getElementById("Fn_Name")?.textContent.trim() || '',
+            studentName: getStudentName(admissionNumber),
             Class_Grade: paymentData.class,
             term: paymentData.term,
             Admission_No: admissionNumber,
