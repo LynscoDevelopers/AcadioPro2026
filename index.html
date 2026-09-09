@@ -5594,6 +5594,10 @@
             Account: paymentData.Account,
             Qr_Key: firebaseKey
           });
+
+
+          closeDialog2();
+
         } catch (error) {
           console.error(error);
           alert("Failed to save Payment:\n" + error.message);
