@@ -5567,7 +5567,7 @@
           paymentDate: document.getElementById("Fn_PaymentDate").value,
           paymentRef: document.getElementById("Fn_PaymentRef").value,
           Exemption: formatCurrency(document.getElementById("Fn_studentExceptions").textContent.trim()),
-          ReceiptNo: getLastReceiptNo()
+          ReceiptNo: String(getLastReceiptNo())
         };
 
         try {
@@ -5594,6 +5594,8 @@
             Account: paymentData.Account,
             Qr_Key: firebaseKey
           });
+
+          closeDialog2();
 
         } catch (error) {
           console.error(error);
