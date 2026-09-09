@@ -3822,10 +3822,10 @@
                 <div class="welcome-subtext">Here's what's happening at your school today.</div>
               </div>
               <div class="welcome-actions">
-                <button class="welcome-btn white" onclick="alert('Add Student')">
+                <button class="welcome-btn white" id="Dashboard_openBtn">
                   <i class="fas fa-user-plus"></i> Add Student
                 </button>
-                <button class="welcome-btn transparent" onclick="alert('View Report')">
+                <button class="welcome-btn transparent">
                   <i class="fas fa-chart-line"></i> View Report
                 </button>
               </div>
@@ -5114,6 +5114,7 @@
       // ============================================================
       const overlay = document.getElementById('dialogOverlay');
       const openBtn = document.getElementById('openDialogBtn');
+      const Dashboard_openBtn = document.getElementById('Dashboard_openBtn');
       const openBtn2 = document.getElementById('openDialogBtn2');
       const openBtn3 = document.getElementById('openDialogBtn3');
 
@@ -5251,6 +5252,7 @@
 
 
       if (openBtn) openBtn.addEventListener('click', openDialog);
+       if (Dashboard_openBtn) Dashboard_openBtn.addEventListener('click', openDialog);
       if (closeIcon) closeIcon.addEventListener('click', closeDialog);
       if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
       if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
@@ -8934,11 +8936,11 @@
 
         // Show loading state
         container.innerHTML = `
-    <div class="loading-spinner">
-      <i class="fas fa-spinner"></i>
-      <p>Loading transcripts...</p>
-    </div>
-  `;
+          <div class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p>Loading transcripts...</p>
+          </div>
+        `;
 
         try {
           // Ensure we have the latest data
@@ -9903,10 +9905,20 @@
         if (!el('statStudents')) return; // Dashboard not present on this page
 
         // ---------- Stats ----------
-        const totalStudents = Object.keys(studentsCache || {}).length;
-        const activeStudents = Object.values(studentsCache || {}).filter(
-          s => s.Status !== 'Inactive' && s.Status !== 'Graduate' && s.class !== 'Graduate'
+
+        // Exclude students whose class/grade is Graduate
+        const nonGraduateStudents = Object.values(studentsCache || {}).filter(
+          s => String(s.class || '').trim().toLowerCase() !== 'graduate'
+        );
+
+        // Total students excluding Graduate
+        const totalStudents = nonGraduateStudents.length;
+
+        // Active students excluding Graduate
+        const activeStudents = nonGraduateStudents.filter(
+          s => String(s.Status || '').trim().toLowerCase() !== 'inactive'
         ).length;
+
 
         // Assessments count (exposed by the assessment module if available)
         let totalAssessments = 0;
