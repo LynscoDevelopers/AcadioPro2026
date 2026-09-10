@@ -9699,7 +9699,7 @@
 
             return {
               Admission_No: student.Admission_No,
-              Name: student.Admission_No,                     // ← Student Name
+              Name: getStudentName(student.Admission_No),  // ← Student Name
               Grade: student.Grade,
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
