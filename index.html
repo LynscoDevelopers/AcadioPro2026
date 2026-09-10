@@ -9700,7 +9700,8 @@
               assessmentId: String(m.assessmentId),
               assessmentName: assessment?.name || 'Unknown',
               subject: m.subject || 'General',
-              grade: assessment?.class || assessment?.grade || selectedGrade,
+              class: m.class || '',                                   // ← class from marks
+              grade: m.class || assessment?.class || assessment?.grade || selectedGrade, // ← prefer marks.class
               term: assessment?.term || '',
               marks: mark,
               maxMarks: maxMarks,
@@ -9719,7 +9720,7 @@
               studentResults[result.studentId] = {
                 Admission_No: result.studentId,
                 Name: result.name,
-                Grade: result.class || result.grade || '',   // ← use class in place of Grade
+                Grade: result.class || result.grade || '',   // ← use class from marks
                 Results: [],
                 TotalMarks: 0,
                 TotalMaxMarks: 0
@@ -9728,8 +9729,8 @@
 
             const student = studentResults[result.studentId];
 
-            // Prefer a non-empty class if later marks have it
-            if ((!student.Grade || student.Grade === selectedGrade) && result.class) {
+            // Always prefer the class from the marks record
+            if (result.class) {
               student.Grade = result.class;
             }
 
@@ -9750,7 +9751,7 @@
             return {
               Admission_No: student.Admission_No,
               Name: getStudentName(student.Admission_No),
-              Grade: student.Grade,                       // ← this now contains the full class
+              Grade: student.Grade,                       // ← now contains the class from marks
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
               TotalResults: student.Results.length,
@@ -9759,6 +9760,7 @@
               Results: student.Results
             };
           });
+
           // ---------------------------------------------------------
           // MESSAGE TO C#
           // ---------------------------------------------------------
