@@ -9588,7 +9588,7 @@
             return {
               Admission_No: student.Admission_No,
               Name: getStudentName(student.Admission_No),                     // ← Student Name
-              Grade: student.Grade,
+              Grade: student.Class,
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
               TotalResults: student.Results.length,
@@ -9665,6 +9665,7 @@
           };
         }
       }
+     
       document.getElementById('ReportCardExpo').addEventListener('click', async function () {
         await getTermResults1();
       });
