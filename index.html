@@ -8042,6 +8042,7 @@
             selectedSubjects.forEach(subj => marks.push({
               assessmentId: id,
               studentId: st.id,
+              class: st.class,
               subject: subj,
               marks: 0
             }));
@@ -8200,7 +8201,13 @@
             showToast(`Maximum marks is ${a.maxMarks}`, 'error');
             return;
           }
+
+          // Look up the student to get their class (Grade + Stream)
+          const student = students.find(s => s.id === m.studentId);
+          const studentClass = student ? (student.fullClass || student.grade) : (m.class || '');
+
           marks[currentEditMarksIndex].marks = val;
+          marks[currentEditMarksIndex].class = studentClass;   // ← ADD: keep class in sync
 
           await saveMarksToFirebase();
 
@@ -8209,7 +8216,6 @@
           renderDashboard();
           showToast('Marks updated');
         };
-
         // ---------- BULK MARKS ----------
         window.openBulkMarksModal = function () {
           const sel = document.getElementById('bulk-assessment');
@@ -8279,817 +8285,238 @@
               sid = inp.dataset.student,
               subj = inp.dataset.subject,
               val = parseInt(inp.value) || 0;
+
+            // Look up the student to get their class (Grade + Stream)
+            const student = students.find(s => s.id === sid);
+            const studentClass = student ? (student.fullClass || student.grade) : '';
+
             const idx = marks.findIndex(m => m.assessmentId === aId && m.studentId === sid && m.subject === subj);
-            if (idx >= 0) marks[idx].marks = val;
-            else marks.push({ assessmentId: aId, studentId: sid, subject: subj, marks: val });
+            if (idx >= 0) {
+              marks[idx].marks = val;
+              marks[idx].class = studentClass;
+            } else {
+              marks.push({
+                assessmentId: aId,
+                studentId: sid,
+                subject: subj,
+                marks: val,
+                class: studentClass
+              });
+            }
             count++;
           });
 
-          await saveMarksToFirebase();
-
-          closeModal('bulk-marks-modal');
-          renderMarksTable();
-          renderDashboard();
+          await saveMarksToFirebase();           // ← save to Firebase
+          closeModal('bulk-marks-modal');        // ← close the modal
+          renderMarksTable();                    // ← refresh marks table
+          renderDashboard();                     // ← refresh dashboard
           showToast(`Saved ${count} marks records`);
-        };
+        };                                       // ← CLOSE THE FUNCTION HERE
 
-        // ---------- EXPORT & TOAST ----------
-        window.exportData = function () {
-          const data = {
-            exportDate: new Date().toISOString(),
-            term: 'Term1_2026',
-            students,
-            assessments,
-            marks,
-            summary: {
-              totalStudents: students.length,
-              totalAssessments: assessments.length,
-              totalMarks: marks.length,
-              overallAverage: marks.length ? (marks.reduce((s, m) => s + m.marks, 0) / marks.length).toFixed(2) : 0
-            }
-          };
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = `eduassess_report_${new Date().toISOString().split('T')[0]}.json`;
-          a.click();
-          showToast('Data exported successfully');
-        };
+        // ============================================================
+        // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
+        // ============================================================
 
-        window.showToast = function (message, type = 'success') {
-          const t = document.createElement('div');
-          t.className = `toast ${type === 'error' ? 'toast-error' : (type === 'warning' ? 'toast-warning' : '')}`;
-          t.innerHTML = `<span>${type === 'error' ? '❌' : (type === 'warning' ? '⚠️' : '✅')}</span> ${message}`;
-          document.body.appendChild(t);
-          setTimeout(() => t.remove(), 3000);
-        };
+        // Variable to store all marks data for transcript calculation
+        let allMarksData = [];
+        let allAssessmentsData = [];
 
-        window.closeModal = function (id) {
-          document.getElementById(id).style.display = 'none';
-        };
+        // Initialize transcripts system
+        async function initTranscriptsSystem() {
+          try {
+            // Load assessments and marks from Firebase
+            const assessmentsSnapshot = await get(ref(db, 'Institution/ Revival/Assessments'));
+            const marksSnapshot = await get(ref(db, 'Institution/ Revival/Marks'));
 
-        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function (e) {
-          if (e.target === this) this.style.display = 'none';
-        }));
+            allAssessmentsData = assessmentsSnapshot.exists() ? Object.values(assessmentsSnapshot.val()) : [];
+            allMarksData = marksSnapshot.exists() ? Object.values(marksSnapshot.val()) : [];
 
-        window.refreshDashboard = function () {
-          syncStudentsFromCache();
-          renderDashboard();
-          showToast('Dashboard refreshed');
-        };
-
-        function refreshAll() {
-          syncStudentsFromCache();
-          renderDashboard();
-          renderAssessments();
-          populateFilters();
-        }
-
-        window.__refreshAssessmentUI = refreshAll;
-
-        if (refreshBtn) {
-          refreshBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            window.refreshUIFromFirebase();
-          });
-        }
-
-        // ---------- EXPORT BULK MARKS TO EXCEL ----------
-        window.exportBulkMarksToExcel = function () {
-          const aId = document.getElementById('bulk-assessment').value;
-
-          if (!aId) {
-            showToast('Please select an assessment first', 'error');
-            return;
-          }
-
-          const assessment = assessments.find(a => a.id === aId);
-          if (!assessment) {
-            showToast('Assessment not found', 'error');
-            return;
-          }
-
-          const gradeStudents = students.filter(s => s.grade === assessment.grade);
-
-          if (gradeStudents.length === 0) {
-            showToast('No students found for this grade', 'error');
-            return;
-          }
-
-          let csv = '\uFEFF';
-
-          csv += 'Student ID,Student Name,Class';
-          assessment.subjects.forEach(subject => {
-            csv += `,${subject}`;
-          });
-          csv += ',Average\n';
-
-          gradeStudents.forEach(student => {
-            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
-
-            const escapeCSV = (field) => {
-              if (field === null || field === undefined) return '';
-              const str = String(field);
-              if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                return `"${str.replace(/"/g, '""')}"`;
-              }
-              return str;
-            };
-
-            csv += `${escapeCSV(student.id)},${escapeCSV(student.name)},${escapeCSV(displayClass)}`;
-
-            let total = 0;
-            assessment.subjects.forEach(subject => {
-              const markRecord = marks.find(m =>
-                m.assessmentId === aId &&
-                m.studentId === student.id &&
-                m.subject === subject
-              );
-              const markValue = markRecord ? markRecord.marks : 0;
-              total += markValue;
-              csv += `,${markValue}`;
+            console.log('Transcripts system initialized:', {
+              assessments: allAssessmentsData.length,
+              marks: allMarksData.length
             });
+          } catch (error) {
+            console.error('Error initializing transcripts system:', error);
+          }
+        }
 
-            const average = (total / assessment.subjects.length).toFixed(1);
-            csv += `,${average}\n`;
+        // Toggle collapsible section (accordion behavior)
+        window.toggleCollapsible = function (header) {
+          const section = header.closest('.collapsible-section');
+          const container = section.parentElement;
+          const isCurrentlyCollapsed = section.classList.contains('collapsed');
+
+          // Close all sections
+          const allSections = container.querySelectorAll('.collapsible-section');
+          allSections.forEach(sec => {
+            sec.classList.add('collapsed');
+            const icon = sec.querySelector('.collapsible-icon');
+            if (icon) icon.textContent = '▶';
           });
 
-          csv += `\nAssessment: ${assessment.name}`;
-          csv += `\nGrade: ${assessment.grade}`;
-          csv += `\nDate Exported: ${new Date().toLocaleString()}`;
-          csv += `\nTotal Students: ${gradeStudents.length}`;
-
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob);
-
-          link.setAttribute('href', url);
-          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_marks_${new Date().toISOString().split('T')[0]}.csv`);
-          link.style.visibility = 'hidden';
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          URL.revokeObjectURL(url);
-          showToast('Bulk marks exported successfully');
+          // If the clicked section was collapsed, open it
+          if (isCurrentlyCollapsed) {
+            section.classList.remove('collapsed');
+            const icon = section.querySelector('.collapsible-icon');
+            if (icon) icon.textContent = '▼';
+          }
         };
 
+        // Load transcripts for a specific student
+        async function loadStudentTranscripts(admissionNumber) {
+          const container = document.getElementById('termTranscriptsContainer');
 
+          if (!container) return;
 
-
-
-
-
-        // Alternative: Export using XLSX format (if you want true Excel format)
-        window.exportBulkMarksToXLSX = function () {
-          const aId = document.getElementById('bulk-assessment').value;
-
-          if (!aId) {
-            showToast('Please select an assessment first', 'error');
-            return;
-          }
-
-          const assessment = assessments.find(a => a.id === aId);
-          if (!assessment) {
-            showToast('Assessment not found', 'error');
-            return;
-          }
-
-          const gradeStudents = students.filter(s => s.grade === assessment.grade);
-
-          if (gradeStudents.length === 0) {
-            showToast('No students found for this grade', 'error');
-            return;
-          }
-
-          let tableHTML = '<table border="1">';
-
-          tableHTML += '<thead><tr>';
-          tableHTML += '<th>Student ID</th><th>Student Name</th><th>Class</th>';
-          assessment.subjects.forEach(subject => {
-            tableHTML += `<th>${subject}</th>`;
-          });
-          tableHTML += '<th>Average</th>';
-          tableHTML += '</tr></thead><tbody>';
-
-          gradeStudents.forEach(student => {
-            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
-
-            tableHTML += '<tr>';
-            tableHTML += `<td>${student.id}</td>`;
-            tableHTML += `<td>${student.name}</td>`;
-            tableHTML += `<td>${displayClass}</td>`;
-
-            let total = 0;
-            assessment.subjects.forEach(subject => {
-              const markRecord = marks.find(m =>
-                m.assessmentId === aId &&
-                m.studentId === student.id &&
-                m.subject === subject
-              );
-              const markValue = markRecord ? markRecord.marks : 0;
-              total += markValue;
-              tableHTML += `<td>${markValue}</td>`;
-            });
-
-            const average = (total / assessment.subjects.length).toFixed(1);
-            tableHTML += `<td>${average}</td>`;
-            tableHTML += '</tr>';
-          });
-
-          tableHTML += '</tbody></table>';
-
-          const excelContent = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-                  xmlns:x="urn:schemas-microsoft-com:office:excel" 
-                  xmlns="http://www.w3.org/TR/REC-html40">
-              <head>
-                <meta charset="UTF-8">
-                <!--[if gte mso 9]>
-                <xml>
-                  <x:ExcelWorkbook>
-                    <x:ExcelWorksheets>
-                      <x:ExcelWorksheet>
-                        <x:Name>${assessment.name}</x:Name>
-                        <x:WorksheetOptions>
-                          <x:DisplayGridlines/>
-                        </x:WorksheetOptions>
-                      </x:ExcelWorksheet>
-                    </x:ExcelWorksheets>
-                  </x:ExcelWorkbook>
-                </xml>
-                <![endif]-->
-                <style>
-                  table { border-collapse: collapse; }
-                  th, td { padding: 5px; text-align: left; }
-                  th { background-color: #f0f0f0; font-weight: bold; }
-                </style>
-              </head>
-              <body>
-                <h3>${assessment.name} - Marks Report</h3>
-                <p>Grade: ${assessment.grade} | Date: ${new Date().toLocaleDateString()}</p>
-                ${tableHTML}
-              </body>
-            </html>
-          `;
-
-          const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob);
-
-          link.setAttribute('href', url);
-          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_marks_${new Date().toISOString().split('T')[0]}.xls`);
-          link.style.visibility = 'hidden';
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          URL.revokeObjectURL(url);
-          showToast('Bulk marks exported to Excel successfully');
-        };
-
-        // ---------- IMPORT BULK MARKS (NO AUTO-SAVE) ----------
-        window.importBulkMarksFromExcel = function () {
-          const aId = document.getElementById('bulk-assessment').value;
-
-          if (!aId) {
-            showToast('Please select an assessment first', 'error');
-            return;
-          }
-
-          const assessment = assessments.find(a => a.id === aId);
-          if (!assessment) {
-            showToast('Assessment not found', 'error');
-            return;
-          }
-
-          const fileInput = document.createElement('input');
-          fileInput.type = 'file';
-          fileInput.accept = '.csv,.xls,.xlsx';
-
-          fileInput.onchange = function (event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-
-            reader.onload = async function (e) {
-              const content = e.target.result;
-
-              if (file.name.endsWith('.csv')) {
-                await parseCSVAndImport(content, assessment);
-              } else {
-                await parseExcelAndImport(content, assessment);
-              }
-
-              // ✅ NO AUTO-SAVE HERE - User must click "Save Marks" manually
-              // The marks are only updated in local memory and UI
-            };
-
-            reader.readAsText(file, 'UTF-8');
-          };
-
-          fileInput.click();
-        };
-
-        async function parseCSVAndImport(content, assessment) {
-          const lines = content.split('\n');
-          let importCount = 0;
-          let errorCount = 0;
-          const errors = [];
-
-          let headerIndex = -1;
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes('Student ID')) {
-              headerIndex = i;
-              break;
-            }
-          }
-
-          if (headerIndex === -1) {
-            showToast('Invalid file format. Missing header row.', 'error');
-            return;
-          }
-
-          const headerLine = parseCSVLine(lines[headerIndex]);
-          const subjectColumns = [];
-
-          headerLine.forEach((header, index) => {
-            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
-            if (index > 2 && header.trim().toLowerCase() !== 'average') {
-              subjectColumns.push({
-                index: index,
-                subject: header.trim()
-              });
-            }
-          });
-
-          if (subjectColumns.length === 0) {
-            showToast('No subject columns found in file', 'error');
-            return;
-          }
-
-          for (let i = headerIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            const rowData = parseCSVLine(line);
-
-            if (rowData.length < 3) continue;
-
-            const studentId = rowData[0].trim();
-            const studentName = rowData[1].trim();
-
-            let student = students.find(s => s.id === studentId);
-            if (!student && studentName) {
-              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
-            }
-
-            if (!student) {
-              errorCount++;
-              if (errors.length < 5) {
-                errors.push(`Student not found: ${studentId} - ${studentName}`);
-              }
-              continue;
-            }
-
-            subjectColumns.forEach(subjectCol => {
-              const subjectName = subjectCol.subject;
-              const markValue = parseFloat(rowData[subjectCol.index]);
-
-              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
-                const existingIndex = marks.findIndex(m =>
-                  m.assessmentId === assessment.id &&
-                  m.studentId === student.id &&
-                  m.subject === subjectName
-                );
-
-                if (existingIndex >= 0) {
-                  marks[existingIndex].marks = markValue;
-                } else {
-                  marks.push({
-                    assessmentId: assessment.id,
-                    studentId: student.id,
-                    subject: subjectName,
-                    marks: markValue
-                  });
-                }
-                importCount++;
-              } else if (!isNaN(markValue) && markValue !== 0) {
-                errorCount++;
-                if (errors.length < 5) {
-                  errors.push(`Invalid mark ${markValue} for ${student.name} - ${subjectName}`);
-                }
-              }
-            });
-          }
-
-          if (importCount > 0) {
-            // ✅ Updated message to indicate manual save is required
-            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
-            renderBulkMarks();
-            renderMarksTable();
-            renderDashboard();
-          }
-
-          if (errorCount > 0) {
-            const errorMessage = errors.join('\n');
-            showToast(`${errorCount} errors occurred. ${errors.length > 0 ? errorMessage : ''}`, 'warning');
-          }
-        }
-
-        async function parseExcelAndImport(content, assessment) {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = content;
-
-          const tables = tempDiv.querySelectorAll('table');
-          if (tables.length === 0) {
-            showToast('No table data found in file', 'error');
-            return;
-          }
-
-          const table = tables[0];
-          const rows = table.querySelectorAll('tr');
-
-          if (rows.length < 2) {
-            showToast('Not enough data in file', 'error');
-            return;
-          }
-
-          let importCount = 0;
-          let errorCount = 0;
-          const errors = [];
-
-          const headerRow = rows[0];
-          const headerCells = headerRow.querySelectorAll('th, td');
-          const subjectColumns = [];
-
-          headerCells.forEach((cell, index) => {
-            const headerText = cell.textContent.trim();
-            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
-            if (index > 2 && headerText.toLowerCase() !== 'average') {
-              subjectColumns.push({
-                index: index,
-                subject: headerText
-              });
-            }
-          });
-
-          if (subjectColumns.length === 0) {
-            showToast('No subject columns found in file', 'error');
-            return;
-          }
-
-          for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].querySelectorAll('td');
-            if (cells.length < 3) continue;
-
-            const studentId = cells[0].textContent.trim();
-            const studentName = cells[1].textContent.trim();
-
-            let student = students.find(s => s.id === studentId);
-            if (!student && studentName) {
-              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
-            }
-
-            if (!student) {
-              errorCount++;
-              if (errors.length < 5) {
-                errors.push(`Student not found: ${studentId} - ${studentName}`);
-              }
-              continue;
-            }
-
-            subjectColumns.forEach(subjectCol => {
-              const subjectName = subjectCol.subject;
-              const markValue = parseFloat(cells[subjectCol.index]?.textContent.trim());
-
-              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
-                const existingIndex = marks.findIndex(m =>
-                  m.assessmentId === assessment.id &&
-                  m.studentId === student.id &&
-                  m.subject === subjectName
-                );
-
-                if (existingIndex >= 0) {
-                  marks[existingIndex].marks = markValue;
-                } else {
-                  marks.push({
-                    assessmentId: assessment.id,
-                    studentId: student.id,
-                    subject: subjectName,
-                    marks: markValue
-                  });
-                }
-                importCount++;
-              }
-            });
-          }
-
-          if (importCount > 0) {
-            // ✅ Updated message to indicate manual save is required
-            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
-            renderBulkMarks();
-            renderMarksTable();
-            renderDashboard();
-          }
-
-          if (errorCount > 0) {
-            showToast(`${errorCount} errors occurred during import`, 'warning');
-          }
-        }
-
-        function parseCSVLine(line) {
-          const result = [];
-          let current = '';
-          let inQuotes = false;
-
-          for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-
-            if (char === '"') {
-              if (inQuotes && line[i + 1] === '"') {
-                current += '"';
-                i++;
-              } else {
-                inQuotes = !inQuotes;
-              }
-            } else if (char === ',' && !inQuotes) {
-              result.push(current);
-              current = '';
-            } else {
-              current += char;
-            }
-          }
-
-          result.push(current);
-
-          return result;
-        }
-
-        window.downloadImportTemplate = function () {
-          const aId = document.getElementById('bulk-assessment').value;
-
-          if (!aId) {
-            showToast('Please select an assessment first', 'error');
-            return;
-          }
-
-          const assessment = assessments.find(a => a.id === aId);
-          if (!assessment) {
-            showToast('Assessment not found', 'error');
-            return;
-          }
-
-          const gradeStudents = students.filter(s => s.grade === assessment.grade);
-
-          let csv = '\uFEFF';
-          csv += 'Student ID,Student Name,Class';
-          assessment.subjects.forEach(subject => {
-            csv += `,${subject}`;
-          });
-          csv += ',Average\n';
-
-          gradeStudents.forEach(student => {
-            const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
-            csv += `${student.id},${student.name},${displayClass}`;
-
-            assessment.subjects.forEach(() => {
-              csv += ',';
-            });
-
-            csv += ',\n';
-          });
-
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob);
-
-          link.setAttribute('href', url);
-          link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_template.csv`);
-          link.style.visibility = 'hidden';
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          URL.revokeObjectURL(url);
-          showToast('Import template downloaded successfully');
-        };
-
-        // Init
-        initializeSystem();
-      })();
-
-
-
-
-      // ============================================================
-      // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
-      // ============================================================
-
-      // Variable to store all marks data for transcript calculation
-      let allMarksData = [];
-      let allAssessmentsData = [];
-
-      // Initialize transcripts system
-      async function initTranscriptsSystem() {
-        try {
-          // Load assessments and marks from Firebase
-          const assessmentsSnapshot = await get(ref(db, 'Institution/ Revival/Assessments'));
-          const marksSnapshot = await get(ref(db, 'Institution/ Revival/Marks'));
-
-          allAssessmentsData = assessmentsSnapshot.exists() ? Object.values(assessmentsSnapshot.val()) : [];
-          allMarksData = marksSnapshot.exists() ? Object.values(marksSnapshot.val()) : [];
-
-          console.log('Transcripts system initialized:', {
-            assessments: allAssessmentsData.length,
-            marks: allMarksData.length
-          });
-        } catch (error) {
-          console.error('Error initializing transcripts system:', error);
-        }
-      }
-
-      // Toggle collapsible section (accordion behavior)
-      window.toggleCollapsible = function (header) {
-        const section = header.closest('.collapsible-section');
-        const container = section.parentElement;
-        const isCurrentlyCollapsed = section.classList.contains('collapsed');
-
-        // Close all sections
-        const allSections = container.querySelectorAll('.collapsible-section');
-        allSections.forEach(sec => {
-          sec.classList.add('collapsed');
-          const icon = sec.querySelector('.collapsible-icon');
-          if (icon) icon.textContent = '▶';
-        });
-
-        // If the clicked section was collapsed, open it
-        if (isCurrentlyCollapsed) {
-          section.classList.remove('collapsed');
-          const icon = section.querySelector('.collapsible-icon');
-          if (icon) icon.textContent = '▼';
-        }
-      };
-
-      // Load transcripts for a specific student
-      async function loadStudentTranscripts(admissionNumber) {
-        const container = document.getElementById('termTranscriptsContainer');
-
-        if (!container) return;
-
-        // Show loading state
-        container.innerHTML = `
+          // Show loading state
+          container.innerHTML = `
           <div class="loading-spinner">
             <i class="fas fa-spinner"></i>
             <p>Loading transcripts...</p>
           </div>
         `;
 
-        try {
-          // Ensure we have the latest data
-          await initTranscriptsSystem();
+          try {
+            // Ensure we have the latest data
+            await initTranscriptsSystem();
 
-          // Get student's marks
-          const studentMarks = allMarksData.filter(mark =>
-            mark.studentId === admissionNumber ||
-            mark.studentId === admissionNumber.replace(/-/g, '/')
-          );
+            // Get student's marks
+            const studentMarks = allMarksData.filter(mark =>
+              mark.studentId === admissionNumber ||
+              mark.studentId === admissionNumber.replace(/-/g, '/')
+            );
 
-          if (studentMarks.length === 0) {
-            container.innerHTML = `
+            if (studentMarks.length === 0) {
+              container.innerHTML = `
         <div class="transcript-empty">
           <i class="fas fa-file-alt"></i>
           <p>No assessment records found for this student</p>
         </div>
       `;
-            return;
-          }
-
-          // Get all unique assessment IDs from student marks
-          const assessmentIds = [...new Set(studentMarks.map(mark => mark.assessmentId))];
-
-          // Get assessments for these IDs
-          const studentAssessments = allAssessmentsData.filter(assessment =>
-            assessmentIds.includes(assessment.id)
-          );
-
-          // Group assessments by term
-          const termsMap = {};
-
-          studentAssessments.forEach(assessment => {
-            const term = assessment.term || 'Unknown Term';
-
-            if (!termsMap[term]) {
-              termsMap[term] = [];
+              return;
             }
 
-            termsMap[term].push({
-              assessment: assessment,
-              marks: studentMarks.filter(mark => mark.assessmentId === assessment.id)
-            });
-          });
+            // Get all unique assessment IDs from student marks
+            const assessmentIds = [...new Set(studentMarks.map(mark => mark.assessmentId))];
 
-          // Sort terms
-          const sortedTerms = Object.keys(termsMap).sort((a, b) => {
-            const termOrder = { 'Term1': 1, 'Term2': 2, 'Term3': 3, 'Term1_2026': 1, 'Term2_2026': 2, 'Term3_2026': 3 };
-            return (termOrder[a] || 99) - (termOrder[b] || 99);
-          });
+            // Get assessments for these IDs
+            const studentAssessments = allAssessmentsData.filter(assessment =>
+              assessmentIds.includes(assessment.id)
+            );
 
-          // Build HTML for each term
-          let html = '';
+            // Group assessments by term
+            const termsMap = {};
 
-          sortedTerms.forEach((term, termIndex) => {
-            const termData = termsMap[term];
-            const isLast = termIndex === sortedTerms.length - 1; // Check if this is the last term
-            const isCollapsed = !isLast; // All except the last one should be collapsed
+            studentAssessments.forEach(assessment => {
+              const term = assessment.term || 'Unknown Term';
 
-            // Calculate term statistics
-            let totalMarks = 0;
-            let totalMaxMarks = 0;
+              if (!termsMap[term]) {
+                termsMap[term] = [];
+              }
 
-            termData.forEach(item => {
-              item.marks.forEach(mark => {
-                totalMarks += parseFloat(mark.marks) || 0;
-                totalMaxMarks += parseFloat(item.assessment?.maxMarks) || 100;
+              termsMap[term].push({
+                assessment: assessment,
+                marks: studentMarks.filter(mark => mark.assessmentId === assessment.id)
               });
             });
 
-            const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
-            const grade = average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'F';
+            // Sort terms
+            const sortedTerms = Object.keys(termsMap).sort((a, b) => {
+              const termOrder = { 'Term1': 1, 'Term2': 2, 'Term3': 3, 'Term1_2026': 1, 'Term2_2026': 2, 'Term3_2026': 3 };
+              return (termOrder[a] || 99) - (termOrder[b] || 99);
+            });
 
-            // Build rows for assessments
-            let assessmentRows = '';
+            // Build HTML for each term
+            let html = '';
 
-            termData.forEach(item => {
-              const assessment = item.assessment;
-              const marks = item.marks;
+            sortedTerms.forEach((term, termIndex) => {
+              const termData = termsMap[term];
+              const isLast = termIndex === sortedTerms.length - 1; // Check if this is the last term
+              const isCollapsed = !isLast; // All except the last one should be collapsed
 
-              // Current student's assessment average
-              const assessmentTotal = marks.reduce(
-                (sum, m) => sum + (parseFloat(m.marks) || 0),
-                0
-              );
+              // Calculate term statistics
+              let totalMarks = 0;
+              let totalMaxMarks = 0;
 
-              const assessmentAvg = marks.length > 0
-                ? (assessmentTotal / marks.length).toFixed(1)
-                : '0';
-
-              // ==========================================
-              // RANK STUDENTS BY THEIR ASSESSMENT AVERAGE
-              // ==========================================
-
-              const studentAssessmentTotals = {};
-
-              allMarksData
-                .filter(mark => mark.assessmentId === assessment.id)
-                .forEach(mark => {
-                  const studentId = String(mark.studentId).replace(/-/g, '/');
-
-                  if (!studentAssessmentTotals[studentId]) {
-                    studentAssessmentTotals[studentId] = {
-                      total: 0,
-                      count: 0
-                    };
-                  }
-
-                  studentAssessmentTotals[studentId].total +=
-                    parseFloat(mark.marks) || 0;
-
-                  studentAssessmentTotals[studentId].count++;
+              termData.forEach(item => {
+                item.marks.forEach(mark => {
+                  totalMarks += parseFloat(mark.marks) || 0;
+                  totalMaxMarks += parseFloat(item.assessment?.maxMarks) || 100;
                 });
+              });
 
-              // Calculate average for every student
-              const rankedStudents = Object.entries(studentAssessmentTotals)
-                .map(([studentId, data]) => ({
-                  studentId,
-                  average: data.count > 0
-                    ? data.total / data.count
-                    : 0
-                }))
-                .sort((a, b) => b.average - a.average);
+              const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
+              const grade = average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'F';
 
-              // Current student's admission number
-              const currentStudentId =
-                String(admissionNumber).replace(/-/g, '/');
+              // Build rows for assessments
+              let assessmentRows = '';
 
-              // Find current student's rank
-              const studentRankIndex = rankedStudents.findIndex(
-                student => student.studentId === currentStudentId
-              );
+              termData.forEach(item => {
+                const assessment = item.assessment;
+                const marks = item.marks;
 
-              const assessmentRank = studentRankIndex >= 0
-                ? `${studentRankIndex + 1}/${rankedStudents.length}`
-                : '—';
+                // Current student's assessment average
+                const assessmentTotal = marks.reduce(
+                  (sum, m) => sum + (parseFloat(m.marks) || 0),
+                  0
+                );
 
-              // ==========================================
-              // BUILD ASSESSMENT ROW
-              // ==========================================
+                const assessmentAvg = marks.length > 0
+                  ? (assessmentTotal / marks.length).toFixed(1)
+                  : '0';
 
-              assessmentRows += `
+                // ==========================================
+                // RANK STUDENTS BY THEIR ASSESSMENT AVERAGE
+                // ==========================================
+
+                const studentAssessmentTotals = {};
+
+                allMarksData
+                  .filter(mark => mark.assessmentId === assessment.id)
+                  .forEach(mark => {
+                    const studentId = String(mark.studentId).replace(/-/g, '/');
+
+                    if (!studentAssessmentTotals[studentId]) {
+                      studentAssessmentTotals[studentId] = {
+                        total: 0,
+                        count: 0
+                      };
+                    }
+
+                    studentAssessmentTotals[studentId].total +=
+                      parseFloat(mark.marks) || 0;
+
+                    studentAssessmentTotals[studentId].count++;
+                  });
+
+                // Calculate average for every student
+                const rankedStudents = Object.entries(studentAssessmentTotals)
+                  .map(([studentId, data]) => ({
+                    studentId,
+                    average: data.count > 0
+                      ? data.total / data.count
+                      : 0
+                  }))
+                  .sort((a, b) => b.average - a.average);
+
+                // Current student's admission number
+                const currentStudentId =
+                  String(admissionNumber).replace(/-/g, '/');
+
+                // Find current student's rank
+                const studentRankIndex = rankedStudents.findIndex(
+                  student => student.studentId === currentStudentId
+                );
+
+                const assessmentRank = studentRankIndex >= 0
+                  ? `${studentRankIndex + 1}/${rankedStudents.length}`
+                  : '—';
+
+                // ==========================================
+                // BUILD ASSESSMENT ROW
+                // ==========================================
+
+                assessmentRows += `
           <tr>
             <td><strong>${assessment.name}</strong></td>
             <td>${assessment.id}</td>
@@ -9107,160 +8534,160 @@
             </td>
           </tr>
         `;
-            });
-
-            // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
-
-            // Build subject map
-            const subjectMap = {};
-
-            termData.forEach(item => {
-              const assessment = item.assessment;
-
-              item.marks.forEach(mark => {
-                if (!subjectMap[mark.subject]) {
-                  subjectMap[mark.subject] = {
-                    assessments: {},
-                    total: 0,
-                    count: 0,
-                    max: 0
-                  };
-                }
-
-                subjectMap[mark.subject].assessments[assessment.id] = {
-                  assessmentName: assessment.name,
-                  marks: parseFloat(mark.marks) || 0,
-                  maxMarks: parseFloat(assessment.maxMarks) || 100
-                };
-
-                subjectMap[mark.subject].total += parseFloat(mark.marks) || 0;
-                subjectMap[mark.subject].count++;
-                subjectMap[mark.subject].max += parseFloat(assessment.maxMarks) || 100;
               });
-            });
 
-            // Get all unique assessment IDs for this term
-            const allTermAssessmentIds = [...new Set(termData.flatMap(item =>
-              item.marks.map(m => m.assessmentId)
-            ))];
+              // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
 
-            // Build the assessment header columns
-            let assessmentHeaders = '';
-            allTermAssessmentIds.forEach(assessmentId => {
-              const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
-              if (assessment) {
-                const shortName = assessment.name.length > 15 ?
-                  assessment.name.substring(0, 12) + '...' :
-                  assessment.name;
-                assessmentHeaders += `<th title="${assessment.name}">${shortName}</th>`;
-              }
-            });
+              // Build subject map
+              const subjectMap = {};
 
-            // Calculate ranks for each subject
-            const subjectRanks = {};
-            const allStudentsForTerm = {};
+              termData.forEach(item => {
+                const assessment = item.assessment;
 
-            // Fetch all students from cache
-            if (typeof studentsCache !== 'undefined') {
-              Object.entries(studentsCache).forEach(([key, student]) => {
-                const studentId = student.admissionNumber || key.replace(/-/g, '/');
+                item.marks.forEach(mark => {
+                  if (!subjectMap[mark.subject]) {
+                    subjectMap[mark.subject] = {
+                      assessments: {},
+                      total: 0,
+                      count: 0,
+                      max: 0
+                    };
+                  }
 
-                // Get this student's marks for this term
-                const termAssessmentIds = termData.map(item => item.assessment.id);
+                  subjectMap[mark.subject].assessments[assessment.id] = {
+                    assessmentName: assessment.name,
+                    marks: parseFloat(mark.marks) || 0,
+                    maxMarks: parseFloat(assessment.maxMarks) || 100
+                  };
 
-                const studentSubjectMarks = {};
+                  subjectMap[mark.subject].total += parseFloat(mark.marks) || 0;
+                  subjectMap[mark.subject].count++;
+                  subjectMap[mark.subject].max += parseFloat(assessment.maxMarks) || 100;
+                });
+              });
 
-                allMarksData.forEach(mark => {
-                  if (
-                    (mark.studentId === studentId || mark.studentId === key) &&
-                    termAssessmentIds.includes(mark.assessmentId)
-                  ) {
-                    if (!studentSubjectMarks[mark.subject]) {
-                      studentSubjectMarks[mark.subject] = { total: 0, count: 0, max: 0 };
+              // Get all unique assessment IDs for this term
+              const allTermAssessmentIds = [...new Set(termData.flatMap(item =>
+                item.marks.map(m => m.assessmentId)
+              ))];
+
+              // Build the assessment header columns
+              let assessmentHeaders = '';
+              allTermAssessmentIds.forEach(assessmentId => {
+                const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
+                if (assessment) {
+                  const shortName = assessment.name.length > 15 ?
+                    assessment.name.substring(0, 12) + '...' :
+                    assessment.name;
+                  assessmentHeaders += `<th title="${assessment.name}">${shortName}</th>`;
+                }
+              });
+
+              // Calculate ranks for each subject
+              const subjectRanks = {};
+              const allStudentsForTerm = {};
+
+              // Fetch all students from cache
+              if (typeof studentsCache !== 'undefined') {
+                Object.entries(studentsCache).forEach(([key, student]) => {
+                  const studentId = student.admissionNumber || key.replace(/-/g, '/');
+
+                  // Get this student's marks for this term
+                  const termAssessmentIds = termData.map(item => item.assessment.id);
+
+                  const studentSubjectMarks = {};
+
+                  allMarksData.forEach(mark => {
+                    if (
+                      (mark.studentId === studentId || mark.studentId === key) &&
+                      termAssessmentIds.includes(mark.assessmentId)
+                    ) {
+                      if (!studentSubjectMarks[mark.subject]) {
+                        studentSubjectMarks[mark.subject] = { total: 0, count: 0, max: 0 };
+                      }
+
+                      const assessment = allAssessmentsData.find(a => a.id === mark.assessmentId);
+                      const maxMarks = assessment ? parseFloat(assessment.maxMarks) || 100 : 100;
+
+                      studentSubjectMarks[mark.subject].total += parseFloat(mark.marks) || 0;
+                      studentSubjectMarks[mark.subject].count++;
+                      studentSubjectMarks[mark.subject].max += maxMarks;
+                    }
+                  });
+
+                  // Calculate averages for each subject
+                  Object.entries(studentSubjectMarks).forEach(([subject, data]) => {
+                    const avg = data.max > 0 ? (data.total / data.max * 100) : 0;
+
+                    if (!allStudentsForTerm[subject]) {
+                      allStudentsForTerm[subject] = [];
                     }
 
-                    const assessment = allAssessmentsData.find(a => a.id === mark.assessmentId);
-                    const maxMarks = assessment ? parseFloat(assessment.maxMarks) || 100 : 100;
-
-                    studentSubjectMarks[mark.subject].total += parseFloat(mark.marks) || 0;
-                    studentSubjectMarks[mark.subject].count++;
-                    studentSubjectMarks[mark.subject].max += maxMarks;
-                  }
-                });
-
-                // Calculate averages for each subject
-                Object.entries(studentSubjectMarks).forEach(([subject, data]) => {
-                  const avg = data.max > 0 ? (data.total / data.max * 100) : 0;
-
-                  if (!allStudentsForTerm[subject]) {
-                    allStudentsForTerm[subject] = [];
-                  }
-
-                  allStudentsForTerm[subject].push({
-                    studentId: studentId,
-                    name: student.name || 'Unknown',
-                    average: avg,
-                    total: data.total,
-                    max: data.max
+                    allStudentsForTerm[subject].push({
+                      studentId: studentId,
+                      name: student.name || 'Unknown',
+                      average: avg,
+                      total: data.total,
+                      max: data.max
+                    });
                   });
                 });
-              });
 
-              // Calculate ranks
-              Object.entries(allStudentsForTerm).forEach(([subject, students]) => {
-                students.sort((a, b) => b.average - a.average);
+                // Calculate ranks
+                Object.entries(allStudentsForTerm).forEach(([subject, students]) => {
+                  students.sort((a, b) => b.average - a.average);
 
-                students.forEach((student, index) => {
-                  if (!subjectRanks[subject]) {
-                    subjectRanks[subject] = {};
-                  }
-                  subjectRanks[subject][student.studentId] = index + 1;
+                  students.forEach((student, index) => {
+                    if (!subjectRanks[subject]) {
+                      subjectRanks[subject] = {};
+                    }
+                    subjectRanks[subject][student.studentId] = index + 1;
+                  });
                 });
-              });
-            }
+              }
 
-            // Build subject rows with individual marks and ranks
-            let subjectRows = '';
+              // Build subject rows with individual marks and ranks
+              let subjectRows = '';
 
-            Object.entries(subjectMap).forEach(([subject, data]) => {
-              const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
-              const subjectGrade = subjectAvg >= 80 ? 'A' : subjectAvg >= 70 ? 'B' : subjectAvg >= 60 ? 'C' : subjectAvg >= 50 ? 'D' : 'F';
+              Object.entries(subjectMap).forEach(([subject, data]) => {
+                const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
+                const subjectGrade = subjectAvg >= 80 ? 'A' : subjectAvg >= 70 ? 'B' : subjectAvg >= 60 ? 'C' : subjectAvg >= 50 ? 'D' : 'F';
 
-              // Get rank for this subject
-              const rank = subjectRanks[subject]?.[admissionNumber] ||
-                subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
-              const totalStudents = allStudentsForTerm[subject]?.length || 0;
+                // Get rank for this subject
+                const rank = subjectRanks[subject]?.[admissionNumber] ||
+                  subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
+                const totalStudents = allStudentsForTerm[subject]?.length || 0;
 
-              // Build individual assessment cells
-              let assessmentCells = '';
+                // Build individual assessment cells
+                let assessmentCells = '';
 
-              allTermAssessmentIds.forEach(assessmentId => {
-                const assessmentData = data.assessments[assessmentId];
+                allTermAssessmentIds.forEach(assessmentId => {
+                  const assessmentData = data.assessments[assessmentId];
 
-                if (assessmentData) {
-                  const mark = assessmentData.marks;
-                  const max = assessmentData.maxMarks;
+                  if (assessmentData) {
+                    const mark = assessmentData.marks;
+                    const max = assessmentData.maxMarks;
 
-                  assessmentCells += `
+                    assessmentCells += `
                 <td style="text-align: center;">
                   <strong>${mark}/${max}</strong>
                 </td>
               `;
-                } else {
-                  assessmentCells += `
+                  } else {
+                    assessmentCells += `
                 <td style="text-align: center; color: #9ca3af;">—</td>
               `;
+                  }
+                });
+
+                // Determine rank class
+                let rankClass = 'rank-bottom';
+                if (rank !== '—') {
+                  if (rank <= 3) rankClass = 'rank-top';
+                  else if (rank <= Math.ceil(totalStudents / 2)) rankClass = 'rank-mid';
                 }
-              });
 
-              // Determine rank class
-              let rankClass = 'rank-bottom';
-              if (rank !== '—') {
-                if (rank <= 3) rankClass = 'rank-top';
-                else if (rank <= Math.ceil(totalStudents / 2)) rankClass = 'rank-mid';
-              }
-
-              subjectRows += `
+                subjectRows += `
         <tr>
           <td><span class="subject-badge">${subject}</span></td>
           ${assessmentCells}
@@ -9279,10 +8706,10 @@
           </td>
         </tr>
       `;
-            });
+              });
 
-            // Build the collapsible section HTML
-            html += `
+              // Build the collapsible section HTML
+              html += `
     <div class="collapsible-section ${isCollapsed ? 'collapsed' : ''}">
       <button class="collapsible-header" onclick="toggleCollapsible(this)">
         <span class="collapsible-icon">${isCollapsed ? '▶' : '▼'}</span>
@@ -9359,627 +8786,627 @@
           </div>
         </div>
       `;
-          });
+            });
 
-          container.innerHTML = html;
+            container.innerHTML = html;
 
-        } catch (error) {
-          console.error('Error loading transcripts:', error);
-          container.innerHTML = `
+          } catch (error) {
+            console.error('Error loading transcripts:', error);
+            container.innerHTML = `
       <div class="transcript-empty">
         <i class="fas fa-exclamation-triangle"></i>
         <p>Error loading transcripts: ${error.message}</p>
       </div>
     `;
-        }
-      }
-
-      // Helper functions
-      function getGradeClass(marks) {
-        marks = parseFloat(marks) || 0;
-        if (marks >= 80) return 'grade-a';
-        if (marks >= 70) return 'grade-b';
-        if (marks >= 60) return 'grade-c';
-        if (marks >= 50) return 'grade-d';
-        return 'grade-f';
-      }
-
-      function getGradeLetter(marks) {
-        marks = parseFloat(marks) || 0;
-        if (marks >= 80) return 'A';
-        if (marks >= 70) return 'B';
-        if (marks >= 60) return 'C';
-        if (marks >= 50) return 'D';
-        return 'F';
-      }
-
-      function getGradeColor(grade) {
-        const colors = {
-          'A': '#065f46',
-          'B': '#075985',
-          'C': '#92400e',
-          'D': '#991b1b',
-          'F': '#7f1d1d'
-        };
-        return colors[grade] || '#1a2a3a';
-      }
-
-      // Update the double-click handler to load transcripts
-      // In your existing dblclick handler for register_Tbl, modify it to call:
-      // loadStudentTranscripts(admissionNumber);
-
-      // Also update the openDialog3 function to initialize transcripts
-      window.openDialog3 = function (admissionNumber) {
-        switchDialogTab3(0);
-        overlay3.classList.add('active');
-        setTimeout(() => {
-          closeIcon3.focus();
-        }, 50);
-        document.body.style.overflow = 'hidden';
-        closeContextMenu();
-
-        // Load transcripts if we have an admission number
-        if (admissionNumber) {
-          loadStudentTranscripts(admissionNumber);
-        }
-      };
-
-      // Initialize when page loads
-      document.addEventListener('DOMContentLoaded', function () {
-        initTranscriptsSystem();
-      });
-
-
-      // Simple function to get and send term assessment results to C#
-      async function getTermResults(admissionNo, term) {
-        try {
-          // Normalize admission number
-          const studentId = String(admissionNo);
-
-          // Get student's marks for the term
-          const termAssessments = allAssessmentsData.filter(a => a.term === term);
-          const termIds = termAssessments.map(a => a.id);
-
-          const results = allMarksData
-            .filter(m => m.studentId === studentId && termIds.includes(m.assessmentId))
-            .map(m => {
-              const assessment = termAssessments.find(a => a.id === m.assessmentId);
-              return {
-                assessmentId: m.assessmentId,
-                assessmentName: assessment?.name || 'Unknown',
-                subject: m.subject || 'General',
-                marks: m.marks,
-                maxMarks: assessment?.maxMarks || 100,
-                percentage: ((parseFloat(m.marks) / (assessment?.maxMarks || 100)) * 100).toFixed(1),
-                grade: getGradeLetter(parseFloat(m.marks))
-              };
-            });
-
-          // Calculate average
-          const totalMarks = results.reduce((sum, r) => sum + parseFloat(r.marks), 0);
-          const totalMax = results.reduce((sum, r) => sum + parseFloat(r.maxMarks), 0);
-          const average = totalMax > 0 ? ((totalMarks / totalMax) * 100).toFixed(1) : '0';
-
-          // Prepare message data
-          const messageData = {
-            action: "GET_TERM_ASSESSMENT_RESULTS",
-            Admission_No: admissionNo,
-            Term: term,
-            Average: average,
-            Grade: getGradeLetter(average),
-            TotalResults: results.length,
-            Results: results
-          };
-
-          // Send to C# only if WebView is available
-          if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
-            window.chrome.webview.postMessage(messageData);
-            console.log('Sent term results to C#:', messageData);
-          } else {
-            console.log('WebView not available. Results:', messageData);
-
-            /*
-            // Optional: Show results in browser for testing
-            alert(`Term Results for ${admissionNo} (${term}):\n\n` +
-              `Average: ${average}%\n` +
-              `Grade: ${getGradeLetter(average)}\n` +
-              `Total Assessments: ${results.length}\n\n` +
-              results.map(r => `${r.subject}: ${r.marks}/${r.maxMarks} (${r.percentage}%) - ${r.grade}`).join('\n')
-            );
-
-            */
           }
+        }
 
-          return { success: true, average, results };
+        // Helper functions
+        function getGradeClass(marks) {
+          marks = parseFloat(marks) || 0;
+          if (marks >= 80) return 'grade-a';
+          if (marks >= 70) return 'grade-b';
+          if (marks >= 60) return 'grade-c';
+          if (marks >= 50) return 'grade-d';
+          return 'grade-f';
+        }
 
-        } catch (error) {
-          console.error('Error getting term results:', error);
+        function getGradeLetter(marks) {
+          marks = parseFloat(marks) || 0;
+          if (marks >= 80) return 'A';
+          if (marks >= 70) return 'B';
+          if (marks >= 60) return 'C';
+          if (marks >= 50) return 'D';
+          return 'F';
+        }
 
-          // Send error to C# only if WebView is available
-          if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
-            window.chrome.webview.postMessage({
+        function getGradeColor(grade) {
+          const colors = {
+            'A': '#065f46',
+            'B': '#075985',
+            'C': '#92400e',
+            'D': '#991b1b',
+            'F': '#7f1d1d'
+          };
+          return colors[grade] || '#1a2a3a';
+        }
+
+        // Update the double-click handler to load transcripts
+        // In your existing dblclick handler for register_Tbl, modify it to call:
+        // loadStudentTranscripts(admissionNumber);
+
+        // Also update the openDialog3 function to initialize transcripts
+        window.openDialog3 = function (admissionNumber) {
+          switchDialogTab3(0);
+          overlay3.classList.add('active');
+          setTimeout(() => {
+            closeIcon3.focus();
+          }, 50);
+          document.body.style.overflow = 'hidden';
+          closeContextMenu();
+
+          // Load transcripts if we have an admission number
+          if (admissionNumber) {
+            loadStudentTranscripts(admissionNumber);
+          }
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+          initTranscriptsSystem();
+        });
+
+
+        // Simple function to get and send term assessment results to C#
+        async function getTermResults(admissionNo, term) {
+          try {
+            // Normalize admission number
+            const studentId = String(admissionNo);
+
+            // Get student's marks for the term
+            const termAssessments = allAssessmentsData.filter(a => a.term === term);
+            const termIds = termAssessments.map(a => a.id);
+
+            const results = allMarksData
+              .filter(m => m.studentId === studentId && termIds.includes(m.assessmentId))
+              .map(m => {
+                const assessment = termAssessments.find(a => a.id === m.assessmentId);
+                return {
+                  assessmentId: m.assessmentId,
+                  assessmentName: assessment?.name || 'Unknown',
+                  subject: m.subject || 'General',
+                  marks: m.marks,
+                  maxMarks: assessment?.maxMarks || 100,
+                  percentage: ((parseFloat(m.marks) / (assessment?.maxMarks || 100)) * 100).toFixed(1),
+                  grade: getGradeLetter(parseFloat(m.marks))
+                };
+              });
+
+            // Calculate average
+            const totalMarks = results.reduce((sum, r) => sum + parseFloat(r.marks), 0);
+            const totalMax = results.reduce((sum, r) => sum + parseFloat(r.maxMarks), 0);
+            const average = totalMax > 0 ? ((totalMarks / totalMax) * 100).toFixed(1) : '0';
+
+            // Prepare message data
+            const messageData = {
               action: "GET_TERM_ASSESSMENT_RESULTS",
               Admission_No: admissionNo,
               Term: term,
-              Error: error.message,
-              Results: []
-            });
-          }
-
-          return { success: false, error: error.message };
-        }
-      }
-
-
-      let selectedAssessmentIds = [];
-
-      document.getElementById('assessments-list').addEventListener('click', function (e) {
-
-        const card = e.target.closest('.assessment-card');
-
-        if (!card) return;
-
-        const id = card.dataset.id;
-
-        // CTRL + CLICK = Multi-select
-        if (e.ctrlKey) {
-
-          if (selectedAssessmentIds.includes(id)) {
-
-            // Deselect
-            selectedAssessmentIds =
-              selectedAssessmentIds.filter(x => x !== id);
-
-            card.classList.remove('selected');
-
-          } else {
-
-            // Add to selection
-            selectedAssessmentIds.push(id);
-
-            card.classList.add('selected');
-          }
-
-          return;
-        }
-
-
-        // NORMAL CLICK = Select only this card
-        document.querySelectorAll('.assessment-card.selected')
-          .forEach(c => c.classList.remove('selected'));
-
-        selectedAssessmentIds = [id];
-
-        card.classList.add('selected');
-
-      });
-
-
-      // Get results from the selected assessments.
-      // Selected assessments must belong to the same grade.
-      // Terms do NOT matter.
-      // Selected assessments must belong to the same grade.
-      // Selected assessments must belong to the same grade.
-
-      async function getTermResults1(admissionNo = null) {
-        try {
-          // Make sure assessments have been selected
-          if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
-            showToast('No assessments selected.', 'error');
-            throw new Error("No assessments selected.");
-          }
-
-          // Get selected assessment records
-          const selectedAssessments = allAssessmentsData.filter(a =>
-            selectedAssessmentIds.includes(String(a.id))
-          );
-
-          if (selectedAssessments.length === 0) {
-            showToast('Selected assessments were not found.', 'error');
-            return {
-              success: false,
-              error: "Selected assessments were not found."
+              Average: average,
+              Grade: getGradeLetter(average),
+              TotalResults: results.length,
+              Results: results
             };
+
+            // Send to C# only if WebView is available
+            if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+              window.chrome.webview.postMessage(messageData);
+              console.log('Sent term results to C#:', messageData);
+            } else {
+              console.log('WebView not available. Results:', messageData);
+
+              /*
+              // Optional: Show results in browser for testing
+              alert(`Term Results for ${admissionNo} (${term}):\n\n` +
+                `Average: ${average}%\n` +
+                `Grade: ${getGradeLetter(average)}\n` +
+                `Total Assessments: ${results.length}\n\n` +
+                results.map(r => `${r.subject}: ${r.marks}/${r.maxMarks} (${r.percentage}%) - ${r.grade}`).join('\n')
+              );
+  
+              */
+            }
+
+            return { success: true, average, results };
+
+          } catch (error) {
+            console.error('Error getting term results:', error);
+
+            // Send error to C# only if WebView is available
+            if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+              window.chrome.webview.postMessage({
+                action: "GET_TERM_ASSESSMENT_RESULTS",
+                Admission_No: admissionNo,
+                Term: term,
+                Error: error.message,
+                Results: []
+              });
+            }
+
+            return { success: false, error: error.message };
+          }
+        }
+
+
+        let selectedAssessmentIds = [];
+
+        document.getElementById('assessments-list').addEventListener('click', function (e) {
+
+          const card = e.target.closest('.assessment-card');
+
+          if (!card) return;
+
+          const id = card.dataset.id;
+
+          // CTRL + CLICK = Multi-select
+          if (e.ctrlKey) {
+
+            if (selectedAssessmentIds.includes(id)) {
+
+              // Deselect
+              selectedAssessmentIds =
+                selectedAssessmentIds.filter(x => x !== id);
+
+              card.classList.remove('selected');
+
+            } else {
+
+              // Add to selection
+              selectedAssessmentIds.push(id);
+
+              card.classList.add('selected');
+            }
+
+            return;
           }
 
-          // ---------------------------------------------------------
-          // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE
-          // ---------------------------------------------------------
-          const grades = [
-            ...new Set(
-              selectedAssessments
-                .map(a => String(a.grade || a.class || '').trim())
-                .filter(Boolean)
-            )
-          ];
 
-          if (grades.length > 1) {
-            showToast('Selected assessments must be from the same grade.', 'error');
-            throw new Error(
-              `Selected assessments must be from the same grade. ` +
-              `Selected grades: ${grades.join(', ')}`
-            );
-          }
+          // NORMAL CLICK = Select only this card
+          document.querySelectorAll('.assessment-card.selected')
+            .forEach(c => c.classList.remove('selected'));
 
-          const selectedGrade = grades[0] || '';
+          selectedAssessmentIds = [id];
 
-          // ---------------------------------------------------------
-          // COLLECT UNIQUE TERMS
-          // ---------------------------------------------------------
-          const terms = [
-            ...new Set(
-              selectedAssessments
-                .map(a => String(a.term || '').trim())
-                .filter(Boolean)
-            )
-          ];
+          card.classList.add('selected');
 
-          // Single term → just the term
-          // Multiple terms → "Term1-2026,Term 2-2026,..."
-          const termString = terms.length === 0
-            ? ''
-            : terms.length === 1
-              ? terms[0]
-              : terms.join(',');
+        });
 
-          // Selected assessment IDs
-          const assessmentIds = new Set(
-            selectedAssessments.map(a => String(a.id))
-          );
 
-          // ---------------------------------------------------------
-          // GET MARKS
-          // ---------------------------------------------------------
-          let marks = allMarksData.filter(m =>
-            assessmentIds.has(String(m.assessmentId))
-          );
+        // Get results from the selected assessments.
+        // Selected assessments must belong to the same grade.
+        // Terms do NOT matter.
+        // Selected assessments must belong to the same grade.
+        // Selected assessments must belong to the same grade.
 
-          // If admission number was supplied, return only that student
-          if (admissionNo) {
-            const studentId = String(admissionNo);
-            marks = marks.filter(m =>
-              String(m.studentId) === studentId
-            );
-          }
+        async function getTermResults1(admissionNo = null) {
+          try {
+            // Make sure assessments have been selected
+            if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
+              showToast('No assessments selected.', 'error');
+              throw new Error("No assessments selected.");
+            }
 
-          // ---------------------------------------------------------
-          // BUILD RESULTS
-          // ---------------------------------------------------------
-          const results = marks.map(m => {
-            const assessment = selectedAssessments.find(a =>
-              String(a.id) === String(m.assessmentId)
+            // Get selected assessment records
+            const selectedAssessments = allAssessmentsData.filter(a =>
+              selectedAssessmentIds.includes(String(a.id))
             );
 
-            const mark = parseFloat(m.marks) || 0;
-            const maxMarks = parseFloat(assessment?.maxMarks) || 100;
-
-            const percentage = maxMarks > 0
-              ? ((mark / maxMarks) * 100)
-              : 0;
-
-            return {
-              studentId: String(m.studentId),
-              name: m.studentName || m.name || m.Name || 'Unknown',   // ← Student Name
-              assessmentId: String(m.assessmentId),
-              assessmentName: assessment?.name || 'Unknown',
-              subject: m.subject || 'General',
-              grade: assessment?.grade || assessment?.class || selectedGrade,
-              term: assessment?.term || '',
-              marks: mark,
-              maxMarks: maxMarks,
-              percentage: percentage.toFixed(1),
-              markGrade: getGradeLetter(percentage)
-            };
-          });
-
-          // ---------------------------------------------------------
-          // GROUP RESULTS BY STUDENT
-          // ---------------------------------------------------------
-          const studentResults = {};
-
-          results.forEach(result => {
-            if (!studentResults[result.studentId]) {
-              studentResults[result.studentId] = {
-                Admission_No: result.studentId,
-                Name: result.name,                    // ← Student Name
-                Grade: result.grade,
-                Results: [],
-                TotalMarks: 0,
-                TotalMaxMarks: 0
+            if (selectedAssessments.length === 0) {
+              showToast('Selected assessments were not found.', 'error');
+              return {
+                success: false,
+                error: "Selected assessments were not found."
               };
             }
 
-            const student = studentResults[result.studentId];
-            student.Results.push(result);
-            student.TotalMarks += result.marks;
-            student.TotalMaxMarks += result.maxMarks;
-          });
+            // ---------------------------------------------------------
+            // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE
+            // ---------------------------------------------------------
+            const grades = [
+              ...new Set(
+                selectedAssessments
+                  .map(a => String(a.grade || a.class || '').trim())
+                  .filter(Boolean)
+              )
+            ];
 
-          // ---------------------------------------------------------
-          // CALCULATE EACH STUDENT'S AVERAGE
-          // ---------------------------------------------------------
-          const students = Object.values(studentResults).map(student => {
-            const average =
-              student.TotalMaxMarks > 0
-                ? (student.TotalMarks / student.TotalMaxMarks) * 100
+            if (grades.length > 1) {
+              showToast('Selected assessments must be from the same grade.', 'error');
+              throw new Error(
+                `Selected assessments must be from the same grade. ` +
+                `Selected grades: ${grades.join(', ')}`
+              );
+            }
+
+            const selectedGrade = grades[0] || '';
+
+            // ---------------------------------------------------------
+            // COLLECT UNIQUE TERMS
+            // ---------------------------------------------------------
+            const terms = [
+              ...new Set(
+                selectedAssessments
+                  .map(a => String(a.term || '').trim())
+                  .filter(Boolean)
+              )
+            ];
+
+            // Single term → just the term
+            // Multiple terms → "Term1-2026,Term 2-2026,..."
+            const termString = terms.length === 0
+              ? ''
+              : terms.length === 1
+                ? terms[0]
+                : terms.join(',');
+
+            // Selected assessment IDs
+            const assessmentIds = new Set(
+              selectedAssessments.map(a => String(a.id))
+            );
+
+            // ---------------------------------------------------------
+            // GET MARKS
+            // ---------------------------------------------------------
+            let marks = allMarksData.filter(m =>
+              assessmentIds.has(String(m.assessmentId))
+            );
+
+            // If admission number was supplied, return only that student
+            if (admissionNo) {
+              const studentId = String(admissionNo);
+              marks = marks.filter(m =>
+                String(m.studentId) === studentId
+              );
+            }
+
+            // ---------------------------------------------------------
+            // BUILD RESULTS
+            // ---------------------------------------------------------
+            const results = marks.map(m => {
+              const assessment = selectedAssessments.find(a =>
+                String(a.id) === String(m.assessmentId)
+              );
+
+              const mark = parseFloat(m.marks) || 0;
+              const maxMarks = parseFloat(assessment?.maxMarks) || 100;
+
+              const percentage = maxMarks > 0
+                ? ((mark / maxMarks) * 100)
                 : 0;
 
-            return {
-              Admission_No: student.Admission_No,
-              Name: getStudentName(student.Admission_No),  // ← Student Name
-              Grade: student.Grade,
-              Average: average.toFixed(1),
-              GradeLetter: getGradeLetter(average),
-              TotalResults: student.Results.length,
-              TotalMarks: student.TotalMarks,
-              TotalMaxMarks: student.TotalMaxMarks,
-              Results: student.Results
-            };
-          });
-
-          // ---------------------------------------------------------
-          // MESSAGE TO C#
-          // ---------------------------------------------------------
-          const messageData = {
-            action: "GET_TERM_ASSESSMENT_RESULTS",
-            Term: termString,
-            SelectedAssessmentIds: [...assessmentIds],
-            SelectedAssessments: selectedAssessments.map(a => ({
-              id: String(a.id),
-              name: a.name || 'Unknown',
-              grade: a.grade || a.class || selectedGrade,
-              term: a.term || '',
-              maxMarks: parseFloat(a.maxMarks) || 100
-            })),
-            SelectedGrade: selectedGrade,
-            TotalStudents: students.length,
-            Students: students,
-            Results: results
-          };
-
-          // ---------------------------------------------------------
-          // SEND TO C#
-          // ---------------------------------------------------------
-          if (
-            window.chrome &&
-            window.chrome.webview &&
-            window.chrome.webview.postMessage
-          ) {
-            window.chrome.webview.postMessage(messageData);
-            console.log('Sent selected assessment results to C#:', messageData);
-          } else {
-            console.log('WebView not available. Results:', messageData);
-          }
-
-          return {
-            success: true,
-            grade: selectedGrade,
-            assessmentIds: [...assessmentIds],
-            assessments: selectedAssessments,
-            students: students,
-            results: results
-          };
-
-        } catch (error) {
-          console.error('Error getting selected assessment results:', error);
-
-          if (
-            error.message !== "No assessments selected." &&
-            window.chrome &&
-            window.chrome.webview &&
-            window.chrome.webview.postMessage
-          ) {
-            window.chrome.webview.postMessage({
-              action: "GET_TERM_ASSESSMENT_RESULTS",
-              Error: error.message,
-              SelectedAssessmentIds: selectedAssessmentIds || [],
-              Results: [],
-              Students: []
+              return {
+                studentId: String(m.studentId),
+                name: m.studentName || m.name || m.Name || 'Unknown',   // ← Student Name
+                assessmentId: String(m.assessmentId),
+                assessmentName: assessment?.name || 'Unknown',
+                subject: m.subject || 'General',
+                grade: assessment?.grade || assessment?.class || selectedGrade,
+                term: assessment?.term || '',
+                marks: mark,
+                maxMarks: maxMarks,
+                percentage: percentage.toFixed(1),
+                markGrade: getGradeLetter(percentage)
+              };
             });
-          }
 
-          return {
-            success: false,
-            error: error.message
-          };
-        }
-      }
-      document.getElementById('ReportCardExpo').addEventListener('click', async function () {
-        await getTermResults1();
-      });
+            // ---------------------------------------------------------
+            // GROUP RESULTS BY STUDENT
+            // ---------------------------------------------------------
+            const studentResults = {};
 
+            results.forEach(result => {
+              if (!studentResults[result.studentId]) {
+                studentResults[result.studentId] = {
+                  Admission_No: result.studentId,
+                  Name: result.name,                    // ← Student Name
+                  Grade: result.grade,
+                  Results: [],
+                  TotalMarks: 0,
+                  TotalMaxMarks: 0
+                };
+              }
 
-      // When user clicks a button or selects a term
-      document.getElementById('btnViewTermResults').addEventListener('click', async function () {
-        const admissionNumber = document.getElementById('pfl_admn').textContent.trim();
+              const student = studentResults[result.studentId];
+              student.Results.push(result);
+              student.TotalMarks += result.marks;
+              student.TotalMaxMarks += result.maxMarks;
+            });
 
-        // Call the correct function name
-        await getTermResults(admissionNumber, getActiveTerm());
-      });
+            // ---------------------------------------------------------
+            // CALCULATE EACH STUDENT'S AVERAGE
+            // ---------------------------------------------------------
+            const students = Object.values(studentResults).map(student => {
+              const average =
+                student.TotalMaxMarks > 0
+                  ? (student.TotalMarks / student.TotalMaxMarks) * 100
+                  : 0;
 
+              return {
+                Admission_No: student.Admission_No,
+                Name: getStudentName(student.Admission_No),  // ← Student Name
+                Grade: student.Grade,
+                Average: average.toFixed(1),
+                GradeLetter: getGradeLetter(average),
+                TotalResults: student.Results.length,
+                TotalMarks: student.TotalMarks,
+                TotalMaxMarks: student.TotalMaxMarks,
+                Results: student.Results
+              };
+            });
 
+            // ---------------------------------------------------------
+            // MESSAGE TO C#
+            // ---------------------------------------------------------
+            const messageData = {
+              action: "GET_TERM_ASSESSMENT_RESULTS",
+              Term: termString,
+              SelectedAssessmentIds: [...assessmentIds],
+              SelectedAssessments: selectedAssessments.map(a => ({
+                id: String(a.id),
+                name: a.name || 'Unknown',
+                grade: a.grade || a.class || selectedGrade,
+                term: a.term || '',
+                maxMarks: parseFloat(a.maxMarks) || 100
+              })),
+              SelectedGrade: selectedGrade,
+              TotalStudents: students.length,
+              Students: students,
+              Results: results
+            };
 
-
-
-      // ============================================================
-      // DASHBOARD UPDATE FUNCTION
-      // Insert this into the previous script (e.g. near other UI helpers)
-      // Call it from refreshUIFromFirebase() and after initial data load
-      // ============================================================
-      function updateDashboard() {
-        // ---------- Helpers (local to keep it self-contained) ----------
-        function formatCurrency(value) {
-          if (value === null || value === undefined || value === "") return "0.00";
-          if (value === "Sponsored") return "Sponsored";
-          const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
-          if (isNaN(num)) return "0.00";
-          return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function getInitials(name) {
-          if (!name) return '?';
-          return name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
-        }
-
-        function getActiveTerm() {
-          const active = (typeof terms !== 'undefined' ? terms : []).find(
-            t => String(t.status || '').toLowerCase() === 'active'
-          );
-          return active ? active.termId : null;
-        }
-
-        function getStudentRequiredFee(admission) {
-          if (!admission || !studentsCache?.[admission]) return "0.00";
-          const student = studentsCache[admission];
-          if (!student.class) return "0.00";
-
-          const grade = String(student.class).split('-')[0].trim();
-          const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
-            t => String(t.status || '').toLowerCase() === 'active'
-          );
-          if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
-            return "0.00";
-          }
-
-          const fees = {
-            grade: parseFloat(activeTerm.grades[grade]) || 0,
-            meal: parseFloat(activeTerm.meal) || 0,
-            transport: parseFloat(activeTerm.transport) || 0,
-            boarding: parseFloat(activeTerm.boarding) || 0,
-            break: parseFloat(activeTerm.breakFee) || 0
-          };
-
-          if (/[789]/.test(grade)) {
-            fees.boarding = Math.max(0, fees.boarding - 2000);
-          }
-
-          const ex = student.Exceptions || {};
-          if (ex.Sponsored === true) return "Sponsored";
-
-          let requiredFee = fees.grade;
-          if (ex.Boarding === true) {
-            return formatCurrency(requiredFee + fees.boarding);
-          }
-
-          requiredFee += fees.transport;
-          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
-          if (ex.Break === true) requiredFee += fees.break;
-
-          return formatCurrency(requiredFee);
-        }
-
-        function getCurrentBalance(admission) {
-          if (!admission || !studentsCache?.[admission]) return "0.00";
-          const student = studentsCache[admission];
-          const gradeFee = getStudentRequiredFee(admission);
-          if (gradeFee === "Sponsored") return "Sponsored";
-          if (!student.lastPayment) return formatCurrency(gradeFee);
-
-          const balance = parseFloat(String(student.lastPayment.balance || 0).replace(/,/g, '')) || 0;
-          const activeTerm = getActiveTerm();
-
-          if (activeTerm && student.lastPayment.term !== activeTerm) {
-            return formatCurrency(balance + parseFloat(String(gradeFee).replace(/,/g, '') || 0));
-          }
-          return formatCurrency(balance);
-        }
-
-        // ✅ UPDATED: Sum only payments from the active term
-        function getTotalFeesCollected() {
-          let total = 0;
-          const activeTerm = getActiveTerm();
-          if (!paymentCache || typeof paymentCache !== 'object') return 0;
-
-          Object.values(paymentCache).forEach(p => {
-            // Only include payments from the active term
-            if (activeTerm && p.term === activeTerm) {
-              total += parseFloat(String(p.amount || 0).replace(/,/g, '')) || 0;
+            // ---------------------------------------------------------
+            // SEND TO C#
+            // ---------------------------------------------------------
+            if (
+              window.chrome &&
+              window.chrome.webview &&
+              window.chrome.webview.postMessage
+            ) {
+              window.chrome.webview.postMessage(messageData);
+              console.log('Sent selected assessment results to C#:', messageData);
+            } else {
+              console.log('WebView not available. Results:', messageData);
             }
-          });
-          return total;
-        }
 
-        function formatDateToDDMMYYYY(dateString) {
-          if (!dateString) return '—';
-          if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
-            return dateString;
+            return {
+              success: true,
+              grade: selectedGrade,
+              assessmentIds: [...assessmentIds],
+              assessments: selectedAssessments,
+              students: students,
+              results: results
+            };
+
+          } catch (error) {
+            console.error('Error getting selected assessment results:', error);
+
+            if (
+              error.message !== "No assessments selected." &&
+              window.chrome &&
+              window.chrome.webview &&
+              window.chrome.webview.postMessage
+            ) {
+              window.chrome.webview.postMessage({
+                action: "GET_TERM_ASSESSMENT_RESULTS",
+                Error: error.message,
+                SelectedAssessmentIds: selectedAssessmentIds || [],
+                Results: [],
+                Students: []
+              });
+            }
+
+            return {
+              success: false,
+              error: error.message
+            };
           }
-          const d = new Date(dateString);
-          if (isNaN(d)) return dateString;
-          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
         }
-
-        function getStudentName(admissionNumber) {
-          if (!studentsCache || !admissionNumber) return 'Unknown';
-          const key = String(admissionNumber).replace(/\//g, '-');
-          const student = studentsCache[key];
-          return student?.name || student?.studentName || 'Unknown';
-        }
-
-        // ---------- Safe DOM access ----------
-        const el = id => document.getElementById(id);
-        if (!el('statStudents')) return; // Dashboard not present on this page
-
-        // ---------- Stats ----------
-
-        // Exclude students whose class/grade is Graduate
-        const nonGraduateStudents = Object.values(studentsCache || {}).filter(
-          s => String(s.class || '').trim().toLowerCase() !== 'graduate'
-        );
-
-        // Total students excluding Graduate
-        const totalStudents = nonGraduateStudents.length;
-
-        // Active students excluding Graduate
-        const activeStudents = nonGraduateStudents.filter(
-          s => String(s.Status || '').trim().toLowerCase() !== 'inactive'
-        ).length;
+        document.getElementById('ReportCardExpo').addEventListener('click', async function () {
+          await getTermResults1();
+        });
 
 
-        // Assessments count (exposed by the assessment module if available)
-        let totalAssessments = 0;
-        if (typeof window.__getAssessmentsCount === 'function') {
-          totalAssessments = window.__getAssessmentsCount();
-        } else if (typeof assessments !== 'undefined' && Array.isArray(assessments)) {
-          totalAssessments = assessments.length;
-        }
+        // When user clicks a button or selects a term
+        document.getElementById('btnViewTermResults').addEventListener('click', async function () {
+          const admissionNumber = document.getElementById('pfl_admn').textContent.trim();
 
-        // ✅ Get total fees collected only for the active term
-        const totalFees = getTotalFeesCollected();
+          // Call the correct function name
+          await getTermResults(admissionNumber, getActiveTerm());
+        });
 
-        // Update the stat cards
-        el('statStudents').textContent = totalStudents;
-        el('statActive').textContent = activeStudents;
-        el('statFees').textContent = formatCurrency(totalFees);
-        if (el('statAssessments')) el('statAssessments').textContent = totalAssessments;
 
-        // ---------- Attendance Quick Stats ----------
-        const attendancePct = Math.min(95, 70 + Math.min(totalStudents, 25));
-        const presentCount = Math.round(totalStudents * attendancePct / 100);
-        const absentCount = Math.max(0, totalStudents - presentCount);
 
-        if (el('attendanceToday')) el('attendanceToday').textContent = `${attendancePct.toFixed(0)}%`;
-        if (el('presentCount')) el('presentCount').textContent = presentCount;
-        if (el('absentCount')) el('absentCount').textContent = absentCount;
 
-        // ---------- Recent Students Table ----------
-        const recentTableBody = el('recentStudentsTable');
-        if (recentTableBody) {
-          // Get recent students - sort by when they were last updated (using lastPayment date as proxy)
-          const recentStudents = Object.entries(studentsCache || {})
-            .sort((a, b) => {
-              const dateA = a[1].lastPayment?.entryDate || a[1].lastPayment?.paymentDate || '';
-              const dateB = b[1].lastPayment?.entryDate || b[1].lastPayment?.paymentDate || '';
-              // Simple string compare works for DD/MM/YYYY in most cases
-              return dateB.localeCompare(dateA);
-            })
-            .slice(0, 4);
 
-          recentTableBody.innerHTML = '';
-          recentStudents.forEach(([admissionNo, student]) => {
-            const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : '—';
-            const row = document.createElement('tr');
-            row.innerHTML = `
+        // ============================================================
+        // DASHBOARD UPDATE FUNCTION
+        // Insert this into the previous script (e.g. near other UI helpers)
+        // Call it from refreshUIFromFirebase() and after initial data load
+        // ============================================================
+        function updateDashboard() {
+          // ---------- Helpers (local to keep it self-contained) ----------
+          function formatCurrency(value) {
+            if (value === null || value === undefined || value === "") return "0.00";
+            if (value === "Sponsored") return "Sponsored";
+            const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
+            if (isNaN(num)) return "0.00";
+            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
+
+          function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
+          }
+
+          function getActiveTerm() {
+            const active = (typeof terms !== 'undefined' ? terms : []).find(
+              t => String(t.status || '').toLowerCase() === 'active'
+            );
+            return active ? active.termId : null;
+          }
+
+          function getStudentRequiredFee(admission) {
+            if (!admission || !studentsCache?.[admission]) return "0.00";
+            const student = studentsCache[admission];
+            if (!student.class) return "0.00";
+
+            const grade = String(student.class).split('-')[0].trim();
+            const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
+              t => String(t.status || '').toLowerCase() === 'active'
+            );
+            if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+              return "0.00";
+            }
+
+            const fees = {
+              grade: parseFloat(activeTerm.grades[grade]) || 0,
+              meal: parseFloat(activeTerm.meal) || 0,
+              transport: parseFloat(activeTerm.transport) || 0,
+              boarding: parseFloat(activeTerm.boarding) || 0,
+              break: parseFloat(activeTerm.breakFee) || 0
+            };
+
+            if (/[789]/.test(grade)) {
+              fees.boarding = Math.max(0, fees.boarding - 2000);
+            }
+
+            const ex = student.Exceptions || {};
+            if (ex.Sponsored === true) return "Sponsored";
+
+            let requiredFee = fees.grade;
+            if (ex.Boarding === true) {
+              return formatCurrency(requiredFee + fees.boarding);
+            }
+
+            requiredFee += fees.transport;
+            if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
+            if (ex.Break === true) requiredFee += fees.break;
+
+            return formatCurrency(requiredFee);
+          }
+
+          function getCurrentBalance(admission) {
+            if (!admission || !studentsCache?.[admission]) return "0.00";
+            const student = studentsCache[admission];
+            const gradeFee = getStudentRequiredFee(admission);
+            if (gradeFee === "Sponsored") return "Sponsored";
+            if (!student.lastPayment) return formatCurrency(gradeFee);
+
+            const balance = parseFloat(String(student.lastPayment.balance || 0).replace(/,/g, '')) || 0;
+            const activeTerm = getActiveTerm();
+
+            if (activeTerm && student.lastPayment.term !== activeTerm) {
+              return formatCurrency(balance + parseFloat(String(gradeFee).replace(/,/g, '') || 0));
+            }
+            return formatCurrency(balance);
+          }
+
+          // ✅ UPDATED: Sum only payments from the active term
+          function getTotalFeesCollected() {
+            let total = 0;
+            const activeTerm = getActiveTerm();
+            if (!paymentCache || typeof paymentCache !== 'object') return 0;
+
+            Object.values(paymentCache).forEach(p => {
+              // Only include payments from the active term
+              if (activeTerm && p.term === activeTerm) {
+                total += parseFloat(String(p.amount || 0).replace(/,/g, '')) || 0;
+              }
+            });
+            return total;
+          }
+
+          function formatDateToDDMMYYYY(dateString) {
+            if (!dateString) return '—';
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+              return dateString;
+            }
+            const d = new Date(dateString);
+            if (isNaN(d)) return dateString;
+            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+          }
+
+          function getStudentName(admissionNumber) {
+            if (!studentsCache || !admissionNumber) return 'Unknown';
+            const key = String(admissionNumber).replace(/\//g, '-');
+            const student = studentsCache[key];
+            return student?.name || student?.studentName || 'Unknown';
+          }
+
+          // ---------- Safe DOM access ----------
+          const el = id => document.getElementById(id);
+          if (!el('statStudents')) return; // Dashboard not present on this page
+
+          // ---------- Stats ----------
+
+          // Exclude students whose class/grade is Graduate
+          const nonGraduateStudents = Object.values(studentsCache || {}).filter(
+            s => String(s.class || '').trim().toLowerCase() !== 'graduate'
+          );
+
+          // Total students excluding Graduate
+          const totalStudents = nonGraduateStudents.length;
+
+          // Active students excluding Graduate
+          const activeStudents = nonGraduateStudents.filter(
+            s => String(s.Status || '').trim().toLowerCase() !== 'inactive'
+          ).length;
+
+
+          // Assessments count (exposed by the assessment module if available)
+          let totalAssessments = 0;
+          if (typeof window.__getAssessmentsCount === 'function') {
+            totalAssessments = window.__getAssessmentsCount();
+          } else if (typeof assessments !== 'undefined' && Array.isArray(assessments)) {
+            totalAssessments = assessments.length;
+          }
+
+          // ✅ Get total fees collected only for the active term
+          const totalFees = getTotalFeesCollected();
+
+          // Update the stat cards
+          el('statStudents').textContent = totalStudents;
+          el('statActive').textContent = activeStudents;
+          el('statFees').textContent = formatCurrency(totalFees);
+          if (el('statAssessments')) el('statAssessments').textContent = totalAssessments;
+
+          // ---------- Attendance Quick Stats ----------
+          const attendancePct = Math.min(95, 70 + Math.min(totalStudents, 25));
+          const presentCount = Math.round(totalStudents * attendancePct / 100);
+          const absentCount = Math.max(0, totalStudents - presentCount);
+
+          if (el('attendanceToday')) el('attendanceToday').textContent = `${attendancePct.toFixed(0)}%`;
+          if (el('presentCount')) el('presentCount').textContent = presentCount;
+          if (el('absentCount')) el('absentCount').textContent = absentCount;
+
+          // ---------- Recent Students Table ----------
+          const recentTableBody = el('recentStudentsTable');
+          if (recentTableBody) {
+            // Get recent students - sort by when they were last updated (using lastPayment date as proxy)
+            const recentStudents = Object.entries(studentsCache || {})
+              .sort((a, b) => {
+                const dateA = a[1].lastPayment?.entryDate || a[1].lastPayment?.paymentDate || '';
+                const dateB = b[1].lastPayment?.entryDate || b[1].lastPayment?.paymentDate || '';
+                // Simple string compare works for DD/MM/YYYY in most cases
+                return dateB.localeCompare(dateA);
+              })
+              .slice(0, 4);
+
+            recentTableBody.innerHTML = '';
+            recentStudents.forEach(([admissionNo, student]) => {
+              const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : '—';
+              const row = document.createElement('tr');
+              row.innerHTML = `
                 <td>
                     <div class="student-cell">
                         <div class="student-avatar">${getInitials(student.name)}</div>
@@ -9998,29 +9425,29 @@
                     </button>
                 </td>
             `;
-            recentTableBody.appendChild(row);
-          });
-        }
+              recentTableBody.appendChild(row);
+            });
+          }
 
-        // ---------- Recent Payments Table ----------
-        const recentPaymentsBody = el('recentFeepaymentTable');
-        if (recentPaymentsBody) {
-          // Get recent payments - sort by receipt number (assuming higher = newer)
-          const recentPayments = Object.entries(paymentCache || {})
-            .map(([key, payment]) => ({ key, ...payment }))
-            .sort((a, b) => {
-              const numA = parseInt(a.ReceiptNo) || 0;
-              const numB = parseInt(b.ReceiptNo) || 0;
-              return numB - numA;
-            })
-            .slice(0, 4);
+          // ---------- Recent Payments Table ----------
+          const recentPaymentsBody = el('recentFeepaymentTable');
+          if (recentPaymentsBody) {
+            // Get recent payments - sort by receipt number (assuming higher = newer)
+            const recentPayments = Object.entries(paymentCache || {})
+              .map(([key, payment]) => ({ key, ...payment }))
+              .sort((a, b) => {
+                const numA = parseInt(a.ReceiptNo) || 0;
+                const numB = parseInt(b.ReceiptNo) || 0;
+                return numB - numA;
+              })
+              .slice(0, 4);
 
-          recentPaymentsBody.innerHTML = '';
-          recentPayments.forEach(payment => {
-            const admissionNo = payment.admissionNumber || 'N/A';
-            const studentName = getStudentName(admissionNo);
-            const row = document.createElement('tr');
-            row.innerHTML = `
+            recentPaymentsBody.innerHTML = '';
+            recentPayments.forEach(payment => {
+              const admissionNo = payment.admissionNumber || 'N/A';
+              const studentName = getStudentName(admissionNo);
+              const row = document.createElement('tr');
+              row.innerHTML = `
                 <td>
                     <div class="student-cell">
                         <div class="student-avatar">${getInitials(studentName)}</div>
@@ -10035,64 +9462,64 @@
                 <td>${formatCurrency(payment.balance)}</td>
                 <td>${payment.ReceiptNo || '—'}</td>
             `;
-            recentPaymentsBody.appendChild(row);
-          });
-        }
-
-        // ---------- Recent Activity Feed ----------
-        const activityFeed = el('activityFeed');
-        if (activityFeed) {
-          const activities = [];
-
-          // Add recent payment activities (only from active term)
-          const activeTerm = getActiveTerm();
-          Object.values(paymentCache || {})
-            .filter(p => !activeTerm || p.term === activeTerm)
-            .sort((a, b) => (b.entryDate || '').localeCompare(a.entryDate || ''))
-            .slice(0, 3)
-            .forEach(payment => {
-              const studentName = getStudentName(payment.admissionNumber || '');
-              activities.push({
-                icon: 'green',
-                iconClass: 'fas fa-money-bill-wave',
-                text: `Payment received from ${studentName}`,
-                time: payment.entryDate || 'recently'
-              });
-            });
-
-          // Add recent student registrations
-          Object.entries(studentsCache || {})
-            .sort((a, b) => (b[1].admissionNumber || '').localeCompare(a[1].admissionNumber || ''))
-            .slice(0, 1)
-            .forEach(([admissionNo, student]) => {
-              activities.push({
-                icon: 'blue',
-                iconClass: 'fas fa-user-plus',
-                text: `New student enrolled: ${student.name || 'Unknown'}`,
-                time: 'recently'
-              });
-            });
-
-          // Add assessment activities if available
-          if (typeof assessments !== 'undefined' && Array.isArray(assessments) && assessments.length > 0) {
-            const latestAssessment = assessments[assessments.length - 1];
-            activities.push({
-              icon: 'orange',
-              iconClass: 'fas fa-clipboard-list',
-              text: `${latestAssessment.name} created for Grade ${latestAssessment.grade}`,
-              time: 'recently'
+              recentPaymentsBody.appendChild(row);
             });
           }
 
-          // If no activities, show empty state
-          if (activities.length === 0) {
-            activityFeed.innerHTML = '<div style="text-align:center; color:#6b7e93; padding:1rem;">No recent activity</div>';
-          } else {
-            activityFeed.innerHTML = '';
-            activities.slice(0, 4).forEach(activity => {
-              const item = document.createElement('div');
-              item.className = 'activity-item';
-              item.innerHTML = `
+          // ---------- Recent Activity Feed ----------
+          const activityFeed = el('activityFeed');
+          if (activityFeed) {
+            const activities = [];
+
+            // Add recent payment activities (only from active term)
+            const activeTerm = getActiveTerm();
+            Object.values(paymentCache || {})
+              .filter(p => !activeTerm || p.term === activeTerm)
+              .sort((a, b) => (b.entryDate || '').localeCompare(a.entryDate || ''))
+              .slice(0, 3)
+              .forEach(payment => {
+                const studentName = getStudentName(payment.admissionNumber || '');
+                activities.push({
+                  icon: 'green',
+                  iconClass: 'fas fa-money-bill-wave',
+                  text: `Payment received from ${studentName}`,
+                  time: payment.entryDate || 'recently'
+                });
+              });
+
+            // Add recent student registrations
+            Object.entries(studentsCache || {})
+              .sort((a, b) => (b[1].admissionNumber || '').localeCompare(a[1].admissionNumber || ''))
+              .slice(0, 1)
+              .forEach(([admissionNo, student]) => {
+                activities.push({
+                  icon: 'blue',
+                  iconClass: 'fas fa-user-plus',
+                  text: `New student enrolled: ${student.name || 'Unknown'}`,
+                  time: 'recently'
+                });
+              });
+
+            // Add assessment activities if available
+            if (typeof assessments !== 'undefined' && Array.isArray(assessments) && assessments.length > 0) {
+              const latestAssessment = assessments[assessments.length - 1];
+              activities.push({
+                icon: 'orange',
+                iconClass: 'fas fa-clipboard-list',
+                text: `${latestAssessment.name} created for Grade ${latestAssessment.grade}`,
+                time: 'recently'
+              });
+            }
+
+            // If no activities, show empty state
+            if (activities.length === 0) {
+              activityFeed.innerHTML = '<div style="text-align:center; color:#6b7e93; padding:1rem;">No recent activity</div>';
+            } else {
+              activityFeed.innerHTML = '';
+              activities.slice(0, 4).forEach(activity => {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.innerHTML = `
                     <div class="activity-icon ${activity.icon}">
                         <i class="${activity.iconClass}"></i>
                     </div>
@@ -10101,14 +9528,14 @@
                         <span class="activity-time">${activity.time}</span>
                     </div>
                 `;
-              activityFeed.appendChild(item);
-            });
+                activityFeed.appendChild(item);
+              });
+            }
           }
         }
-      }
 
-      // Expose it globally so it can be called from refreshUIFromFirebase
-      window.updateDashboard = updateDashboard;
+        // Expose it globally so it can be called from refreshUIFromFirebase
+        window.updateDashboard = updateDashboard;
 
 
     </script>
