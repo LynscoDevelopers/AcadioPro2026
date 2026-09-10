@@ -7982,21 +7982,7 @@
 
 
 
-        function buildMarkRecord({ assessmentId, studentId, subject, marks, student = null }) {
-          // Prefer the student object if supplied, otherwise look it up
-          const st = student || students.find(s => s.id === studentId || s.admissionNumber === studentId);
-          const classValue = st
-            ? (st.fullClass || (st.stream ? `${st.grade} - ${st.stream}` : st.grade) || '')
-            : '';
 
-          return {
-            assessmentId,
-            studentId,
-            subject,
-            marks: Number(marks) || 0,
-            class: classValue          // ← the new field
-          };
-        }
         window.openAssessmentModal = function () {
           document.getElementById('assessment-name').value = '';
           document.getElementById('assessment-max-marks').value = 100;
@@ -8022,6 +8008,7 @@
           const grade = document.getElementById('assessment-grade').value;
           const term = document.getElementById('assessment-term').value.trim();
           const maxMarks = parseInt(document.getElementById('assessment-max-marks').value) || 100;
+
           if (!name || selectedSubjects.size === 0) {
             showToast('Name and at least one subject required', 'error');
             return;
@@ -8045,14 +8032,17 @@
 
           syncStudentsFromCache();
           const gradeStudents = students.filter(s => s.grade === grade);
+
           gradeStudents.forEach(st => {
-            selectedSubjects.forEach(subj => marks.push({
-              assessmentId: id,
-              studentId: st.id,
-              subject: subj,
-              marks: 0,
-              student: st
-            }));
+            selectedSubjects.forEach(subj => {
+              marks.push({
+                assessmentId: id,
+                studentId: st.id,
+                subject: subj,
+                marks: 0,
+                class: st.fullClass || st.grade || ""          // ← only the string
+              });
+            });
           });
 
           await Promise.all([
@@ -8066,7 +8056,6 @@
           populateFilters();
           showToast(`Assessment created for ${gradeStudents.length} students in ${grade}`);
         };
-
         window.deleteAssessment = async function (id) {
           if (confirm('Are you sure you want to delete this assessment?')) {
             assessments = assessments.filter(a => a.id !== id);
@@ -8198,18 +8187,30 @@
 
         window.updateMarks = async function () {
           const val = parseInt(document.getElementById('edit-marks-input').value);
-          // … validation …
+
+          if (isNaN(val) || val < 0) {
+            showToast('Please enter a valid number', 'error');
+            return;
+          }
 
           const m = marks[currentEditMarksIndex];
           const a = assessments.find(x => x.id === m.assessmentId);
 
-          // rebuild the whole record so class is always present
-          marks[currentEditMarksIndex] = buildMarkRecord({
+          if (val > a.maxMarks) {
+            showToast(`Maximum marks is ${a.maxMarks}`, 'error');
+            return;
+          }
+
+          // Keep existing data but guarantee the class field exists
+          const st = students.find(s => s.id === m.studentId);
+
+          marks[currentEditMarksIndex] = {
             assessmentId: m.assessmentId,
             studentId: m.studentId,
             subject: m.subject,
-            marks: val
-          });
+            marks: val,
+            class: st ? (st.fullClass || st.grade || "") : (m.class || "")
+          };
 
           await saveMarksToFirebase();
 
@@ -8218,7 +8219,6 @@
           renderDashboard();
           showToast('Marks updated');
         };
-
         // ---------- BULK MARKS ----------
         window.openBulkMarksModal = function () {
           const sel = document.getElementById('bulk-assessment');
@@ -8290,19 +8290,24 @@
             const subj = inp.dataset.subject;
             const val = parseInt(inp.value) || 0;
 
+            const st = students.find(s => s.id === sid);
+            const classValue = st ? (st.fullClass || st.grade || "") : "";
+
             const idx = marks.findIndex(m =>
-              m.assessmentId === aId && m.studentId === sid && m.subject === subj
+              m.assessmentId === aId &&
+              m.studentId === sid &&
+              m.subject === subj
             );
 
-            const record = buildMarkRecord({
+            const record = {
               assessmentId: aId,
               studentId: sid,
               subject: subj,
-              marks: val
-            });
+              marks: val,
+              class: classValue                         // ← only the string
+            };
 
             if (idx >= 0) {
-              // keep any extra fields that might exist, but guarantee the shape
               marks[idx] = { ...marks[idx], ...record };
             } else {
               marks.push(record);
@@ -8317,7 +8322,6 @@
           renderDashboard();
           showToast(`Saved ${count} marks records`);
         };
-
         // ---------- EXPORT & TOAST ----------
         window.exportData = function () {
           const data = {
@@ -8619,232 +8623,65 @@
           fileInput.click();
         };
 
-        async function parseCSVAndImport(content, assessment) {
-          const lines = content.split('\n');
-          let importCount = 0;
-          let errorCount = 0;
-          const errors = [];
+        subjectColumns.forEach(subjectCol => {
+          const subjectName = subjectCol.subject;
+          const markValue = parseFloat(rowData[subjectCol.index]);
 
-          let headerIndex = -1;
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes('Student ID')) {
-              headerIndex = i;
-              break;
+          if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
+            const existingIndex = marks.findIndex(m =>
+              m.assessmentId === assessment.id &&
+              m.studentId === student.id &&
+              m.subject === subjectName
+            );
+
+            const record = {
+              assessmentId: assessment.id,
+              studentId: student.id,
+              subject: subjectName,
+              marks: markValue,
+              class: student.fullClass || student.grade || ""   // ← only the string
+            };
+
+            if (existingIndex >= 0) {
+              marks[existingIndex] = { ...marks[existingIndex], ...record };
+            } else {
+              marks.push(record);
+            }
+            importCount++;
+          } else if (!isNaN(markValue) && markValue !== 0) {
+            errorCount++;
+            if (errors.length < 5) {
+              errors.push(`Invalid mark ${markValue} for ${student.name} - ${subjectName}`);
             }
           }
+        });
+        subjectColumns.forEach(subjectCol => {
+          const subjectName = subjectCol.subject;
+          const markValue = parseFloat(cells[subjectCol.index]?.textContent.trim());
 
-          if (headerIndex === -1) {
-            showToast('Invalid file format. Missing header row.', 'error');
-            return;
-          }
+          if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
+            const existingIndex = marks.findIndex(m =>
+              m.assessmentId === assessment.id &&
+              m.studentId === student.id &&
+              m.subject === subjectName
+            );
 
-          const headerLine = parseCSVLine(lines[headerIndex]);
-          const subjectColumns = [];
+            const record = {
+              assessmentId: assessment.id,
+              studentId: student.id,
+              subject: subjectName,
+              marks: markValue,
+              class: student.fullClass || student.grade || ""   // ← only the string
+            };
 
-          headerLine.forEach((header, index) => {
-            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
-            if (index > 2 && header.trim().toLowerCase() !== 'average') {
-              subjectColumns.push({
-                index: index,
-                subject: header.trim()
-              });
+            if (existingIndex >= 0) {
+              marks[existingIndex] = { ...marks[existingIndex], ...record };
+            } else {
+              marks.push(record);
             }
-          });
-
-          if (subjectColumns.length === 0) {
-            showToast('No subject columns found in file', 'error');
-            return;
+            importCount++;
           }
-
-          for (let i = headerIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            const rowData = parseCSVLine(line);
-
-            if (rowData.length < 3) continue;
-
-            const studentId = rowData[0].trim();
-            const studentName = rowData[1].trim();
-
-            let student = students.find(s => s.id === studentId);
-            if (!student && studentName) {
-              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
-            }
-
-            if (!student) {
-              errorCount++;
-              if (errors.length < 5) {
-                errors.push(`Student not found: ${studentId} - ${studentName}`);
-              }
-              continue;
-            }
-
-            subjectColumns.forEach(subjectCol => {
-              const subjectName = subjectCol.subject;
-              const markValue = parseFloat(rowData[subjectCol.index]);
-
-              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
-                const existingIndex = marks.findIndex(m =>
-                  m.assessmentId === assessment.id &&
-                  m.studentId === student.id &&
-                  m.subject === subjectName
-                );
-
-                if (existingIndex >= 0) {
-                  const record = buildMarkRecord({
-                    assessmentId: assessment.id,
-                    studentId: student.id,
-                    subject: subjectName,
-                    marks: markValue,
-                    student               // the student object you already found
-                  });
-
-                  if (existingIndex >= 0) {
-                    marks[existingIndex] = { ...marks[existingIndex], ...record };
-                  } else {
-                    marks.push(record);
-                  }
-                } else {
-                  const record = buildMarkRecord({
-                    assessmentId: assessment.id,
-                    studentId: student.id,
-                    subject: subjectName,
-                    marks: markValue,
-                    student               // the student object you already found
-                  });
-
-                  if (existingIndex >= 0) {
-                    marks[existingIndex] = { ...marks[existingIndex], ...record };
-                  } else {
-                    marks.push(record);
-                  }
-                }
-                importCount++;
-              } else if (!isNaN(markValue) && markValue !== 0) {
-                errorCount++;
-                if (errors.length < 5) {
-                  errors.push(`Invalid mark ${markValue} for ${student.name} - ${subjectName}`);
-                }
-              }
-            });
-          }
-
-          if (importCount > 0) {
-            // ✅ Updated message to indicate manual save is required
-            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
-            renderBulkMarks();
-            renderMarksTable();
-            renderDashboard();
-          }
-
-          if (errorCount > 0) {
-            const errorMessage = errors.join('\n');
-            showToast(`${errorCount} errors occurred. ${errors.length > 0 ? errorMessage : ''}`, 'warning');
-          }
-        }
-
-        async function parseExcelAndImport(content, assessment) {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = content;
-
-          const tables = tempDiv.querySelectorAll('table');
-          if (tables.length === 0) {
-            showToast('No table data found in file', 'error');
-            return;
-          }
-
-          const table = tables[0];
-          const rows = table.querySelectorAll('tr');
-
-          if (rows.length < 2) {
-            showToast('Not enough data in file', 'error');
-            return;
-          }
-
-          let importCount = 0;
-          let errorCount = 0;
-          const errors = [];
-
-          const headerRow = rows[0];
-          const headerCells = headerRow.querySelectorAll('th, td');
-          const subjectColumns = [];
-
-          headerCells.forEach((cell, index) => {
-            const headerText = cell.textContent.trim();
-            // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
-            if (index > 2 && headerText.toLowerCase() !== 'average') {
-              subjectColumns.push({
-                index: index,
-                subject: headerText
-              });
-            }
-          });
-
-          if (subjectColumns.length === 0) {
-            showToast('No subject columns found in file', 'error');
-            return;
-          }
-
-          for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].querySelectorAll('td');
-            if (cells.length < 3) continue;
-
-            const studentId = cells[0].textContent.trim();
-            const studentName = cells[1].textContent.trim();
-
-            let student = students.find(s => s.id === studentId);
-            if (!student && studentName) {
-              student = students.find(s => s.name.toLowerCase() === studentName.toLowerCase());
-            }
-
-            if (!student) {
-              errorCount++;
-              if (errors.length < 5) {
-                errors.push(`Student not found: ${studentId} - ${studentName}`);
-              }
-              continue;
-            }
-
-            subjectColumns.forEach(subjectCol => {
-              const subjectName = subjectCol.subject;
-              const markValue = parseFloat(cells[subjectCol.index]?.textContent.trim());
-
-              if (!isNaN(markValue) && markValue >= 0 && markValue <= assessment.maxMarks) {
-                const existingIndex = marks.findIndex(m =>
-                  m.assessmentId === assessment.id &&
-                  m.studentId === student.id &&
-                  m.subject === subjectName
-                );
-
-                if (existingIndex >= 0) {
-                  marks[existingIndex].marks = markValue;
-                } else {
-                  marks.push({
-                    assessmentId: assessment.id,
-                    studentId: student.id,
-                    subject: subjectName,
-                    marks: markValue
-                  });
-                }
-                importCount++;
-              }
-            });
-          }
-
-          if (importCount > 0) {
-            // ✅ Updated message to indicate manual save is required
-            showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
-            renderBulkMarks();
-            renderMarksTable();
-            renderDashboard();
-          }
-
-          if (errorCount > 0) {
-            showToast(`${errorCount} errors occurred during import`, 'warning');
-          }
-        }
-
+        });
         function parseCSVLine(line) {
           const result = [];
           let current = '';
@@ -9750,7 +9587,7 @@
 
             return {
               Admission_No: student.Admission_No,
-              Name: getStudentName(student.Admission_No),  // ← Student Name
+              Name: getStudentName(student.Admission_No),                     // ← Student Name
               Grade: student.Grade,
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
