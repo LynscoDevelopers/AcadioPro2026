@@ -9680,7 +9680,7 @@
           }
 
           // ---------------------------------------------------------
-          // BUILD RESULTS  (now includes class from the mark record)
+          // BUILD RESULTS
           // ---------------------------------------------------------
           const results = marks.map(m => {
             const assessment = selectedAssessments.find(a =>
@@ -9696,11 +9696,11 @@
 
             return {
               studentId: String(m.studentId),
-              name: m.studentName || m.name || m.Name || 'Unknown',
+              name: m.studentName || m.name || m.Name || 'Unknown',   // ← Student Name
               assessmentId: String(m.assessmentId),
               assessmentName: assessment?.name || 'Unknown',
               subject: m.subject || 'General',
-              grade:  m.class || '',                        // ← NEW: from the mark
+              grade: assessment?.grade || assessment?.class || selectedGrade,
               term: assessment?.term || '',
               marks: mark,
               maxMarks: maxMarks,
@@ -9719,7 +9719,7 @@
               studentResults[result.studentId] = {
                 Admission_No: result.studentId,
                 Name: result.name,
-                Grade: result.class || '',                 // ← NEW
+                Grade: result.class || result.grade || '',   // ← use class in place of Grade
                 Results: [],
                 TotalMarks: 0,
                 TotalMaxMarks: 0
@@ -9729,8 +9729,8 @@
             const student = studentResults[result.studentId];
 
             // Prefer a non-empty class if later marks have it
-            if (!student.Class && result.class) {
-              student.Class = result.class;
+            if ((!student.Grade || student.Grade === selectedGrade) && result.class) {
+              student.Grade = result.class;
             }
 
             student.Results.push(result);
@@ -9750,7 +9750,7 @@
             return {
               Admission_No: student.Admission_No,
               Name: getStudentName(student.Admission_No),
-              Grade: student.Class || '',                 // ← NEW: passed to C#
+              Grade: student.Grade,                       // ← this now contains the full class
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
               TotalResults: student.Results.length,
@@ -9759,7 +9759,6 @@
               Results: student.Results
             };
           });
-
           // ---------------------------------------------------------
           // MESSAGE TO C#
           // ---------------------------------------------------------
