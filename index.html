@@ -9700,7 +9700,7 @@
               assessmentId: String(m.assessmentId),
               assessmentName: assessment?.name || 'Unknown',
               subject: m.subject || 'General',
-              grade: assessment?.grade || assessment?.class || selectedGrade,
+              grade: assessment?.class || assessment?.grade || selectedGrade,
               term: assessment?.term || '',
               marks: mark,
               maxMarks: maxMarks,
