@@ -9552,6 +9552,8 @@
       // Selected assessments must belong to the same grade.
       // Terms do NOT matter.
       // Selected assessments must belong to the same grade.
+      // Selected assessments must belong to the same grade.
+
       async function getTermResults1(admissionNo = null) {
         try {
           // Make sure assessments have been selected
@@ -9567,7 +9569,6 @@
 
           if (selectedAssessments.length === 0) {
             showToast('Selected assessments were not found.', 'error');
-            // Don't send anything to C# - just return failure
             return {
               success: false,
               error: "Selected assessments were not found."
@@ -9577,7 +9578,6 @@
           // ---------------------------------------------------------
           // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE
           // ---------------------------------------------------------
-
           const grades = [
             ...new Set(
               selectedAssessments
@@ -9623,7 +9623,6 @@
           // ---------------------------------------------------------
           // GET MARKS
           // ---------------------------------------------------------
-
           let marks = allMarksData.filter(m =>
             assessmentIds.has(String(m.assessmentId))
           );
@@ -9639,7 +9638,6 @@
           // ---------------------------------------------------------
           // BUILD RESULTS
           // ---------------------------------------------------------
-
           const results = marks.map(m => {
             const assessment = selectedAssessments.find(a =>
               String(a.id) === String(m.assessmentId)
@@ -9654,12 +9652,11 @@
 
             return {
               studentId: String(m.studentId),
+              name: m.studentName || m.name || m.Name || 'Unknown',   // ← Student Name
               assessmentId: String(m.assessmentId),
               assessmentName: assessment?.name || 'Unknown',
               subject: m.subject || 'General',
-              grade: assessment?.grade ||
-                assessment?.class ||
-                selectedGrade,
+              grade: assessment?.grade || assessment?.class || selectedGrade,
               term: assessment?.term || '',
               marks: mark,
               maxMarks: maxMarks,
@@ -9671,13 +9668,13 @@
           // ---------------------------------------------------------
           // GROUP RESULTS BY STUDENT
           // ---------------------------------------------------------
-
           const studentResults = {};
 
           results.forEach(result => {
             if (!studentResults[result.studentId]) {
               studentResults[result.studentId] = {
                 Admission_No: result.studentId,
+                Name: result.name,                    // ← Student Name
                 Grade: result.grade,
                 Results: [],
                 TotalMarks: 0,
@@ -9694,7 +9691,6 @@
           // ---------------------------------------------------------
           // CALCULATE EACH STUDENT'S AVERAGE
           // ---------------------------------------------------------
-
           const students = Object.values(studentResults).map(student => {
             const average =
               student.TotalMaxMarks > 0
@@ -9703,6 +9699,7 @@
 
             return {
               Admission_No: student.Admission_No,
+              Name: student.Admission_No,                     // ← Student Name
               Grade: student.Grade,
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
@@ -9716,10 +9713,9 @@
           // ---------------------------------------------------------
           // MESSAGE TO C#
           // ---------------------------------------------------------
-
           const messageData = {
             action: "GET_TERM_ASSESSMENT_RESULTS",
-            Term: termString,                       // ← single term or "Term1-2026,Term 2-2026,..."
+            Term: termString,
             SelectedAssessmentIds: [...assessmentIds],
             SelectedAssessments: selectedAssessments.map(a => ({
               id: String(a.id),
@@ -9731,15 +9727,12 @@
             SelectedGrade: selectedGrade,
             TotalStudents: students.length,
             Students: students,
-            // Keep Results for compatibility if you are expecting
-            // a Results property in C#
             Results: results
           };
 
           // ---------------------------------------------------------
           // SEND TO C#
           // ---------------------------------------------------------
-
           if (
             window.chrome &&
             window.chrome.webview &&
@@ -9763,7 +9756,6 @@
         } catch (error) {
           console.error('Error getting selected assessment results:', error);
 
-          // Only send error to C# if it's NOT a "no assessments selected" error
           if (
             error.message !== "No assessments selected." &&
             window.chrome &&
