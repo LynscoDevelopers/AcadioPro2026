@@ -5858,6 +5858,13 @@
         return String(student.class || '').split('-')[0].trim();
       }
 
+      function getStudentClass(admission) {
+        if (!admission || !studentsCache) return '';
+        const student = studentsCache[admission];
+        if (!student) return '';
+        return String(student.class || '').trim();
+      }
+
       function getStudentRequiredFee(admissionNumber) {
         if (!admissionNumber || !studentsCache) return "0.00";
         const student = studentsCache[admissionNumber];
@@ -9700,7 +9707,7 @@
             return {
               Admission_No: student.Admission_No,
               Name: getStudentName(student.Admission_No),  // ← Student Name
-              Grade: student.Grade,
+              Grade:getStudentClass(student.Admission_No),
               Average: average.toFixed(1),
               GradeLetter: getGradeLetter(average),
               TotalResults: student.Results.length,
