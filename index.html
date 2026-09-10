@@ -5862,6 +5862,9 @@
         if (!admission || !studentsCache) return '';
         const student = studentsCache[admission.replace("/","-")];
         if (!student) return '';
+
+        alert(student.class);
+
         return String(student.class || '').trim();
       }
 
