@@ -5860,7 +5860,7 @@
 
       function getStudentClass(admission) {
         if (!admission || !studentsCache) return '';
-        const student = studentsCache[admission.replace("/","-")];
+        const student = studentsCache[admission];
         if (!student) return '';
 
         alert(student.class);
