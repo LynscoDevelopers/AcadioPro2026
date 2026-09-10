@@ -10234,6 +10234,52 @@
     }
   });
 
+  // ============================================================
+
+  function updateWelcomeText(userName = 'Admin', customEmoji = null) {
+    const el = document.querySelector('.welcome-text');
+    if (!el) return null;
+
+    const now = new Date();
+    const hour = now.getHours();
+
+    let greeting;
+    let emoji;
+
+    if (hour >= 5 && hour < 12) {
+      greeting = 'Good Morning';
+      emoji = '👋';
+    } else if (hour >= 12 && hour < 17) {
+      greeting = 'Good Afternoon';
+      emoji = '👋';
+    } else if (hour >= 17 && hour < 22) {
+      greeting = 'Good Evening';
+      emoji = '👋';
+    } else {
+      greeting = 'Good Night';
+      emoji = '🌙';
+    }
+
+    if (customEmoji) emoji = customEmoji;
+
+    // Sanitize the name to avoid HTML injection
+    const safeName = String(userName ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .trim() || 'User';
+
+    el.textContent = `${greeting}, ${safeName}! ${emoji}`;
+    return { greeting, emoji, userName: safeName };
+  }
+  // Expose globally so other scripts / C# WebView can call it
+  window.updateWelcomeText = updateWelcomeText;
+  document.addEventListener('DOMContentLoaded', function () {
+    updateWelcomeText(); // defaults to "Admin"
+  });
+
 </script>
 
 
