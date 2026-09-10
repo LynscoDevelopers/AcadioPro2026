@@ -5252,7 +5252,7 @@
 
 
       if (openBtn) openBtn.addEventListener('click', openDialog);
-       if (Dashboard_openBtn) Dashboard_openBtn.addEventListener('click', openDialog);
+      if (Dashboard_openBtn) Dashboard_openBtn.addEventListener('click', openDialog);
       if (closeIcon) closeIcon.addEventListener('click', closeDialog);
       if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
       if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
@@ -9551,6 +9551,7 @@
       // Get results from the selected assessments.
       // Selected assessments must belong to the same grade.
       // Terms do NOT matter.
+      // Selected assessments must belong to the same grade.
       async function getTermResults1(admissionNo = null) {
         try {
           // Make sure assessments have been selected
@@ -9594,6 +9595,25 @@
           }
 
           const selectedGrade = grades[0] || '';
+
+          // ---------------------------------------------------------
+          // COLLECT UNIQUE TERMS
+          // ---------------------------------------------------------
+          const terms = [
+            ...new Set(
+              selectedAssessments
+                .map(a => String(a.term || '').trim())
+                .filter(Boolean)
+            )
+          ];
+
+          // Single term → just the term
+          // Multiple terms → "Term1-2026,Term 2-2026,..."
+          const termString = terms.length === 0
+            ? ''
+            : terms.length === 1
+              ? terms[0]
+              : terms.join(',');
 
           // Selected assessment IDs
           const assessmentIds = new Set(
@@ -9699,9 +9719,7 @@
 
           const messageData = {
             action: "GET_TERM_ASSESSMENT_RESULTS",
-            // No single term because assessments can belong
-            // to different terms.
-            Term: "Multiple",
+            Term: termString,                       // ← single term or "Term1-2026,Term 2-2026,..."
             SelectedAssessmentIds: [...assessmentIds],
             SelectedAssessments: selectedAssessments.map(a => ({
               id: String(a.id),
@@ -9767,7 +9785,6 @@
           };
         }
       }
-
       document.getElementById('ReportCardExpo').addEventListener('click', async function () {
         await getTermResults1();
       });
