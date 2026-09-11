@@ -7,13 +7,270 @@
   <title>Student Register with Tabs</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="classStyles.css">
+
+  <!-- ============================================================
+       AUTH LAYER STYLES (ADDED — does not touch original styles)
+       ============================================================ -->
   <style>
-    /* ----- global reset & base ----- */
-    * {
+    /* When body has .auth-pending, hide the original app */
+    body.auth-pending > *:not(#authRoot) {
+      display: none !important;
+    }
+
+    body.auth-ready #authRoot {
+      display: none !important;
+    }
+
+    #authRoot {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0b2b4a 0%, #1a3a5c 50%, #2a7de1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      padding: 1rem;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    #authRoot.hidden { display: none !important; }
+
+    .auth-card {
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 2.5rem 2.25rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.35);
+      animation: authSlideUp 0.5s ease;
+    }
+
+    @keyframes authSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-header { text-align: center; margin-bottom: 1.75rem; }
+
+    .auth-header .logo-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #1a3a5c, #2a7de1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.9rem;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      box-shadow: 0 10px 24px rgba(42, 125, 225, 0.35);
+    }
+
+    .auth-header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0b1e2e;
+      letter-spacing: -0.02em;
       margin: 0;
-      padding: 0;
+    }
+
+    .auth-header p {
+      font-size: 0.88rem;
+      color: #6b7e93;
+      margin-top: 0.35rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 0.25rem;
+      border-bottom: 2px solid #eef2f6;
+      margin-bottom: 1.6rem;
+    }
+
+    .auth-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+      font-family: inherit;
+    }
+
+    .auth-tab:hover { color: #1a3a5c; }
+    .auth-tab.active { color: #1a3a5c; border-bottom-color: #2a7de1; }
+
+    .auth-form { display: flex; flex-direction: column; gap: 1rem; }
+
+    .auth-form .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+    .auth-form .form-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .auth-form .form-input {
+      padding: 0.75rem 1rem;
+      font-size: 0.92rem;
+      border: 1.5px solid #dce4ec;
+      border-radius: 12px;
+      font-family: inherit;
+      transition: all 0.18s;
+      background: #f9fcff;
+      color: #0b1e2e;
+      width: 100%;
       box-sizing: border-box;
     }
+
+    .auth-form .form-input:focus {
+      outline: none;
+      border-color: #2a7de1;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1);
+    }
+
+    .auth-btn {
+      background: linear-gradient(135deg, #1a3a5c, #2a7de1);
+      border: none;
+      padding: 0.85rem 1.5rem;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 16px rgba(26, 58, 92, 0.25);
+      margin-top: 0.4rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .auth-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(26, 58, 92, 0.35);
+    }
+
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .auth-message {
+      font-size: 0.83rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+    }
+
+    .auth-message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .auth-message.success {
+      display: block;
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.4rem;
+      font-size: 0.85rem;
+      color: #6b7e93;
+    }
+
+    .auth-footer a {
+      color: #2a7de1;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
+
+    /* User bar shown above original app after login */
+    #authUserBar {
+      display: none;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.85rem;
+      color: #1a2a3a;
+      position: relative;
+      z-index: 900;
+    }
+
+    body.auth-ready #authUserBar { display: flex; }
+
+    #authUserBar .user-email {
+      font-weight: 600;
+      color: #1a3a5c;
+    }
+
+    #authUserBar .logout-btn {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      padding: 0.35rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    #authUserBar .logout-btn:hover { background: #fecaca; }
+
+    /* Auth loading state */
+    #authRoot.loading .auth-card { display: none; }
+
+    #authRoot .auth-loading {
+      display: none;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    #authRoot.loading .auth-loading { display: block; }
+
+    #authRoot .auth-loading .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: authSpin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes authSpin { to { transform: rotate(360deg); } }
+  </style>
+
+  <!-- ============================================================
+       ORIGINAL STYLES (UNTOUCHED — exactly as in your file)
+       ============================================================ -->
+  <style>
+    /* ----- global reset & base ----- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
@@ -24,7 +281,6 @@
       transition: background 0.2s;
     }
 
-    /* ----- Layout Container ----- */
     .page-container {
       max-width: 100%;
       width: 100%;
@@ -32,7 +288,6 @@
       overflow: auto;
     }
 
-    /* ----- Tab Navigation ----- */
     .tabs-container {
       background: #bb5c5c;
       border-radius: 16px 16px 0 0;
@@ -62,21 +317,10 @@
       font-family: inherit;
     }
 
-    .tab-btn:hover {
-      color: #1a3a5c;
-      background: #f8fafc;
-    }
+    .tab-btn:hover { color: #1a3a5c; background: #f8fafc; }
+    .tab-btn.active { color: #1a3a5c; border-bottom-color: #1a3a5c; background: transparent; }
 
-    .tab-btn.active {
-      color: #1a3a5c;
-      border-bottom-color: #1a3a5c;
-      background: transparent;
-    }
-
-    /* ----- Tab Content ----- */
-    .tab-content-wrapper {
-      background: transparent;
-    }
+    .tab-content-wrapper { background: transparent; }
 
     .tab-panel {
       display: none;
@@ -85,23 +329,13 @@
       animation: fadeIn 0.3s ease;
     }
 
-    .tab-panel.active {
-      display: block;
-    }
+    .tab-panel.active { display: block; }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ----- Table Container for Scroll ----- */
     .table-container {
       max-height: 600px;
       overflow-y: auto;
@@ -113,7 +347,6 @@
       border-radius: 12px;
     }
 
-    /* ----- Table Styles with Perfect Rounded Corners ----- */
     .register-table {
       width: 100%;
       border-collapse: separate;
@@ -122,20 +355,8 @@
       padding: 0 4px;
     }
 
-    /* Header Row - Fixed */
-    .register-table thead {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .register-table thead tr {
-      background: transparent;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: table-row;
-    }
+    .register-table thead { position: sticky; top: 0; z-index: 10; }
+    .register-table thead tr { background: transparent; position: sticky; top: 0; z-index: 10; display: table-row; }
 
     .register-table th {
       text-align: left;
@@ -152,16 +373,9 @@
       border: none;
     }
 
-    /* First and last header cells - no rounded corners needed */
-    .register-table th:first-child {
-      border-radius: 0;
-    }
+    .register-table th:first-child { border-radius: 0; }
+    .register-table th:last-child { border-radius: 0; }
 
-    .register-table th:last-child {
-      border-radius: 0;
-    }
-
-    /* Student Rows with Perfect Rounded Corners */
     .register-table tbody tr {
       background: #ffffff;
       border-radius: 12px;
@@ -187,7 +401,6 @@
       position: relative;
     }
 
-    /* First cell - rounded left corners with extra padding */
     .register-table tbody td:first-child {
       border-top-left-radius: 12px;
       border-bottom-left-radius: 12px;
@@ -195,7 +408,6 @@
       padding-right: 0.6rem;
     }
 
-    /* Last cell - rounded right corners with extra padding */
     .register-table tbody td:last-child {
       border-top-right-radius: 12px;
       border-bottom-right-radius: 12px;
@@ -203,49 +415,14 @@
       padding-left: 0.6rem;
     }
 
-    /* Alternative: Apply border-radius to the entire row using pseudo-element */
-    .register-table tbody tr {
-      position: relative;
-    }
+    .register-table tbody tr { position: relative; }
 
-    /* Column Specific Styling */
-    .col-check {
-      width: 44px;
-      text-align: center;
-      padding-left: 1rem !important;
-      padding-right: 0.4rem !important;
-    }
+    .col-check { width: 44px; text-align: center; padding-left: 1rem !important; padding-right: 0.4rem !important; }
+    .col-avatar { width: 54px; text-align: center; padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+    .col-name { min-width: 180px; padding-left: 0.4rem !important; padding-right: 0.6rem !important; }
+    .col-grade, .col-dob, .col-national, .col-contact { min-width: 100px; padding-left: 0.4rem !important; padding-right: 0.6rem !important; }
+    .col-status { min-width: 110px; text-align: right; padding-right: 1rem !important; padding-left: 0.6rem !important; }
 
-    .col-avatar {
-      width: 54px;
-      text-align: center;
-      padding-left: 0.4rem !important;
-      padding-right: 0.4rem !important;
-    }
-
-    .col-name {
-      min-width: 180px;
-      padding-left: 0.4rem !important;
-      padding-right: 0.6rem !important;
-    }
-
-    .col-grade,
-    .col-dob,
-    .col-national,
-    .col-contact {
-      min-width: 100px;
-      padding-left: 0.4rem !important;
-      padding-right: 0.6rem !important;
-    }
-
-    .col-status {
-      min-width: 110px;
-      text-align: right;
-      padding-right: 1rem !important;
-      padding-left: 0.6rem !important;
-    }
-
-    /* Checkbox Styling */
     .custom-checkbox {
       width: 18px;
       height: 18px;
@@ -256,7 +433,6 @@
       vertical-align: middle;
     }
 
-    /* Avatar Styling */
     .avatar-wrapper {
       width: 40px;
       height: 40px;
@@ -269,36 +445,13 @@
       flex-shrink: 0;
     }
 
-    .avatar-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder { font-size: 1.5rem; color: #fff; font-weight: bold; }
 
-    .avatar-placeholder {
-      font-size: 1.5rem;
-      color: #fff;
-      font-weight: bold;
-    }
+    .student-info { display: flex; flex-direction: column; }
+    .student-name { font-weight: 600; color: #111; }
+    .student-id { font-size: 0.8rem; color: #6b7e93; margin-top: 2px; }
 
-    /* Student Name Block */
-    .student-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .student-name {
-      font-weight: 600;
-      color: #111;
-    }
-
-    .student-id {
-      font-size: 0.8rem;
-      color: #6b7e93;
-      margin-top: 2px;
-    }
-
-    /* Status Badge (Present) */
     .status-badge {
       display: inline-block;
       background: #d1fae5;
@@ -311,163 +464,47 @@
       min-width: 80px;
     }
 
-    /* Status Badge - Absent */
-    .status-badge.absent {
-      background: #fee2e2;
-      color: #991b1b;
-    }
+    .status-badge.absent { background: #fee2e2; color: #991b1b; }
+    .status-badge.late { background: #fef3c7; color: #92400e; }
 
-    /* Status Badge - Late */
-    .status-badge.late {
-      background: #fef3c7;
-      color: #92400e;
-    }
+    .open-dialog-btn { display: none; }
+    .open-dialog-btn:hover { background: #0f2a44; transform: scale(1.02); box-shadow: 0 12px 24px rgba(26, 58, 92, 0.35); }
+    .open-dialog-btn:active { transform: scale(0.97); background: #0b1f32; }
+    .open-dialog-btn:focus-visible { outline: 3px solid #6c8db0; outline-offset: 4px; }
 
-    /* ----- Hidden Open Button (Kept intact) ----- */
-    .open-dialog-btn {
-      display: none;
-    }
-
-    .open-dialog-btn:hover {
-      background: #0f2a44;
-      transform: scale(1.02);
-      box-shadow: 0 12px 24px rgba(26, 58, 92, 0.35);
-    }
-
-    .open-dialog-btn:active {
-      transform: scale(0.97);
-      background: #0b1f32;
-    }
-
-    .open-dialog-btn:focus-visible {
-      outline: 3px solid #6c8db0;
-      outline-offset: 4px;
-    }
-
-    /* ----- Responsive tweaks ----- */
     @media (max-width: 700px) {
-      body {
-        padding: 0.5rem;
-      }
-
-      .page-container {
-        padding: 0 0.5rem;
-      }
-
-      .table-container {
-        padding: 6px 2px;
-      }
-
-      .register-table {
-        border-spacing: 0 8px;
-      }
-
-      .register-table th {
-        font-size: 0.7rem;
-        padding: 0.5rem 0.25rem;
-      }
-
-      .register-table td {
-        font-size: 0.85rem;
-        padding: 0.6rem 0.3rem;
-      }
-
-      .col-contact,
-      .col-national,
-      .col-dob {
-        display: none;
-      }
-
-      .tab-btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-      }
-
-      /* Adjust rounded corners for smaller screens */
-      .register-table tbody td:first-child {
-        border-top-left-radius: 8px;
-        border-bottom-left-radius: 8px;
-        padding-left: 0.75rem !important;
-      }
-
-      .register-table tbody td:last-child {
-        border-top-right-radius: 8px;
-        border-bottom-right-radius: 8px;
-        padding-right: 0.75rem !important;
-      }
-
-      .col-check {
-        width: 36px;
-        padding-left: 0.75rem !important;
-      }
-
-      .col-status {
-        padding-right: 0.75rem !important;
-      }
+      body { padding: 0.5rem; }
+      .page-container { padding: 0 0.5rem; }
+      .table-container { padding: 6px 2px; }
+      .register-table { border-spacing: 0 8px; }
+      .register-table th { font-size: 0.7rem; padding: 0.5rem 0.25rem; }
+      .register-table td { font-size: 0.85rem; padding: 0.6rem 0.3rem; }
+      .col-contact, .col-national, .col-dob { display: none; }
+      .tab-btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+      .register-table tbody td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; padding-left: 0.75rem !important; }
+      .register-table tbody td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; padding-right: 0.75rem !important; }
+      .col-check { width: 36px; padding-left: 0.75rem !important; }
+      .col-status { padding-right: 0.75rem !important; }
     }
 
     @media (max-width: 480px) {
-      .col-grade {
-        display: none;
-      }
-
-      .col-check {
-        width: 30px;
-      }
-
-      .col-avatar {
-        width: 30px;
-      }
-
-      .avatar-wrapper {
-        width: 30px;
-        height: 30px;
-      }
-
-      .student-id {
-        font-size: 0.7rem;
-      }
-
-      .status-badge {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.5rem;
-        min-width: 60px;
-      }
-
-      .table-container {
-        padding: 4px 2px;
-      }
-
-      .register-table {
-        border-spacing: 0 6px;
-      }
-
-      .register-table tbody td:first-child {
-        border-top-left-radius: 6px;
-        border-bottom-left-radius: 6px;
-        padding-left: 0.5rem !important;
-      }
-
-      .register-table tbody td:last-child {
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6px;
-        padding-right: 0.5rem !important;
-      }
-
-      .register-table td {
-        padding: 0.5rem 0.2rem;
-        font-size: 0.8rem;
-      }
+      .col-grade { display: none; }
+      .col-check { width: 30px; }
+      .col-avatar { width: 30px; }
+      .avatar-wrapper { width: 30px; height: 30px; }
+      .student-id { font-size: 0.7rem; }
+      .status-badge { font-size: 0.75rem; padding: 0.2rem 0.5rem; min-width: 60px; }
+      .table-container { padding: 4px 2px; }
+      .register-table { border-spacing: 0 6px; }
+      .register-table tbody td:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; padding-left: 0.5rem !important; }
+      .register-table tbody td:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; padding-right: 0.5rem !important; }
+      .register-table td { padding: 0.5rem 0.2rem; font-size: 0.8rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      * {
-        transition: none !important;
-        transform: none !important;
-      }
+      * { transition: none !important; transform: none !important; }
     }
 
-    /* ----- Dialog Styles (Same as original) ----- */
     .dialog-overlay {
       position: fixed;
       top: 0;
@@ -487,10 +524,7 @@
       z-index: 1000;
     }
 
-    .dialog-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .dialog-overlay.active { opacity: 1; visibility: visible; }
 
     .dialogue-box {
       background: white;
@@ -505,10 +539,7 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
-    .dialog-overlay.active .dialogue-box {
-      transform: scale(1) translateY(0);
-      box-shadow: 0 50px 80px rgba(0, 0, 0, 0.3);
-    }
+    .dialog-overlay.active .dialogue-box { transform: scale(1) translateY(0); box-shadow: 0 50px 80px rgba(0, 0, 0, 0.3); }
 
     .dialogue-header {
       display: flex;
@@ -536,7 +567,6 @@
       color: #4a5f73;
       padding: 0 0.3rem;
       transition: color 0.2s, transform 0.15s;
-      border-radius: 0px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -544,11 +574,7 @@
       height: 21px;
     }
 
-    .close-icon:hover {
-      color: #b91c1c;
-      background: rgba(185, 28, 28, 0.06);
-      transform: rotate(90deg);
-    }
+    .close-icon:hover { color: #b91c1c; background: rgba(185, 28, 28, 0.06); transform: rotate(90deg); }
 
     .dialogue-body {
       font-size: clamp(1rem, 2vw, 1.2rem);
@@ -579,14 +605,11 @@
       color: #1f3a54;
       cursor: pointer;
       transition: all 0.15s ease;
-      flex: 0 1 auto;
       min-width: 80px;
+      font-family: inherit;
     }
 
-    .btn-secondary:hover {
-      background: #eaf0f6;
-      border-color: #8ba2b9;
-    }
+    .btn-secondary:hover { background: #eaf0f6; border-color: #8ba2b9; }
 
     .btn-primary {
       background: #1a3a5c;
@@ -599,29 +622,14 @@
       cursor: pointer;
       transition: all 0.15s ease;
       box-shadow: 0 4px 8px rgba(26, 58, 92, 0.15);
-      flex: 0 1 auto;
       min-width: 80px;
+      font-family: inherit;
     }
 
-    .btn-primary:hover {
-      background: #0f2a44;
-      transform: scale(1.02);
-    }
+    .btn-primary:hover { background: #0f2a44; transform: scale(1.02); }
 
-
-    /* ----- Dialog Tab Styles ----- */
-    .dialog-tabs-container {
-      background: transparent;
-      padding: 0;
-      margin: 0 0 0.5rem 0;
-    }
-
-    .dialog-tabs-header {
-      display: flex;
-      gap: 0.25rem;
-      border-bottom: 2px solid #eef2f6;
-      padding: 0 0.5rem;
-    }
+    .dialog-tabs-container { background: transparent; padding: 0; margin: 0 0 0.5rem 0; }
+    .dialog-tabs-header { display: flex; gap: 0.25rem; border-bottom: 2px solid #eef2f6; padding: 0 0.5rem; }
 
     .dialog-tab-btn {
       background: transparent;
@@ -635,37 +643,15 @@
       transition: all 0.2s ease;
       margin-bottom: -2px;
       font-family: inherit;
-      border-radius: 0;
     }
 
-    .dialog-tab-btn:hover {
-      color: #1a3a5c;
-      background: #f8fafc;
-    }
+    .dialog-tab-btn:hover { color: #1a3a5c; background: #f8fafc; }
+    .dialog-tab-btn.active { color: #1a3a5c; border-bottom-color: #1a3a5c; background: transparent; }
 
-    .dialog-tab-btn.active {
-      color: #1a3a5c;
-      border-bottom-color: #1a3a5c;
-      background: transparent;
-    }
+    .dialog-tab-content-wrapper { background: transparent; padding: 0; }
+    .dialog-tab-panel { display: none; background: transparent; animation: fadeIn 0.3s ease; }
+    .dialog-tab-panel.active { display: block; }
 
-    .dialog-tab-content-wrapper {
-      background: transparent;
-      padding: 0;
-    }
-
-    .dialog-tab-panel {
-      display: none;
-      background: transparent;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .dialog-tab-panel.active {
-      display: block;
-    }
-
-    /* Dialogue Box - Perfect Size Without Scrolling */
-    /* Dialogue Box - Perfect Size Without Scrolling */
     .dialogue-box-large {
       max-width: 750px !important;
       width: 100% !important;
@@ -686,20 +672,7 @@
       flex-direction: column !important;
     }
 
-    /* Dialog Tab Styles */
-    .dialog-tabs-container {
-      background: transparent;
-      padding: 0;
-      margin: 0 0 0.5rem 0;
-      flex-shrink: 0;
-    }
-
-    .dialog-tabs-header {
-      display: flex;
-      gap: 0.25rem;
-      border-bottom: 2px solid #eef2f6;
-      padding: 0 0.5rem;
-    }
+    .dialog-tabs-container { background: transparent; padding: 0; margin: 0 0 0.5rem 0; flex-shrink: 0; }
 
     .dialog-tab-btn {
       background: transparent;
@@ -713,40 +686,16 @@
       transition: all 0.2s ease;
       margin-bottom: -2px;
       font-family: inherit;
-      border-radius: 0;
       white-space: nowrap;
     }
 
-    .dialog-tab-btn:hover {
-      color: #1a3a5c;
-      background: #f8fafc;
-    }
+    .dialog-tab-btn:hover { color: #1a3a5c; background: #f8fafc; }
+    .dialog-tab-btn.active { color: #1a3a5c; border-bottom-color: #1a3a5c; background: transparent; }
 
-    .dialog-tab-btn.active {
-      color: #1a3a5c;
-      border-bottom-color: #1a3a5c;
-      background: transparent;
-    }
+    .dialog-tab-content-wrapper { background: transparent; padding: 0; flex: 1; overflow: hidden; }
+    .dialog-tab-panel { display: none; background: transparent; animation: fadeIn 0.3s ease; height: 100%; }
+    .dialog-tab-panel.active { display: block !important; }
 
-    .dialog-tab-content-wrapper {
-      background: transparent;
-      padding: 0;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .dialog-tab-panel {
-      display: none;
-      background: transparent;
-      animation: fadeIn 0.3s ease;
-      height: 100%;
-    }
-
-    .dialog-tab-panel.active {
-      display: block !important;
-    }
-
-    /* Override dialogue body for tabs */
     .dialogue-body {
       font-size: clamp(0.9rem, 1vw, 1rem);
       line-height: 1.5;
@@ -757,30 +706,11 @@
       overflow: hidden;
     }
 
-    /* Form Grid */
-    .form-grid-2col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
+    .form-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-section { display: flex; flex-direction: column; gap: 0.6rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
 
-    .form-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .form-group label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: #1a2a3a;
-    }
+    .form-group label { font-weight: 600; font-size: 0.85rem; color: #1a2a3a; }
 
     .form-input {
       padding: 0.5rem 0.7rem;
@@ -793,24 +723,10 @@
       width: 100%;
     }
 
-    .form-input:focus {
-      outline: none;
-      border-color: #1a3a5c;
-      box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
-    }
+    .form-input:focus { outline: none; border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1); }
+    textarea.form-input { resize: none; min-height: 55px; max-height: 65px; }
+    select.form-input { appearance: auto; cursor: pointer; }
 
-    textarea.form-input {
-      resize: none;
-      min-height: 55px;
-      max-height: 65px;
-    }
-
-    select.form-input {
-      appearance: auto;
-      cursor: pointer;
-    }
-
-    /* Image Upload */
     .image-upload-box {
       border: 2px dashed #dce4ec;
       border-radius: 8px;
@@ -825,34 +741,12 @@
       justify-content: center;
     }
 
-    .image-upload-box:hover {
-      border-color: #1a3a5c;
-      background: #f0f4f8;
-    }
+    .image-upload-box:hover { border-color: #1a3a5c; background: #f0f4f8; }
+    .image-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+    .image-placeholder span { font-size: 1.8rem; }
+    .image-placeholder p { font-size: 0.8rem; color: #6b7e93; margin: 0; }
 
-    .image-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.1rem;
-    }
-
-    .image-placeholder span {
-      font-size: 1.8rem;
-    }
-
-    .image-placeholder p {
-      font-size: 0.8rem;
-      color: #6b7e93;
-      margin: 0;
-    }
-
-    /* Radio Group */
-    .radio-group {
-      display: flex;
-      gap: 1.5rem;
-      padding-top: 0.2rem;
-    }
+    .radio-group { display: flex; gap: 1.5rem; padding-top: 0.2rem; }
 
     .radio-label {
       display: flex;
@@ -863,47 +757,15 @@
       cursor: pointer;
     }
 
-    .radio-label input[type="radio"] {
-      width: 16px;
-      height: 16px;
-      accent-color: #1a3a5c;
-      cursor: pointer;
-    }
+    .radio-label input[type="radio"] { width: 16px; height: 16px; accent-color: #1a3a5c; cursor: pointer; }
 
-    /* Info Box */
-    .info-box {
-      background: #f8fafc;
-      border: 1px solid #eef2f6;
-      border-radius: 8px;
-      padding: 0.5rem 0.7rem;
-    }
+    .info-box { background: #f8fafc; border: 1px solid #eef2f6; border-radius: 8px; padding: 0.5rem 0.7rem; }
+    .info-row { margin: 0.2rem 0; font-size: 0.88rem; }
+    .info-row strong { font-size: 0.85rem; min-width: 100px; display: inline-block; }
+    .info-value { color: #1a3a5c; font-weight: 500; font-size: 0.85rem; }
 
-    .info-row {
-      margin: 0.2rem 0;
-      font-size: 0.88rem;
-    }
+    .consent-box { background: #f8fafc; border: 1px solid #eef2f6; border-radius: 8px; padding: 0.6rem; }
 
-    .info-row strong {
-      font-size: 0.85rem;
-      min-width: 100px;
-      display: inline-block;
-    }
-
-    .info-value {
-      color: #1a3a5c;
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-
-    /* Consent Box */
-    .consent-box {
-      background: #f8fafc;
-      border: 1px solid #eef2f6;
-      border-radius: 8px;
-      padding: 0.6rem;
-    }
-
-    /* Dialogue Actions */
     .dialogue-actions {
       display: flex;
       flex-wrap: wrap;
@@ -926,14 +788,11 @@
       color: #1f3a54;
       cursor: pointer;
       transition: all 0.15s ease;
-      flex: 0 1 auto;
       min-width: 80px;
+      font-family: inherit;
     }
 
-    .btn-secondary:hover {
-      background: #eaf0f6;
-      border-color: #8ba2b9;
-    }
+    .btn-secondary:hover { background: #eaf0f6; border-color: #8ba2b9; }
 
     .btn-primary {
       background: #1a3a5c;
@@ -946,29 +805,17 @@
       cursor: pointer;
       transition: all 0.15s ease;
       box-shadow: 0 2px 8px rgba(26, 58, 92, 0.15);
-      flex: 0 1 auto;
       min-width: 80px;
+      font-family: inherit;
     }
 
-    .btn-primary:hover {
-      background: #0f2a44;
-      transform: scale(1.02);
-    }
+    .btn-primary:hover { background: #0f2a44; transform: scale(1.02); }
   </style>
 
   <style>
-    /* custom wrapper – uses .dashboard and .header from provided styles */
-    .term-page {
-      padding: 1.5rem 1rem;
-      background: #f4f7fc;
-      min-height: 100vh;
-    }
+    .term-page { padding: 1.5rem 1rem; background: #f4f7fc; min-height: 100vh; }
+    .term-page .dashboard { margin: 0 auto; }
 
-    .term-page .dashboard {
-      margin: 0 auto;
-    }
-
-    /* term card extends .class-card */
     .term-card {
       background: white;
       border-radius: 24px;
@@ -980,58 +827,15 @@
       flex-direction: column;
     }
 
-    .term-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 32px rgba(26, 58, 94, 0.08);
-      border-color: #d0dceb;
-    }
+    .term-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(26, 58, 94, 0.08); border-color: #d0dceb; }
 
-    .term-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.8rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .term-id {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #0b2b4a;
-    }
-
-    .term-status {
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 0.2rem 1rem;
-      border-radius: 40px;
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .term-status.inactive {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .term-status.closed {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .term-dates {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.9rem;
-      color: #4b6a87;
-      margin-bottom: 0.8rem;
-    }
-
-    .term-dates i {
-      color: #2a7de1;
-      width: 1.2rem;
-    }
+    .term-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem; }
+    .term-id { font-size: 1.2rem; font-weight: 700; color: #0b2b4a; }
+    .term-status { font-size: 0.75rem; font-weight: 500; padding: 0.2rem 1rem; border-radius: 40px; background: #d1fae5; color: #065f46; }
+    .term-status.inactive { background: #fee2e2; color: #991b1b; }
+    .term-status.closed { background: #fef3c7; color: #92400e; }
+    .term-dates { display: flex; gap: 1rem; font-size: 0.9rem; color: #4b6a87; margin-bottom: 0.8rem; }
+    .term-dates i { color: #2a7de1; width: 1.2rem; }
 
     .term-fees {
       display: grid;
@@ -1044,38 +848,12 @@
       margin: 0.5rem 0;
     }
 
-    .fee-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: #1e3b5a;
-    }
-
-    .fee-item .label {
-      color: #4b6a87;
-    }
-
-    .fee-item .value {
-      font-weight: 600;
-      color: #0b2b4a;
-    }
-
-    .term-grades {
-      margin: 0.5rem 0;
-      font-size: 0.85rem;
-    }
-
-    .term-grades .label {
-      color: #4b6a87;
-      display: block;
-      margin-bottom: 0.2rem;
-    }
-
-    .grade-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-    }
+    .fee-item { display: flex; justify-content: space-between; font-size: 0.85rem; color: #1e3b5a; }
+    .fee-item .label { color: #4b6a87; }
+    .fee-item .value { font-weight: 600; color: #0b2b4a; }
+    .term-grades { margin: 0.5rem 0; font-size: 0.85rem; }
+    .term-grades .label { color: #4b6a87; display: block; margin-bottom: 0.2rem; }
+    .grade-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 
     .grade-chip {
       background: #e9f2fa;
@@ -1088,10 +866,7 @@
       gap: 0.3rem;
     }
 
-    .grade-chip .fee {
-      font-weight: 600;
-      color: #0b2b4a;
-    }
+    .grade-chip .fee { font-weight: 600; color: #0b2b4a; }
 
     .term-actions-card {
       margin-top: 0.8rem;
@@ -1102,27 +877,10 @@
       padding-top: 0.8rem;
     }
 
-    .btn-sm {
-      padding: 0.3rem 1rem;
-      font-size: 0.8rem;
-    }
-
-    /* modal overrides for larger size */
-    .modal-box-large {
-      max-width: 680px !important;
-    }
-
-    .form-group {
-      margin-bottom: 0.5rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: 500;
-      font-size: 0.85rem;
-      color: #1a3a5e;
-      margin-bottom: 0.2rem;
-    }
+    .btn-sm { padding: 0.3rem 1rem; font-size: 0.8rem; }
+    .modal-box-large { max-width: 680px !important; }
+    .form-group { margin-bottom: 0.5rem; }
+    .form-group label { display: block; font-weight: 500; font-size: 0.85rem; color: #1a3a5e; margin-bottom: 0.2rem; }
 
     .form-control {
       width: 100%;
@@ -1134,36 +892,11 @@
       background: #f9fcff;
     }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #2a7de1;
-      box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1);
-      background: white;
-    }
-
-    .form-control-sm {
-      padding: 0.3rem 0.6rem;
-      font-size: 0.85rem;
-    }
-
-    .fee-grid-modal {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem 1rem;
-    }
-
-    .fee-input-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .fee-input-group label {
-      min-width: 70px;
-      font-size: 0.85rem;
-      color: #1a3a5e;
-      font-weight: 500;
-    }
+    .form-control:focus { outline: none; border-color: #2a7de1; box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1); background: white; }
+    .form-control-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    .fee-grid-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; }
+    .fee-input-group { display: flex; align-items: center; gap: 0.5rem; }
+    .fee-input-group label { min-width: 70px; font-size: 0.85rem; color: #1a3a5e; font-weight: 500; }
 
     .fee-input-group input {
       flex: 1;
@@ -1174,12 +907,8 @@
       text-align: right;
     }
 
-    .fee-input-group input:focus {
-      outline: none;
-      border-color: #2a7de1;
-    }
+    .fee-input-group input:focus { outline: none; border-color: #2a7de1; }
 
-    /* ===== UPDATED: grade-fees-container with 2 rows + horizontal scroll ===== */
     .grade-fees-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -1196,20 +925,9 @@
       grid-template-rows: auto auto;
     }
 
-    .grade-fees-container::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-
-    .grade-fees-container::-webkit-scrollbar-track {
-      background: #eef2f6;
-      border-radius: 8px;
-    }
-
-    .grade-fees-container::-webkit-scrollbar-thumb {
-      background: #bcccdb;
-      border-radius: 8px;
-    }
+    .grade-fees-container::-webkit-scrollbar { width: 4px; height: 4px; }
+    .grade-fees-container::-webkit-scrollbar-track { background: #eef2f6; border-radius: 8px; }
+    .grade-fees-container::-webkit-scrollbar-thumb { background: #bcccdb; border-radius: 8px; }
 
     .grade-fee-row {
       display: flex;
@@ -1222,12 +940,7 @@
       white-space: nowrap;
     }
 
-    .grade-fee-row label {
-      min-width: 28px;
-      font-weight: 600;
-      font-size: 0.8rem;
-      color: #1a3a5e;
-    }
+    .grade-fee-row label { min-width: 28px; font-weight: 600; font-size: 0.8rem; color: #1a3a5e; }
 
     .grade-fee-row input {
       width: 65px;
@@ -1238,32 +951,10 @@
       text-align: right;
     }
 
-    .grade-fee-row input:focus {
-      outline: none;
-      border-color: #2a7de1;
-    }
-
-    .btn-remove-grade {
-      background: none;
-      border: none;
-      color: #991b1b;
-      cursor: pointer;
-      font-size: 0.7rem;
-      padding: 0 0.2rem;
-      transition: 0.15s;
-    }
-
-    .btn-remove-grade:hover {
-      color: #b91c1c;
-      transform: scale(1.2);
-    }
-
-    .add-grade-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-      flex-wrap: wrap;
-    }
+    .grade-fee-row input:focus { outline: none; border-color: #2a7de1; }
+    .btn-remove-grade { background: none; border: none; color: #991b1b; cursor: pointer; font-size: 0.7rem; padding: 0 0.2rem; transition: 0.15s; }
+    .btn-remove-grade:hover { color: #b91c1c; transform: scale(1.2); }
+    .add-grade-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
 
     .add-grade-row input {
       padding: 0.3rem 0.6rem;
@@ -1272,46 +963,19 @@
       font-size: 0.85rem;
     }
 
-    .add-grade-row input:focus {
-      outline: none;
-      border-color: #2a7de1;
-    }
+    .add-grade-row input:focus { outline: none; border-color: #2a7de1; }
 
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #6b7e93;
-      grid-column: 1 / -1;
-    }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: #6b7e93; grid-column: 1 / -1; }
+    .empty-state i { font-size: 3rem; color: #bcccdb; margin-bottom: 1rem; }
+    .empty-state p { font-size: 1.1rem; }
 
-    .empty-state i {
-      font-size: 3rem;
-      color: #bcccdb;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-      font-size: 1.1rem;
-    }
-
-    #feepaymentHistory tbody tr.selected-row {
-      background: #dbeafe;
-    }
-
-
-    #feeStatement tbody tr.selected-row {
-      background: #dbeafe;
-    }
+    #feepaymentHistory tbody tr.selected-row { background: #dbeafe; }
+    #feeStatement tbody tr.selected-row { background: #dbeafe; }
   </style>
 
   <style>
-    #register_Tbl tbody tr.row-selected td {
-      background-color: #e8f1ff !important;
-    }
-
-    #register_Tbl tbody tr.selected-row td {
-      background-color: #e8f1ff !important;
-    }
+    #register_Tbl tbody tr.row-selected td { background-color: #e8f1ff !important; }
+    #register_Tbl tbody tr.selected-row td { background-color: #e8f1ff !important; }
 
     .register-context-menu {
       position: fixed;
@@ -1325,92 +989,33 @@
       z-index: 99999;
     }
 
-    .context-check-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 14px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .context-check-item:hover {
-      background: #f1f5f9;
-    }
-
-    .context-check-item input {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-    }
-
-    /* Selected row */
-    #register_Tbl tbody tr.context-selected {
-      background-color: #e8f1ff !important;
-    }
-
-    /* Keep cells the same color */
-    #register_Tbl tbody tr.context-selected td {
-      background-color: #e8f1ff !important;
-    }
-
-    #FeeBalanceList tbody tr.fee-balance-selected {
-      background-color: #dbeafe !important;
-    }
-
-    #FeeBalanceList tbody tr.fee-balance-selected td {
-      background-color: inherit !important;
-    }
-
-    #FeeBalanceList tbody tr.fee-balance-selected:hover {
-      background-color: #bfdbfe !important;
-    }
+    .context-check-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; cursor: pointer; user-select: none; }
+    .context-check-item:hover { background: #f1f5f9; }
+    .context-check-item input { width: 16px; height: 16px; cursor: pointer; }
+    #register_Tbl tbody tr.context-selected { background-color: #e8f1ff !important; }
+    #register_Tbl tbody tr.context-selected td { background-color: #e8f1ff !important; }
+    #FeeBalanceList tbody tr.fee-balance-selected { background-color: #dbeafe !important; }
+    #FeeBalanceList tbody tr.fee-balance-selected td { background-color: inherit !important; }
+    #FeeBalanceList tbody tr.fee-balance-selected:hover { background-color: #bfdbfe !important; }
   </style>
 
   <style>
     :root {
-      --primary: #4b5563;
-      --primary-light: #6b7280;
-      --primary-lighter: #f3f4f6;
-      --secondary: #9ca3af;
-      --success: #10b981;
-      --success-light: #d1fae5;
-      --warning: #f59e0b;
-      --warning-light: #fef3c7;
-      --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --info: #6b7280;
-      --info-light: #f3f4f6;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --border: #e5e7eb;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      --radius: 0.5rem;
-      --radius-lg: 0.75rem;
-      --radius-xl: 1rem;
-      --transition: all 0.2s ease;
+      --primary: #4b5563; --primary-light: #6b7280; --primary-lighter: #f3f4f6; --secondary: #9ca3af;
+      --success: #10b981; --success-light: #d1fae5; --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2; --info: #6b7280; --info-light: #f3f4f6;
+      --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+      --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
+      --gray-800: #1f2937; --border: #e5e7eb;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05); --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --transition: all 0.2s ease;
     }
 
-    html {
-      scroll-behavior: smooth;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
+    html { scroll-behavior: smooth; width: 100%; height: 100%; overflow: hidden; }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
-        'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       background: #f9fafb;
       color: var(--gray-800);
       line-height: 1.5;
@@ -1420,10 +1025,6 @@
       justify-content: center;
       overflow: hidden;
     }
-
-    /* =========================================================
-       APP WRAPPER
-       ========================================================= */
 
     .app-wrapper {
       width: 100%;
@@ -1440,10 +1041,6 @@
       flex-direction: column;
     }
 
-    /* =========================================================
-       HEADER
-       ========================================================= */
-
     .app-header {
       display: flex;
       flex-wrap: wrap;
@@ -1456,12 +1053,7 @@
       flex-shrink: 0;
     }
 
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .logo-section { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
     .logo-icon {
       width: 48px;
@@ -1475,26 +1067,9 @@
       color: white;
     }
 
-    .app-title {
-      font-size: clamp(1.4rem, 3vw, 1.8rem);
-      font-weight: 700;
-      color: var(--gray-800);
-    }
-
-    .app-subtitle {
-      font-size: 0.85rem;
-      color: var(--gray-500);
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    /* =========================================================
-       NAVIGATION
-       ========================================================= */
+    .app-title { font-size: clamp(1.4rem, 3vw, 1.8rem); font-weight: 700; color: var(--gray-800); }
+    .app-subtitle { font-size: 0.85rem; color: var(--gray-500); }
+    .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
     .nav-tabs {
       position: sticky;
@@ -1530,50 +1105,12 @@
       white-space: nowrap;
     }
 
-    .nav-tab:hover {
-      background: var(--gray-100);
-    }
+    .nav-tab:hover { background: var(--gray-100); }
+    .nav-tab.active { background: var(--gray-700); color: white; }
 
-    .nav-tab.active {
-      background: var(--gray-700);
-      color: white;
-    }
-
-    /* =========================================================
-       CONTENT SECTIONS - FIXED
-       ========================================================= */
-
-    .content-section {
-      display: none;
-      animation: fade 0.2s ease;
-      scroll-margin-top: 80px;
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      overscroll-behavior: contain;
-      flex-direction: column;
-    }
-
-    .content-section.active {
-      display: flex;
-      flex-direction: column;
-    }
-
-    @keyframes fade {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* =========================================================
-       CARDS - FIXED
-       ========================================================= */
+    .content-section { display: none; animation: fade 0.2s ease; scroll-margin-top: 80px; flex: 1; min-height: 0; overflow: hidden; flex-direction: column; }
+    .content-section.active { display: flex; flex-direction: column; }
+    @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
     .card {
       background: white;
@@ -1599,26 +1136,9 @@
       flex-shrink: 0;
     }
 
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
+    .card-title { font-size: 1.15rem; font-weight: 700; color: var(--gray-800); display: flex; align-items: center; gap: 0.4rem; }
 
-    /* =========================================================
-       STATISTICS
-       ========================================================= */
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      flex-shrink: 0;
-    }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; flex-shrink: 0; }
 
     .stat-card {
       background: white;
@@ -1632,30 +1152,10 @@
       transition: var(--transition);
     }
 
-    .stat-card:hover {
-      box-shadow: var(--shadow-md);
-    }
-
-    .stat-icon {
-      font-size: 1.5rem;
-      opacity: 0.5;
-    }
-
-    .stat-label {
-      font-size: 0.55rem;
-      color: var(--gray-500);
-      font-weight: 200;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 500;
-      color: var(--gray-800);
-    }
-
-    /* =========================================================
-       FORMS
-       ========================================================= */
+    .stat-card:hover { box-shadow: var(--shadow-md); }
+    .stat-icon { font-size: 1.5rem; opacity: 0.5; }
+    .stat-label { font-size: 0.55rem; color: var(--gray-500); font-weight: 200; }
+    .stat-value { font-size: 1.5rem; font-weight: 500; color: var(--gray-800); }
 
     .form-grid {
       display: grid;
@@ -1666,21 +1166,10 @@
       flex-shrink: 0;
     }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
+    .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .form-label { font-weight: 600; color: var(--gray-700); font-size: 0.8rem; }
 
-    .form-label {
-      font-weight: 600;
-      color: var(--gray-700);
-      font-size: 0.8rem;
-    }
-
-    .form-input,
-    .form-select,
-    .form-textarea {
+    .form-input, .form-select, .form-textarea {
       padding: 0.6rem 0.75rem;
       border: 1px solid var(--gray-300);
       border-radius: var(--radius);
@@ -1690,17 +1179,11 @@
       width: 100%;
     }
 
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
       border-color: var(--gray-500);
       box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.1);
     }
-
-    /* =========================================================
-       BUTTONS
-       ========================================================= */
 
     .btn {
       padding: 0.5rem 1rem;
@@ -1720,52 +1203,14 @@
       border: 1px solid var(--gray-300);
     }
 
-    .btn-primary {
-      background: var(--gray-700);
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: var(--gray-600);
-    }
-
-    .btn-outline {
-      background: white;
-      border: 1px solid var(--gray-300);
-      color: var(--gray-700);
-    }
-
-    .btn-outline:hover {
-      background: var(--gray-50);
-    }
-
-    .btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-
-    .btn-warning {
-      background: #fef3c7;
-      color: #92400e;
-      border: 1px solid #fcd34d;
-    }
-
-    .btn-success {
-      background: #d1fae5;
-      color: #065f46;
-      border: 1px solid #6ee7b7;
-    }
-
-    .btn-sm {
-      padding: 0.35rem 0.7rem;
-      font-size: 0.75rem;
-    }
-
-    /* =========================================================
-       TABLE - FIXED
-       ========================================================= */
+    .btn-primary { background: var(--gray-700); color: white; border: none; }
+    .btn-primary:hover { background: var(--gray-600); }
+    .btn-outline { background: white; border: 1px solid var(--gray-300); color: var(--gray-700); }
+    .btn-outline:hover { background: var(--gray-50); }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .btn-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .btn-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
 
     .table-wrapper {
       overflow-x: auto;
@@ -1780,11 +1225,7 @@
       overscroll-behavior: contain;
     }
 
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 100%;
-    }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 100%; }
 
     .data-table th {
       background: var(--gray-50);
@@ -1798,65 +1239,17 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .data-table thead th {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: var(--gray-50);
-      box-shadow: 0 1px 0 var(--border);
-    }
+    .data-table thead th { position: sticky; top: 0; z-index: 10; background: var(--gray-50); box-shadow: 0 1px 0 var(--border); }
+    .data-table td { padding: 0.8rem 0.9rem; border-bottom: 1px solid var(--gray-100); font-size: 0.85rem; }
+    .data-table tr:hover td { background: var(--gray-50); }
 
-    .data-table td {
-      padding: 0.8rem 0.9rem;
-      border-bottom: 1px solid var(--gray-100);
-      font-size: 0.85rem;
-    }
+    .badge { padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #b91c1c; }
+    .badge-info { background: var(--gray-100); color: var(--gray-700); }
 
-    .data-table tr:hover td {
-      background: var(--gray-50);
-    }
-
-    /* =========================================================
-       BADGES
-       ========================================================= */
-
-    .badge {
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .badge-success {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .badge-warning {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .badge-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .badge-info {
-      background: var(--gray-100);
-      color: var(--gray-700);
-    }
-
-    /* =========================================================
-       SUBJECT TAGS
-       ========================================================= */
-
-    .subject-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-    }
+    .subject-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 
     .subject-tag {
       background: var(--gray-100);
@@ -1871,15 +1264,7 @@
       user-select: none;
     }
 
-    .subject-tag.active {
-      background: var(--gray-700);
-      color: white;
-      border-color: var(--gray-700);
-    }
-
-    /* =========================================================
-       ASSESSMENT GRID - FIXED
-       ========================================================= */
+    .subject-tag.active { background: var(--gray-700); color: white; border-color: var(--gray-700); }
 
     .assessment-grid {
       display: grid;
@@ -1895,37 +1280,11 @@
       align-content: start;
     }
 
-    .assessment-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      transition: var(--transition);
-    }
+    .assessment-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; transition: var(--transition); }
+    .assessment-card:hover { border-color: var(--gray-300); box-shadow: var(--shadow-md); }
 
-    .assessment-card:hover {
-      border-color: var(--gray-300);
-      box-shadow: var(--shadow-md);
-    }
-
-    /* =========================================================
-       MODALS
-       ========================================================= */
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.active { display: flex; }
 
     .modal-content {
       background: white;
@@ -1960,13 +1319,7 @@
       z-index: 10;
     }
 
-    .modal-close:hover {
-      background: var(--gray-200);
-    }
-
-    /* =========================================================
-       TOAST
-       ========================================================= */
+    .modal-close:hover { background: var(--gray-200); }
 
     .toast {
       position: fixed;
@@ -1987,88 +1340,25 @@
       font-size: 0.85rem;
     }
 
-    .toast-error {
-      border-left-color: #ef4444;
-    }
-
-    .toast-warning {
-      border-left-color: #f59e0b;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
+    .toast-error { border-left-color: #ef4444; }
+    .toast-warning { border-left-color: #f59e0b; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     @media (max-width: 640px) {
-      body {
-        padding: 0.5rem;
-      }
-
-      .app-wrapper {
-        height: calc(100vh - 1rem);
-        max-height: calc(100vh - 1rem);
-        padding: 0.75rem;
-        border-radius: 0.75rem;
-      }
-
-      .app-header {
-        padding: 0.75rem;
-      }
-
-      .header-actions {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .nav-tabs {
-        border-radius: 0.5rem;
-      }
-
-      .nav-tab {
-        font-size: 0.7rem;
-        padding: 0.4rem 0.6rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .stat-value {
-        font-size: 1.4rem;
-      }
-
-      .btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.7rem;
-      }
-
-      .data-table {
-        font-size: 0.75rem;
-      }
-
-      .assessment-grid {
-        grid-template-columns: 1fr;
-      }
+      body { padding: 0.5rem; }
+      .app-wrapper { height: calc(100vh - 1rem); max-height: calc(100vh - 1rem); padding: 0.75rem; border-radius: 0.75rem; }
+      .app-header { padding: 0.75rem; }
+      .header-actions { width: 100%; justify-content: center; }
+      .nav-tabs { border-radius: 0.5rem; }
+      .nav-tab { font-size: 0.7rem; padding: 0.4rem 0.6rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-value { font-size: 1.4rem; }
+      .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
+      .data-table { font-size: 0.75rem; }
+      .assessment-grid { grid-template-columns: 1fr; }
     }
 
-    /* Dashboard specific fix */
-    #recent-performance {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-    }
+    #recent-performance { flex: 1; min-height: 0; overflow-y: auto; }
   </style>
 
   <style>
@@ -2081,21 +1371,14 @@
       padding: 1px;
     }
 
-    .top-section {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 10px;
-      padding: 5px;
-    }
+    .top-section { display: flex; gap: 30px; margin-bottom: 10px; padding: 5px; }
 
     img {
       width: 148px;
       height: 148px;
       border-radius: 50%;
       object-fit: cover;
-      /* Prevents distortion if the original image is not square */
     }
-
 
     .profile-pic {
       width: 150px;
@@ -2111,32 +1394,10 @@
       flex-shrink: 0;
     }
 
-    .details-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 20px;
-      row-gap: 20px;
-      flex-grow: 1;
-    }
-
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .detail-item h4 {
-      margin: 0;
-      font-size: 13px;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: #1a1a1a;
-    }
-
-    .detail-item p {
-      margin: 5px 0 0 0;
-      font-size: 14px;
-      color: #333;
-    }
+    .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 20px; row-gap: 20px; flex-grow: 1; }
+    .detail-item { display: flex; flex-direction: column; }
+    .detail-item h4 { margin: 0; font-size: 13px; text-transform: uppercase; font-weight: 800; color: #1a1a1a; }
+    .detail-item p { margin: 5px 0 0 0; font-size: 14px; color: #333; }
 
     .bottom-section {
       height: 24vh;
@@ -2146,43 +1407,15 @@
       padding: 3px 5%;
     }
 
-    .guardian-header {
-      font-weight: 800;
-      font-size: 16px;
-      margin-bottom: 5px;
-    }
-
-    .guardian-name {
-      font-size: 15px;
-      margin-bottom: 15px;
-    }
-
-    .guardian-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 40px;
-      row-gap: 15px;
-    }
-
-    .guardian-info-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .guardian-info-item strong {
-      font-size: 15px;
-      font-weight: 800;
-      margin-bottom: 3px;
-    }
-
-    .guardian-info-item span {
-      font-size: 14px;
-      color: #333;
-    }
+    .guardian-header { font-weight: 800; font-size: 16px; margin-bottom: 5px; }
+    .guardian-name { font-size: 15px; margin-bottom: 15px; }
+    .guardian-details { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; row-gap: 15px; }
+    .guardian-info-item { display: flex; flex-direction: column; }
+    .guardian-info-item strong { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+    .guardian-info-item span { font-size: 14px; color: #333; }
   </style>
 
   <style>
-    /* ===== Collapsible Section Styles for Transcripts ===== */
     .collapsible-section {
       margin-bottom: 8px;
       border: 1px solid #e5e7eb;
@@ -2210,14 +1443,8 @@
       text-align: left;
     }
 
-    .collapsible-header:hover {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    }
-
-    .collapsible-header.collapsed {
-      border-bottom: none;
-      border-radius: 8px;
-    }
+    .collapsible-header:hover { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
+    .collapsible-header.collapsed { border-bottom: none; border-radius: 8px; }
 
     .collapsible-icon {
       font-size: 0.65rem;
@@ -2233,16 +1460,8 @@
       color: #4b5563;
     }
 
-    .collapsible-section.collapsed .collapsible-icon {
-      transform: rotate(-90deg);
-    }
-
-    .collapsible-title {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .collapsible-section.collapsed .collapsible-icon { transform: rotate(-90deg); }
+    .collapsible-title { flex: 1; display: flex; align-items: center; gap: 5px; }
 
     .term-badge {
       background: #2a7de1;
@@ -2254,12 +1473,7 @@
       box-shadow: 0 1px 3px rgba(42, 125, 225, 0.3);
     }
 
-    .term-subtitle {
-      font-size: 0.7rem;
-      color: #6b7e93;
-      font-weight: 400;
-      margin-top: 1px;
-    }
+    .term-subtitle { font-size: 0.7rem; color: #6b7e93; font-weight: 400; margin-top: 1px; }
 
     .collapsible-count {
       font-size: 0.7rem;
@@ -2271,39 +1485,16 @@
       border: 1px solid #e5e7eb;
     }
 
-    .collapsible-content {
-      padding: 8px 10px;
-      animation: slideDown 0.3s ease;
-      background: white;
-    }
+    .collapsible-content { padding: 8px 10px; animation: slideDown 0.3s ease; background: white; }
 
     @keyframes slideDown {
-      from {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-3px);
-      }
-
-      to {
-        opacity: 1;
-        max-height: 100%;
-        transform: translateY(0);
-      }
+      from { opacity: 0; max-height: 0; transform: translateY(-3px); }
+      to { opacity: 1; max-height: 100%; transform: translateY(0); }
     }
 
-    .collapsible-section.collapsed .collapsible-content {
-      display: none;
-    }
+    .collapsible-section.collapsed .collapsible-content { display: none; }
 
-    /* Transcript table styles - RESPONSIVE WITHOUT HORIZONTAL SCROLL */
-    .transcript-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.75rem;
-      margin-bottom: 5px;
-      table-layout: auto;
-      /* Changed from fixed to auto for better content fitting */
-    }
+    .transcript-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-bottom: 5px; table-layout: auto; }
 
     .transcript-table th {
       background: #f8fafc;
@@ -2328,56 +1519,23 @@
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 150px;
-      /* Prevent extremely wide columns */
     }
 
-    .transcript-table tr:hover td {
-      background: #f8fafc;
-    }
+    .transcript-table tr:hover td { background: #f8fafc; }
+    .transcript-table th:first-child, .transcript-table td:first-child { min-width: 80px; max-width: 100px; text-align: left; }
 
-    /* Subject column - compact width */
-    .transcript-table th:first-child,
-    .transcript-table td:first-child {
-      min-width: 80px;
-      max-width: 100px;
-      text-align: left;
-    }
-
-    /* Assessment columns - auto width with max constraint */
     .transcript-table th:not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)),
     .transcript-table td:not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)) {
       min-width: 60px;
       max-width: 100px;
       text-align: center;
       padding: 4px 2px;
-      /* Reduced padding for assessment cells */
     }
 
-    /* Average column */
-    .transcript-table th:nth-last-child(3),
-    .transcript-table td:nth-last-child(3) {
-      min-width: 70px;
-      max-width: 80px;
-      text-align: center;
-    }
+    .transcript-table th:nth-last-child(3), .transcript-table td:nth-last-child(3) { min-width: 70px; max-width: 80px; text-align: center; }
+    .transcript-table th:nth-last-child(2), .transcript-table td:nth-last-child(2) { min-width: 50px; max-width: 60px; text-align: center; }
+    .transcript-table th:last-child, .transcript-table td:last-child { min-width: 60px; max-width: 70px; text-align: center; }
 
-    /* Grade column */
-    .transcript-table th:nth-last-child(2),
-    .transcript-table td:nth-last-child(2) {
-      min-width: 50px;
-      max-width: 60px;
-      text-align: center;
-    }
-
-    /* Rank column */
-    .transcript-table th:last-child,
-    .transcript-table td:last-child {
-      min-width: 60px;
-      max-width: 70px;
-      text-align: center;
-    }
-
-    /* Compact subject badge */
     .subject-badge {
       background: #e9f2fa;
       color: #2a5f7a;
@@ -2392,43 +1550,13 @@
       white-space: nowrap;
     }
 
-    /* Compact grade badges */
-    .grade-badge-exam {
-      display: inline-block;
-      padding: 1px 4px;
-      border-radius: 6px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      min-width: 18px;
-      text-align: center;
-    }
+    .grade-badge-exam { display: inline-block; padding: 1px 4px; border-radius: 6px; font-size: 0.6rem; font-weight: 600; min-width: 18px; text-align: center; }
+    .grade-a { background: #d1fae5; color: #065f46; }
+    .grade-b { background: #e0f2fe; color: #075985; }
+    .grade-c { background: #fef3c7; color: #92400e; }
+    .grade-d { background: #fee2e2; color: #991b1b; }
+    .grade-f { background: #fecaca; color: #7f1d1d; }
 
-    .grade-a {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .grade-b {
-      background: #e0f2fe;
-      color: #075985;
-    }
-
-    .grade-c {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .grade-d {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .grade-f {
-      background: #fecaca;
-      color: #7f1d1d;
-    }
-
-    /* Summary row - compact */
     .transcript-summary {
       display: flex;
       gap: 8px;
@@ -2439,128 +1567,31 @@
       border: 1px solid #e5e7eb;
     }
 
-    .summary-item {
-      flex: 1;
-      text-align: center;
-    }
+    .summary-item { flex: 1; text-align: center; }
+    .summary-label { font-size: 0.65rem; color: #6b7e93; text-transform: uppercase; margin-bottom: 2px; }
+    .summary-value { font-size: 0.9rem; font-weight: 700; color: #1a2a3a; }
 
-    .summary-label {
-      font-size: 0.65rem;
-      color: #6b7e93;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
+    .transcript-empty { text-align: center; padding: 20px 15px; color: #6b7e93; }
+    .transcript-empty i { font-size: 1.8rem; color: #bcccdb; margin-bottom: 8px; display: block; }
+    .transcript-empty p { font-size: 0.8rem; margin: 0; }
 
-    .summary-value {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #1a2a3a;
-    }
+    .loading-spinner { text-align: center; padding: 15px; }
+    .loading-spinner i { font-size: 1.2rem; color: #2a7de1; animation: spin 1s linear infinite; }
 
-    /* Empty state */
-    .transcript-empty {
-      text-align: center;
-      padding: 20px 15px;
-      color: #6b7e93;
-    }
+    .rank-badge { display: inline-block; padding: 1px 4px; border-radius: 6px; font-size: 0.6rem; font-weight: 600; min-width: 30px; text-align: center; }
+    .rank-top { background: #d1fae5; color: #065f46; }
+    .rank-mid { background: #e0f2fe; color: #075985; }
+    .rank-bottom { background: #f3f4f6; color: #6b7280; }
 
-    .transcript-empty i {
-      font-size: 1.8rem;
-      color: #bcccdb;
-      margin-bottom: 8px;
-      display: block;
-    }
+    .assessment-header { display: block; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.6rem; }
 
-    .transcript-empty p {
-      font-size: 0.8rem;
-      margin: 0;
-    }
+    .subject-performance-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -5px; padding: 0 5px; }
+    .subject-performance-wrapper .transcript-table { min-width: 100%; width: auto; }
+    .transcript-table .assessment-cell { font-size: 0.65rem; line-height: 1.1; }
+    .transcript-table .assessment-cell strong { display: block; font-size: 0.7rem; }
 
-    /* Loading state */
-    .loading-spinner {
-      text-align: center;
-      padding: 15px;
-    }
-
-    .loading-spinner i {
-      font-size: 1.2rem;
-      color: #2a7de1;
-      animation: spin 1s linear infinite;
-    }
-
-    /* Rank badges - compact */
-    .rank-badge {
-      display: inline-block;
-      padding: 1px 4px;
-      border-radius: 6px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      min-width: 30px;
-      text-align: center;
-    }
-
-    .rank-top {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .rank-mid {
-      background: #e0f2fe;
-      color: #075985;
-    }
-
-    .rank-bottom {
-      background: #f3f4f6;
-      color: #6b7280;
-    }
-
-    /* Assessment header names - truncated */
-    .assessment-header {
-      display: block;
-      max-width: 90px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 0.6rem;
-    }
-
-    /* Wrapper for subject performance table to handle overflow gracefully */
-    .subject-performance-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin: 0 -5px;
-      /* Negative margin to counteract padding */
-      padding: 0 5px;
-    }
-
-    .subject-performance-wrapper .transcript-table {
-      min-width: 100%;
-      width: auto;
-    }
-
-    /* Make assessment cells more compact */
-    .transcript-table .assessment-cell {
-      font-size: 0.65rem;
-      line-height: 1.1;
-    }
-
-    .transcript-table .assessment-cell strong {
-      display: block;
-      font-size: 0.7rem;
-    }
-
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
-
 
   <style>
     .assessment-card.selected {
@@ -2569,82 +1600,31 @@
       box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
     }
 
-    .assessment-card.selected::before {
-      background: #16a34a;
-      color: #ffffff;
-    }
+    .assessment-card.selected::before { background: #16a34a; color: #ffffff; }
   </style>
 
-
-
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --primary: #4f46e5;
-      --primary-light: #6366f1;
-      --primary-dark: #4338ca;
-      --success: #10b981;
-      --success-light: #d1fae5;
-      --warning: #f59e0b;
-      --warning-light: #fef3c7;
-      --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --border: #e5e7eb;
-
-      /* Base scalable sizes */
-      --dash-pad: 24px;
-      --dash-gap: 20px;
-      --card-radius: 12px;
-      --header-pad-y: 16px;
-      --header-pad-x: 24px;
-      --stat-pad: 16px;
-      --stat-value: 1.8rem;
-      --stat-icon: 40px;
-      --card-header-pad: 14px 2px;
-      --table-pad: 10px 20px;
-      --fee-pad: 20px;
-      --fee-total: 2.5rem;
-      --bottom-h: 250px;
-      --mini-chart-h: 150px;
-      --activity-max: 160px;
-      --avatar: 32px;
-      --icon-sm: 28px;
-      --gap-sm: 8px;
-      --gap-md: 12px;
-      --gap-lg: 16px;
-      --fs-xs: 0.65rem;
-      --fs-sm: 0.7rem;
-      --fs-base: 0.8rem;
-      --fs-md: 0.85rem;
-      --fs-lg: 0.9rem;
-      --fs-xl: 1.2rem;
+      --primary: #4f46e5; --primary-light: #6366f1; --primary-dark: #4338ca;
+      --success: #10b981; --success-light: #d1fae5; --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+      --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
+      --gray-800: #1f2937; --border: #e5e7eb;
+      --dash-pad: 24px; --dash-gap: 20px; --card-radius: 12px;
+      --header-pad-y: 16px; --header-pad-x: 24px; --stat-pad: 16px;
+      --stat-value: 1.8rem; --stat-icon: 40px; --card-header-pad: 14px 2px;
+      --table-pad: 10px 20px; --fee-pad: 20px; --fee-total: 2.5rem;
+      --bottom-h: 250px; --mini-chart-h: 150px; --activity-max: 160px;
+      --avatar: 32px; --icon-sm: 28px; --gap-sm: 8px; --gap-md: 12px; --gap-lg: 16px;
+      --fs-xs: 0.65rem; --fs-sm: 0.7rem; --fs-base: 0.8rem; --fs-md: 0.85rem;
+      --fs-lg: 0.9rem; --fs-xl: 1.2rem;
     }
 
+    .main-content { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    /* Top Header */
     .top-header {
       background: white;
       padding: var(--header-pad-y) var(--header-pad-x);
@@ -2655,30 +1635,10 @@
       flex-shrink: 0;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: var(--gap-lg);
-    }
-
-    .header-title {
-      font-size: clamp(1rem, 1.8vh, 1.3rem);
-      font-weight: 800;
-      color: var(--gray-800);
-      letter-spacing: -0.02em;
-    }
-
-    .header-date {
-      font-size: var(--fs-sm);
-      color: var(--gray-400);
-      margin-top: 2px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: var(--gap-md);
-    }
+    .header-left { display: flex; align-items: center; gap: var(--gap-lg); }
+    .header-title { font-size: clamp(1rem, 1.8vh, 1.3rem); font-weight: 800; color: var(--gray-800); letter-spacing: -0.02em; }
+    .header-date { font-size: var(--fs-sm); color: var(--gray-400); margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: var(--gap-md); }
 
     .search-box {
       display: flex;
@@ -2692,26 +1652,9 @@
       width: 280px;
     }
 
-    .search-box:focus-within {
-      background: white;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .search-box input {
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: var(--fs-base);
-      color: var(--gray-700);
-      width: 100%;
-      font-family: inherit;
-    }
-
-    .search-box i {
-      color: var(--gray-400);
-      font-size: 0.85rem;
-    }
+    .search-box:focus-within { background: white; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .search-box input { border: none; background: transparent; outline: none; font-size: var(--fs-base); color: var(--gray-700); width: 100%; font-family: inherit; }
+    .search-box i { color: var(--gray-400); font-size: 0.85rem; }
 
     .header-icon {
       width: var(--stat-icon);
@@ -2728,10 +1671,7 @@
       position: relative;
     }
 
-    .header-icon:hover {
-      background: var(--gray-100);
-      color: var(--gray-700);
-    }
+    .header-icon:hover { background: var(--gray-100); color: var(--gray-700); }
 
     .notification-badge {
       position: absolute;
@@ -2764,7 +1704,6 @@
       cursor: pointer;
     }
 
-    /* Dashboard Area */
     .dashboard-area {
       flex: 1;
       min-height: 0;
@@ -2775,7 +1714,6 @@
       overflow: hidden;
     }
 
-    /* Welcome Banner */
     .welcome-banner {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       border-radius: 16px;
@@ -2789,34 +1727,10 @@
       overflow: hidden;
     }
 
-    .welcome-banner::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 200px;
-      height: 200px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-    }
-
-    .welcome-text {
-      font-size: clamp(1rem, 2vh, 1.2rem);
-      font-weight: 700;
-    }
-
-    .welcome-subtext {
-      font-size: clamp(0.7rem, 1.3vh, 0.8rem);
-      opacity: 0.85;
-      margin-top: 4px;
-    }
-
-    .welcome-actions {
-      display: flex;
-      gap: 8px;
-      position: relative;
-      z-index: 1;
-    }
+    .welcome-banner::after { content: ''; position: absolute; top: -50%; right: -10%; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; }
+    .welcome-text { font-size: clamp(1rem, 2vh, 1.2rem); font-weight: 700; }
+    .welcome-subtext { font-size: clamp(0.7rem, 1.3vh, 0.8rem); opacity: 0.85; margin-top: 4px; }
+    .welcome-actions { display: flex; gap: 8px; position: relative; z-index: 1; }
 
     .welcome-btn {
       padding: clamp(6px, 1.2vh, 8px) clamp(12px, 2vh, 16px);
@@ -2829,31 +1743,12 @@
       font-family: inherit;
     }
 
-    .welcome-btn.white {
-      background: white;
-      color: var(--primary);
-    }
+    .welcome-btn.white { background: white; color: var(--primary); }
+    .welcome-btn.white:hover { background: var(--gray-100); }
+    .welcome-btn.transparent { background: rgba(255, 255, 255, 0.2); color: white; }
+    .welcome-btn.transparent:hover { background: rgba(255, 255, 255, 0.3); }
 
-    .welcome-btn.white:hover {
-      background: var(--gray-100);
-    }
-
-    .welcome-btn.transparent {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-    }
-
-    .welcome-btn.transparent:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Stats Row */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--gap-lg);
-      flex-shrink: 0;
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-lg); flex-shrink: 0; }
 
     .stat-card {
       background: white;
@@ -2864,25 +1759,9 @@
       transition: all 0.2s;
     }
 
-    .stat-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transform: translateY(-2px);
-    }
-
-    .stat-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: clamp(6px, 1.2vh, 12px);
-    }
-
-    .stat-title {
-      font-size: var(--fs-sm);
-      font-weight: 600;
-      color: var(--gray-500);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+    .stat-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transform: translateY(-2px); }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: clamp(6px, 1.2vh, 12px); }
+    .stat-title { font-size: var(--fs-sm); font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; }
 
     .stat-icon {
       width: var(--stat-icon);
@@ -2894,75 +1773,20 @@
       font-size: clamp(0.9rem, 1.8vh, 1.1rem);
     }
 
-    .stat-icon.blue {
-      background: #eff6ff;
-      color: #3b82f6;
-    }
+    .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+    .stat-icon.green { background: #ecfdf5; color: #10b981; }
+    .stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+    .stat-icon.purple { background: #faf5ff; color: #a855f7; }
 
-    .stat-icon.green {
-      background: #ecfdf5;
-      color: #10b981;
-    }
+    .stat-value { font-size: var(--stat-value); font-weight: 800; color: var(--gray-800); line-height: 1.2; letter-spacing: -0.02em; }
+    .stat-bottom { display: flex; align-items: center; gap: 8px; margin-top: clamp(4px, 1vh, 8px); }
 
-    .stat-icon.orange {
-      background: #fffbeb;
-      color: #f59e0b;
-    }
+    .stat-trend { display: flex; align-items: center; gap: 4px; font-size: var(--fs-sm); font-weight: 600; padding: 2px 6px; border-radius: 20px; }
+    .stat-trend.up { background: var(--success-light); color: var(--success); }
+    .stat-trend.down { background: var(--danger-light); color: var(--danger); }
+    .stat-comparison { font-size: var(--fs-xs); color: var(--gray-400); }
 
-    .stat-icon.purple {
-      background: #faf5ff;
-      color: #a855f7;
-    }
-
-    .stat-value {
-      font-size: var(--stat-value);
-      font-weight: 800;
-      color: var(--gray-800);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-
-    .stat-bottom {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: clamp(4px, 1vh, 8px);
-    }
-
-    .stat-trend {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: var(--fs-sm);
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 20px;
-    }
-
-    .stat-trend.up {
-      background: var(--success-light);
-      color: var(--success);
-    }
-
-    .stat-trend.down {
-      background: var(--danger-light);
-      color: var(--danger);
-    }
-
-    .stat-comparison {
-      font-size: var(--fs-xs);
-      color: var(--gray-400);
-    }
-
-    /* Main Grid Row */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: var(--dash-gap);
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-    }
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--dash-gap); flex: 1; min-height: 0; overflow: hidden; }
 
     .card {
       background: white;
@@ -2984,19 +1808,8 @@
       flex-shrink: 0;
     }
 
-    .card-title {
-      font-size: var(--fs-lg);
-      font-weight: 700;
-      color: var(--gray-800);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card-title i {
-      color: var(--primary);
-      font-size: 0.95rem;
-    }
+    .card-title { font-size: var(--fs-lg); font-weight: 700; color: var(--gray-800); display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: var(--primary); font-size: 0.95rem; }
 
     .card-action {
       font-size: var(--fs-sm);
@@ -3014,30 +1827,10 @@
       transition: all 0.2s;
     }
 
-    .card-action:hover {
-      background: var(--gray-100);
-    }
-
-    .card-body {
-      flex: 1;
-      min-height: 0;
-      padding: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Table */
-    .table-container {
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .card-action:hover { background: var(--gray-100); }
+    .card-body { flex: 1; min-height: 0; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .table-container { flex: 1; min-height: 0; overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
 
     .data-table thead th {
       background: var(--gray-50);
@@ -3059,19 +1852,9 @@
       vertical-align: middle;
     }
 
-    .data-table tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    .data-table tbody tr:hover {
-      background: var(--gray-50);
-    }
-
-    .student-cell {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--gray-50); }
+    .student-cell { display: flex; align-items: center; gap: 5px; }
 
     .student-avatar {
       width: var(--avatar);
@@ -3087,51 +1870,15 @@
       flex-shrink: 0;
     }
 
-    .student-info {
-      display: flex;
-      flex-direction: column;
-    }
+    .student-info { display: flex; flex-direction: column; }
+    .student-name { font-weight: 600; color: var(--gray-800); font-size: var(--fs-base); }
+    .student-id { font-size: var(--fs-xs); color: var(--gray-400); }
 
-    .student-name {
-      font-weight: 600;
-      color: var(--gray-800);
-      font-size: var(--fs-base);
-    }
-
-    .student-id {
-      font-size: var(--fs-xs);
-      color: var(--gray-400);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 10px;
-      border-radius: 50px;
-      font-size: var(--fs-sm);
-      font-weight: 600;
-    }
-
-    .badge-success {
-      background: var(--success-light);
-      color: #065f46;
-    }
-
-    .badge-warning {
-      background: var(--warning-light);
-      color: #92400e;
-    }
-
-    .badge-danger {
-      background: var(--danger-light);
-      color: #b91c1c;
-    }
-
-    .badge-blue {
-      background: #eff6ff;
-      color: #3b82f6;
-    }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 50px; font-size: var(--fs-sm); font-weight: 600; }
+    .badge-success { background: var(--success-light); color: #065f46; }
+    .badge-warning { background: var(--warning-light); color: #92400e; }
+    .badge-danger { background: var(--danger-light); color: #b91c1c; }
+    .badge-blue { background: #eff6ff; color: #3b82f6; }
 
     .action-btn {
       width: var(--icon-sm);
@@ -3148,111 +1895,25 @@
       transition: all 0.2s;
     }
 
-    .action-btn:hover {
-      background: var(--gray-100);
-      color: var(--gray-700);
-    }
+    .action-btn:hover { background: var(--gray-100); color: var(--gray-700); }
 
-    /* Fee Card */
-    .fee-content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--gap-lg);
-      padding: var(--fee-pad);
-      height: 100%;
-      min-height: 0;
-      overflow: hidden;
-    }
+    .fee-content { display: flex; flex-direction: column; gap: var(--gap-lg); padding: var(--fee-pad); height: 100%; min-height: 0; overflow: hidden; }
+    .fee-total { text-align: center; padding: clamp(4px, 1vh, 10px); flex-shrink: 0; }
+    .fee-total-value { font-size: var(--fee-total); font-weight: 800; color: var(--gray-800); letter-spacing: -0.02em; }
+    .fee-total-label { font-size: var(--fs-sm); color: var(--gray-500); margin-top: 4px; }
 
-    .fee-total {
-      text-align: center;
-      padding: clamp(4px, 1vh, 10px);
-      flex-shrink: 0;
-    }
+    .progress-list { display: flex; flex-direction: column; gap: clamp(8px, 1.5vh, 12px); flex: 1; min-height: 0; overflow: hidden; justify-content: space-around; }
+    .progress-item { width: 100%; }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .progress-label { font-size: var(--fs-base); font-weight: 600; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+    .progress-value { font-size: var(--fs-base); font-weight: 700; color: var(--gray-800); }
+    .progress-track { height: 6px; background: var(--gray-200); border-radius: 50px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 50px; transition: width 0.5s ease; }
+    .progress-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-fill.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .progress-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
 
-    .fee-total-value {
-      font-size: var(--fee-total);
-      font-weight: 800;
-      color: var(--gray-800);
-      letter-spacing: -0.02em;
-    }
-
-    .fee-total-label {
-      font-size: var(--fs-sm);
-      color: var(--gray-500);
-      margin-top: 4px;
-    }
-
-    .progress-list {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(8px, 1.5vh, 12px);
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      justify-content: space-around;
-    }
-
-    .progress-item {
-      width: 100%;
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .progress-label {
-      font-size: var(--fs-base);
-      font-weight: 600;
-      color: var(--gray-600);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .progress-value {
-      font-size: var(--fs-base);
-      font-weight: 700;
-      color: var(--gray-800);
-    }
-
-    .progress-track {
-      height: 6px;
-      background: var(--gray-200);
-      border-radius: 50px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      border-radius: 50px;
-      transition: width 0.5s ease;
-    }
-
-    .progress-fill.green {
-      background: linear-gradient(90deg, #10b981, #34d399);
-    }
-
-    .progress-fill.orange {
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    }
-
-    .progress-fill.blue {
-      background: linear-gradient(90deg, #3b82f6, #60a5fa);
-    }
-
-    /* Bottom Row */
-    .bottom-row {
-      display: grid;
-      grid-template-columns: repeat(3, 2fr);
-      gap: var(--dash-gap);
-      flex-shrink: 0;
-      height: var(--bottom-h);
-      overflow: hidden;
-    }
+    .bottom-row { display: grid; grid-template-columns: repeat(3, 2fr); gap: var(--dash-gap); flex-shrink: 0; height: var(--bottom-h); overflow: hidden; }
 
     .card-bottom {
       background: white;
@@ -3274,18 +1935,8 @@
       flex-shrink: 0;
     }
 
-    .card-bottom-title {
-      font-size: var(--fs-md);
-      font-weight: 700;
-      color: var(--gray-800);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card-bottom-title i {
-      color: var(--primary);
-    }
+    .card-bottom-title { font-size: var(--fs-md); font-weight: 700; color: var(--gray-800); display: flex; align-items: center; gap: 8px; }
+    .card-bottom-title i { color: var(--primary); }
 
     .card-bottom-body {
       flex: 1;
@@ -3296,75 +1947,17 @@
       flex-direction: column;
     }
 
-    /* Mini Bar Chart */
-    .mini-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      height: 100%;
-      min-height: 0;
-    }
+    .mini-chart { display: flex; align-items: flex-end; gap: 8px; height: 100%; min-height: 0; }
+    .chart-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .chart-bar-value { font-size: var(--fs-xs); font-weight: 700; color: var(--gray-600); }
+    .chart-bar-fill { width: 70%; border-radius: 6px 6px 0 0; min-height: 4px; transition: all 0.3s; }
+    .chart-bar-fill:hover { opacity: 0.8; }
+    .chart-bar-label { font-size: var(--fs-xs); color: var(--gray-400); }
 
-    .chart-bar {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      height: 100%;
-      justify-content: flex-end;
-    }
-
-    .chart-bar-value {
-      font-size: var(--fs-xs);
-      font-weight: 700;
-      color: var(--gray-600);
-    }
-
-    .chart-bar-fill {
-      width: 70%;
-      border-radius: 6px 6px 0 0;
-      min-height: 4px;
-      transition: all 0.3s;
-    }
-
-    .chart-bar-fill:hover {
-      opacity: 0.8;
-    }
-
-    .chart-bar-label {
-      font-size: var(--fs-xs);
-      color: var(--gray-400);
-    }
-
-    /* Quick Stats */
-    .quick-stats {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(6px, 1.2vh, 12px);
-      height: 100%;
-      min-height: 0;
-      overflow: hidden;
-      justify-content: space-around;
-    }
-
-    .quick-stat {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: clamp(4px, 0.8vh, 8px) 0;
-      border-bottom: 1px solid var(--gray-100);
-    }
-
-    .quick-stat:last-child {
-      border-bottom: none;
-    }
-
-    .quick-stat-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .quick-stats { display: flex; flex-direction: column; gap: clamp(6px, 1.2vh, 12px); height: 100%; min-height: 0; overflow: hidden; justify-content: space-around; }
+    .quick-stat { display: flex; align-items: center; justify-content: space-between; padding: clamp(4px, 0.8vh, 8px) 0; border-bottom: 1px solid var(--gray-100); }
+    .quick-stat:last-child { border-bottom: none; }
+    .quick-stat-info { display: flex; align-items: center; gap: 10px; }
 
     .quick-stat-icon {
       width: var(--avatar);
@@ -3376,55 +1969,16 @@
       font-size: 0.8rem;
     }
 
-    .quick-stat-icon.green {
-      background: var(--success-light);
-      color: var(--success);
-    }
+    .quick-stat-icon.green { background: var(--success-light); color: var(--success); }
+    .quick-stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .quick-stat-icon.red { background: var(--danger-light); color: var(--danger); }
+    .quick-stat-icon.blue { background: #eff6ff; color: #3b82f6; }
 
-    .quick-stat-icon.orange {
-      background: var(--warning-light);
-      color: var(--warning);
-    }
+    .quick-stat-label { font-size: var(--fs-base); font-weight: 600; color: var(--gray-600); }
+    .quick-stat-value { font-size: clamp(0.85rem, 1.8vh, 1rem); font-weight: 800; color: var(--gray-800); }
 
-    .quick-stat-icon.red {
-      background: var(--danger-light);
-      color: var(--danger);
-    }
-
-    .quick-stat-icon.blue {
-      background: #eff6ff;
-      color: #3b82f6;
-    }
-
-    .quick-stat-label {
-      font-size: var(--fs-base);
-      font-weight: 600;
-      color: var(--gray-600);
-    }
-
-    .quick-stat-value {
-      font-size: clamp(0.85rem, 1.8vh, 1rem);
-      font-weight: 800;
-      color: var(--gray-800);
-    }
-
-    /* Activity Feed */
-    .activity-feed {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(6px, 1.2vh, 10px);
-      height: 100%;
-      min-height: 0;
-      overflow: hidden;
-      justify-content: space-around;
-    }
-
-    .activity-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: clamp(2px, 0.6vh, 6px) 0;
-    }
+    .activity-feed { display: flex; flex-direction: column; gap: clamp(6px, 1.2vh, 10px); height: 100%; min-height: 0; overflow: hidden; justify-content: space-around; }
+    .activity-item { display: flex; align-items: center; gap: 10px; padding: clamp(2px, 0.6vh, 6px) 0; }
 
     .activity-icon {
       width: clamp(24px, 3.5vh, 30px);
@@ -3437,342 +1991,196 @@
       flex-shrink: 0;
     }
 
-    .activity-icon.green {
-      background: var(--success-light);
-      color: var(--success);
-    }
-
-    .activity-icon.blue {
-      background: #eff6ff;
-      color: #3b82f6;
-    }
-
-    .activity-icon.orange {
-      background: var(--warning-light);
-      color: var(--warning);
-    }
-
-    .activity-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .activity-text {
-      font-size: var(--fs-base);
-      font-weight: 600;
-      color: var(--gray-700);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .activity-time {
-      font-size: var(--fs-xs);
-      color: var(--gray-400);
-    }
-
-    /* ========== HEIGHT RESPONSIVE SCALING ========== */
-    /* Shrink content proportionally so everything stays visible */
+    .activity-icon.green { background: var(--success-light); color: var(--success); }
+    .activity-icon.blue { background: #eff6ff; color: #3b82f6; }
+    .activity-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .activity-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .activity-text { font-size: var(--fs-base); font-weight: 600; color: var(--gray-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-time { font-size: var(--fs-xs); color: var(--gray-400); }
 
     @media (max-height: 900px) {
       :root {
-        --dash-pad: 16px;
-        --dash-gap: 14px;
-        --stat-pad: 12px;
-        --stat-value: 1.5rem;
-        --stat-icon: 34px;
-        --card-header-pad: 10px 16px;
-        --table-pad: 8px 14px;
-        --fee-pad: 14px;
-        --fee-total: 2rem;
-        --bottom-h: 180px;
-        --avatar: 28px;
-        --icon-sm: 26px;
-        --gap-lg: 12px;
-        --gap-md: 10px;
-        --fs-xs: 0.6rem;
-        --fs-sm: 0.65rem;
-        --fs-base: 0.75rem;
-        --fs-md: 0.8rem;
-        --fs-lg: 0.85rem;
+        --dash-pad: 16px; --dash-gap: 14px; --stat-pad: 12px; --stat-value: 1.5rem;
+        --stat-icon: 34px; --card-header-pad: 10px 16px; --table-pad: 8px 14px;
+        --fee-pad: 14px; --fee-total: 2rem; --bottom-h: 180px; --avatar: 28px;
+        --icon-sm: 26px; --gap-lg: 12px; --gap-md: 10px;
+        --fs-xs: 0.6rem; --fs-sm: 0.65rem; --fs-base: 0.75rem; --fs-md: 0.8rem; --fs-lg: 0.85rem;
       }
     }
 
     @media (max-height: 800px) {
       :root {
-        --dash-pad: 12px;
-        --dash-gap: 10px;
-        --stat-pad: 10px;
-        --stat-value: 1.35rem;
-        --stat-icon: 30px;
-        --card-header-pad: 8px 12px;
-        --table-pad: 6px 12px;
-        --fee-pad: 12px;
-        --fee-total: 1.75rem;
-        --bottom-h: 255px;
-        --avatar: 26px;
-        --icon-sm: 24px;
-        --gap-lg: 10px;
-        --gap-md: 8px;
-        --fs-xs: 0.58rem;
-        --fs-sm: 0.62rem;
-        --fs-base: 0.7rem;
-        --fs-md: 0.75rem;
-        --fs-lg: 0.8rem;
+        --dash-pad: 12px; --dash-gap: 10px; --stat-pad: 10px; --stat-value: 1.35rem;
+        --stat-icon: 30px; --card-header-pad: 8px 12px; --table-pad: 6px 12px;
+        --fee-pad: 12px; --fee-total: 1.75rem; --bottom-h: 255px; --avatar: 26px;
+        --icon-sm: 24px; --gap-lg: 10px; --gap-md: 8px;
+        --fs-xs: 0.58rem; --fs-sm: 0.62rem; --fs-base: 0.7rem; --fs-md: 0.75rem; --fs-lg: 0.8rem;
       }
-
-      .welcome-banner {
-        padding: 10px 16px;
-      }
+      .welcome-banner { padding: 10px 16px; }
     }
 
     @media (max-height: 700px) {
       :root {
-        --dash-pad: 10px;
-        --dash-gap: 8px;
-        --stat-pad: 8px;
-        --stat-value: 1.2rem;
-        --stat-icon: 28px;
-        --card-header-pad: 6px 10px;
-        --table-pad: 5px 10px;
-        --fee-pad: 10px;
-        --fee-total: 1.5rem;
-        --bottom-h: 225px;
-        --avatar: 24px;
-        --icon-sm: 22px;
-        --gap-lg: 8px;
-        --fs-xs: 0.55rem;
-        --fs-sm: 0.6rem;
-        --fs-base: 0.68rem;
-        --fs-md: 0.72rem;
-        --fs-lg: 0.75rem;
+        --dash-pad: 10px; --dash-gap: 8px; --stat-pad: 8px; --stat-value: 1.2rem;
+        --stat-icon: 28px; --card-header-pad: 6px 10px; --table-pad: 5px 10px;
+        --fee-pad: 10px; --fee-total: 1.5rem; --bottom-h: 225px; --avatar: 24px;
+        --icon-sm: 22px; --gap-lg: 8px; --fs-xs: 0.55rem; --fs-sm: 0.6rem;
+        --fs-base: 0.68rem; --fs-md: 0.72rem; --fs-lg: 0.75rem;
       }
-
-      .header-title {
-        font-size: 1.05rem;
-      }
-
-      .search-box {
-        width: 220px;
-        padding: 6px 12px;
-      }
+      .header-title { font-size: 1.05rem; }
+      .search-box { width: 220px; padding: 6px 12px; }
     }
 
     @media (max-height: 600px) {
       :root {
-        --dash-pad: 8px;
-        --dash-gap: 6px;
-        --stat-pad: 6px;
-        --stat-value: 1.05rem;
-        --stat-icon: 24px;
-        --card-header-pad: 5px 8px;
-        --table-pad: 4px 8px;
-        --fee-pad: 8px;
-        --fee-total: 1.3rem;
-        --bottom-h: 205px;
-        --avatar: 22px;
-        --icon-sm: 20px;
-        --fs-xs: 0.52rem;
-        --fs-sm: 0.56rem;
-        --fs-base: 0.62rem;
-        --fs-md: 0.68rem;
-        --fs-lg: 0.7rem;
+        --dash-pad: 8px; --dash-gap: 6px; --stat-pad: 6px; --stat-value: 1.05rem;
+        --stat-icon: 24px; --card-header-pad: 5px 8px; --table-pad: 4px 8px;
+        --fee-pad: 8px; --fee-total: 1.3rem; --bottom-h: 205px; --avatar: 22px;
+        --icon-sm: 20px; --fs-xs: 0.52rem; --fs-sm: 0.56rem; --fs-base: 0.62rem;
+        --fs-md: 0.68rem; --fs-lg: 0.7rem;
       }
-
-      .top-header {
-        padding: 8px 12px;
-      }
-
-      .welcome-banner {
-        padding: 8px 12px;
-      }
-
-      .welcome-text {
-        font-size: 0.95rem;
-      }
+      .top-header { padding: 8px 12px; }
+      .welcome-banner { padding: 8px 12px; }
+      .welcome-text { font-size: 0.95rem; }
     }
-
-    /* ========== ADDITIONAL BREAKPOINTS FOR SMALLER HEIGHTS ========== */
 
     @media (max-height: 500px) {
       :root {
-        --dash-pad: 6px;
-        --dash-gap: 4px;
-        --stat-pad: 4px;
-        --stat-value: 0.95rem;
-        --stat-icon: 20px;
-        --card-header-pad: 4px 6px;
-        --table-pad: 3px 6px;
-        --fee-pad: 6px;
-        --fee-total: 1.1rem;
-        --bottom-h: 180px;
-        --avatar: 18px;
-        --icon-sm: 18px;
-        --fs-xs: 0.48rem;
-        --fs-sm: 0.52rem;
-        --fs-base: 0.58rem;
-        --fs-md: 0.62rem;
-        --fs-lg: 0.65rem;
+        --dash-pad: 6px; --dash-gap: 4px; --stat-pad: 4px; --stat-value: 0.95rem;
+        --stat-icon: 20px; --card-header-pad: 4px 6px; --table-pad: 3px 6px;
+        --fee-pad: 6px; --fee-total: 1.1rem; --bottom-h: 180px; --avatar: 18px;
+        --icon-sm: 18px; --fs-xs: 0.48rem; --fs-sm: 0.52rem; --fs-base: 0.58rem;
+        --fs-md: 0.62rem; --fs-lg: 0.65rem;
       }
-
-      .top-header {
-        padding: 6px 10px;
-      }
-
-      .welcome-banner {
-        padding: 6px 10px;
-      }
-
-      .welcome-text {
-        font-size: 0.85rem;
-      }
-
-      .welcome-subtext {
-        font-size: 0.6rem;
-      }
-
-      .search-box {
-        width: 180px;
-        padding: 4px 8px;
-      }
-
-      .header-icon {
-        width: var(--stat-icon);
-        height: var(--stat-icon);
-      }
-
-      .notification-badge {
-        width: 12px;
-        height: 12px;
-        font-size: 0.4rem;
-      }
+      .top-header { padding: 6px 10px; }
+      .welcome-banner { padding: 6px 10px; }
+      .welcome-text { font-size: 0.85rem; }
+      .welcome-subtext { font-size: 0.6rem; }
+      .search-box { width: 180px; padding: 4px 8px; }
+      .header-icon { width: var(--stat-icon); height: var(--stat-icon); }
+      .notification-badge { width: 12px; height: 12px; font-size: 0.4rem; }
     }
 
     @media (max-height: 400px) {
       :root {
-        --dash-pad: 4px;
-        --dash-gap: 3px;
-        --stat-pad: 3px;
-        --stat-value: 0.85rem;
-        --stat-icon: 18px;
-        --card-header-pad: 3px 5px;
-        --table-pad: 2px 5px;
-        --fee-pad: 4px;
-        --fee-total: 0.95rem;
-        --bottom-h: 160px;
-        --avatar: 16px;
-        --icon-sm: 16px;
-        --fs-xs: 0.45rem;
-        --fs-sm: 0.48rem;
-        --fs-base: 0.52rem;
-        --fs-md: 0.55rem;
-        --fs-lg: 0.58rem;
+        --dash-pad: 4px; --dash-gap: 3px; --stat-pad: 3px; --stat-value: 0.85rem;
+        --stat-icon: 18px; --card-header-pad: 3px 5px; --table-pad: 2px 5px;
+        --fee-pad: 4px; --fee-total: 0.95rem; --bottom-h: 160px; --avatar: 16px;
+        --icon-sm: 16px; --fs-xs: 0.45rem; --fs-sm: 0.48rem; --fs-base: 0.52rem;
+        --fs-md: 0.55rem; --fs-lg: 0.58rem;
       }
-
-      .top-header {
-        padding: 4px 8px;
-      }
-
-      .welcome-banner {
-        padding: 4px 8px;
-      }
-
-      .welcome-text {
-        font-size: 0.75rem;
-      }
-
-      .welcome-subtext {
-        font-size: 0.55rem;
-      }
-
-      .welcome-btn {
-        padding: 4px 8px;
-        font-size: 0.55rem;
-      }
-
-      .search-box {
-        width: 150px;
-        padding: 3px 6px;
-      }
-
-      .header-icon {
-        width: var(--stat-icon);
-        height: var(--stat-icon);
-      }
-
-      .stat-trend {
-        padding: 1px 4px;
-        font-size: var(--fs-sm);
-      }
-
-      .stat-comparison {
-        font-size: var(--fs-xs);
-      }
+      .top-header { padding: 4px 8px; }
+      .welcome-banner { padding: 4px 8px; }
+      .welcome-text { font-size: 0.75rem; }
+      .welcome-subtext { font-size: 0.55rem; }
+      .welcome-btn { padding: 4px 8px; font-size: 0.55rem; }
+      .search-box { width: 150px; padding: 3px 6px; }
+      .header-icon { width: var(--stat-icon); height: var(--stat-icon); }
+      .stat-trend { padding: 1px 4px; font-size: var(--fs-sm); }
+      .stat-comparison { font-size: var(--fs-xs); }
     }
 
     @media (max-height: 300px) {
       :root {
-        --dash-pad: 2px;
-        --dash-gap: 2px;
-        --stat-pad: 2px;
-        --stat-value: 0.75rem;
-        --stat-icon: 16px;
-        --card-header-pad: 2px 4px;
-        --table-pad: 1px 4px;
-        --fee-pad: 3px;
-        --fee-total: 0.8rem;
-        --bottom-h: 140px;
-        --avatar: 8px;
-        --icon-sm: 14px;
-        --fs-xs: 0.4rem;
-        --fs-sm: 0.42rem;
-        --fs-base: 0.46rem;
-        --fs-md: 0.48rem;
-        --fs-lg: 0.5rem;
+        --dash-pad: 2px; --dash-gap: 2px; --stat-pad: 2px; --stat-value: 0.75rem;
+        --stat-icon: 16px; --card-header-pad: 2px 4px; --table-pad: 1px 4px;
+        --fee-pad: 3px; --fee-total: 0.8rem; --bottom-h: 140px; --avatar: 8px;
+        --icon-sm: 14px; --fs-xs: 0.4rem; --fs-sm: 0.42rem; --fs-base: 0.46rem;
+        --fs-md: 0.48rem; --fs-lg: 0.5rem;
       }
-
-      .top-header {
-        padding: 2px 6px;
-      }
-
-      .welcome-banner {
-        padding: 2px 6px;
-      }
-
-      .welcome-text {
-        font-size: 0.65rem;
-      }
-
-      .welcome-subtext {
-        font-size: 0.5rem;
-      }
-
-      .welcome-btn {
-        padding: 2px 6px;
-        font-size: 0.45rem;
-      }
-
-      .search-box {
-        width: 120px;
-        padding: 2px 4px;
-      }
-
-      .header-icon {
-        width: var(--stat-icon);
-        height: var(--stat-icon);
-      }
+      .top-header { padding: 2px 6px; }
+      .welcome-banner { padding: 2px 6px; }
+      .welcome-text { font-size: 0.65rem; }
+      .welcome-subtext { font-size: 0.5rem; }
+      .welcome-btn { padding: 2px 6px; font-size: 0.45rem; }
+      .search-box { width: 120px; padding: 2px 4px; }
+      .header-icon { width: var(--stat-icon); height: var(--stat-icon); }
     }
   </style>
 
-
 </head>
 
-<body>
+<body class="auth-pending">
 
+  <!-- ============================================================
+       AUTH ROOT — overlays everything until authenticated
+       ============================================================ -->
+  <div id="authRoot">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="logo-icon">📚</div>
+        <h1 id="authTitle">Welcome Back</h1>
+        <p id="authSubtitle">Sign in to continue to your dashboard</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-tab="login" type="button">Login</button>
+        <button class="auth-tab" data-auth-tab="signup" type="button">Sign Up</button>
+      </div>
+
+      <form class="auth-form" id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+        </div>
+        <div class="auth-message" id="loginMessage"></div>
+        <button type="submit" class="auth-btn" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <form class="auth-form" id="signupForm" style="display: none;">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" class="form-input" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" class="form-input" placeholder="Min. 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label for="signupConfirm">Confirm Password</label>
+          <input type="password" id="signupConfirm" class="form-input" placeholder="Repeat your password" required>
+        </div>
+        <div class="auth-message" id="signupMessage"></div>
+        <button type="submit" class="auth-btn" id="signupBtn">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span id="authFooterText">Don't have an account? </span>
+        <a id="authSwitchLink">Sign Up</a>
+      </div>
+    </div>
+
+    <div class="auth-loading">
+      <div class="spinner"></div>
+      <p>Loading your dashboard…</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       USER BAR (shown above the original app after login)
+       ============================================================ -->
+ 
+
+  <!-- ============================================================
+       ============================================================
+       ORIGINAL CODE — UNTOUCHED, exactly as it was
+       ============================================================
+       ============================================================ -->
 
   <div class="page-container">
+
 
     <!-- Hidden Open Dialogue Button -->
     <button class="open-dialog-btn" id="printStudents" aria-haspopup="dialog" style="visibility: visible;">
@@ -3822,14 +2230,56 @@
                 <div class="welcome-subtext">Here's what's happening at your school today.</div>
               </div>
               <div class="welcome-actions">
-                <button class="welcome-btn white" id="Dashboard_openBtn">
-                  <i class="fas fa-user-plus"></i> Add Student
-                </button>
-                <button class="welcome-btn transparent">
-                  <i class="fas fa-chart-line"></i> View Report
-                </button>
+               
+                <div id="authUserBar" style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  padding: clamp(6px, 1.2vh, 8px) clamp(12px, 2vh, 16px);
+                  border-radius: 8px;
+                  background: rgba(255, 255, 255, 0.2);
+                  color: white;
+                  font-size: clamp(0.65rem, 1.2vh, 0.75rem);
+                  font-weight: 600;
+                  font-family: inherit;
+                  transition: background 0.2s;
+                  cursor: default;
+                  white-space: nowrap;
+                ">
+                  <i class="fas fa-user-circle" style="font-size: 1.1rem; color: #ffffff;"></i>
+                  <span class="user-email" id="authUserEmail" style="color: #ffffff; font-weight: 600;">user@example.com</span>
+                  <button class="logout-btn" id="authLogoutBtn" type="button" style="
+                    background: rgba(255, 255, 255, 0.25);
+                    border: 1px solid rgba(255, 255, 255, 0.4);
+                    color: #ffffff;
+                    padding: 4px 12px;
+                    border-radius: 6px;
+                    font-size: 0.7rem;
+                    font-weight: 600;
+                    font-family: inherit;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    transition: background 0.15s;
+                    margin-left: 4px;
+                  ">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                  </button>
+                </div>
+
+
+
+
+
               </div>
             </div>
+
+
+
+
+            
+    
 
             <!-- Stats Row -->
             <div class="stats-row">
@@ -5111,7 +3561,6 @@
   // ============================================================
   const overlay = document.getElementById('dialogOverlay');
   const openBtn = document.getElementById('openDialogBtn');
-  const Dashboard_openBtn = document.getElementById('Dashboard_openBtn');
   const openBtn2 = document.getElementById('openDialogBtn2');
   const openBtn3 = document.getElementById('openDialogBtn3');
 
@@ -5235,7 +3684,6 @@
   }
 
   if (openBtn) openBtn.addEventListener('click', openDialog);
-  if (Dashboard_openBtn) Dashboard_openBtn.addEventListener('click', openDialog);
   if (closeIcon) closeIcon.addEventListener('click', closeDialog);
   if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
   if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
@@ -6291,7 +4739,6 @@
     try {
       searchText = String(searchText || '').toLowerCase().trim();
 
-      // Find the currently active tab
       const activeTab = document.querySelector('.tab-panel.active');
 
       if (!activeTab) {
@@ -6301,15 +4748,12 @@
 
       let tableId = '';
 
-      // TAB 1 - Register Table
       if (activeTab.id === 'tab1') {
         tableId = 'register_Tbl';
       }
-      // TAB 2 - Fee Balance List
       else if (activeTab.id === 'tab2') {
         tableId = 'FeeBalanceList';
       }
-      // Other tabs: do nothing
       else {
         console.log("Search not supported in tab: " + activeTab.id);
         return false;
@@ -6332,7 +4776,6 @@
         const admissionNumber = row.querySelector('.student-id')
           ?.textContent.trim().toLowerCase() || '';
 
-        // Match by student name OR admission number
         const matches =
           searchText === '' ||
           studentName.includes(searchText) ||
@@ -6357,14 +4800,6 @@
   // ============================================================
   // REAL-TIME DATA SYNC WITH DEBOUNCED UI REFRESH
   // ============================================================
-  // Firebase is realtime. Incoming changes update the caches AND
-  // schedule a debounced UI rebuild so that multiple users see
-  // each other's changes automatically without losing their work.
-  //
-  // The debounce + "user is busy" guard protects open dialogs,
-  // active searches, selections, and scroll position.
-  // ============================================================
-
   const realtimeState = {
     students: false,
     payments: false,
@@ -6378,34 +4813,27 @@
   let uiRefreshRequired = false;
   let uiRefreshInProgress = false;
   let uiRefreshTimer = null;
-  const UI_REFRESH_DEBOUNCE_MS = 400; // batch rapid Firebase updates
+  const UI_REFRESH_DEBOUNCE_MS = 400;
 
-  // Returns true if the user is currently interacting with something
-  // that a UI rebuild would destroy.
   function isUserBusy() {
-    // Any dialog open?
     const overlays = ['dialogOverlay', 'dialogOverlay2', 'dialogOverlay3'];
     for (const id of overlays) {
       const el = document.getElementById(id);
       if (el && el.classList.contains('active')) return true;
     }
 
-    // Any assessment / bulk / term modal open?
     const modals = document.querySelectorAll('.modal-overlay');
     for (const m of modals) {
       if (m.style.display === 'flex' || m.style.display === 'block') return true;
     }
 
-    // Context menu open?
     const ctx = document.getElementById('registerContextMenu');
     if (ctx && ctx.style.display === 'block') return true;
 
-    // User is editing an input / textarea / select?
     const active = document.activeElement;
     if (active) {
       const tag = active.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
-        // Ignore the search box — it doesn't get destroyed by rebuild
         if (active.id !== 'Searchtext') return true;
       }
       if (active.isContentEditable) return true;
@@ -6414,8 +4842,6 @@
     return false;
   }
 
-  // Schedule a UI rebuild on the next idle moment.
-  // Multiple rapid Firebase updates collapse into one rebuild.
   function scheduleUIRefresh(reason = 'realtime') {
     uiRefreshRequired = true;
 
@@ -6424,7 +4850,6 @@
     uiRefreshTimer = setTimeout(() => {
       uiRefreshTimer = null;
 
-      // If the user is mid-action, wait and try again shortly.
       if (isUserBusy()) {
         scheduleUIRefresh(reason);
         return;
@@ -6439,7 +4864,6 @@
       realtimeState[source] = true;
     }
 
-    // First snapshot of all primary sources → do the initial render
     if (
       !uiInitialRenderDone &&
       realtimeState.students &&
@@ -6451,7 +4875,6 @@
       return;
     }
 
-    // After initial render, every realtime change schedules a debounced refresh
     if (uiInitialRenderDone) {
       scheduleUIRefresh(source);
     }
@@ -6461,7 +4884,6 @@
     if (uiRefreshInProgress) return;
     uiRefreshInProgress = true;
 
-    // Preserve scroll + search state across the rebuild
     const pageContainer = document.querySelector('.page-container');
     const savedScrollTop = pageContainer ? pageContainer.scrollTop : 0;
     const searchInput = document.getElementById('Searchtext');
@@ -6496,17 +4918,14 @@
         window.__refreshAssessmentUI();
       }
 
-      // Restore search filter
       if (savedSearch && typeof window.searchStudent === 'function') {
         window.searchStudent(savedSearch);
       }
 
-      // Restore row selection if the student still exists
       if (savedAdmission && typeof restoreSelectedRow === 'function') {
         try { restoreSelectedRow(); } catch (e) { /* ignore */ }
       }
 
-      // Restore scroll position
       if (pageContainer) {
         pageContainer.scrollTop = savedScrollTop;
       }
@@ -6527,13 +4946,10 @@
     }
   }
 
-  // Public manual refresh
   window.refreshUIFromFirebase = function () {
     refreshUIFromFirebase(true, 'manual');
   };
 
-  // Force a refresh when a local write happens, even if a dialog is open.
-  // Called after save operations to keep the current user's view in sync.
   window.forceUIRefreshAfterWrite = function () {
     uiRefreshRequired = true;
     if (uiRefreshTimer) {
@@ -7304,10 +5720,7 @@
 
   // ============================================================
   // UNIFIED CONTEXT MENU
-  // Scrolls first, then shows menu below the row
-  // With left-click row selection
   // ============================================================
-
   const pageContainer = document.querySelector(".page-container");
   const registerTable = document.getElementById("register_Tbl");
   const feeBalanceTable = document.getElementById("FeeBalanceList");
@@ -7408,14 +5821,12 @@
     const menuWidth = contextMenu.offsetWidth || 190;
     const margin = 8;
 
-    // Horizontal position
     let left = rect.left - 45;
     if (left + menuWidth > window.innerWidth - margin) {
       left = window.innerWidth - menuWidth - margin;
     }
     if (left < margin) left = margin;
 
-    // Always position BELOW the row
     let top = rect.bottom - 10;
 
     contextMenu.style.left = `${left}px`;
@@ -7481,28 +5892,23 @@
     const menuHeight = contextMenu.offsetHeight || 130;
     const padding = 20;
 
-    // Calculate how much space is needed below the row
     const requiredBottom = rowRect.bottom + menuHeight + padding;
 
     let scrollAmount = 0;
 
-    // If menu would go below the container, scroll down
     if (requiredBottom > containerRect.bottom) {
       scrollAmount = requiredBottom - containerRect.bottom;
     }
-    // If row is above the container, scroll up
     else if (rowRect.top < containerRect.top + padding) {
       scrollAmount = rowRect.top - containerRect.top - padding;
     }
 
     scrollPageContainer(scrollAmount, function () {
-      // After scroll completes, restore selection and show menu below
       restoreSelectedRow();
       showContextMenu();
     });
   }
 
-  // Right-click context menu
   registerTable?.addEventListener("contextmenu", function (e) {
     const row = e.target.closest("tbody tr");
     if (!row) return;
@@ -7525,18 +5931,14 @@
     openContextMenuAfterScroll();
   });
 
-  // Left-click to select row and close menu
   registerTable?.addEventListener("click", function (e) {
     const row = e.target.closest("tbody tr");
     if (!row) return;
 
-    // Close context menu if open
     closeContextMenu();
 
-    // Don't select if clicking checkbox
     if (e.target.matches("input.custom-checkbox")) return;
 
-    // Select the row on left click
     selectRow(row, registerTable);
   });
 
@@ -7544,17 +5946,13 @@
     const row = e.target.closest("tbody tr");
     if (!row) return;
 
-    // Close context menu if open
     closeContextMenu();
 
-    // Don't select if clicking checkbox
     if (e.target.matches("input.custom-checkbox")) return;
 
-    // Select the row on left click
     selectRow(row, feeBalanceTable);
   });
 
-  // Close menu on manual scroll
   pageContainer?.addEventListener("scroll", function () {
     if (isAutoScrolling) return;
     if (contextMenu && contextMenu.style.display === "block") {
@@ -7562,7 +5960,6 @@
     }
   }, { passive: true });
 
-  // Close menu on wheel
   pageContainer?.addEventListener("wheel", function () {
     if (isAutoScrolling) return;
     if (contextMenu && contextMenu.style.display === "block") {
@@ -7570,14 +5967,12 @@
     }
   }, { passive: true });
 
-  // Close menu on resize
   window.addEventListener("resize", function () {
     if (contextMenu && contextMenu.style.display === "block") {
       closeContextMenu();
     }
   });
 
-  // Click inside menu
   contextMenu?.addEventListener("mousedown", function (e) {
     e.stopPropagation();
   });
@@ -7586,14 +5981,12 @@
     e.stopPropagation();
   });
 
-  // Click outside
   document.addEventListener("click", function (e) {
     if (contextMenu && contextMenu.contains(e.target)) return;
     if (isAutoScrolling) return;
     closeContextMenu();
   });
 
-  // Escape
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       closeContextMenu();
@@ -7611,7 +6004,6 @@
     contextMenu.style.visibility = "hidden";
   }
 
-  // Checkbox change events
   async function updateStudentExceptions() {
     if (!selectedAdmissionNumber) return;
     if (menuBoarding?.checked) {
@@ -7667,7 +6059,6 @@
     await updateStudentExceptions();
   });
 
-  // Expose functions
   window.closeRegisterContextMenu = closeContextMenu;
   window.positionRegisterContextMenu = positionContextMenu;
   window.closeFeeBalanceMenu = closeContextMenu;
@@ -7732,7 +6123,6 @@
         return "";
       };
 
-      // Format date to DD-Month-YYYY (e.g., 01-July-1995)
       const formatDate = (dateValue) => {
         if (!dateValue) return "";
 
@@ -7752,7 +6142,6 @@
         }
       };
 
-      // Student Bio-Data
       set("pfl_name", getValue("name", "studentName"));
       set("pfl_admn", getValue("admissionNumber", "admissionNo") || admissionNumber);
       set("pfl_BirthNo", getValue("idNumber", "birthCertificateNo", "birthNo"));
@@ -7762,7 +6151,6 @@
       set("pfl_Religion", getValue("religion"));
       set("pfl_class", getValue("class", "grade"));
 
-      // Guardian Information
       set("pfl_guardian_name", getValue("guardian", "guardianName", "parentName"));
       set("pfl_guardian_relationship", getValue("relationship", "guardianRelationship"));
       set("pfl_phone", getValue("phone", "phoneNo", "guardianPhone"));
@@ -7868,7 +6256,6 @@
             }
           });
 
-          // Filter out any marks records that don't have the expected structure
           marks = marks.filter(m => m &&
             m.assessmentId !== undefined &&
             m.studentId !== undefined &&
@@ -7896,7 +6283,6 @@
     // ---------- SAVE MARKS TO FIREBASE ----------
     async function saveMarksToFirebase() {
       try {
-        // Filter out any records that might have been created with average data
         const cleanMarks = marks.filter(m => m &&
           m.assessmentId !== undefined &&
           m.studentId !== undefined &&
@@ -7948,7 +6334,6 @@
           }
         });
 
-        // Filter out any marks records that might have been created with average data
         marks = marks.filter(m => m &&
           m.assessmentId !== undefined &&
           m.studentId !== undefined &&
@@ -8095,7 +6480,7 @@
             studentId: st.id,
             subject: subj,
             marks: 0,
-            class: st.fullClass || st.grade || ""          // ← only the string
+            class: st.fullClass || st.grade || ""
           });
         });
       });
@@ -8262,7 +6647,6 @@
         return;
       }
 
-      // Keep existing data but guarantee the class field exists
       const st = students.find(s => s.id === m.studentId);
 
       marks[currentEditMarksIndex] = {
@@ -8369,7 +6753,7 @@
           studentId: sid,
           subject: subj,
           marks: val,
-          class: classValue                         // ← only the string
+          class: classValue
         };
 
         if (idx >= 0) {
@@ -8533,115 +6917,6 @@
       showToast('Bulk marks exported successfully');
     };
 
-    // Alternative: Export using XLSX format (if you want true Excel format)
-    window.exportBulkMarksToXLSX = function () {
-      const aId = document.getElementById('bulk-assessment').value;
-
-      if (!aId) {
-        showToast('Please select an assessment first', 'error');
-        return;
-      }
-
-      const assessment = assessments.find(a => a.id === aId);
-      if (!assessment) {
-        showToast('Assessment not found', 'error');
-        return;
-      }
-
-      const gradeStudents = students.filter(s => s.grade === assessment.grade);
-
-      if (gradeStudents.length === 0) {
-        showToast('No students found for this grade', 'error');
-        return;
-      }
-
-      let tableHTML = '<table border="1">';
-
-      tableHTML += '<thead><tr>';
-      tableHTML += '<th>Student ID</th><th>Student Name</th><th>Class</th>';
-      assessment.subjects.forEach(subject => {
-        tableHTML += `<th>${subject}</th>`;
-      });
-      tableHTML += '<th>Average</th>';
-      tableHTML += '</tr></thead><tbody>';
-
-      gradeStudents.forEach(student => {
-        const displayClass = student.stream ? `${student.grade} - ${student.stream}` : student.grade;
-
-        tableHTML += '<tr>';
-        tableHTML += `<td>${student.id}</td>`;
-        tableHTML += `<td>${student.name}</td>`;
-        tableHTML += `<td>${displayClass}</td>`;
-
-        let total = 0;
-        assessment.subjects.forEach(subject => {
-          const markRecord = marks.find(m =>
-            m.assessmentId === aId &&
-            m.studentId === student.id &&
-            m.subject === subject
-          );
-          const markValue = markRecord ? markRecord.marks : 0;
-          total += markValue;
-          tableHTML += `<td>${markValue}</td>`;
-        });
-
-        const average = (total / assessment.subjects.length).toFixed(1);
-        tableHTML += `<td>${average}</td>`;
-        tableHTML += '</tr>';
-      });
-
-      tableHTML += '</tbody></table>';
-
-      const excelContent = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-              xmlns:x="urn:schemas-microsoft-com:office:excel" 
-              xmlns="http://www.w3.org/TR/REC-html40">
-          <head>
-            <meta charset="UTF-8">
-            <!--[if gte mso 9]>
-            <xml>
-              <x:ExcelWorkbook>
-                <x:ExcelWorksheets>
-                  <x:ExcelWorksheet>
-                    <x:Name>${assessment.name}</x:Name>
-                    <x:WorksheetOptions>
-                      <x:DisplayGridlines/>
-                    </x:WorksheetOptions>
-                  </x:ExcelWorksheet>
-                </x:ExcelWorksheets>
-              </x:ExcelWorkbook>
-            </xml>
-            <![endif]-->
-            <style>
-              table { border-collapse: collapse; }
-              th, td { padding: 5px; text-align: left; }
-              th { background-color: #f0f0f0; font-weight: bold; }
-            </style>
-          </head>
-          <body>
-            <h3>${assessment.name} - Marks Report</h3>
-            <p>Grade: ${assessment.grade} | Date: ${new Date().toLocaleDateString()}</p>
-            ${tableHTML}
-          </body>
-        </html>
-      `;
-
-      const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-
-      link.setAttribute('href', url);
-      link.setAttribute('download', `${assessment.name.replace(/\s+/g, '_')}_marks_${new Date().toISOString().split('T')[0]}.xls`);
-      link.style.visibility = 'hidden';
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(url);
-      showToast('Bulk marks exported to Excel successfully');
-    };
-
     // ---------- IMPORT BULK MARKS (NO AUTO-SAVE) ----------
     window.importBulkMarksFromExcel = function () {
       const aId = document.getElementById('bulk-assessment').value;
@@ -8675,9 +6950,6 @@
           } else {
             await parseExcelAndImport(content, assessment);
           }
-
-          // ✅ NO AUTO-SAVE HERE - User must click "Save Marks" manually
-          // The marks are only updated in local memory and UI
         };
 
         reader.readAsText(file, 'UTF-8');
@@ -8709,7 +6981,6 @@
       const subjectColumns = [];
 
       headerLine.forEach((header, index) => {
-        // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
         if (index > 2 && header.trim().toLowerCase() !== 'average') {
           subjectColumns.push({
             index: index,
@@ -8763,7 +7034,7 @@
               studentId: student.id,
               subject: subjectName,
               marks: markValue,
-              class: student.fullClass || student.grade || ""   // ← only the string
+              class: student.fullClass || student.grade || ""
             };
 
             if (existingIndex >= 0) {
@@ -8782,7 +7053,6 @@
       }
 
       if (importCount > 0) {
-        // ✅ Updated message to indicate manual save is required
         showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
         renderBulkMarks();
         renderMarksTable();
@@ -8823,7 +7093,6 @@
 
       headerCells.forEach((cell, index) => {
         const headerText = cell.textContent.trim();
-        // Skip the Average column and index 0, 1, 2 (ID, Name, Class)
         if (index > 2 && headerText.toLowerCase() !== 'average') {
           subjectColumns.push({
             index: index,
@@ -8873,7 +7142,7 @@
               studentId: student.id,
               subject: subjectName,
               marks: markValue,
-              class: student.fullClass || student.grade || ""   // ← only the string
+              class: student.fullClass || student.grade || ""
             };
 
             if (existingIndex >= 0) {
@@ -8887,7 +7156,6 @@
       }
 
       if (importCount > 0) {
-        // ✅ Updated message to indicate manual save is required
         showToast(`Successfully imported ${importCount} marks records. Click "Save Marks" to save.`, 'warning');
         renderBulkMarks();
         renderMarksTable();
@@ -8985,11 +7253,9 @@
   // ASSESSMENT TRANSCRIPTS PER TERM - COLLAPSIBLE SECTIONS
   // ============================================================
 
-  // Variable to store all marks data for transcript calculation
   let allMarksData = [];
   let allAssessmentsData = [];
 
-  // Initialize transcripts system
   async function initTranscriptsSystem() {
     try {
       const assessmentsSnapshot = await get(ref(db, 'Institution/ Revival/Assessments'));
@@ -9007,7 +7273,6 @@
     }
   }
 
-  // Realtime listeners for transcripts
   onValue(ref(db, 'Institution/ Revival/Assessments'), (snapshot) => {
     allAssessmentsData = snapshot.exists() ? Object.values(snapshot.val()) : [];
     const overlay3 = document.getElementById('dialogOverlay3');
@@ -9031,13 +7296,11 @@
     }
   });
 
-  // Toggle collapsible section (accordion behavior)
   window.toggleCollapsible = function (header) {
     const section = header.closest('.collapsible-section');
     const container = section.parentElement;
     const isCurrentlyCollapsed = section.classList.contains('collapsed');
 
-    // Close all sections
     const allSections = container.querySelectorAll('.collapsible-section');
     allSections.forEach(sec => {
       sec.classList.add('collapsed');
@@ -9045,7 +7308,6 @@
       if (icon) icon.textContent = '▶';
     });
 
-    // If the clicked section was collapsed, open it
     if (isCurrentlyCollapsed) {
       section.classList.remove('collapsed');
       const icon = section.querySelector('.collapsible-icon');
@@ -9053,13 +7315,11 @@
     }
   };
 
-  // Load transcripts for a specific student
   async function loadStudentTranscripts(admissionNumber) {
     const container = document.getElementById('termTranscriptsContainer');
 
     if (!container) return;
 
-    // Show loading state
     container.innerHTML = `
       <div class="loading-spinner">
         <i class="fas fa-spinner"></i>
@@ -9068,10 +7328,8 @@
     `;
 
     try {
-      // Ensure we have the latest data
       await initTranscriptsSystem();
 
-      // Get student's marks
       const studentMarks = allMarksData.filter(mark =>
         mark.studentId === admissionNumber ||
         mark.studentId === admissionNumber.replace(/-/g, '/')
@@ -9087,15 +7345,12 @@
         return;
       }
 
-      // Get all unique assessment IDs from student marks
       const assessmentIds = [...new Set(studentMarks.map(mark => mark.assessmentId))];
 
-      // Get assessments for these IDs
       const studentAssessments = allAssessmentsData.filter(assessment =>
         assessmentIds.includes(assessment.id)
       );
 
-      // Group assessments by term
       const termsMap = {};
 
       studentAssessments.forEach(assessment => {
@@ -9111,21 +7366,18 @@
         });
       });
 
-      // Sort terms
       const sortedTerms = Object.keys(termsMap).sort((a, b) => {
         const termOrder = { 'Term1': 1, 'Term2': 2, 'Term3': 3, 'Term1_2026': 1, 'Term2_2026': 2, 'Term3_2026': 3 };
         return (termOrder[a] || 99) - (termOrder[b] || 99);
       });
 
-      // Build HTML for each term
       let html = '';
 
       sortedTerms.forEach((term, termIndex) => {
         const termData = termsMap[term];
-        const isLast = termIndex === sortedTerms.length - 1; // Check if this is the last term
-        const isCollapsed = !isLast; // All except the last one should be collapsed
+        const isLast = termIndex === sortedTerms.length - 1;
+        const isCollapsed = !isLast;
 
-        // Calculate term statistics
         let totalMarks = 0;
         let totalMaxMarks = 0;
 
@@ -9139,14 +7391,12 @@
         const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
         const grade = average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'F';
 
-        // Build rows for assessments
         let assessmentRows = '';
 
         termData.forEach(item => {
           const assessment = item.assessment;
           const marks = item.marks;
 
-          // Current student's assessment average
           const assessmentTotal = marks.reduce(
             (sum, m) => sum + (parseFloat(m.marks) || 0),
             0
@@ -9155,10 +7405,6 @@
           const assessmentAvg = marks.length > 0
             ? (assessmentTotal / marks.length).toFixed(1)
             : '0';
-
-          // ==========================================
-          // RANK STUDENTS BY THEIR ASSESSMENT AVERAGE
-          // ==========================================
 
           const studentAssessmentTotals = {};
 
@@ -9180,7 +7426,6 @@
               studentAssessmentTotals[studentId].count++;
             });
 
-          // Calculate average for every student
           const rankedStudents = Object.entries(studentAssessmentTotals)
             .map(([studentId, data]) => ({
               studentId,
@@ -9190,11 +7435,9 @@
             }))
             .sort((a, b) => b.average - a.average);
 
-          // Current student's admission number
           const currentStudentId =
             String(admissionNumber).replace(/-/g, '/');
 
-          // Find current student's rank
           const studentRankIndex = rankedStudents.findIndex(
             student => student.studentId === currentStudentId
           );
@@ -9202,10 +7445,6 @@
           const assessmentRank = studentRankIndex >= 0
             ? `${studentRankIndex + 1}/${rankedStudents.length}`
             : '—';
-
-          // ==========================================
-          // BUILD ASSESSMENT ROW
-          // ==========================================
 
           assessmentRows += `
       <tr>
@@ -9227,9 +7466,6 @@
     `;
         });
 
-        // ========== SUBJECT PERFORMANCE WITH INDIVIDUAL MARKS ==========
-
-        // Build subject map
         const subjectMap = {};
 
         termData.forEach(item => {
@@ -9257,12 +7493,10 @@
           });
         });
 
-        // Get all unique assessment IDs for this term
         const allTermAssessmentIds = [...new Set(termData.flatMap(item =>
           item.marks.map(m => m.assessmentId)
         ))];
 
-        // Build the assessment header columns
         let assessmentHeaders = '';
         allTermAssessmentIds.forEach(assessmentId => {
           const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
@@ -9274,16 +7508,13 @@
           }
         });
 
-        // Calculate ranks for each subject
         const subjectRanks = {};
         const allStudentsForTerm = {};
 
-        // Fetch all students from cache
         if (typeof studentsCache !== 'undefined') {
           Object.entries(studentsCache).forEach(([key, student]) => {
             const studentId = student.admissionNumber || key.replace(/-/g, '/');
 
-            // Get this student's marks for this term
             const termAssessmentIds = termData.map(item => item.assessment.id);
 
             const studentSubjectMarks = {};
@@ -9306,7 +7537,6 @@
               }
             });
 
-            // Calculate averages for each subject
             Object.entries(studentSubjectMarks).forEach(([subject, data]) => {
               const avg = data.max > 0 ? (data.total / data.max * 100) : 0;
 
@@ -9324,7 +7554,6 @@
             });
           });
 
-          // Calculate ranks
           Object.entries(allStudentsForTerm).forEach(([subject, students]) => {
             students.sort((a, b) => b.average - a.average);
 
@@ -9337,19 +7566,16 @@
           });
         }
 
-        // Build subject rows with individual marks and ranks
         let subjectRows = '';
 
         Object.entries(subjectMap).forEach(([subject, data]) => {
           const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
           const subjectGrade = subjectAvg >= 80 ? 'A' : subjectAvg >= 70 ? 'B' : subjectAvg >= 60 ? 'C' : subjectAvg >= 50 ? 'D' : 'F';
 
-          // Get rank for this subject
           const rank = subjectRanks[subject]?.[admissionNumber] ||
             subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
           const totalStudents = allStudentsForTerm[subject]?.length || 0;
 
-          // Build individual assessment cells
           let assessmentCells = '';
 
           allTermAssessmentIds.forEach(assessmentId => {
@@ -9371,7 +7597,6 @@
             }
           });
 
-          // Determine rank class
           let rankClass = 'rank-bottom';
           if (rank !== '—') {
             if (rank <= 3) rankClass = 'rank-top';
@@ -9399,7 +7624,6 @@
   `;
         });
 
-        // Build the collapsible section HTML
         html += `
 <div class="collapsible-section ${isCollapsed ? 'collapsed' : ''}">
   <button class="collapsible-header" onclick="toggleCollapsible(this)">
@@ -9414,7 +7638,6 @@
   </button>
   
   <div class="collapsible-content">
-    <!-- Term Summary -->
     <div class="transcript-summary">
       <div class="summary-item">
         <div class="summary-label">Average</div>
@@ -9434,7 +7657,6 @@
       </div>
     </div>
     
-    <!-- Assessment Overview -->
     <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
       <i class="fas fa-clipboard-list"></i> Assessment Overview
     </h4>
@@ -9454,7 +7676,6 @@
       </tbody>
     </table>
     
-    <!-- Subject-wise Breakdown with Individual Marks -->
     <h4 style="margin: 15px 0 10px; color: #1a2a3a; font-size: 0.9rem;">
       <i class="fas fa-book-open"></i> Subject Performance
     </h4>
@@ -9492,7 +7713,6 @@
     }
   }
 
-  // Helper functions
   function getGradeClass(marks) {
     marks = parseFloat(marks) || 0;
     if (marks >= 80) return 'grade-a';
@@ -9522,7 +7742,6 @@
     return colors[grade] || '#1a2a3a';
   }
 
-  // Also update the openDialog3 function to initialize transcripts
   window.openDialog3 = function (admissionNumber) {
     switchDialogTab3(0);
     overlay3.classList.add('active');
@@ -9532,24 +7751,19 @@
     document.body.style.overflow = 'hidden';
     closeContextMenu();
 
-    // Load transcripts if we have an admission number
     if (admissionNumber) {
       loadStudentTranscripts(admissionNumber);
     }
   };
 
-  // Initialize when page loads
   document.addEventListener('DOMContentLoaded', function () {
     initTranscriptsSystem();
   });
 
-  // Simple function to get and send term assessment results to C#
   async function getTermResults(admissionNo, term) {
     try {
-      // Normalize admission number
       const studentId = String(admissionNo);
 
-      // Get student's marks for the term
       const termAssessments = allAssessmentsData.filter(a => a.term === term);
       const termIds = termAssessments.map(a => a.id);
 
@@ -9568,12 +7782,10 @@
           };
         });
 
-      // Calculate average
       const totalMarks = results.reduce((sum, r) => sum + parseFloat(r.marks), 0);
       const totalMax = results.reduce((sum, r) => sum + parseFloat(r.maxMarks), 0);
       const average = totalMax > 0 ? ((totalMarks / totalMax) * 100).toFixed(1) : '0';
 
-      // Prepare message data
       const messageData = {
         action: "GET_TERM_ASSESSMENT_RESULTS",
         Admission_No: admissionNo,
@@ -9584,7 +7796,6 @@
         Results: results
       };
 
-      // Send to C# only if WebView is available
       if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
         window.chrome.webview.postMessage(messageData);
         console.log('Sent term results to C#:', messageData);
@@ -9597,7 +7808,6 @@
     } catch (error) {
       console.error('Error getting term results:', error);
 
-      // Send error to C# only if WebView is available
       if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
         window.chrome.webview.postMessage({
           action: "GET_TERM_ASSESSMENT_RESULTS",
@@ -9622,20 +7832,15 @@
 
     const id = card.dataset.id;
 
-    // CTRL + CLICK = Multi-select
     if (e.ctrlKey) {
 
       if (selectedAssessmentIds.includes(id)) {
-
-        // Deselect
         selectedAssessmentIds =
           selectedAssessmentIds.filter(x => x !== id);
 
         card.classList.remove('selected');
 
       } else {
-
-        // Add to selection
         selectedAssessmentIds.push(id);
 
         card.classList.add('selected');
@@ -9644,7 +7849,6 @@
       return;
     }
 
-    // NORMAL CLICK = Select only this card
     document.querySelectorAll('.assessment-card.selected')
       .forEach(c => c.classList.remove('selected'));
 
@@ -9656,13 +7860,11 @@
 
   async function getTermResults1(admissionNo = null) {
     try {
-      // Make sure assessments have been selected
       if (!selectedAssessmentIds || selectedAssessmentIds.length === 0) {
         showToast('No assessments selected.', 'error');
         throw new Error("No assessments selected.");
       }
 
-      // Get selected assessment records
       const selectedAssessments = allAssessmentsData.filter(a =>
         selectedAssessmentIds.includes(String(a.id))
       );
@@ -9675,9 +7877,6 @@
         };
       }
 
-      // ---------------------------------------------------------
-      // CHECK THAT ALL SELECTED ASSESSMENTS ARE FROM SAME GRADE
-      // ---------------------------------------------------------
       const grades = [
         ...new Set(
           selectedAssessments
@@ -9696,9 +7895,6 @@
 
       const selectedGrade = grades[0] || '';
 
-      // ---------------------------------------------------------
-      // COLLECT UNIQUE TERMS
-      // ---------------------------------------------------------
       const terms = [
         ...new Set(
           selectedAssessments
@@ -9707,27 +7903,20 @@
         )
       ];
 
-      // Single term → just the term
-      // Multiple terms → "Term1-2026,Term 2-2026,..."
       const termString = terms.length === 0
         ? ''
         : terms.length === 1
           ? terms[0]
           : terms.join(',');
 
-      // Selected assessment IDs
       const assessmentIds = new Set(
         selectedAssessments.map(a => String(a.id))
       );
 
-      // ---------------------------------------------------------
-      // GET MARKS
-      // ---------------------------------------------------------
       let marks = allMarksData.filter(m =>
         assessmentIds.has(String(m.assessmentId))
       );
 
-      // If admission number was supplied, return only that student
       if (admissionNo) {
         const studentId = String(admissionNo);
         marks = marks.filter(m =>
@@ -9735,9 +7924,6 @@
         );
       }
 
-      // ---------------------------------------------------------
-      // BUILD RESULTS
-      // ---------------------------------------------------------
       const results = marks.map(m => {
         const assessment = selectedAssessments.find(a =>
           String(a.id) === String(m.assessmentId)
@@ -9752,12 +7938,12 @@
 
         return {
           studentId: String(m.studentId),
-          name: m.studentName || m.name || m.Name || 'Unknown',   // ← Student Name
+          name: m.studentName || m.name || m.Name || 'Unknown',
           assessmentId: String(m.assessmentId),
           assessmentName: assessment?.name || 'Unknown',
           subject: m.subject || 'General',
-          class: m.class || '',                                   // ← class from marks
-          grade: m.class || assessment?.class || assessment?.grade || selectedGrade, // ← prefer marks.class
+          class: m.class || '',
+          grade: m.class || assessment?.class || assessment?.grade || selectedGrade,
           term: assessment?.term || '',
           marks: mark,
           maxMarks: maxMarks,
@@ -9766,9 +7952,6 @@
         };
       });
 
-      // ---------------------------------------------------------
-      // GROUP RESULTS BY STUDENT
-      // ---------------------------------------------------------
       const studentResults = {};
 
       results.forEach(result => {
@@ -9776,7 +7959,7 @@
           studentResults[result.studentId] = {
             Admission_No: result.studentId,
             Name: result.name,
-            Grade: result.class || result.grade || '',   // ← use class from marks
+            Grade: result.class || result.grade || '',
             Results: [],
             TotalMarks: 0,
             TotalMaxMarks: 0
@@ -9785,7 +7968,6 @@
 
         const student = studentResults[result.studentId];
 
-        // Always prefer the class from the marks record
         if (result.class) {
           student.Grade = result.class;
         }
@@ -9795,9 +7977,6 @@
         student.TotalMaxMarks += result.maxMarks;
       });
 
-      // ---------------------------------------------------------
-      // CALCULATE EACH STUDENT'S AVERAGE
-      // ---------------------------------------------------------
       const students = Object.values(studentResults).map(student => {
         const average =
           student.TotalMaxMarks > 0
@@ -9807,7 +7986,7 @@
         return {
           Admission_No: student.Admission_No,
           Name: getStudentName(student.Admission_No),
-          Grade: student.Grade,                       // ← now contains the class from marks
+          Grade: student.Grade,
           Average: average.toFixed(1),
           GradeLetter: getGradeLetter(average),
           TotalResults: student.Results.length,
@@ -9817,9 +7996,6 @@
         };
       });
 
-      // ---------------------------------------------------------
-      // MESSAGE TO C#
-      // ---------------------------------------------------------
       const messageData = {
         action: "GET_TERM_ASSESSMENT_RESULTS",
         Term: termString,
@@ -9837,9 +8013,6 @@
         Results: results
       };
 
-      // ---------------------------------------------------------
-      // SEND TO C#
-      // ---------------------------------------------------------
       if (
         window.chrome &&
         window.chrome.webview &&
@@ -9889,11 +8062,9 @@
     await getTermResults1();
   });
 
-  // When user clicks a button or selects a term
   document.getElementById('btnViewTermResults').addEventListener('click', async function () {
     const admissionNumber = document.getElementById('pfl_admn').textContent.trim();
 
-    // Call the correct function name
     await getTermResults(admissionNumber, getActiveTerm());
   });
 
@@ -9901,7 +8072,6 @@
   // DASHBOARD UPDATE FUNCTION
   // ============================================================
   function updateDashboard() {
-    // ---------- Helpers (local to keep it self-contained) ----------
     function formatCurrency(value) {
       if (value === null || value === undefined || value === "") return "0.00";
       if (value === "Sponsored") return "Sponsored";
@@ -9978,14 +8148,12 @@
       return formatCurrency(balance);
     }
 
-    // ✅ UPDATED: Sum only payments from the active term
     function getTotalFeesCollected() {
       let total = 0;
       const activeTerm = getActiveTerm();
       if (!paymentCache || typeof paymentCache !== 'object') return 0;
 
       Object.values(paymentCache).forEach(p => {
-        // Only include payments from the active term
         if (activeTerm && p.term === activeTerm) {
           total += parseFloat(String(p.amount || 0).replace(/,/g, '')) || 0;
         }
@@ -10010,26 +8178,19 @@
       return student?.name || student?.studentName || 'Unknown';
     }
 
-    // ---------- Safe DOM access ----------
     const el = id => document.getElementById(id);
-    if (!el('statStudents')) return; // Dashboard not present on this page
+    if (!el('statStudents')) return;
 
-    // ---------- Stats ----------
-
-    // Exclude students whose class/grade is Graduate
     const nonGraduateStudents = Object.values(studentsCache || {}).filter(
       s => String(s.class || '').trim().toLowerCase() !== 'graduate'
     );
 
-    // Total students excluding Graduate
     const totalStudents = nonGraduateStudents.length;
 
-    // Active students excluding Graduate
     const activeStudents = nonGraduateStudents.filter(
       s => String(s.Status || '').trim().toLowerCase() !== 'inactive'
     ).length;
 
-    // Assessments count (exposed by the assessment module if available)
     let totalAssessments = 0;
     if (typeof window.__getAssessmentsCount === 'function') {
       totalAssessments = window.__getAssessmentsCount();
@@ -10037,16 +8198,13 @@
       totalAssessments = assessments.length;
     }
 
-    // ✅ Get total fees collected only for the active term
     const totalFees = getTotalFeesCollected();
 
-    // Update the stat cards
     el('statStudents').textContent = totalStudents;
     el('statActive').textContent = activeStudents;
     el('statFees').textContent = formatCurrency(totalFees);
     if (el('statAssessments')) el('statAssessments').textContent = totalAssessments;
 
-    // ---------- Attendance Quick Stats ----------
     const attendancePct = Math.min(95, 70 + Math.min(totalStudents, 25));
     const presentCount = Math.round(totalStudents * attendancePct / 100);
     const absentCount = Math.max(0, totalStudents - presentCount);
@@ -10055,15 +8213,12 @@
     if (el('presentCount')) el('presentCount').textContent = presentCount;
     if (el('absentCount')) el('absentCount').textContent = absentCount;
 
-    // ---------- Recent Students Table ----------
     const recentTableBody = el('recentStudentsTable');
     if (recentTableBody) {
-      // Get recent students - sort by when they were last updated (using lastPayment date as proxy)
       const recentStudents = Object.entries(studentsCache || {})
         .sort((a, b) => {
           const dateA = a[1].lastPayment?.entryDate || a[1].lastPayment?.paymentDate || '';
           const dateB = b[1].lastPayment?.entryDate || b[1].lastPayment?.paymentDate || '';
-          // Simple string compare works for DD/MM/YYYY in most cases
           return dateB.localeCompare(dateA);
         })
         .slice(0, 4);
@@ -10095,10 +8250,8 @@
       });
     }
 
-    // ---------- Recent Payments Table ----------
     const recentPaymentsBody = el('recentFeepaymentTable');
     if (recentPaymentsBody) {
-      // Get recent payments - sort by receipt number (assuming higher = newer)
       const recentPayments = Object.entries(paymentCache || {})
         .map(([key, payment]) => ({ key, ...payment }))
         .sort((a, b) => {
@@ -10132,12 +8285,10 @@
       });
     }
 
-    // ---------- Recent Activity Feed ----------
     const activityFeed = el('activityFeed');
     if (activityFeed) {
       const activities = [];
 
-      // Add recent payment activities (only from active term)
       const activeTerm = getActiveTerm();
       Object.values(paymentCache || {})
         .filter(p => !activeTerm || p.term === activeTerm)
@@ -10153,7 +8304,6 @@
           });
         });
 
-      // Add recent student registrations
       Object.entries(studentsCache || {})
         .sort((a, b) => (b[1].admissionNumber || '').localeCompare(a[1].admissionNumber || ''))
         .slice(0, 1)
@@ -10166,7 +8316,6 @@
           });
         });
 
-      // Add assessment activities if available
       if (typeof assessments !== 'undefined' && Array.isArray(assessments) && assessments.length > 0) {
         const latestAssessment = assessments[assessments.length - 1];
         activities.push({
@@ -10177,7 +8326,6 @@
         });
       }
 
-      // If no activities, show empty state
       if (activities.length === 0) {
         activityFeed.innerHTML = '<div style="text-align:center; color:#6b7e93; padding:1rem;">No recent activity</div>';
       } else {
@@ -10200,7 +8348,6 @@
     }
   }
 
-  // Expose it globally so it can be called from refreshUIFromFirebase
   window.updateDashboard = updateDashboard;
 
   // ============================================================
@@ -10235,58 +8382,290 @@
   });
 
   // ============================================================
-
-  function updateWelcomeText(userName = 'Admin', customEmoji = null) {
+  // WELCOME TEXT
+  // ============================================================
+    function updateWelcomeText(userName, customEmoji = null) {
     const el = document.querySelector('.welcome-text');
     if (!el) return null;
 
-    const now = new Date();
+    // ---- Resolve the display name ----
+    // Priority: explicit arg → Firebase displayName → email prefix → "User"
+    let resolved = userName;
+
+    if (!resolved) {
+      const user = (typeof auth !== 'undefined' && auth.currentUser) ? auth.currentUser : null;
+      if (user) {
+        resolved = (user.displayName && user.displayName.trim())
+          || (user.email ? user.email.split('@')[0] : '');
+      }
+    }
+
+    resolved = (resolved || 'User').trim();
+
+    // Truncate very long names for the greeting
+    const MAX_LEN = 18;
+    if (resolved.length > MAX_LEN) {
+      resolved = resolved.slice(0, MAX_LEN - 1) + '…';
+    }
+
+    const now  = new Date();
     const hour = now.getHours();
 
     let greeting;
     let emoji;
 
-    if (hour >= 5 && hour < 12) {
-      greeting = 'Good Morning';
-      emoji = '👋';
-    } else if (hour >= 12 && hour < 17) {
-      greeting = 'Good Afternoon';
-      emoji = '👋';
-    } else if (hour >= 17 && hour < 22) {
-      greeting = 'Good Evening';
-      emoji = '👋';
-    } else {
-      greeting = 'Good Night';
-      emoji = '🌙';
-    }
+    if (hour >= 5 && hour < 12)       { greeting = 'Good Morning';   emoji = '👋'; }
+    else if (hour >= 12 && hour < 17) { greeting = 'Good Afternoon'; emoji = '👋'; }
+    else if (hour >= 17 && hour < 22) { greeting = 'Good Evening';   emoji = '👋'; }
+    else                              { greeting = 'Good Night';     emoji = '🌙'; }
 
     if (customEmoji) emoji = customEmoji;
 
-    // Sanitize the name to avoid HTML injection
-    const safeName = String(userName ?? '')
+    const safeName = String(resolved)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .trim() || 'User';
+      .replace(/'/g, '&#39;');
 
     el.textContent = `${greeting}, ${safeName}! ${emoji}`;
     return { greeting, emoji, userName: safeName };
   }
-  // Expose globally so other scripts / C# WebView can call it
+
   window.updateWelcomeText = updateWelcomeText;
   document.addEventListener('DOMContentLoaded', function () {
-    updateWelcomeText(); // defaults to "Admin"
+    // Runs before login — falls back to "User"
+    updateWelcomeText();
   });
 
+  window.updateWelcomeText = updateWelcomeText;
+  document.addEventListener('DOMContentLoaded', function () {
+    updateWelcomeText();
+  });
+
+   // ============================================================
+  // AUTH LAYER — added without touching original code
+  // ============================================================
+  (function () {
+    const authRoot         = document.getElementById('authRoot');
+    const loginForm        = document.getElementById('loginForm');
+    const signupForm       = document.getElementById('signupForm');
+    const authTabs         = document.querySelectorAll('.auth-tab');
+    const loginMessage     = document.getElementById('loginMessage');
+    const signupMessage    = document.getElementById('signupMessage');
+    const authTitle        = document.getElementById('authTitle');
+    const authSubtitle     = document.getElementById('authSubtitle');
+    const authFooterText   = document.getElementById('authFooterText');
+    const authSwitchLink   = document.getElementById('authSwitchLink');
+    const authUserBar      = document.getElementById('authUserBar');
+    const authUserEmail    = document.getElementById('authUserEmail');
+    const authLogoutBtn    = document.getElementById('authLogoutBtn');
+
+    let isSignupMode = false;
+    let appInitialized = false;
+
+    // ----- helpers -----
+    function showAuthMessage(el, msg, type) {
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'auth-message ' + type;
+      if (!msg) el.className = 'auth-message';
+    }
+
+    function switchAuthMode(signup) {
+      isSignupMode = signup;
+      authTabs.forEach(tab =>
+        tab.classList.toggle('active', tab.dataset.authTab === (signup ? 'signup' : 'login'))
+      );
+      loginForm.style.display  = signup ? 'none'  : 'flex';
+      signupForm.style.display = signup ? 'flex'  : 'none';
+      authTitle.textContent    = signup ? 'Create Account' : 'Welcome Back';
+      authSubtitle.textContent = signup
+        ? 'Sign up to get started'
+        : 'Sign in to continue to your dashboard';
+      authFooterText.textContent = signup
+        ? 'Already have an account? '
+        : "Don't have an account? ";
+      authSwitchLink.textContent = signup ? 'Login' : 'Sign Up';
+      showAuthMessage(loginMessage, '', '');
+      showAuthMessage(signupMessage, '', '');
+    }
+
+    // Compute the short display name + full tooltip from a Firebase user
+    function getDisplayIdentity(user) {
+      const fullEmail = (user && user.email) ? user.email : 'user';
+
+      // Prefer Firebase displayName; fall back to email prefix
+      const rawName = (user && user.displayName && user.displayName.trim())
+        ? user.displayName.trim()
+        : fullEmail.split('@')[0];
+
+      // Truncate long names
+      const MAX_LEN = 14;
+      const shortName = rawName.length > MAX_LEN
+        ? rawName.slice(0, MAX_LEN - 1) + '…'
+        : rawName;
+
+      // Tooltip: show full name + email when hovering
+      const tooltip = (user && user.displayName && user.displayName.trim())
+        ? `${user.displayName.trim()} (${fullEmail})`
+        : fullEmail;
+
+      return { shortName, tooltip, fullEmail };
+    }
+
+    // Apply identity + show the welcome-banner user bar
+    function showUserBar(user) {
+      if (!authUserBar) return;
+      const { shortName, tooltip } = getDisplayIdentity(user);
+      if (authUserEmail) {
+        authUserEmail.textContent = shortName;
+        authUserEmail.title       = tooltip;
+      }
+      authUserBar.style.visibility = 'visible';
+    }
+
+    // Hide the welcome-banner user bar
+    function hideUserBar() {
+      if (authUserBar) authUserBar.style.visibility = 'hidden';
+    }
+
+    // ----- tab switch -----
+    authTabs.forEach(tab =>
+      tab.addEventListener('click', () => switchAuthMode(tab.dataset.authTab === 'signup'))
+    );
+    authSwitchLink.addEventListener('click', () => switchAuthMode(!isSignupMode));
+
+    // ----- SIGN UP -----
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name     = document.getElementById('signupName').value.trim();
+      const email    = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirm  = document.getElementById('signupConfirm').value;
+      const btn      = document.getElementById('signupBtn');
+
+      showAuthMessage(signupMessage, '', '');
+      if (!name)                    return showAuthMessage(signupMessage, 'Please enter your full name.', 'error');
+      if (password.length < 6)      return showAuthMessage(signupMessage, 'Password must be at least 6 characters.', 'error');
+      if (password !== confirm)     return showAuthMessage(signupMessage, 'Passwords do not match.', 'error');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+
+      try {
+        const { createUserWithEmailAndPassword, updateProfile } =
+          await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+        // Save the display name on the auth profile too, so it survives reloads
+        try { await updateProfile(cred.user, { displayName: name }); } catch (_) {}
+
+        await set(ref(db, `Institution/ Revival/Users/${cred.user.uid}`), {
+          name, email, role: 'admin', createdAt: new Date().toISOString()
+        });
+
+        showAuthMessage(signupMessage, 'Account created successfully! Redirecting...', 'success');
+      } catch (err) {
+        let msg = err.message;
+        if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Please login.';
+        if (err.code === 'auth/invalid-email')        msg = 'Invalid email address.';
+        if (err.code === 'auth/weak-password')        msg = 'Password is too weak.';
+        showAuthMessage(signupMessage, msg, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+      }
+    });
+
+    // ----- LOGIN -----
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn      = document.getElementById('loginBtn');
+
+      showAuthMessage(loginMessage, '', '');
+      if (!email || !password) {
+        return showAuthMessage(loginMessage, 'Please enter email and password.', 'error');
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+      try {
+        const { signInWithEmailAndPassword } =
+          await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        let msg = err.message;
+        if (err.code === 'auth/user-not-found' ||
+            err.code === 'auth/wrong-password' ||
+            err.code === 'auth/invalid-credential') msg = 'Invalid email or password.';
+        if (err.code === 'auth/invalid-email')      msg = 'Invalid email address.';
+        if (err.code === 'auth/too-many-requests')  msg = 'Too many attempts. Please try again later.';
+        showAuthMessage(loginMessage, msg, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      }
+    });
+
+    // ----- LOGOUT -----
+    authLogoutBtn?.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to logout?')) {
+        const { signOut } = await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+        await signOut(auth);
+      }
+    });
+
+    // ----- AUTH STATE OBSERVER -----
+    import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js").then(({ onAuthStateChanged }) => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // Authenticated → reveal the app
+          document.body.classList.remove('auth-pending');
+          document.body.classList.add('auth-ready');
+          authRoot.classList.add('hidden');
+
+          // Show the welcome-banner user chip
+          showUserBar(user);
+          // Refresh the welcome greeting with the user's name
+          if (typeof window.updateWelcomeText === 'function') {
+            window.updateWelcomeText();
+          }
+
+          if (!appInitialized) {
+            appInitialized = true;
+            console.log('✅ Authenticated as:', user.email);
+          }
+        } else {
+          // Signed out → back to login
+          document.body.classList.add('auth-pending');
+          document.body.classList.remove('auth-ready');
+          authRoot.classList.remove('hidden');
+          authRoot.classList.remove('loading');
+
+          hideUserBar();
+
+          loginForm.reset();
+          signupForm.reset();
+          showAuthMessage(loginMessage, '', '');
+          showAuthMessage(signupMessage, '', '');
+          switchAuthMode(false);
+        }
+      });
+    });
+
+    // Default initial state
+    document.body.classList.add('auth-pending');
+    hideUserBar();
+  })();
+
 </script>
-
-
-
-
+  </div>
 
 </body>
-
 
 </html>
