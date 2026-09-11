@@ -10633,7 +10633,21 @@
           el.className = 'auth-message ' + type;
           if (!msg) el.className = 'auth-message';
         }
+        // ----- "Remember me" persistence -----
+        const REMEMBER_KEY = 'acadia.rememberMe';
+        const rememberMeCheckbox = document.getElementById('rememberMe');
 
+        // Restore the previous choice so the checkbox remembers itself
+        if (rememberMeCheckbox) {
+          rememberMeCheckbox.checked = localStorage.getItem(REMEMBER_KEY) === '1';
+        }
+
+        // C# calls this on form close:
+        //   true  → user did NOT tick "Remember me" → should be logged out
+        //   false → user ticked "Remember me"      → stay signed in
+        window.shouldLogoutOnClose = function () {
+          return localStorage.getItem(REMEMBER_KEY) !== '1';
+        };
 
 
         function switchAuthMode(signup) {
@@ -10774,8 +10788,24 @@
           btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
           try {
-            const { signInWithEmailAndPassword } =
-              await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+            // Persist the "Remember me" choice so it survives across reloads
+            const rememberMe = rememberMeCheckbox?.checked || false;
+            localStorage.setItem(REMEMBER_KEY, rememberMe ? '1' : '0');
+
+            const {
+              signInWithEmailAndPassword,
+              setPersistence,
+              browserLocalPersistence,
+              browserSessionPersistence
+            } = await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+
+            // Remember me OFF → session-only (dies when WebView closes)
+            // Remember me ON  → persists across app restarts
+            await setPersistence(
+              auth,
+              rememberMe ? browserLocalPersistence : browserSessionPersistence
+            );
+
             await signInWithEmailAndPassword(auth, email, password);
           } catch (err) {
             let msg = err.message;
@@ -10790,7 +10820,6 @@
             btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
           }
         });
-
         // ----- LOGOUT -----
         authLogoutBtn?.addEventListener('click', async () => {
           if (confirm('Are you sure you want to logout?')) {
@@ -10882,12 +10911,6 @@
 
 
 
-
-
-
-
-
-
         // ----- AUTH STATE OBSERVER -----
         import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js").then(({ onAuthStateChanged }) => {
           onAuthStateChanged(auth, (user) => {
@@ -10939,8 +10962,10 @@
           } catch (_) { }
         });
         // Default initial state
+        // Default initial state — always start on Login
         document.body.classList.add('auth-pending');
         hideUserBar();
+        switchAuthMode('login');           // ← ensures Login tab is active on load
       })();
 
     </script>
