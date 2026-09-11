@@ -210,9 +210,7 @@
             gap: 18px;
         }
 
-        .login-field {
-            position: relative;
-        }
+        .login-field { position: relative; }
 
         .login-field-icon {
             position: absolute;
@@ -243,10 +241,7 @@
             font-weight: 500;
         }
 
-        .login-input::placeholder {
-            color: #9aabbf;
-            font-weight: 400;
-        }
+        .login-input::placeholder { color: #9aabbf; font-weight: 400; }
 
         .login-input:focus {
             outline: none;
@@ -315,11 +310,7 @@
             justify-content: space-between;
         }
 
-        .portal-header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+        .portal-header-left { display: flex; align-items: center; gap: 16px; }
 
         .portal-logo {
             width: 44px;
@@ -341,17 +332,9 @@
             color: var(--primary-dark);
         }
 
-        .portal-header-right {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
+        .portal-header-right { display: flex; align-items: center; gap: 18px; }
 
-        .portal-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .portal-user { display: flex; align-items: center; gap: 12px; }
 
         .portal-user-avatar {
             width: 40px;
@@ -859,7 +842,7 @@
         .badge-info { background: #dbeafe; color: #1e40af; }
 
         /* ============================================================
-           TRANSCRIPT — INDEX.HTML STYLE (COLLAPSIBLE TERMS)
+           TRANSCRIPT — index.html STYLE
            ============================================================ */
         .collapsible-section {
             margin-bottom: 12px;
@@ -912,9 +895,7 @@
             flex-shrink: 0;
         }
 
-        .collapsible-section.collapsed .collapsible-icon {
-            transform: rotate(-90deg);
-        }
+        .collapsible-section.collapsed .collapsible-icon { transform: rotate(-90deg); }
 
         .collapsible-title {
             flex: 1;
@@ -962,11 +943,8 @@
             to { opacity: 1; max-height: 5000px; transform: translateY(0); }
         }
 
-        .collapsible-section.collapsed .collapsible-content {
-            display: none;
-        }
+        .collapsible-section.collapsed .collapsible-content { display: none; }
 
-        /* Term Summary */
         .transcript-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -996,7 +974,6 @@
             color: #1a2a3a;
         }
 
-        /* Transcript Table (matches index.html) */
         .transcript-table {
             width: 100%;
             border-collapse: collapse;
@@ -1025,11 +1002,8 @@
             font-weight: 500;
         }
 
-        .transcript-table tr:hover td {
-            background: #f8fafc;
-        }
+        .transcript-table tr:hover td { background: #f8fafc; }
 
-        /* Section heading inside term */
         .transcript-section-heading {
             margin: 16px 0 10px;
             color: #1a2a3a;
@@ -1040,11 +1014,8 @@
             gap: 6px;
         }
 
-        .transcript-section-heading i {
-            color: #2a7de1;
-        }
+        .transcript-section-heading i { color: #2a7de1; }
 
-        /* Subject badge */
         .subject-badge {
             background: #e9f2fa;
             color: #2a5f7a;
@@ -1055,22 +1026,24 @@
             display: inline-block;
         }
 
-        /* Grade badges */
+        /* ============================================================
+           RUBRIC-BASED GRADE BADGES (EE / ME / AE / BE)
+           ============================================================ */
         .grade-badge-exam {
             display: inline-block;
-            padding: 2px 7px;
+            padding: 2px 8px;
             border-radius: 6px;
             font-size: 0.68rem;
             font-weight: 700;
-            min-width: 22px;
+            min-width: 26px;
             text-align: center;
+            letter-spacing: 0.02em;
         }
 
-        .grade-a { background: #d1fae5; color: #065f46; }
-        .grade-b { background: #e0f2fe; color: #075985; }
-        .grade-c { background: #fef3c7; color: #92400e; }
-        .grade-d { background: #fee2e2; color: #991b1b; }
-        .grade-f { background: #fecaca; color: #7f1d1d; }
+        .grade-ee { background: #d1fae5; color: #065f46; }   /* Level 4 — Exceeding */
+        .grade-me { background: #dbeafe; color: #1e40af; }   /* Level 3 — Meeting */
+        .grade-ae { background: #fef3c7; color: #92400e; }   /* Level 2 — Approaching */
+        .grade-be { background: #fee2e2; color: #991b1b; }   /* Level 1 — Below */
 
         /* Rank badges */
         .rank-badge {
@@ -1087,7 +1060,6 @@
         .rank-mid { background: #e0f2fe; color: #075985; }
         .rank-bottom { background: #f3f4f6; color: #6b7280; }
 
-        /* Subject performance wrapper */
         .subject-performance-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -1099,7 +1071,6 @@
             width: auto;
         }
 
-        /* Assessment cell */
         .assessment-cell {
             font-size: 0.72rem;
             line-height: 1.15;
@@ -1112,7 +1083,6 @@
             color: #1a2a3a;
         }
 
-        /* Empty state */
         .transcript-empty {
             text-align: center;
             padding: 40px 20px;
@@ -1126,10 +1096,40 @@
             display: block;
         }
 
-        .transcript-empty p {
-            font-size: 0.95rem;
+        .transcript-empty p { font-size: 0.95rem; font-weight: 500; }
+
+        /* Rubric Legend */
+        .rubric-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 0.78rem;
+        }
+
+        .rubric-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
             font-weight: 500;
         }
+
+        .rubric-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .rubric-dot.level-4 { background: #10b981; }
+        .rubric-dot.level-3 { background: #3b82f6; }
+        .rubric-dot.level-2 { background: #f59e0b; }
+        .rubric-dot.level-1 { background: #ef4444; }
 
         /* Loading */
         .loading-overlay {
@@ -1164,7 +1164,6 @@
             font-weight: 500;
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 28px;
@@ -1188,7 +1187,6 @@
         .toast.show { transform: translateY(0); }
         .toast-error { border-left-color: var(--danger); }
 
-        /* Mobile nav */
         .mobile-nav {
             display: none;
             position: fixed;
@@ -1679,29 +1677,42 @@
         }
 
         // ============================================================
-        // GRADE FUNCTIONS (Matches index.html)
+        // RUBRIC-BASED GRADING (EE / ME / AE / BE)
         // ============================================================
-        function getGradeClass(marks) {
-            marks = parseFloat(marks) || 0;
-            if (marks >= 80) return 'grade-a';
-            if (marks >= 70) return 'grade-b';
-            if (marks >= 60) return 'grade-c';
-            if (marks >= 50) return 'grade-d';
-            return 'grade-f';
-        }
-
         function getGradeLetter(marks) {
             marks = parseFloat(marks) || 0;
-            if (marks >= 80) return 'A';
-            if (marks >= 70) return 'B';
-            if (marks >= 60) return 'C';
-            if (marks >= 50) return 'D';
-            return 'F';
+            if (marks >= 76) return 'EE';
+            if (marks >= 51) return 'ME';
+            if (marks >= 26) return 'AE';
+            return 'BE';
+        }
+
+        function getGradeClass(marks) {
+            marks = parseFloat(marks) || 0;
+            if (marks >= 76) return 'grade-ee';
+            if (marks >= 51) return 'grade-me';
+            if (marks >= 26) return 'grade-ae';
+            return 'grade-be';
         }
 
         function getGradeColor(grade) {
-            const colors = { 'A': '#065f46', 'B': '#075985', 'C': '#92400e', 'D': '#991b1b', 'F': '#7f1d1d' };
+            const colors = {
+                'EE': '#065f46',
+                'ME': '#1e40af',
+                'AE': '#92400e',
+                'BE': '#991b1b'
+            };
             return colors[grade] || '#1a2a3a';
+        }
+
+        function getRubricMeaning(abbr) {
+            const meanings = {
+                'EE': 'Exceeding Expectations',
+                'ME': 'Meeting Expectations',
+                'AE': 'Approaching Expectations',
+                'BE': 'Below Expectations'
+            };
+            return meanings[abbr] || '';
         }
 
         // ============================================================
@@ -2169,7 +2180,7 @@
         }
 
         // ============================================================
-        // TRANSCRIPT — MATCHES index.html (Student Profile >> Academics Transcript)
+        // TRANSCRIPT — index.html STYLE with EE/ME/AE/BE RUBRIC
         // ============================================================
         function populateTranscript() {
             const transcriptContent = document.getElementById('transcriptContent');
@@ -2228,6 +2239,7 @@
                 });
                 const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
                 const grade = getGradeLetter(average);
+                const gradeMeaning = getRubricMeaning(grade);
 
                 // ===== ASSESSMENT OVERVIEW ROWS =====
                 let assessmentRows = '';
@@ -2236,6 +2248,7 @@
                     const marks = item.marks;
                     const assessmentTotal = marks.reduce((sum, m) => sum + (parseFloat(m.marks) || 0), 0);
                     const assessmentAvg = marks.length > 0 ? (assessmentTotal / marks.length).toFixed(1) : '0';
+                    const assessmentGrade = getGradeLetter(assessmentAvg);
 
                     // ===== RANK STUDENTS FOR THIS ASSESSMENT =====
                     const studentAssessmentTotals = {};
@@ -2268,8 +2281,8 @@
                             <td>${assessment.grade || '—'}</td>
                             <td>${assessmentAvg}/${assessment.maxMarks}</td>
                             <td>
-                                <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">
-                                    ${getGradeLetter(assessmentAvg)}
+                                <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}" title="${getRubricMeaning(assessmentGrade)}">
+                                    ${assessmentGrade}
                                 </span>
                             </td>
                             <td style="text-align: center;">
@@ -2279,7 +2292,6 @@
                 });
 
                 // ===== SUBJECT PERFORMANCE =====
-                // Build subject map
                 const subjectMap = {};
                 termData.forEach(item => {
                     const assessment = item.assessment;
@@ -2303,10 +2315,8 @@
                     });
                 });
 
-                // Get all unique assessment IDs for this term
                 const allTermAssessmentIds = [...new Set(termData.flatMap(item => item.marks.map(m => m.assessmentId)))];
 
-                // Build assessment header columns
                 let assessmentHeaders = '';
                 allTermAssessmentIds.forEach(assessmentId => {
                     const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
@@ -2316,7 +2326,7 @@
                     }
                 });
 
-                // Calculate subject ranks for this student
+                // Calculate subject ranks
                 const subjectRanks = {};
                 const allStudentsForTerm = {};
 
@@ -2400,7 +2410,9 @@
                                 <span style="font-size: 0.68rem; color: #6b7e93;">${data.total}/${data.max}</span>
                             </td>
                             <td style="text-align: center;">
-                                <span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span>
+                                <span class="grade-badge-exam ${getGradeClass(subjectAvg)}" title="${getRubricMeaning(subjectGrade)}">
+                                    ${subjectGrade}
+                                </span>
                             </td>
                             <td style="text-align: center;">
                                 <span class="rank-badge ${rankClass}">
@@ -2432,7 +2444,7 @@
                                     <div class="summary-value">${average}%</div>
                                 </div>
                                 <div class="summary-item">
-                                    <div class="summary-label">Grade</div>
+                                    <div class="summary-label">Level</div>
                                     <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
                                 </div>
                                 <div class="summary-item">
@@ -2456,7 +2468,7 @@
                                         <th>ID</th>
                                         <th>Grade</th>
                                         <th>Avg Score</th>
-                                        <th>Grade</th>
+                                        <th>Level</th>
                                         <th>Position</th>
                                     </tr>
                                 </thead>
@@ -2476,7 +2488,7 @@
                                             <th>Subject</th>
                                             ${assessmentHeaders}
                                             <th>Avg</th>
-                                            <th>Grade</th>
+                                            <th>Level</th>
                                             <th>Rank</th>
                                         </tr>
                                     </thead>
@@ -2488,6 +2500,27 @@
                         </div>
                     </div>`;
             });
+
+            // Rubric Legend
+            html += `
+                <div class="rubric-legend">
+                    <div class="rubric-legend-item">
+                        <span class="rubric-dot level-4"></span>
+                        <span><strong>EE</strong> (76–100%) — Exceeding Expectations</span>
+                    </div>
+                    <div class="rubric-legend-item">
+                        <span class="rubric-dot level-3"></span>
+                        <span><strong>ME</strong> (51–75%) — Meeting Expectations</span>
+                    </div>
+                    <div class="rubric-legend-item">
+                        <span class="rubric-dot level-2"></span>
+                        <span><strong>AE</strong> (26–50%) — Approaching Expectations</span>
+                    </div>
+                    <div class="rubric-legend-item">
+                        <span class="rubric-dot level-1"></span>
+                        <span><strong>BE</strong> (0–25%) — Below Expectations</span>
+                    </div>
+                </div>`;
 
             transcriptContent.innerHTML = html;
         }
