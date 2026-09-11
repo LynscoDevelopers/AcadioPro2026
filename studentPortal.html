@@ -143,7 +143,6 @@
             font-weight: 400;
             line-height: 1.7;
             max-width: 420px;
-            font-style: normal;
             letter-spacing: -0.01em;
             color: rgba(255, 255, 255, 0.95);
         }
@@ -282,9 +281,7 @@
             box-shadow: 0 14px 24px -10px rgba(11, 43, 78, 0.4);
         }
 
-        .login-btn:active {
-            transform: translateY(0);
-        }
+        .login-btn:active { transform: translateY(0); }
 
         .login-error {
             background: var(--danger-soft);
@@ -301,17 +298,9 @@
             gap: 8px;
         }
 
-        .login-error i {
-            font-size: 0.9rem;
-        }
-
         /* ============ PORTAL ============ */
-        .portal {
-            display: none;
-            min-height: 100vh;
-        }
+        .portal { display: none; min-height: 100vh; }
 
-        /* Header */
         .portal-header {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
@@ -407,12 +396,8 @@
             font-family: inherit;
         }
 
-        .logout-btn:hover {
-            background: #fee2e2;
-            transform: translateY(-1px);
-        }
+        .logout-btn:hover { background: #fee2e2; transform: translateY(-1px); }
 
-        /* Navigation */
         .portal-nav {
             background: white;
             border-bottom: 1px solid var(--border);
@@ -440,26 +425,10 @@
             letter-spacing: -0.01em;
         }
 
-        .portal-nav-btn i {
-            font-size: 0.85rem;
-            opacity: 0.7;
-        }
-
-        .portal-nav-btn:hover {
-            color: var(--text);
-            background: #fafcff;
-        }
-
-        .portal-nav-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--accent);
-            font-weight: 700;
-        }
-
-        .portal-nav-btn.active i {
-            color: var(--accent);
-            opacity: 1;
-        }
+        .portal-nav-btn i { font-size: 0.85rem; opacity: 0.7; }
+        .portal-nav-btn:hover { color: var(--text); background: #fafcff; }
+        .portal-nav-btn.active { color: var(--primary); border-bottom-color: var(--accent); font-weight: 700; }
+        .portal-nav-btn.active i { color: var(--accent); opacity: 1; }
 
         .mobile-menu-btn {
             display: none;
@@ -473,38 +442,22 @@
             transition: background 0.2s;
         }
 
-        .mobile-menu-btn:hover {
-            background: #f1f5f9;
-        }
+        .mobile-menu-btn:hover { background: #f1f5f9; }
 
-        /* Content */
         .portal-content {
             padding: 32px 28px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        .section {
-            display: none;
-            animation: fadeIn 0.35s ease;
-        }
-
-        .section.active {
-            display: block;
-        }
+        .section { display: none; animation: fadeIn 0.35s ease; }
+        .section.active { display: block; }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cards */
         .card {
             background: white;
             border-radius: var(--radius);
@@ -515,9 +468,7 @@
             transition: box-shadow 0.2s;
         }
 
-        .card:hover {
-            box-shadow: var(--shadow-md);
-        }
+        .card:hover { box-shadow: var(--shadow-md); }
 
         .card-header {
             padding: 18px 24px;
@@ -540,16 +491,9 @@
             letter-spacing: -0.01em;
         }
 
-        .card-title i {
-            color: var(--accent);
-            font-size: 1rem;
-            width: 20px;
-            text-align: center;
-        }
+        .card-title i { color: var(--accent); font-size: 1rem; width: 20px; text-align: center; }
 
-        .card-body {
-            padding: 24px;
-        }
+        .card-body { padding: 24px; }
 
         /* Profile */
         .profile-card {
@@ -559,10 +503,7 @@
             align-items: flex-start;
         }
 
-        .profile-avatar-section {
-            text-align: center;
-            flex-shrink: 0;
-        }
+        .profile-avatar-section { text-align: center; flex-shrink: 0; }
 
         .profile-avatar {
             width: 108px;
@@ -594,14 +535,9 @@
             text-transform: uppercase;
         }
 
-        .profile-status i {
-            font-size: 6px;
-        }
+        .profile-status i { font-size: 6px; }
 
-        .profile-details {
-            flex: 1;
-            min-width: 250px;
-        }
+        .profile-details { flex: 1; min-width: 250px; }
 
         .profile-name {
             font-size: 1.6rem;
@@ -618,7 +554,6 @@
             font-weight: 500;
         }
 
-        /* Simplified personal info grid */
         .personal-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -637,10 +572,7 @@
             gap: 6px;
         }
 
-        .personal-field:hover {
-            border-color: #d4dfeb;
-            background: #f8fbff;
-        }
+        .personal-field:hover { border-color: #d4dfeb; background: #f8fbff; }
 
         .personal-field-label {
             font-size: 0.65rem;
@@ -653,12 +585,7 @@
             gap: 6px;
         }
 
-        .personal-field-label i {
-            color: var(--accent);
-            font-size: 0.7rem;
-            width: 14px;
-            text-align: center;
-        }
+        .personal-field-label i { color: var(--accent); font-size: 0.7rem; width: 14px; text-align: center; }
 
         .personal-field-value {
             font-size: 0.98rem;
@@ -689,30 +616,10 @@
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
         }
 
-        /* Edit mode toggles */
-        .edit-mode .personal-field-value {
-            display: none;
-        }
+        .edit-mode .personal-field-value { display: none; }
+        .edit-mode .personal-field-input { display: block; }
+        .personal-field-input:disabled { display: none; }
 
-        .edit-mode .personal-field-input {
-            display: block;
-        }
-
-        /* For non-edit mode, show value and hide input */
-        .personal-field-input:disabled {
-            display: none;
-        }
-
-        /* Fix: input is hidden by default, shown only in edit mode */
-        .personal-field-input {
-            display: none;
-        }
-
-        .edit-mode .personal-field-input {
-            display: block;
-        }
-
-        /* Contact info still uses profile-detail-grid (we keep it) */
         .profile-detail-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -728,10 +635,7 @@
             transition: border-color 0.2s, background 0.2s;
         }
 
-        .profile-detail:hover {
-            border-color: #d4dfeb;
-            background: #f8fbff;
-        }
+        .profile-detail:hover { border-color: #d4dfeb; background: #f8fbff; }
 
         .profile-detail-label {
             font-size: 0.65rem;
@@ -745,12 +649,7 @@
             gap: 6px;
         }
 
-        .profile-detail-label i {
-            color: var(--accent);
-            font-size: 0.7rem;
-            width: 14px;
-            text-align: center;
-        }
+        .profile-detail-label i { color: var(--accent); font-size: 0.7rem; width: 14px; text-align: center; }
 
         .profile-detail-value {
             font-size: 0.95rem;
@@ -759,14 +658,8 @@
             word-break: break-word;
         }
 
-        /* Edit Mode for contact */
-        .edit-mode .profile-detail-value {
-            display: none;
-        }
-
-        .edit-mode .profile-detail-input {
-            display: block;
-        }
+        .edit-mode .profile-detail-value { display: none; }
+        .edit-mode .profile-detail-input { display: block; }
 
         .profile-detail-input {
             display: none;
@@ -836,10 +729,7 @@
             box-shadow: 0 4px 10px -4px rgba(16, 185, 129, 0.3);
         }
 
-        .save-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
+        .save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .cancel-btn {
             background: white;
@@ -857,21 +747,10 @@
             font-family: inherit;
         }
 
-        .cancel-btn:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-        }
+        .cancel-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-        .edit-actions {
-            display: none;
-            gap: 10px;
-            margin-top: 18px;
-        }
-
-        .edit-actions.active {
-            display: flex;
-            flex-wrap: wrap;
-        }
+        .edit-actions { display: none; gap: 10px; margin-top: 18px; }
+        .edit-actions.active { display: flex; flex-wrap: wrap; }
 
         /* Balance Cards */
         .balance-grid {
@@ -924,19 +803,11 @@
             letter-spacing: -0.02em;
         }
 
-        .balance-card-value.success {
-            color: var(--success);
-        }
+        .balance-card-value.success { color: var(--success); }
+        .balance-card-value.warning { color: var(--warning); }
+        .balance-card-value.danger { color: var(--danger); }
 
-        .balance-card-value.warning {
-            color: var(--warning);
-        }
-
-        .balance-card-value.danger {
-            color: var(--danger);
-        }
-
-        /* Table */
+        /* Data Table */
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -970,15 +841,9 @@
             font-weight: 500;
         }
 
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: #fafcff; }
 
-        .data-table tr:hover td {
-            background: #fafcff;
-        }
-
-        /* Badges */
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -988,114 +853,298 @@
             letter-spacing: 0.01em;
         }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+
+        /* ============================================================
+           TRANSCRIPT — INDEX.HTML STYLE (COLLAPSIBLE TERMS)
+           ============================================================ */
+        .collapsible-section {
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        /* Transcript */
-        .transcript-term {
-            margin-bottom: 32px;
-        }
-
-        .transcript-term:last-child {
-            margin-bottom: 0;
-        }
-
-        .transcript-term-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .transcript-term-title {
-            font-size: 1.1rem;
-            font-weight: 800;
+        .collapsible-header {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: none;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 10px;
-            letter-spacing: -0.02em;
-            color: var(--primary-dark);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a2a3a;
+            transition: all 0.2s ease;
+            text-align: left;
         }
 
-        .transcript-term-title i {
-            color: var(--accent);
-            font-size: 1rem;
+        .collapsible-header:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
         }
 
+        .collapsible-header.collapsed {
+            border-bottom: none;
+            border-radius: 12px;
+        }
+
+        .collapsible-icon {
+            font-size: 0.65rem;
+            transition: transform 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+
+        .collapsible-section.collapsed .collapsible-icon {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .term-badge {
+            background: #2a7de1;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(42, 125, 225, 0.3);
+        }
+
+        .term-subtitle {
+            font-size: 0.75rem;
+            color: #6b7e93;
+            font-weight: 500;
+        }
+
+        .collapsible-count {
+            font-size: 0.72rem;
+            color: #6b7e93;
+            font-weight: 600;
+            background: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .collapsible-content {
+            padding: 16px;
+            animation: slideDown 0.3s ease;
+            background: white;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; transform: translateY(-3px); }
+            to { opacity: 1; max-height: 5000px; transform: translateY(0); }
+        }
+
+        .collapsible-section.collapsed .collapsible-content {
+            display: none;
+        }
+
+        /* Term Summary */
         .transcript-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 14px;
-            margin-bottom: 18px;
-        }
-
-        .summary-item {
-            background: #fafcff;
-            border-radius: 14px;
-            padding: 16px 12px;
-            text-align: center;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
             border: 1px solid var(--border);
-            transition: border-color 0.2s;
         }
 
-        .summary-item:hover {
-            border-color: #d4dfeb;
-        }
+        .summary-item { text-align: center; }
 
         .summary-label {
-            font-size: 0.62rem;
-            color: var(--text-muted);
+            font-size: 0.6rem;
+            color: #6b7e93;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .summary-value {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 800;
             letter-spacing: -0.02em;
+            color: #1a2a3a;
+        }
+
+        /* Transcript Table (matches index.html) */
+        .transcript-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-bottom: 8px;
+        }
+
+        .transcript-table th {
+            background: #f8fafc;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 700;
+            color: #1a2a3a;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .transcript-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e2f3f;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .transcript-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Section heading inside term */
+        .transcript-section-heading {
+            margin: 16px 0 10px;
+            color: #1a2a3a;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .transcript-section-heading i {
+            color: #2a7de1;
+        }
+
+        /* Subject badge */
+        .subject-badge {
+            background: #e9f2fa;
+            color: #2a5f7a;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Grade badges */
+        .grade-badge-exam {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        .grade-a { background: #d1fae5; color: #065f46; }
+        .grade-b { background: #e0f2fe; color: #075985; }
+        .grade-c { background: #fef3c7; color: #92400e; }
+        .grade-d { background: #fee2e2; color: #991b1b; }
+        .grade-f { background: #fecaca; color: #7f1d1d; }
+
+        /* Rank badges */
+        .rank-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .rank-top { background: #d1fae5; color: #065f46; }
+        .rank-mid { background: #e0f2fe; color: #075985; }
+        .rank-bottom { background: #f3f4f6; color: #6b7280; }
+
+        /* Subject performance wrapper */
+        .subject-performance-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .subject-performance-wrapper .transcript-table {
+            min-width: 100%;
+            width: auto;
+        }
+
+        /* Assessment cell */
+        .assessment-cell {
+            font-size: 0.72rem;
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        .assessment-cell strong {
+            display: block;
+            font-size: 0.75rem;
+            color: #1a2a3a;
+        }
+
+        /* Empty state */
+        .transcript-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .transcript-empty i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .transcript-empty p {
+            font-size: 0.95rem;
+            font-weight: 500;
         }
 
         /* Loading */
         .loading-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255, 255, 255, 0.88);
             z-index: 9999;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
         }
 
-        .loading-overlay.active {
-            display: flex;
-        }
+        .loading-overlay.active { display: flex; }
 
         .loading-spinner {
             width: 48px;
@@ -1106,11 +1155,7 @@
             animation: spin 0.9s linear infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .loading-text {
             margin-top: 18px;
@@ -1138,25 +1183,16 @@
             font-size: 0.9rem;
             font-weight: 600;
             max-width: 380px;
-            letter-spacing: -0.01em;
         }
 
-        .toast.show {
-            transform: translateY(0);
-        }
+        .toast.show { transform: translateY(0); }
+        .toast-error { border-left-color: var(--danger); }
 
-        .toast-error {
-            border-left-color: var(--danger);
-        }
-
-        /* Mobile Menu */
+        /* Mobile nav */
         .mobile-nav {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: white;
             z-index: 999;
             flex-direction: column;
@@ -1165,19 +1201,11 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .mobile-nav.active {
-            display: flex;
-        }
+        .mobile-nav.active { display: flex; }
 
         .mobile-nav-header {
             display: flex;
@@ -1200,11 +1228,6 @@
             align-items: center;
             justify-content: center;
             color: var(--text);
-            transition: background 0.2s;
-        }
-
-        .mobile-nav-close:hover {
-            background: #e2e8f0;
         }
 
         .mobile-nav-link {
@@ -1222,241 +1245,68 @@
             text-align: left;
             width: 100%;
             font-family: inherit;
-            transition: background 0.2s, color 0.2s;
-            letter-spacing: -0.01em;
         }
 
-        .mobile-nav-link i {
-            width: 22px;
-            color: var(--text-muted);
-            font-size: 1.05rem;
-        }
-
-        .mobile-nav-link:hover {
-            background: #f8fafc;
-        }
-
-        .mobile-nav-link.active {
-            background: var(--accent-soft);
-            color: var(--accent);
-        }
-
-        .mobile-nav-link.active i {
-            color: var(--accent);
-        }
+        .mobile-nav-link i { width: 22px; color: var(--text-muted); font-size: 1.05rem; }
+        .mobile-nav-link:hover { background: #f8fafc; }
+        .mobile-nav-link.active { background: var(--accent-soft); color: var(--accent); }
+        .mobile-nav-link.active i { color: var(--accent); }
 
         /* Responsive */
         @media (max-width: 900px) {
-            .login-left {
-                padding: 40px 36px;
-            }
-            .login-quote-text {
-                font-size: 1.05rem;
-            }
+            .login-left { padding: 40px 36px; }
+            .login-quote-text { font-size: 1.05rem; }
         }
 
         @media (max-width: 768px) {
-            .login-wrapper {
-                flex-direction: column;
-            }
-
-            .login-left {
-                padding: 32px 24px;
-                min-height: 220px;
-                justify-content: center;
-            }
-
-            .login-brand {
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-
-            .login-quote {
-                display: none;
-            }
-
-            .login-right {
-                padding: 24px 20px;
-            }
-
-            .login-box {
-                padding: 28px 24px;
-                border-radius: 24px;
-            }
-
-            .login-box-title {
-                font-size: 1.5rem;
-            }
-
-            .portal-header {
-                padding: 12px 16px;
-            }
-
-            .portal-header-right .portal-user-name {
-                display: none;
-            }
-
-            .portal-header-right .portal-user-admission {
-                display: none;
-            }
-
-            .portal-nav {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .portal-content {
-                padding: 20px 16px;
-            }
-
-            .balance-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-
-            .profile-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .profile-avatar-section {
-                text-align: center;
-            }
-
-            .personal-info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-detail-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-detail-label {
-                justify-content: center;
-            }
-
-            .profile-detail-value {
-                text-align: center;
-            }
-
-            .personal-field-label {
-                justify-content: center;
-            }
-
-            .personal-field-value {
-                text-align: center;
-            }
-
-            .data-table {
-                font-size: 0.78rem;
-            }
-
-            .data-table th,
-            .data-table td {
-                padding: 10px 12px;
-            }
-
-            .card-header {
-                padding: 14px 18px;
-            }
-
-            .card-body {
-                padding: 18px;
-            }
-
-            .transcript-term-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .logout-btn span {
-                display: none;
-            }
-
-            .logout-btn {
-                padding: 10px 12px;
-            }
-
-            .toast {
-                left: 16px;
-                right: 16px;
-                bottom: 16px;
-                max-width: none;
-            }
+            .login-wrapper { flex-direction: column; }
+            .login-left { padding: 32px 24px; min-height: 220px; justify-content: center; }
+            .login-brand { margin-top: 0; margin-bottom: 0; }
+            .login-quote { display: none; }
+            .login-right { padding: 24px 20px; }
+            .login-box { padding: 28px 24px; border-radius: 24px; }
+            .login-box-title { font-size: 1.5rem; }
+            .portal-header { padding: 12px 16px; }
+            .portal-header-right .portal-user-name { display: none; }
+            .portal-header-right .portal-user-admission { display: none; }
+            .portal-nav { display: none; }
+            .mobile-menu-btn { display: block; }
+            .portal-content { padding: 20px 16px; }
+            .balance-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .profile-card { flex-direction: column; align-items: center; text-align: center; }
+            .personal-info-grid { grid-template-columns: 1fr; }
+            .profile-detail-grid { grid-template-columns: 1fr; }
+            .profile-detail-label, .personal-field-label { justify-content: center; }
+            .profile-detail-value, .personal-field-value { text-align: center; }
+            .data-table { font-size: 0.78rem; }
+            .data-table th, .data-table td { padding: 10px 12px; }
+            .card-header { padding: 14px 18px; }
+            .card-body { padding: 18px; }
+            .logout-btn span { display: none; }
+            .logout-btn { padding: 10px 12px; }
+            .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+            .collapsible-header { padding: 10px 12px; font-size: 0.82rem; }
+            .collapsible-count { display: none; }
+            .collapsible-content { padding: 12px; }
+            .transcript-summary { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 480px) {
-            .login-left {
-                padding: 24px 20px;
-                min-height: 180px;
-            }
-
-            .login-brand-icon {
-                width: 44px;
-                height: 44px;
-                font-size: 1.2rem;
-                border-radius: 14px;
-                margin-bottom: 16px;
-            }
-
-            .login-brand-name {
-                font-size: 1.3rem;
-            }
-
-            .login-brand-tagline {
-                font-size: 0.8rem;
-            }
-
-            .login-box {
-                padding: 24px 20px;
-            }
-
-            .login-box-icon {
-                width: 52px;
-                height: 52px;
-                font-size: 1.3rem;
-                border-radius: 16px;
-                margin-bottom: 18px;
-            }
-
-            .login-box-title {
-                font-size: 1.3rem;
-            }
-
-            .balance-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .personal-info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-detail-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .balance-card-value {
-                font-size: 1.15rem;
-            }
-
-            .profile-avatar {
-                width: 88px;
-                height: 88px;
-                font-size: 1.8rem;
-                border-radius: 20px;
-            }
-
-            .profile-name {
-                font-size: 1.3rem;
-            }
-
-            .transcript-summary {
-                grid-template-columns: 1fr 1fr;
-            }
+            .login-left { padding: 24px 20px; min-height: 180px; }
+            .login-brand-icon { width: 44px; height: 44px; font-size: 1.2rem; border-radius: 14px; margin-bottom: 16px; }
+            .login-brand-name { font-size: 1.3rem; }
+            .login-brand-tagline { font-size: 0.8rem; }
+            .login-box { padding: 24px 20px; }
+            .login-box-icon { width: 52px; height: 52px; font-size: 1.3rem; border-radius: 16px; margin-bottom: 18px; }
+            .login-box-title { font-size: 1.3rem; }
+            .balance-grid { grid-template-columns: 1fr; }
+            .personal-info-grid, .profile-detail-grid { grid-template-columns: 1fr; }
+            .balance-card-value { font-size: 1.15rem; }
+            .profile-avatar { width: 88px; height: 88px; font-size: 1.8rem; border-radius: 20px; }
+            .profile-name { font-size: 1.3rem; }
+            .transcript-summary { grid-template-columns: 1fr 1fr; }
+            .transcript-table { font-size: 0.7rem; }
+            .transcript-table th, .transcript-table td { padding: 6px 4px; }
         }
     </style>
 </head>
@@ -1464,7 +1314,6 @@
 
     <!-- ============ LOGIN PAGE ============ -->
     <div class="login-wrapper" id="loginContainer">
-        <!-- Left Side -->
         <div class="login-left">
             <div class="login-brand">
                 <div class="login-brand-icon">
@@ -1473,7 +1322,6 @@
                 <div class="login-brand-name">Student Portal</div>
                 <div class="login-brand-tagline">Sign in to access your academic information, fee status, and transcripts.</div>
             </div>
-            
             <div class="login-quote">
                 <div class="login-quote-text">
                     "Education is the most powerful weapon which you can use to change the world."
@@ -1482,7 +1330,6 @@
             </div>
         </div>
 
-        <!-- Right Side - Login Form -->
         <div class="login-right">
             <div class="login-box">
                 <div class="login-box-icon">
@@ -1496,17 +1343,14 @@
                         <i class="fas fa-user login-field-icon"></i>
                         <input type="text" class="login-input" id="loginFirstName" placeholder="First name" autocomplete="off">
                     </div>
-
                     <div class="login-field">
                         <i class="fas fa-id-card login-field-icon"></i>
                         <input type="password" class="login-input" id="loginAdmission" placeholder="Admission number" autocomplete="off">
                     </div>
-
                     <div class="login-error" id="loginError">
                         <i class="fas fa-exclamation-circle"></i>
                         <span id="loginErrorMsg">Invalid credentials</span>
                     </div>
-
                     <button class="login-btn" onclick="login()">
                         <i class="fas fa-arrow-right"></i>
                         Continue
@@ -1518,13 +1362,11 @@
 
     <!-- ============ PORTAL ============ -->
     <div class="portal" id="portalContainer">
-        <!-- Loading -->
         <div class="loading-overlay" id="loadingOverlay">
             <div class="loading-spinner"></div>
             <p class="loading-text">Please wait...</p>
         </div>
 
-        <!-- Header -->
         <header class="portal-header">
             <div class="portal-header-left">
                 <button class="mobile-menu-btn" onclick="toggleMobileNav()">
@@ -1553,7 +1395,6 @@
             </div>
         </header>
 
-        <!-- Navigation -->
         <nav class="portal-nav">
             <button class="portal-nav-btn active" data-section="profile" onclick="switchSection('profile')">
                 <i class="fas fa-user"></i> Profile
@@ -1566,12 +1407,9 @@
             </button>
         </nav>
 
-        <!-- Mobile Navigation -->
         <div class="mobile-nav" id="mobileNav">
             <div class="mobile-nav-header">
-                <div class="portal-logo">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+                <div class="portal-logo"><i class="fas fa-graduation-cap"></i></div>
                 <button class="mobile-nav-close" onclick="toggleMobileNav()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1587,15 +1425,12 @@
             </button>
         </div>
 
-        <!-- Content -->
         <div class="portal-content">
             <!-- Profile Section -->
             <div class="section active" id="section-profile">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-user-circle"></i> Personal Information
-                        </h3>
+                        <h3 class="card-title"><i class="fas fa-user-circle"></i> Personal Information</h3>
                         <button class="edit-btn" id="editPersonalBtn" onclick="toggleEdit('personal')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
@@ -1604,28 +1439,19 @@
                         <div class="profile-card">
                             <div class="profile-avatar-section">
                                 <div class="profile-avatar" id="profileAvatar">S</div>
-                                <div class="profile-status">
-                                    <i class="fas fa-circle"></i>
-                                    Active
-                                </div>
+                                <div class="profile-status"><i class="fas fa-circle"></i> Active</div>
                             </div>
                             <div class="profile-details">
                                 <div class="profile-name" id="profileName">Student Name</div>
                                 <div class="profile-class" id="profileClass">Class/Grade</div>
-                                
-                                <!-- Simplified personal info grid - no extra cards, just fields -->
                                 <div class="personal-info-grid">
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-user"></i> Full Name
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-user"></i> Full Name</div>
                                         <div class="personal-field-value" id="profileFullName">-</div>
                                         <input type="text" class="personal-field-input" id="editFullName" disabled>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-venus-mars"></i> Gender
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-venus-mars"></i> Gender</div>
                                         <div class="personal-field-value" id="profileGender">-</div>
                                         <select class="personal-field-input" id="editGender" disabled>
                                             <option value="">Select</option>
@@ -1634,23 +1460,17 @@
                                         </select>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-calendar"></i> Date of Birth
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-calendar"></i> Date of Birth</div>
                                         <div class="personal-field-value" id="profileDOB">-</div>
                                         <input type="date" class="personal-field-input" id="editDOB" disabled>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-school"></i> Class/Grade
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-school"></i> Class/Grade</div>
                                         <div class="personal-field-value" id="profileClassValue">-</div>
                                         <input type="text" class="personal-field-input" id="editClass" disabled>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-flag"></i> Nationality
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-flag"></i> Nationality</div>
                                         <div class="personal-field-value" id="profileNationality">-</div>
                                         <select class="personal-field-input" id="editNationality" disabled>
                                             <option value="">Select</option>
@@ -1661,9 +1481,7 @@
                                         </select>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label">
-                                            <i class="fas fa-pray"></i> Religion
-                                        </div>
+                                        <div class="personal-field-label"><i class="fas fa-pray"></i> Religion</div>
                                         <div class="personal-field-value" id="profileReligion">-</div>
                                         <select class="personal-field-input" id="editReligion" disabled>
                                             <option value="">Select</option>
@@ -1675,7 +1493,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                
                                 <div class="edit-actions" id="editPersonalActions">
                                     <button class="save-btn" onclick="savePersonalInfo()">
                                         <i class="fas fa-save"></i> Save Changes
@@ -1691,9 +1508,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-phone"></i> Contact Information
-                        </h3>
+                        <h3 class="card-title"><i class="fas fa-phone"></i> Contact Information</h3>
                         <button class="edit-btn" id="editContactBtn" onclick="toggleEdit('contact')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
@@ -1701,16 +1516,12 @@
                     <div class="card-body" id="contactBody">
                         <div class="profile-detail-grid">
                             <div class="profile-detail">
-                                <div class="profile-detail-label">
-                                    <i class="fas fa-user-tie"></i> Guardian Name
-                                </div>
+                                <div class="profile-detail-label"><i class="fas fa-user-tie"></i> Guardian Name</div>
                                 <div class="profile-detail-value" id="profileGuardian">-</div>
                                 <input type="text" class="profile-detail-input" id="editGuardian" disabled>
                             </div>
                             <div class="profile-detail">
-                                <div class="profile-detail-label">
-                                    <i class="fas fa-heart"></i> Relationship
-                                </div>
+                                <div class="profile-detail-label"><i class="fas fa-heart"></i> Relationship</div>
                                 <div class="profile-detail-value" id="profileRelationship">-</div>
                                 <select class="profile-detail-input" id="editRelationship" disabled>
                                     <option value="">Select</option>
@@ -1723,28 +1534,21 @@
                                 </select>
                             </div>
                             <div class="profile-detail">
-                                <div class="profile-detail-label">
-                                    <i class="fas fa-phone"></i> Phone
-                                </div>
+                                <div class="profile-detail-label"><i class="fas fa-phone"></i> Phone</div>
                                 <div class="profile-detail-value" id="profilePhone">-</div>
                                 <input type="tel" class="profile-detail-input" id="editPhone" disabled>
                             </div>
                             <div class="profile-detail">
-                                <div class="profile-detail-label">
-                                    <i class="fas fa-envelope"></i> Email
-                                </div>
+                                <div class="profile-detail-label"><i class="fas fa-envelope"></i> Email</div>
                                 <div class="profile-detail-value" id="profileEmail">-</div>
                                 <input type="email" class="profile-detail-input" id="editEmail" disabled>
                             </div>
                             <div class="profile-detail" style="grid-column: span 2;">
-                                <div class="profile-detail-label">
-                                    <i class="fas fa-map-marker-alt"></i> Address
-                                </div>
+                                <div class="profile-detail-label"><i class="fas fa-map-marker-alt"></i> Address</div>
                                 <div class="profile-detail-value" id="profileAddress">-</div>
                                 <input type="text" class="profile-detail-input" id="editAddress" disabled>
                             </div>
                         </div>
-                        
                         <div class="edit-actions" id="editContactActions">
                             <button class="save-btn" onclick="saveContactInfo()">
                                 <i class="fas fa-save"></i> Save Changes
@@ -1761,22 +1565,16 @@
             <div class="section" id="section-fees">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-wallet"></i> Fee Balance
-                        </h3>
+                        <h3 class="card-title"><i class="fas fa-wallet"></i> Fee Balance</h3>
                     </div>
                     <div class="card-body">
-                        <div class="balance-grid" id="balanceCards">
-                            <!-- Populated by JS -->
-                        </div>
+                        <div class="balance-grid" id="balanceCards"></div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-history"></i> Payment History
-                        </h3>
+                        <h3 class="card-title"><i class="fas fa-history"></i> Payment History</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-wrapper">
@@ -1790,9 +1588,7 @@
                                         <th>Receipt No</th>
                                     </tr>
                                 </thead>
-                                <tbody id="paymentHistoryBody">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                <tbody id="paymentHistoryBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -1803,43 +1599,25 @@
             <div class="section" id="section-transcript">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-file-alt"></i> Academic Transcript
-                        </h3>
+                        <h3 class="card-title"><i class="fas fa-file-alt"></i> Academic Transcript</h3>
                     </div>
                     <div class="card-body">
-                        <div id="transcriptContent">
-                            <!-- Populated by JS -->
-                        </div>
+                        <div id="transcriptContent"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle" style="color: var(--success); font-size: 1.1rem;"></i>
         <span id="toastMessage">Saved successfully</span>
     </div>
 
-    <!-- Firebase Scripts -->
     <script type="module">
-        // ============================================================
-        // FIREBASE IMPORTS
-        // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-        import {
-            getDatabase,
-            ref,
-            get,
-            update
-        } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
-        // ============================================================
-        // FIREBASE CONFIG
-        // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDD26eTdsp8LCtBXSEdom4-_yEkyUp571M",
             authDomain: "acadiapro-software.firebaseapp.com",
@@ -1851,15 +1629,9 @@
             measurementId: "G-6E1J42CD4R"
         };
 
-        // ============================================================
-        // INITIALIZE
-        // ============================================================
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ============================================================
-        // GLOBAL STATE
-        // ============================================================
         let currentStudent = null;
         let allStudents = {};
         let allPayments = {};
@@ -1870,24 +1642,19 @@
         let contactEditMode = false;
 
         // ============================================================
-        // UTILITY FUNCTIONS
+        // UTILITIES
         // ============================================================
         function formatCurrency(value) {
             if (value === null || value === undefined || value === "") return "0.00";
             if (value === "Sponsored") return "Sponsored";
             const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
             if (isNaN(num)) return "0.00";
-            return num.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function formatDateToDDMMYYYY(dateString) {
             if (!dateString) return '—';
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
-                return dateString;
-            }
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) return dateString;
             const d = new Date(dateString);
             if (isNaN(d)) return dateString;
             return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
@@ -1895,9 +1662,7 @@
 
         function formatDateToYYYYMMDD(dateString) {
             if (!dateString) return '';
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-                return dateString;
-            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
             const d = new Date(dateString);
             if (isNaN(d)) return dateString;
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -1913,17 +1678,42 @@
             return active ? active.termId : null;
         }
 
+        // ============================================================
+        // GRADE FUNCTIONS (Matches index.html)
+        // ============================================================
+        function getGradeClass(marks) {
+            marks = parseFloat(marks) || 0;
+            if (marks >= 80) return 'grade-a';
+            if (marks >= 70) return 'grade-b';
+            if (marks >= 60) return 'grade-c';
+            if (marks >= 50) return 'grade-d';
+            return 'grade-f';
+        }
+
+        function getGradeLetter(marks) {
+            marks = parseFloat(marks) || 0;
+            if (marks >= 80) return 'A';
+            if (marks >= 70) return 'B';
+            if (marks >= 60) return 'C';
+            if (marks >= 50) return 'D';
+            return 'F';
+        }
+
+        function getGradeColor(grade) {
+            const colors = { 'A': '#065f46', 'B': '#075985', 'C': '#92400e', 'D': '#991b1b', 'F': '#7f1d1d' };
+            return colors[grade] || '#1a2a3a';
+        }
+
+        // ============================================================
+        // FEE CALCULATIONS
+        // ============================================================
         function getStudentRequiredFee(admissionNumber) {
             if (!admissionNumber || !currentStudent) return "0.00";
             const student = currentStudent;
             if (!student.class) return "0.00";
-
             const grade = String(student.class).split('-')[0].trim();
             const activeTerm = allTerms.find(t => String(t.status || '').trim().toLowerCase() === 'active');
-            if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
-                return "0.00";
-            }
-
+            if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
             const fees = {
                 grade: parseFloat(activeTerm.grades[grade]) || 0,
                 meal: parseFloat(activeTerm.meal) || 0,
@@ -1931,23 +1721,14 @@
                 boarding: parseFloat(activeTerm.boarding) || 0,
                 break: parseFloat(activeTerm.breakFee) || 0
             };
-
-            if (/[789]/.test(grade)) {
-                fees.boarding = Math.max(0, fees.boarding - 2000);
-            }
-
+            if (/[789]/.test(grade)) fees.boarding = Math.max(0, fees.boarding - 2000);
             const ex = student.Exceptions || {};
             if (ex.Sponsored === true) return "Sponsored";
-
             let requiredFee = fees.grade;
-            if (ex.Boarding === true) {
-                return formatCurrency(requiredFee + fees.boarding);
-            }
-
+            if (ex.Boarding === true) return formatCurrency(requiredFee + fees.boarding);
             requiredFee += fees.transport;
             if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
             if (ex.Break === true) requiredFee += fees.break;
-
             return formatCurrency(requiredFee);
         }
 
@@ -1957,10 +1738,8 @@
             const gradeFee = getStudentRequiredFee(admissionNumber);
             if (gradeFee === "Sponsored") return "Sponsored";
             if (!student.lastPayment) return formatCurrency(gradeFee);
-
             const balance = parseFloat(String(student.lastPayment.balance || 0).replace(/,/g, '')) || 0;
             const activeTerm = getActiveTerm();
-
             if (activeTerm && student.lastPayment.term !== activeTerm) {
                 return formatCurrency(balance + parseFloat(String(gradeFee).replace(/,/g, '') || 0));
             }
@@ -1971,33 +1750,25 @@
             if (!admissionNumber || !currentStudent) return "0.00";
             const student = currentStudent;
             if (!student.class) return "0.00";
-
             const grade = String(student.class).split('-')[0].trim();
             const activeTerm = allTerms.find(t => String(t.status || '').trim().toLowerCase() === 'active');
             if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
-
             const fees = {
                 meal: parseFloat(activeTerm.meal) || 0,
                 transport: parseFloat(activeTerm.transport) || 0,
                 boarding: parseFloat(activeTerm.boarding) || 0,
                 break: parseFloat(activeTerm.breakFee) || 0
             };
-
             const isSeniorGrade = /[789]/.test(grade);
-            if (isSeniorGrade) {
-                fees.boarding = Math.max(0, fees.boarding - 2000);
-            }
-
+            if (isSeniorGrade) fees.boarding = Math.max(0, fees.boarding - 2000);
             const ex = student.Exceptions || {};
             if (ex.Sponsored === true) return "Sponsored";
             if (ex.Boarding === true) return "0.00";
-
             let falseExceptionsSum = 0;
             if (isSeniorGrade) falseExceptionsSum += fees.boarding;
             if (ex.Meal !== true && ex.meals !== true) falseExceptionsSum += fees.meal;
             if (ex.Break !== true) falseExceptionsSum += fees.break;
             if (ex.Sponsored !== true) falseExceptionsSum += fees.transport;
-
             return formatCurrency(falseExceptionsSum);
         }
 
@@ -2005,7 +1776,6 @@
             const normalizedAdmission = admissionNumber.replace(/-/g, "/");
             const activeTerm = getActiveTerm();
             let lastBalance = 0;
-
             Object.values(allPayments || {}).forEach(payment => {
                 if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission && payment.term !== activeTerm) {
                     if (typeof payment.balance === 'string') {
@@ -2022,7 +1792,6 @@
             const activeTerm = getActiveTerm();
             let totalInstallments = 0;
             const normalizedAdmission = admissionNumber.replace(/-/g, "/");
-
             Object.values(allPayments || {}).forEach(payment => {
                 const paymentAdmission = payment.admissionNumber ? payment.admissionNumber.replace(/-/g, "/") : "";
                 if (paymentAdmission === normalizedAdmission && payment.term === activeTerm) {
@@ -2038,50 +1807,24 @@
             return formatCurrency(totalInstallments);
         }
 
-        function getGradeLetter(percentage) {
-            percentage = parseFloat(percentage) || 0;
-            if (percentage >= 80) return 'A';
-            if (percentage >= 70) return 'B';
-            if (percentage >= 60) return 'C';
-            if (percentage >= 50) return 'D';
-            return 'F';
-        }
-
-        function getGradeColor(grade) {
-            const colors = {
-                'A': '#065f46',
-                'B': '#1e40af',
-                'C': '#92400e',
-                'D': '#991b1b',
-                'F': '#7f1d1d'
-            };
-            return colors[grade] || '#1a202c';
-        }
-
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             toastMessage.textContent = message;
             toast.className = 'toast show' + (type === 'error' ? ' toast-error' : '');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3200);
+            setTimeout(() => toast.classList.remove('show'), 3200);
         }
 
         // ============================================================
-        // AUTO LOGIN VIA UID PARAMETER
+        // AUTO LOGIN
         // ============================================================
         async function autoLoginFromUid(uid) {
             document.getElementById('loadingOverlay').classList.add('active');
             document.getElementById('loginContainer').style.display = 'none';
-
             try {
                 const studentsSnapshot = await get(ref(db, "Institution/ Revival/Students"));
                 allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
-
-                let foundStudent = null;
-                let foundAdmission = null;
-
+                let foundStudent = null, foundAdmission = null;
                 for (const [key, student] of Object.entries(allStudents)) {
                     const admission = String(student.admissionNumber || key.replace(/-/g, '/'));
                     if (admission === uid || key === uid || key.replace(/-/g, '/') === uid) {
@@ -2090,38 +1833,17 @@
                         break;
                     }
                 }
-
                 if (!foundStudent) {
-                    // Try looking up by student ID field if exists
-                    for (const [key, student] of Object.entries(allStudents)) {
-                        if (student.id === uid || student.studentId === uid) {
-                            foundStudent = student;
-                            foundAdmission = student.admissionNumber || key.replace(/-/g, '/');
-                            break;
-                        }
-                    }
-                }
-
-                if (!foundStudent) {
-                    // If no student found, show login with error
                     document.getElementById('loadingOverlay').classList.remove('active');
                     document.getElementById('loginContainer').style.display = 'flex';
                     showLoginError("Student not found. Please login manually.");
                     return;
                 }
-
-                currentStudent = {
-                    ...foundStudent,
-                    admissionNumber: foundAdmission
-                };
-
+                currentStudent = { ...foundStudent, admissionNumber: foundAdmission };
                 await loadPortalData();
-
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('portalContainer').style.display = 'block';
-
                 populatePortal();
-
             } catch (error) {
                 console.error("Auto-login error:", error);
                 document.getElementById('loadingOverlay').classList.remove('active');
@@ -2131,58 +1853,42 @@
         }
 
         // ============================================================
-        // LOGIN FUNCTION
+        // LOGIN
         // ============================================================
         window.login = async function() {
             const firstName = document.getElementById('loginFirstName').value.trim().toLowerCase();
             const admissionNumber = document.getElementById('loginAdmission').value.trim();
-
             if (!firstName || !admissionNumber) {
                 showLoginError("Please enter your first name and admission number.");
                 return;
             }
-
             const loginBtn = document.querySelector('.login-btn');
             const originalBtnText = loginBtn.innerHTML;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
             loginBtn.disabled = true;
             document.getElementById('loginError').style.display = 'none';
-
             try {
                 const studentsSnapshot = await get(ref(db, "Institution/ Revival/Students"));
                 allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
-
-                let foundStudent = null;
-                let foundAdmission = null;
-
+                let foundStudent = null, foundAdmission = null;
                 for (const [key, student] of Object.entries(allStudents)) {
                     const name = String(student.name || '').toLowerCase();
                     const admission = String(student.admissionNumber || key.replace(/-/g, '/')).toLowerCase();
-
                     if (name.includes(firstName) && admission === admissionNumber.toLowerCase()) {
                         foundStudent = student;
                         foundAdmission = student.admissionNumber || key.replace(/-/g, '/');
                         break;
                     }
                 }
-
                 if (!foundStudent) {
                     showLoginError("Invalid credentials. Please try again.");
                     return;
                 }
-
-                currentStudent = {
-                    ...foundStudent,
-                    admissionNumber: foundAdmission
-                };
-
+                currentStudent = { ...foundStudent, admissionNumber: foundAdmission };
                 await loadPortalData();
-
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('portalContainer').style.display = 'block';
-
                 populatePortal();
-
             } catch (error) {
                 console.error("Login error:", error);
                 showLoginError("An error occurred. Please try again.");
@@ -2199,15 +1905,13 @@
         }
 
         // ============================================================
-        // LOAD PORTAL DATA
+        // LOAD DATA
         // ============================================================
         async function loadPortalData() {
             try {
                 document.getElementById('loadingOverlay').classList.add('active');
-
                 const paymentsSnapshot = await get(ref(db, "Institution/ Revival/Fee_payment"));
                 allPayments = paymentsSnapshot.exists() ? paymentsSnapshot.val() : {};
-
                 const termsSnapshot = await get(ref(db, "Institution/ Revival/terms"));
                 if (termsSnapshot.exists()) {
                     allTerms = Object.entries(termsSnapshot.val()).map(([key, data]) => ({
@@ -2222,28 +1926,18 @@
                         grades: data.grades || {}
                     }));
                 }
-
                 const assessmentsSnapshot = await get(ref(db, "Institution/ Revival/Assessments"));
                 allAssessments = assessmentsSnapshot.exists() ? Object.values(assessmentsSnapshot.val()) : [];
-
                 const marksSnapshot = await get(ref(db, "Institution/ Revival/Marks"));
                 if (marksSnapshot.exists()) {
                     const marksData = marksSnapshot.val();
                     allMarks = [];
                     Object.entries(marksData).forEach(([key, value]) => {
-                        if (Array.isArray(value)) {
-                            allMarks.push(...value);
-                        } else if (typeof value === 'object') {
-                            allMarks.push(value);
-                        }
+                        if (Array.isArray(value)) allMarks.push(...value);
+                        else if (typeof value === 'object') allMarks.push(value);
                     });
-                    allMarks = allMarks.filter(m => m &&
-                        m.assessmentId !== undefined &&
-                        m.studentId !== undefined &&
-                        m.subject !== undefined &&
-                        m.marks !== undefined);
+                    allMarks = allMarks.filter(m => m && m.assessmentId !== undefined && m.studentId !== undefined && m.subject !== undefined && m.marks !== undefined);
                 }
-
             } catch (error) {
                 console.error("Error loading portal data:", error);
                 throw error;
@@ -2259,49 +1953,36 @@
             const name = currentStudent.name || 'Student';
             const firstName = name.split(' ')[0];
             const initials = getInitials(name);
-
             document.getElementById('portalGreeting').textContent = `Hello, ${firstName}`;
             document.getElementById('portalAvatar').textContent = initials;
             document.getElementById('portalUserName').textContent = name;
             document.getElementById('portalUserAdmission').textContent = currentStudent.admissionNumber;
-
             document.getElementById('profileAvatar').textContent = initials;
             document.getElementById('profileName').textContent = name;
             document.getElementById('profileClass').textContent = currentStudent.class || 'Class not assigned';
-
-            // Personal info (simplified)
             document.getElementById('profileFullName').textContent = name;
             document.getElementById('profileGender').textContent = currentStudent.gender || '—';
             document.getElementById('profileDOB').textContent = formatDateToDDMMYYYY(currentStudent.dob) || '—';
             document.getElementById('profileClassValue').textContent = currentStudent.class || '—';
             document.getElementById('profileNationality').textContent = currentStudent.nationality || '—';
             document.getElementById('profileReligion').textContent = currentStudent.religion || '—';
-
-            // Contact info
             document.getElementById('profileGuardian').textContent = currentStudent.guardian || '—';
             document.getElementById('profileRelationship').textContent = currentStudent.relationship || '—';
             document.getElementById('profilePhone').textContent = currentStudent.phone || '—';
             document.getElementById('profileEmail').textContent = currentStudent.email || '—';
             document.getElementById('profileAddress').textContent = currentStudent.address || '—';
-
             populateEditFields();
             populateFees();
             populateTranscript();
         }
 
-        // ============================================================
-        // POPULATE EDIT FIELDS
-        // ============================================================
         function populateEditFields() {
-            // Personal fields (new IDs)
             document.getElementById('editFullName').value = currentStudent.name || '';
             document.getElementById('editGender').value = currentStudent.gender || '';
             document.getElementById('editDOB').value = formatDateToYYYYMMDD(currentStudent.dob) || '';
             document.getElementById('editClass').value = currentStudent.class || '';
             document.getElementById('editNationality').value = currentStudent.nationality || '';
             document.getElementById('editReligion').value = currentStudent.religion || '';
-
-            // Contact fields
             document.getElementById('editGuardian').value = currentStudent.guardian || '';
             document.getElementById('editRelationship').value = currentStudent.relationship || '';
             document.getElementById('editPhone').value = currentStudent.phone || '';
@@ -2310,49 +1991,25 @@
         }
 
         // ============================================================
-        // TOGGLE EDIT MODE
+        // EDIT / SAVE
         // ============================================================
         window.toggleEdit = function(section) {
             if (section === 'personal') {
                 personalEditMode = !personalEditMode;
-                
                 document.getElementById('personalBody').classList.toggle('edit-mode', personalEditMode);
-                
-                const inputs = document.querySelectorAll('#personalBody .personal-field-input');
-                inputs.forEach(input => {
-                    input.disabled = !personalEditMode;
-                });
-
+                document.querySelectorAll('#personalBody .personal-field-input').forEach(input => input.disabled = !personalEditMode);
                 document.getElementById('editPersonalActions').classList.toggle('active', personalEditMode);
-                
                 const editBtn = document.getElementById('editPersonalBtn');
-                if (personalEditMode) {
-                    editBtn.innerHTML = '<i class="fas fa-pen"></i> Editing...';
-                    editBtn.style.background = 'var(--warning)';
-                } else {
-                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                    editBtn.style.background = '';
-                }
+                editBtn.innerHTML = personalEditMode ? '<i class="fas fa-pen"></i> Editing...' : '<i class="fas fa-edit"></i> Edit';
+                editBtn.style.background = personalEditMode ? 'var(--warning)' : '';
             } else if (section === 'contact') {
                 contactEditMode = !contactEditMode;
-                
                 document.getElementById('contactBody').classList.toggle('edit-mode', contactEditMode);
-                
-                const inputs = document.querySelectorAll('#contactBody .profile-detail-input');
-                inputs.forEach(input => {
-                    input.disabled = !contactEditMode;
-                });
-
+                document.querySelectorAll('#contactBody .profile-detail-input').forEach(input => input.disabled = !contactEditMode);
                 document.getElementById('editContactActions').classList.toggle('active', contactEditMode);
-                
                 const editBtn = document.getElementById('editContactBtn');
-                if (contactEditMode) {
-                    editBtn.innerHTML = '<i class="fas fa-pen"></i> Editing...';
-                    editBtn.style.background = 'var(--warning)';
-                } else {
-                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                    editBtn.style.background = '';
-                }
+                editBtn.innerHTML = contactEditMode ? '<i class="fas fa-pen"></i> Editing...' : '<i class="fas fa-edit"></i> Edit';
+                editBtn.style.background = contactEditMode ? 'var(--warning)' : '';
             }
         };
 
@@ -2360,92 +2017,45 @@
             if (section === 'personal') {
                 personalEditMode = false;
                 document.getElementById('personalBody').classList.remove('edit-mode');
-                
-                const inputs = document.querySelectorAll('#personalBody .personal-field-input');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                });
-
+                document.querySelectorAll('#personalBody .personal-field-input').forEach(input => input.disabled = true);
                 document.getElementById('editPersonalActions').classList.remove('active');
-                
-                const editBtn = document.getElementById('editPersonalBtn');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                editBtn.style.background = '';
+                document.getElementById('editPersonalBtn').innerHTML = '<i class="fas fa-edit"></i> Edit';
+                document.getElementById('editPersonalBtn').style.background = '';
             } else if (section === 'contact') {
                 contactEditMode = false;
                 document.getElementById('contactBody').classList.remove('edit-mode');
-                
-                const inputs = document.querySelectorAll('#contactBody .profile-detail-input');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                });
-
+                document.querySelectorAll('#contactBody .profile-detail-input').forEach(input => input.disabled = true);
                 document.getElementById('editContactActions').classList.remove('active');
-                
-                const editBtn = document.getElementById('editContactBtn');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                editBtn.style.background = '';
+                document.getElementById('editContactBtn').innerHTML = '<i class="fas fa-edit"></i> Edit';
+                document.getElementById('editContactBtn').style.background = '';
             }
-
             populateEditFields();
         };
 
-        // ============================================================
-        // SAVE PERSONAL INFO
-        // ============================================================
         window.savePersonalInfo = async function() {
             if (!currentStudent) return;
-
             const fullName = document.getElementById('editFullName').value.trim();
             const gender = document.getElementById('editGender').value;
             const dob = document.getElementById('editDOB').value;
             const studentClass = document.getElementById('editClass').value;
             const nationality = document.getElementById('editNationality').value;
             const religion = document.getElementById('editReligion').value;
-
-            if (!fullName) {
-                showToast('Full name is required', 'error');
-                return;
-            }
-
-            const confirmUpdate = confirm('Are you sure you want to update your personal information?');
-            if (!confirmUpdate) return;
-
+            if (!fullName) { showToast('Full name is required', 'error'); return; }
+            if (!confirm('Are you sure you want to update your personal information?')) return;
             document.getElementById('loadingOverlay').classList.add('active');
-
             try {
-                const updateData = {
-                    name: fullName,
-                    gender: gender,
-                    dob: dob,
-                    class: studentClass,
-                    nationality: nationality,
-                    religion: religion
-                };
-
+                const updateData = { name: fullName, gender, dob, class: studentClass, nationality, religion };
                 const admissionKey = currentStudent.admissionNumber.replace(/\//g, '-');
                 await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), updateData);
-
-                currentStudent = {
-                    ...currentStudent,
-                    ...updateData
-                };
-
+                currentStudent = { ...currentStudent, ...updateData };
                 populatePortal();
-
                 personalEditMode = false;
                 document.getElementById('personalBody').classList.remove('edit-mode');
-                const inputs = document.querySelectorAll('#personalBody .personal-field-input');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                });
+                document.querySelectorAll('#personalBody .personal-field-input').forEach(input => input.disabled = true);
                 document.getElementById('editPersonalActions').classList.remove('active');
-                const editBtn = document.getElementById('editPersonalBtn');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                editBtn.style.background = '';
-
+                document.getElementById('editPersonalBtn').innerHTML = '<i class="fas fa-edit"></i> Edit';
+                document.getElementById('editPersonalBtn').style.background = '';
                 showToast('Personal information updated successfully!');
-
             } catch (error) {
                 console.error('Error updating personal info:', error);
                 showToast('Failed to update: ' + error.message, 'error');
@@ -2454,65 +2064,30 @@
             }
         };
 
-        // ============================================================
-        // SAVE CONTACT INFO
-        // ============================================================
         window.saveContactInfo = async function() {
             if (!currentStudent) return;
-
             const guardian = document.getElementById('editGuardian').value.trim();
             const relationship = document.getElementById('editRelationship').value;
             const phone = document.getElementById('editPhone').value.trim();
             const email = document.getElementById('editEmail').value.trim();
             const address = document.getElementById('editAddress').value.trim();
-
-            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showToast('Please enter a valid email address', 'error');
-                return;
-            }
-
-            if (phone && !/^[+0-9\s-]{7,15}$/.test(phone)) {
-                showToast('Please enter a valid phone number', 'error');
-                return;
-            }
-
-            const confirmUpdate = confirm('Are you sure you want to update your contact information?');
-            if (!confirmUpdate) return;
-
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Please enter a valid email address', 'error'); return; }
+            if (phone && !/^[+0-9\s-]{7,15}$/.test(phone)) { showToast('Please enter a valid phone number', 'error'); return; }
+            if (!confirm('Are you sure you want to update your contact information?')) return;
             document.getElementById('loadingOverlay').classList.add('active');
-
             try {
-                const updateData = {
-                    guardian: guardian,
-                    relationship: relationship,
-                    phone: phone,
-                    email: email,
-                    address: address
-                };
-
+                const updateData = { guardian, relationship, phone, email, address };
                 const admissionKey = currentStudent.admissionNumber.replace(/\//g, '-');
                 await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), updateData);
-
-                currentStudent = {
-                    ...currentStudent,
-                    ...updateData
-                };
-
+                currentStudent = { ...currentStudent, ...updateData };
                 populatePortal();
-
                 contactEditMode = false;
                 document.getElementById('contactBody').classList.remove('edit-mode');
-                const inputs = document.querySelectorAll('#contactBody .profile-detail-input');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                });
+                document.querySelectorAll('#contactBody .profile-detail-input').forEach(input => input.disabled = true);
                 document.getElementById('editContactActions').classList.remove('active');
-                const editBtn = document.getElementById('editContactBtn');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                editBtn.style.background = '';
-
+                document.getElementById('editContactBtn').innerHTML = '<i class="fas fa-edit"></i> Edit';
+                document.getElementById('editContactBtn').style.background = '';
                 showToast('Contact information updated successfully!');
-
             } catch (error) {
                 console.error('Error updating contact info:', error);
                 showToast('Failed to update: ' + error.message, 'error');
@@ -2522,47 +2097,37 @@
         };
 
         // ============================================================
-        // POPULATE FEES
+        // FEES
         // ============================================================
         function populateFees() {
             const admissionNumber = currentStudent.admissionNumber;
             const normalizedAdmission = admissionNumber.replace(/-/g, "/");
-
             const requiredFee = getStudentRequiredFee(admissionNumber);
             const exemptions = getStudentExceptions(admissionNumber);
             const balanceBefore = getBalanceBefore(admissionNumber);
             const installments = getInstallmentsForStudent(admissionNumber);
             const currentBalance = getCurrentBalance(admissionNumber);
-
             const balanceValue = parseFloat(currentBalance.replace(/,/g, '')) || 0;
             const balanceClass = balanceValue > 0 ? 'warning' : 'success';
 
-            const balanceCardsHTML = `
+            document.getElementById('balanceCards').innerHTML = `
                 <div class="balance-card">
-                    <div class="balance-card-icon" style="background: var(--info-soft); color: var(--info);">
-                        <i class="fas fa-coins"></i>
-                    </div>
+                    <div class="balance-card-icon" style="background: var(--info-soft); color: var(--info);"><i class="fas fa-coins"></i></div>
                     <div class="balance-card-label">Required Fee</div>
                     <div class="balance-card-value">${requiredFee}</div>
                 </div>
                 <div class="balance-card">
-                    <div class="balance-card-icon" style="background: var(--success-soft); color: var(--success);">
-                        <i class="fas fa-gift"></i>
-                    </div>
+                    <div class="balance-card-icon" style="background: var(--success-soft); color: var(--success);"><i class="fas fa-gift"></i></div>
                     <div class="balance-card-label">Exemptions</div>
                     <div class="balance-card-value">${exemptions}</div>
                 </div>
                 <div class="balance-card">
-                    <div class="balance-card-icon" style="background: var(--warning-soft); color: var(--warning);">
-                        <i class="fas fa-calculator"></i>
-                    </div>
+                    <div class="balance-card-icon" style="background: var(--warning-soft); color: var(--warning);"><i class="fas fa-calculator"></i></div>
                     <div class="balance-card-label">Balance B/F</div>
                     <div class="balance-card-value">${balanceBefore}</div>
                 </div>
                 <div class="balance-card">
-                    <div class="balance-card-icon" style="background: #faf5ff; color: #a855f7;">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
+                    <div class="balance-card-icon" style="background: #faf5ff; color: #a855f7;"><i class="fas fa-credit-card"></i></div>
                     <div class="balance-card-label">Total Paid</div>
                     <div class="balance-card-value">${installments}</div>
                 </div>
@@ -2574,7 +2139,6 @@
                     <div class="balance-card-value ${balanceClass}">${currentBalance}</div>
                 </div>
             `;
-            document.getElementById('balanceCards').innerHTML = balanceCardsHTML;
 
             const paymentHistoryBody = document.getElementById('paymentHistoryBody');
             const studentPayments = Object.values(allPayments || {})
@@ -2582,40 +2146,30 @@
                     const paymentAdmission = payment.admissionNumber ? payment.admissionNumber.replace(/-/g, "/") : "";
                     return paymentAdmission === normalizedAdmission;
                 })
-                .sort((a, b) => {
-                    const numA = parseInt(a.ReceiptNo) || 0;
-                    const numB = parseInt(b.ReceiptNo) || 0;
-                    return numB - numA;
-                });
+                .sort((a, b) => (parseInt(b.ReceiptNo) || 0) - (parseInt(a.ReceiptNo) || 0));
 
             if (studentPayments.length === 0) {
                 paymentHistoryBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fas fa-folder-open" style="font-size: 2.2rem; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
-                            <span style="font-weight: 500;">No payment records found</span>
-                        </td>
-                    </tr>
-                `;
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <i class="fas fa-folder-open" style="font-size: 2.2rem; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                        <span style="font-weight: 500;">No payment records found</span>
+                    </td></tr>`;
             } else {
                 paymentHistoryBody.innerHTML = studentPayments.map(payment => {
-                    const displayDate = formatDateToDDMMYYYY(payment.paymentDate) || 
-                                       formatDateToDDMMYYYY(payment.entryDate) || '—';
-                    return `
-                        <tr>
-                            <td><span class="badge badge-info">${payment.term || '—'}</span></td>
-                            <td><strong>${formatCurrency(payment.amount)}</strong></td>
-                            <td>${formatCurrency(payment.balance)}</td>
-                            <td>${displayDate}</td>
-                            <td><span class="badge badge-success">${payment.ReceiptNo || '—'}</span></td>
-                        </tr>
-                    `;
+                    const displayDate = formatDateToDDMMYYYY(payment.paymentDate) || formatDateToDDMMYYYY(payment.entryDate) || '—';
+                    return `<tr>
+                        <td><span class="badge badge-info">${payment.term || '—'}</span></td>
+                        <td><strong>${formatCurrency(payment.amount)}</strong></td>
+                        <td>${formatCurrency(payment.balance)}</td>
+                        <td>${displayDate}</td>
+                        <td><span class="badge badge-success">${payment.ReceiptNo || '—'}</span></td>
+                    </tr>`;
                 }).join('');
             }
         }
 
         // ============================================================
-        // POPULATE TRANSCRIPT
+        // TRANSCRIPT — MATCHES index.html (Student Profile >> Academics Transcript)
         // ============================================================
         function populateTranscript() {
             const transcriptContent = document.getElementById('transcriptContent');
@@ -2623,36 +2177,33 @@
             const normalizedAdmission = admissionNumber.replace(/-/g, "/");
 
             const studentMarks = allMarks.filter(mark =>
-                mark.studentId === admissionNumber ||
-                mark.studentId === normalizedAdmission
+                mark.studentId === admissionNumber || mark.studentId === normalizedAdmission
             );
 
             if (studentMarks.length === 0) {
                 transcriptContent.innerHTML = `
-                    <div style="text-align: center; padding: 50px 20px; color: var(--text-muted);">
-                        <i class="fas fa-file-alt" style="font-size: 3.2rem; margin-bottom: 18px; color: var(--border);"></i>
-                        <p style="font-weight: 500; font-size: 1rem;">No assessment records found</p>
-                    </div>
-                `;
+                    <div class="transcript-empty">
+                        <i class="fas fa-file-alt"></i>
+                        <p>No assessment records found</p>
+                    </div>`;
                 return;
             }
 
-            const assessmentIds = [...new Set(studentMarks.map(mark => mark.assessmentId))];
+            // Group marks by assessmentId
+            const marksByAssessment = {};
+            studentMarks.forEach(mark => {
+                if (!marksByAssessment[mark.assessmentId]) marksByAssessment[mark.assessmentId] = [];
+                marksByAssessment[mark.assessmentId].push(mark);
+            });
 
-            const studentAssessments = allAssessments.filter(assessment =>
-                assessmentIds.includes(assessment.id)
-            );
-
+            // Group assessments by term
             const termsMap = {};
-            studentAssessments.forEach(assessment => {
+            Object.entries(marksByAssessment).forEach(([assessmentId, marks]) => {
+                const assessment = allAssessments.find(a => a.id === assessmentId);
+                if (!assessment) return;
                 const term = assessment.term || 'Unknown Term';
-                if (!termsMap[term]) {
-                    termsMap[term] = [];
-                }
-                termsMap[term].push({
-                    assessment,
-                    marks: studentMarks.filter(mark => mark.assessmentId === assessment.id)
-                });
+                if (!termsMap[term]) termsMap[term] = [];
+                termsMap[term].push({ assessment, marks });
             });
 
             const sortedTerms = Object.keys(termsMap).sort((a, b) => {
@@ -2661,132 +2212,319 @@
             });
 
             let html = '';
-
             sortedTerms.forEach((term, termIndex) => {
                 const termData = termsMap[term];
+                const isLast = termIndex === sortedTerms.length - 1;
+                const isCollapsed = !isLast;
 
+                // Term statistics
                 let totalMarks = 0;
                 let totalMaxMarks = 0;
-
                 termData.forEach(item => {
                     item.marks.forEach(mark => {
                         totalMarks += parseFloat(mark.marks) || 0;
                         totalMaxMarks += parseFloat(item.assessment?.maxMarks) || 100;
                     });
                 });
-
                 const average = totalMaxMarks > 0 ? (totalMarks / totalMaxMarks * 100).toFixed(1) : '0.0';
                 const grade = getGradeLetter(average);
 
+                // ===== ASSESSMENT OVERVIEW ROWS =====
+                let assessmentRows = '';
+                termData.forEach(item => {
+                    const assessment = item.assessment;
+                    const marks = item.marks;
+                    const assessmentTotal = marks.reduce((sum, m) => sum + (parseFloat(m.marks) || 0), 0);
+                    const assessmentAvg = marks.length > 0 ? (assessmentTotal / marks.length).toFixed(1) : '0';
+
+                    // ===== RANK STUDENTS FOR THIS ASSESSMENT =====
+                    const studentAssessmentTotals = {};
+                    allMarks
+                        .filter(mark => mark.assessmentId === assessment.id)
+                        .forEach(mark => {
+                            const studentId = String(mark.studentId).replace(/-/g, '/');
+                            if (!studentAssessmentTotals[studentId]) {
+                                studentAssessmentTotals[studentId] = { total: 0, count: 0 };
+                            }
+                            studentAssessmentTotals[studentId].total += parseFloat(mark.marks) || 0;
+                            studentAssessmentTotals[studentId].count++;
+                        });
+
+                    const rankedStudents = Object.entries(studentAssessmentTotals)
+                        .map(([studentId, data]) => ({
+                            studentId,
+                            average: data.count > 0 ? data.total / data.count : 0
+                        }))
+                        .sort((a, b) => b.average - a.average);
+
+                    const currentStudentId = String(admissionNumber).replace(/-/g, '/');
+                    const studentRankIndex = rankedStudents.findIndex(s => s.studentId === currentStudentId);
+                    const assessmentRank = studentRankIndex >= 0 ? `${studentRankIndex + 1}/${rankedStudents.length}` : '—';
+
+                    assessmentRows += `
+                        <tr>
+                            <td><strong>${assessment.name}</strong></td>
+                            <td>${assessment.id}</td>
+                            <td>${assessment.grade || '—'}</td>
+                            <td>${assessmentAvg}/${assessment.maxMarks}</td>
+                            <td>
+                                <span class="grade-badge-exam ${getGradeClass(assessmentAvg)}">
+                                    ${getGradeLetter(assessmentAvg)}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="rank-badge"><strong>${assessmentRank}</strong></span>
+                            </td>
+                        </tr>`;
+                });
+
+                // ===== SUBJECT PERFORMANCE =====
+                // Build subject map
                 const subjectMap = {};
                 termData.forEach(item => {
+                    const assessment = item.assessment;
                     item.marks.forEach(mark => {
                         if (!subjectMap[mark.subject]) {
-                            subjectMap[mark.subject] = { total: 0, count: 0, max: 0 };
+                            subjectMap[mark.subject] = {
+                                assessments: {},
+                                total: 0,
+                                count: 0,
+                                max: 0
+                            };
                         }
-                        const assessment = item.assessment;
-                        const maxMarks = parseFloat(assessment?.maxMarks) || 100;
+                        subjectMap[mark.subject].assessments[assessment.id] = {
+                            assessmentName: assessment.name,
+                            marks: parseFloat(mark.marks) || 0,
+                            maxMarks: parseFloat(assessment.maxMarks) || 100
+                        };
                         subjectMap[mark.subject].total += parseFloat(mark.marks) || 0;
                         subjectMap[mark.subject].count++;
-                        subjectMap[mark.subject].max += maxMarks;
+                        subjectMap[mark.subject].max += parseFloat(assessment.maxMarks) || 100;
                     });
                 });
 
+                // Get all unique assessment IDs for this term
+                const allTermAssessmentIds = [...new Set(termData.flatMap(item => item.marks.map(m => m.assessmentId)))];
+
+                // Build assessment header columns
+                let assessmentHeaders = '';
+                allTermAssessmentIds.forEach(assessmentId => {
+                    const assessment = termData.find(item => item.assessment.id === assessmentId)?.assessment;
+                    if (assessment) {
+                        const shortName = assessment.name.length > 15 ? assessment.name.substring(0, 12) + '...' : assessment.name;
+                        assessmentHeaders += `<th title="${assessment.name}">${shortName}</th>`;
+                    }
+                });
+
+                // Calculate subject ranks for this student
+                const subjectRanks = {};
+                const allStudentsForTerm = {};
+
+                if (typeof allStudents !== 'undefined') {
+                    Object.entries(allStudents).forEach(([key, student]) => {
+                        const studentId = student.admissionNumber || key.replace(/-/g, '/');
+                        const termAssessmentIds = termData.map(item => item.assessment.id);
+                        const studentSubjectMarks = {};
+
+                        allMarks.forEach(mark => {
+                            if ((mark.studentId === studentId || mark.studentId === key) &&
+                                termAssessmentIds.includes(mark.assessmentId)) {
+                                if (!studentSubjectMarks[mark.subject]) {
+                                    studentSubjectMarks[mark.subject] = { total: 0, count: 0, max: 0 };
+                                }
+                                const assessment = allAssessments.find(a => a.id === mark.assessmentId);
+                                const maxMarks = assessment ? parseFloat(assessment.maxMarks) || 100 : 100;
+                                studentSubjectMarks[mark.subject].total += parseFloat(mark.marks) || 0;
+                                studentSubjectMarks[mark.subject].count++;
+                                studentSubjectMarks[mark.subject].max += maxMarks;
+                            }
+                        });
+
+                        Object.entries(studentSubjectMarks).forEach(([subject, data]) => {
+                            const avg = data.max > 0 ? (data.total / data.max * 100) : 0;
+                            if (!allStudentsForTerm[subject]) allStudentsForTerm[subject] = [];
+                            allStudentsForTerm[subject].push({
+                                studentId,
+                                name: student.name || 'Unknown',
+                                average: avg,
+                                total: data.total,
+                                max: data.max
+                            });
+                        });
+                    });
+
+                    Object.entries(allStudentsForTerm).forEach(([subject, students]) => {
+                        students.sort((a, b) => b.average - a.average);
+                        students.forEach((student, index) => {
+                            if (!subjectRanks[subject]) subjectRanks[subject] = {};
+                            subjectRanks[subject][student.studentId] = index + 1;
+                        });
+                    });
+                }
+
+                // Build subject rows
                 let subjectRows = '';
                 Object.entries(subjectMap).forEach(([subject, data]) => {
                     const subjectAvg = data.max > 0 ? (data.total / data.max * 100).toFixed(1) : '0';
                     const subjectGrade = getGradeLetter(subjectAvg);
-                    const badgeClass = subjectGrade === 'A' ? 'badge-success' : 
-                                       subjectGrade === 'B' ? 'badge-info' :
-                                       subjectGrade === 'C' ? 'badge-warning' :
-                                       subjectGrade === 'D' ? 'badge-danger' : 'badge-danger';
+
+                    const rank = subjectRanks[subject]?.[admissionNumber] ||
+                                 subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
+                    const totalStudents = allStudentsForTerm[subject]?.length || 0;
+
+                    let assessmentCells = '';
+                    allTermAssessmentIds.forEach(assessmentId => {
+                        const assessmentData = data.assessments[assessmentId];
+                        if (assessmentData) {
+                            assessmentCells += `
+                                <td style="text-align: center;" class="assessment-cell">
+                                    <strong>${assessmentData.marks}/${assessmentData.maxMarks}</strong>
+                                </td>`;
+                        } else {
+                            assessmentCells += `<td style="text-align: center; color: #9ca3af;">—</td>`;
+                        }
+                    });
+
+                    let rankClass = 'rank-bottom';
+                    if (rank !== '—') {
+                        if (rank <= 3) rankClass = 'rank-top';
+                        else if (rank <= Math.ceil(totalStudents / 2)) rankClass = 'rank-mid';
+                    }
 
                     subjectRows += `
                         <tr>
-                            <td><strong>${subject}</strong></td>
-                            <td>${formatCurrency(data.total)}</td>
-                            <td>${formatCurrency(data.max)}</td>
-                            <td><strong style="color: ${getGradeColor(subjectGrade)};">${subjectAvg}%</strong></td>
-                            <td><span class="badge ${badgeClass}">${subjectGrade}</span></td>
-                        </tr>
-                    `;
+                            <td><span class="subject-badge">${subject}</span></td>
+                            ${assessmentCells}
+                            <td style="text-align: center;">
+                                <strong>${subjectAvg}%</strong><br>
+                                <span style="font-size: 0.68rem; color: #6b7e93;">${data.total}/${data.max}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="grade-badge-exam ${getGradeClass(subjectAvg)}">${subjectGrade}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="rank-badge ${rankClass}">
+                                    <strong>${rank}${totalStudents > 0 ? `/${totalStudents}` : ''}</strong>
+                                </span>
+                            </td>
+                        </tr>`;
                 });
 
+                // ===== BUILD COLLAPSIBLE SECTION =====
                 html += `
-                    <div class="transcript-term">
-                        <div class="transcript-term-header">
-                            <div class="transcript-term-title">
-                                <i class="fas fa-calendar-alt"></i> ${term}
+                    <div class="collapsible-section ${isCollapsed ? 'collapsed' : ''}">
+                        <button class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <span class="collapsible-icon">${isCollapsed ? '▶' : '▼'}</span>
+                            <span class="collapsible-title">
+                                <span class="term-badge">${term}</span>
+                                <span class="term-subtitle">
+                                    ${termData.length} assessment(s) · ${Object.keys(subjectMap).length} subjects
+                                </span>
+                            </span>
+                            <span class="collapsible-count">Avg: ${average}%</span>
+                        </button>
+
+                        <div class="collapsible-content">
+                            <!-- Term Summary -->
+                            <div class="transcript-summary">
+                                <div class="summary-item">
+                                    <div class="summary-label">Average</div>
+                                    <div class="summary-value">${average}%</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Grade</div>
+                                    <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Assessments</div>
+                                    <div class="summary-value">${termData.length}</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Subjects</div>
+                                    <div class="summary-value">${Object.keys(subjectMap).length}</div>
+                                </div>
                             </div>
-                            <span class="badge badge-success" style="font-size:0.75rem; padding:6px 14px;">Avg: ${average}% | Grade: ${grade}</span>
-                        </div>
-                        
-                        <div class="transcript-summary">
-                            <div class="summary-item">
-                                <div class="summary-label">Average</div>
-                                <div class="summary-value" style="color: var(--accent);">${average}%</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Grade</div>
-                                <div class="summary-value" style="color: ${getGradeColor(grade)};">${grade}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Subjects</div>
-                                <div class="summary-value">${Object.keys(subjectMap).length}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Assessments</div>
-                                <div class="summary-value">${termData.length}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="table-wrapper">
-                            <table class="data-table">
+
+                            <!-- Assessment Overview -->
+                            <h4 class="transcript-section-heading">
+                                <i class="fas fa-clipboard-list"></i> Assessment Overview
+                            </h4>
+                            <table class="transcript-table">
                                 <thead>
                                     <tr>
-                                        <th>Subject</th>
-                                        <th>Total Marks</th>
-                                        <th>Max Marks</th>
-                                        <th>Average</th>
+                                        <th>Assessment</th>
+                                        <th>ID</th>
                                         <th>Grade</th>
+                                        <th>Avg Score</th>
+                                        <th>Grade</th>
+                                        <th>Position</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${subjectRows}
+                                    ${assessmentRows}
                                 </tbody>
                             </table>
+
+                            <!-- Subject-wise Breakdown with Individual Marks -->
+                            <h4 class="transcript-section-heading">
+                                <i class="fas fa-book-open"></i> Subject Performance
+                            </h4>
+                            <div class="subject-performance-wrapper">
+                                <table class="transcript-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            ${assessmentHeaders}
+                                            <th>Avg</th>
+                                            <th>Grade</th>
+                                            <th>Rank</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${subjectRows}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
 
             transcriptContent.innerHTML = html;
         }
 
+        // Collapsible toggle (accordion)
+        window.toggleCollapsible = function(header) {
+            const section = header.closest('.collapsible-section');
+            const container = section.parentElement;
+            const isCurrentlyCollapsed = section.classList.contains('collapsed');
+
+            container.querySelectorAll('.collapsible-section').forEach(sec => {
+                sec.classList.add('collapsed');
+                const icon = sec.querySelector('.collapsible-icon');
+                if (icon) icon.textContent = '▶';
+            });
+
+            if (isCurrentlyCollapsed) {
+                section.classList.remove('collapsed');
+                const icon = section.querySelector('.collapsible-icon');
+                if (icon) icon.textContent = '▼';
+            }
+        };
+
         // ============================================================
         // NAVIGATION
         // ============================================================
         window.switchSection = function(sectionId) {
-            document.querySelectorAll('.portal-nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.portal-nav-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.portal-nav-btn[data-section="${sectionId}"]`).classList.add('active');
-
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
             document.getElementById(`section-${sectionId}`).classList.add('active');
-
-            // Close mobile nav
             document.getElementById('mobileNav').classList.remove('active');
         };
 
         window.mobileNavSwitch = function(sectionId) {
-            document.querySelectorAll('.mobile-nav-link').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.mobile-nav-link').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.mobile-nav-link[data-section="${sectionId}"]`).classList.add('active');
-
             switchSection(sectionId);
         };
 
@@ -2794,48 +2532,30 @@
             document.getElementById('mobileNav').classList.toggle('active');
         };
 
-        // ============================================================
-        // LOGOUT
-        // ============================================================
         window.logout = function() {
             currentStudent = null;
             document.getElementById('portalContainer').style.display = 'none';
             document.getElementById('loginContainer').style.display = 'flex';
-            
             document.getElementById('loginFirstName').value = '';
             document.getElementById('loginAdmission').value = '';
             document.getElementById('loginError').style.display = 'none';
-
-            // Clear the UID param from URL if present
             const url = new URL(window.location);
             url.searchParams.delete('uid');
             window.history.replaceState({}, '', url);
         };
 
-        // ============================================================
-        // ENTER KEY LOGIN
-        // ============================================================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.getElementById('loginContainer').style.display !== 'none') {
                 login();
             }
         });
 
-        // ============================================================
-        // INITIALIZATION
-        // ============================================================
         (function init() {
             document.getElementById('loginContainer').style.display = 'flex';
             document.getElementById('portalContainer').style.display = 'none';
-
-            // Check for ?uid= parameter for auto-login
             const urlParams = new URLSearchParams(window.location.search);
             const uid = urlParams.get('uid');
-
-            if (uid) {
-                // Auto-login with the provided UID
-                autoLoginFromUid(uid);
-            }
+            if (uid) autoLoginFromUid(uid);
         })();
     </script>
 </body>
