@@ -5301,8 +5301,12 @@
                 <div style="display: flex; font-size: medium; margin-top: 0;">
                   <input type="text" id="Fn_PaidAmount" placeholder="Amount Paid" class="form-input"
                     style="margin-right: 15px;" />
-                  <input type="text" id="Fn_Account" placeholder="Account" class="form-input"
-                    style="margin-right: 15px;" />
+                  <select id="Fn_Account" class="form-input" style="margin-right: 15px;">
+                    <option value="">Select Account</option>
+                    <option value="Bank">Bank</option>
+                    <option value="Mpesa">Mpesa</option>
+                    <option value="Kind/Others">Kind/Others</option>
+                  </select>
                   <input type="date" id="Fn_PaymentDate" placeholder="Guardian's full name" class="form-input"
                     style="margin-right: 15px;" />
                 </div>
@@ -5806,6 +5810,73 @@
       function closeDialog2() {
         overlay2.classList.remove('active');
         document.body.style.overflow = '';
+
+        // ------------------------------------------------------------
+        // Clear all changing values in the Fee Management dialog
+        // ------------------------------------------------------------
+
+        // 1) Text inputs — clear
+        const textInputs = ['Fn_PaidAmount', 'Fn_PaymentRef', 'Searchtext'];
+        textInputs.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+
+        // 2) Account dropdown — back to placeholder
+        const accountSel = document.getElementById('Fn_Account');
+        if (accountSel) accountSel.selectedIndex = 0;
+
+        // 3) Optional "Kind/Others" detail input (if you added it)
+        const accountOther = document.getElementById('Fn_AccountOther');
+        if (accountOther) {
+          accountOther.value = '';
+          accountOther.style.display = 'none';
+        }
+
+        // 4) Payment date — reset to today
+        const dateInput = document.getElementById('Fn_PaymentDate');
+        if (dateInput) {
+          const d = new Date();
+          dateInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // 5) Read-only labels — reset to placeholder dashes
+        const labelFields = [
+          'Fn_Name', 'Fn_Admn', 'Fn_Grade',
+          'Fn_CurrentFee', 'Fn_studentExceptions',
+          'Fn_studentgetBalanceBefore', 'Fn_CurrentBalance'
+        ];
+        labelFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = '—';
+        });
+
+        // 6) Payment history table — clear rows
+        const historyBody = document.querySelector('#feepaymentHistory tbody');
+        if (historyBody) {
+          historyBody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center; padding: 1rem; color:#6b7e93;">
+          No payment history available
+        </td>
+      </tr>`;
+        }
+
+        // 7) Clear any selected-row highlight
+        document.querySelectorAll('#feepaymentHistory tbody tr.selected-row')
+          .forEach(r => r.classList.remove('selected-row'));
+
+        // 8) Reset the tracked "selected payment" key
+        if (typeof selectedPaymentKey !== 'undefined') {
+          selectedPaymentKey = null;
+        }
+
+        // 9) Switch back to the "New Payment" tab
+        if (typeof switchDialogTab2 === 'function') {
+          switchDialogTab2(0);
+        }
+
+        // 10) Return focus to the opener button
         if (openBtn2) openBtn2.focus();
       }
 
@@ -6244,6 +6315,83 @@
           }
         }
       });
+
+      // ============================================================
+      // AMOUNT INPUT — live comma formatting + digits only
+      // ============================================================
+      (function setupAmountInputLive() {
+        const input = document.getElementById('Fn_PaidAmount');
+        if (!input) return;
+
+        input.addEventListener('input', (e) => {
+          const el = e.target;
+          const oldValue = el.value;
+          const oldCaret = el.selectionStart;
+
+          // --- 1) Keep only digits and at most one dot ---
+          let cleaned = oldValue.replace(/[^\d.]/g, '');
+
+          const firstDot = cleaned.indexOf('.');
+          if (firstDot !== -1) {
+            // Keep only the first dot
+            cleaned = cleaned.slice(0, firstDot + 1) +
+              cleaned.slice(firstDot + 1).replace(/\./g, '');
+          }
+
+          // Limit to 2 decimal places
+          const dot = cleaned.indexOf('.');
+          if (dot !== -1 && cleaned.length - dot > 3) {
+            cleaned = cleaned.slice(0, dot + 3);
+          }
+
+          // --- 2) Split integer/decimal and add thousand separators to integer part ---
+          let [intPart, decPart] = cleaned.split('.');
+          intPart = (intPart || '').replace(/^0+(?=\d)/, '');     // drop leading zeros
+          const formattedInt = intPart
+            ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '';
+          const formatted = decPart !== undefined
+            ? formattedInt + '.' + decPart
+            : formattedInt;
+
+          // --- 3) Restore caret position intelligently ---
+          // Count how many digits are to the left of the caret in the OLD value
+          const digitsBeforeCaret = oldValue
+            .slice(0, oldCaret)
+            .replace(/[^\d.]/g, '').length;
+
+          // Compute the new caret by walking the formatted string
+          let newCaret = 0, digitsSeen = 0;
+          for (let i = 0; i < formatted.length; i++) {
+            if (/[\d.]/.test(formatted[i])) digitsSeen++;
+            if (digitsSeen === digitsBeforeCaret) {
+              newCaret = i + 1;
+              break;
+            }
+          }
+
+          el.value = formatted;
+          el.setSelectionRange(newCaret, newCaret);
+        });
+
+        // Block non-numeric keys outright (belt and braces)
+        input.addEventListener('keypress', (e) => {
+          const char = e.key;
+          if (char.length === 1 && !/[\d.]/.test(char)) e.preventDefault();
+        });
+
+        // Prevent paste of invalid content
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pasted = (e.clipboardData || window.clipboardData).getData('text');
+          const cleaned = pasted.replace(/[^\d.]/g, '');
+          const start = input.selectionStart;
+          const end = input.selectionEnd;
+          const current = input.value;
+          input.value = current.slice(0, start) + cleaned + current.slice(end);
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      })();
 
       // ============================================================
       // SAVE CLASS DETAILS
@@ -7735,6 +7883,39 @@
       }
 
       setupStudentSearch();
+      // ============================================================
+      // PAYMENT DATE — default to today
+      // ============================================================
+      (function setDefaultPaymentDate() {
+        const dateInput = document.getElementById('Fn_PaymentDate');
+        if (!dateInput) return;
+
+        // Helper: build YYYY-MM-DD using LOCAL time (not UTC)
+        function todayLocalISO() {
+          const d = new Date();
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // Set initial value if empty
+        if (!dateInput.value) {
+          dateInput.value = todayLocalISO();
+        }
+
+        // Keep it fresh every time the dialog opens
+        // (in case the app stays open past midnight)
+        const overlay2 = document.getElementById('dialogOverlay2');
+        if (overlay2) {
+          const observer = new MutationObserver(() => {
+            if (overlay2.classList.contains('active') && !dateInput.value) {
+              dateInput.value = todayLocalISO();
+            }
+          });
+          observer.observe(overlay2, { attributes: true, attributeFilter: ['class'] });
+        }
+      })();
 
       // ============================================================
       // PAYMENT SELECTION
