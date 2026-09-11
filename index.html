@@ -10606,6 +10606,26 @@
         let isSignupMode = false;
         let appInitialized = false;
 
+
+        // ---- Notify the C# host about auth state ----
+        function notifyAuthState(isAuthenticated, user) {
+          try {
+            if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
+              window.chrome.webview.postMessage({
+                action: isAuthenticated ? 'AUTH_STATE_SIGNED_IN' : 'AUTH_STATE_SIGNED_OUT',
+                isAuthenticated: isAuthenticated,
+                email: user?.email || null,
+                displayName: user?.displayName || null,
+                uid: user?.uid || null,
+                timestamp: new Date().toISOString()
+              });
+              console.log('[C# signal] AUTH_STATE', isAuthenticated ? 'SIGNED_IN' : 'SIGNED_OUT');
+            }
+          } catch (err) {
+            console.warn('[C# signal] postMessage failed:', err);
+          }
+        }
+
         // ----- helpers -----
         function showAuthMessage(el, msg, type) {
           if (!el) return;
@@ -10613,6 +10633,8 @@
           el.className = 'auth-message ' + type;
           if (!msg) el.className = 'auth-message';
         }
+
+
 
         function switchAuthMode(signup) {
           isSignupMode = signup;
@@ -10870,24 +10892,24 @@
         import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js").then(({ onAuthStateChanged }) => {
           onAuthStateChanged(auth, (user) => {
             if (user) {
-              // Authenticated → reveal the app
               document.body.classList.remove('auth-pending');
               document.body.classList.add('auth-ready');
               authRoot.classList.add('hidden');
 
-              // Show the welcome-banner user chip
               showUserBar(user);
-              // Refresh the welcome greeting with the user's name
+
               if (typeof window.updateWelcomeText === 'function') {
                 window.updateWelcomeText();
               }
+
+              // 🔔 Tell C# the auth overlay is now hidden
+              notifyAuthState(true, user);
 
               if (!appInitialized) {
                 appInitialized = true;
                 console.log('✅ Authenticated as:', user.email);
               }
             } else {
-              // Signed out → back to login
               document.body.classList.add('auth-pending');
               document.body.classList.remove('auth-ready');
               authRoot.classList.remove('hidden');
@@ -10899,12 +10921,23 @@
               signupForm.reset();
               showAuthMessage(loginMessage, '', '');
               showAuthMessage(signupMessage, '', '');
-              switchAuthMode(false);
-              showView('login');
+              switchAuthMode('login');
+
+              // 🔔 Tell C# the auth overlay is now showing
+              notifyAuthState(false, null);
             }
           });
         });
 
+        // Signal that the WebView is ready to receive commands
+        window.addEventListener('load', () => {
+          try {
+            window.chrome?.webview?.postMessage({
+              action: 'AUTH_WEBVIEW_READY',
+              timestamp: new Date().toISOString()
+            });
+          } catch (_) { }
+        });
         // Default initial state
         document.body.classList.add('auth-pending');
         hideUserBar();
