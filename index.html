@@ -10944,7 +10944,7 @@
               signupForm.reset();
               showAuthMessage(loginMessage, '', '');
               showAuthMessage(signupMessage, '', '');
-              switchAuthMode('login');
+              switchAuthMode(false);
 
               // 🔔 Tell C# the auth overlay is now showing
               notifyAuthState(false, null);
