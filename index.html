@@ -5797,12 +5797,12 @@
         overlay.classList.remove('active');
         document.body.style.overflow = '';
 
-        // Clear stale form state so the next open is always clean
         setTimeout(() => {
-          if (!overlay.classList.contains('active')) {
+          // If the dialog was reopened in the meantime, don't wipe the fresh form
+          if (!overlay.classList.contains('active') && !_studentSaveInProgress) {
             resetStudentForm();
           }
-        }, 200);   // matches the overlay close transition
+        }, 50);
 
         if (openBtn) openBtn.focus();
       }
@@ -6346,20 +6346,9 @@
 
           await set(studentRef, studentData);
 
-          // ---- 3) Close dialog FIRST, then refresh UI on next tick ----
+          // Let the realtime onValue listener drive the refresh.
+          // Calling forceUIRefreshAfterWrite() here competes with it and causes the freeze.
           closeDialog();
-
-          // Defer the heavy refresh so the dialog close animation finishes
-          // and the browser has a free frame. Prevents the "frozen on reopen" bug.
-          setTimeout(() => {
-            try {
-              if (typeof window.forceUIRefreshAfterWrite === 'function') {
-                window.forceUIRefreshAfterWrite();
-              }
-            } catch (err) {
-              console.warn('Deferred UI refresh failed:', err);
-            }
-          }, 0);
 
         } catch (error) {
           console.error(error);
@@ -7404,8 +7393,19 @@
       }
 
       function refreshUIFromFirebase(showMessage = true, reason = 'manual') {
-        if (uiRefreshInProgress) return;
+        if (uiRefreshInProgress) {
+          const now = Date.now();
+          if (!refreshUIFromFirebase._startedAt ||
+            now - refreshUIFromFirebase._startedAt > 5000) {
+            console.warn('UI refresh watchdog: forcing reset of in-progress flag');
+            uiRefreshInProgress = false;
+          } else {
+            return;
+          }
+        }
+
         uiRefreshInProgress = true;
+        refreshUIFromFirebase._startedAt = Date.now();
 
         const pageContainer = document.querySelector('.page-container');
         const savedScrollTop = pageContainer ? pageContainer.scrollTop : 0;
