@@ -5631,7 +5631,185 @@
     <script src="classScript.js"></script>
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
+    <!-- ============================================================
+     STATE PERSISTENCE — keeps the active tab + search text
+     across page reloads (F5 / WebView2 Reload()).
+     Drop this right before </body>.
+     ============================================================ -->
+    <script>
+      (function () {
+        'use strict';
 
+        const KEYS = {
+          mainTab: 'acadia.state.mainTab',   // .tab-btn  →  tab0…tab6
+          navTab: 'acadia.state.navTab',    // .nav-tab  →  dashboard / assessments / marks
+          search: 'acadia.state.searchText' // #Searchtext
+        };
+
+        /* ---------- safe storage helpers ---------- */
+        function save(key, value) { try { localStorage.setItem(key, value); } catch (_) { } }
+        function load(key) { try { return localStorage.getItem(key); } catch (_) { return null; } }
+        function drop(key) { try { localStorage.removeItem(key); } catch (_) { } }
+
+        /* ============================================================
+           1) MAIN TABS  (.tab-btn → #tab0 … #tab6)
+           ============================================================ */
+        document.addEventListener('click', function (e) {
+          const btn = e.target.closest('.tab-btn');
+          if (btn && btn.dataset.tab) save(KEYS.mainTab, btn.dataset.tab);
+        }, true);                       // capture → runs before the page's own handler
+
+        function restoreMainTab() {
+          const saved = load(KEYS.mainTab);
+          if (!saved) return;
+
+          const btn = document.querySelector('.tab-btn[data-tab="' + saved + '"]');
+          if (!btn || btn.classList.contains('active')) return;
+
+          btn.click();
+        }
+
+        /* ============================================================
+           2) SUB TABS inside the Assessment tab (.nav-tab)
+           ============================================================ */
+        document.addEventListener('click', function (e) {
+          const btn = e.target.closest('.nav-tab');
+          if (btn && btn.dataset.tab) save(KEYS.navTab, btn.dataset.tab);
+        }, true);
+
+        function restoreNavTab() {
+          const saved = load(KEYS.navTab);
+          if (!saved) return;
+
+          const btn = document.querySelector('.nav-tab[data-tab="' + saved + '"]');
+          if (btn && !btn.classList.contains('active')) btn.click();
+        }
+
+        /* ============================================================
+           3) SEARCH BOX  (#Searchtext)
+           ============================================================ */
+        document.addEventListener('input', function (e) {
+          if (e.target && e.target.id === 'Searchtext') save(KEYS.search, e.target.value);
+        }, true);
+
+        document.addEventListener('change', function (e) {
+          if (e.target && e.target.id === 'Searchtext') save(KEYS.search, e.target.value);
+        }, true);
+
+        // The autocomplete dropdown writes the value programmatically on click
+        document.addEventListener('click', function () {
+          setTimeout(function () {
+            const input = document.getElementById('Searchtext');
+            if (input) save(KEYS.search, input.value);
+          }, 0);
+        });
+
+        function applySearch(value, attempt) {
+          attempt = attempt || 0;
+
+          const input = document.getElementById('Searchtext');
+          if (!input) {
+            if (attempt < 20) setTimeout(function () { applySearch(value, attempt + 1); }, 150);
+            return;
+          }
+
+          if (input.value !== value) input.value = value;
+
+          if (typeof window.searchStudent === 'function') {
+            try { window.searchStudent(value); } catch (_) { }
+          }
+
+          // Firebase rows arrive asynchronously — re-apply the filter a few times
+          if (attempt < 6) {
+            setTimeout(function () {
+              const el = document.getElementById('Searchtext');
+              if (el && typeof window.searchStudent === 'function') {
+                try { window.searchStudent(el.value); } catch (_) { }
+              }
+            }, 250 * (attempt + 1));
+          }
+        }
+
+        /* ============================================================
+           4) RESTORE EVERYTHING (retried, because data loads late)
+           ============================================================ */
+        function restoreAll() {
+          restoreMainTab();
+          restoreNavTab();
+
+          const savedSearch = load(KEYS.search);
+          if (savedSearch) applySearch(savedSearch, 0);
+        }
+
+        function scheduleRestores() {
+          restoreAll();
+          [200, 600, 1200, 2200, 3500].forEach(function (ms) {
+            setTimeout(restoreAll, ms);
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', scheduleRestores);
+        } else {
+          scheduleRestores();
+        }
+        window.addEventListener('load', scheduleRestores);
+
+        /* ============================================================
+           5) HOOK refreshUIFromFirebase()
+              It wipes + repopulates the tables, which clears the filter.
+              Re-apply the search right after it finishes.
+           ============================================================ */
+        (function hookRefresh() {
+          let tries = 0;
+          const timer = setInterval(function () {
+            tries++;
+            if (typeof window.refreshUIFromFirebase === 'function' && !window.__refreshHooked) {
+              window.__refreshHooked = true;
+              const original = window.refreshUIFromFirebase;
+
+              window.refreshUIFromFirebase = function () {
+                const result = original.apply(this, arguments);
+                restoreAll();
+                return result;
+              };
+              clearInterval(timer);
+            }
+            if (tries > 100) clearInterval(timer);
+          }, 100);
+        })();
+
+        /* ============================================================
+           6) PUBLIC API — call these from C# via ExecuteScriptAsync()
+           ============================================================ */
+
+        // Save the current UI state right now
+        window.__persistState = function () {
+          const activeTab = document.querySelector('.tab-btn.active');
+          if (activeTab && activeTab.dataset.tab) save(KEYS.mainTab, activeTab.dataset.tab);
+
+          const activeNav = document.querySelector('.nav-tab.active');
+          if (activeNav && activeNav.dataset.tab) save(KEYS.navTab, activeNav.dataset.tab);
+
+          const input = document.getElementById('Searchtext');
+          if (input) save(KEYS.search, input.value);
+
+          return true;
+        };
+
+        // Wipe everything (e.g. on logout / new user)
+        window.__clearPersistedState = function () {
+          Object.keys(KEYS).forEach(function (k) { drop(KEYS[k]); });
+          return true;
+        };
+
+        // Last-chance save on reload / navigation / close
+        window.addEventListener('beforeunload', function () {
+          try { window.__persistState(); } catch (_) { }
+        });
+
+      })();
+    </script>
     <script type="module">
       // ============================================================
       // FIREBASE IMPORTS
