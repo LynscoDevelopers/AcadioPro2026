@@ -8861,7 +8861,8 @@
               grade: grade,
               stream: stream,
               fullClass: fullClass,
-              admissionNumber: s.admissionNumber || key.replace(/-/g, '/')
+              admissionNumber: s.admissionNumber || key.replace(/-/g, '/'),
+              status: String(s.Status || 'Active').trim()   // ← NEW
             };
           });
         }
@@ -9121,7 +9122,10 @@
           assessments.push(newA);
 
           syncStudentsFromCache();
-          const gradeStudents = students.filter(s => s.grade === grade);
+          const gradeStudents = students.filter(s =>
+            s.grade === grade &&
+            s.status.toLowerCase() === 'active'
+          );
 
           gradeStudents.forEach(st => {
             selectedSubjects.forEach(subj => {
@@ -9337,8 +9341,10 @@
             return;
           }
           const a = assessments.find(x => x.id === aId);
-          const gradeStudents = students.filter(s => s.grade === a.grade);
-
+          const gradeStudents = students.filter(s =>
+            s.grade === a.grade &&
+            s.status.toLowerCase() === 'active'
+          );
           if (gradeStudents.length === 0) {
             content.innerHTML = `<p style="color:#e11d48;">No students found for grade ${a.grade}</p>`;
             return;
@@ -9501,7 +9507,10 @@
             return;
           }
 
-          const gradeStudents = students.filter(s => s.grade === assessment.grade);
+          const gradeStudents = students.filter(s =>
+            s.grade === assessment.grade &&
+            s.status.toLowerCase() === 'active'
+          );
 
           if (gradeStudents.length === 0) {
             showToast('No students found for this grade', 'error');
@@ -9859,7 +9868,10 @@
             return;
           }
 
-          const gradeStudents = students.filter(s => s.grade === assessment.grade);
+          const gradeStudents = students.filter(s =>
+            s.grade === assessment.grade &&
+            s.status.toLowerCase() === 'active'
+          );
 
           let csv = '\uFEFF';
           csv += 'Student ID,Student Name,Class';
