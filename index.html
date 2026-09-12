@@ -6316,6 +6316,77 @@
           )
           || null;
       }
+      function populateAndOpenProfile(admissionNumber) {
+        if (!admissionNumber) return;
+        if (typeof studentsCache !== 'object' || !studentsCache) {
+          alert('Student data is currently unavailable.');
+          return;
+        }
+
+        const s = lookupStudent(admissionNumber);
+
+        if (!s) {
+          alert(`Student data for ${admissionNumber} is not available.`);
+          return;
+        }
+
+        const set = (id, value, fallback = '') => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (value === null || value === undefined || value === '') {
+            el.textContent = fallback;
+          } else if (typeof value === 'object') {
+            try { el.textContent = JSON.stringify(value); }
+            catch { el.textContent = fallback; }
+          } else {
+            el.textContent = String(value);
+          }
+        };
+
+        const getValue = (...keys) => {
+          for (const key of keys) {
+            const v = s?.[key];
+            if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+          }
+          return '';
+        };
+
+        const formatDate = (dateValue) => {
+          if (!dateValue) return '';
+          try {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return String(dateValue);
+            const day = String(date.getDate()).padStart(2, '0');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'];
+            return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
+          } catch { return String(dateValue); }
+        };
+
+        set('pfl_name', getValue('name', 'studentName'));
+        set('pfl_admn', getValue('admissionNumber', 'admissionNo') || admissionNumber);
+        set('pfl_BirthNo', getValue('idNumber', 'birthCertificateNo', 'birthNo'));
+        set('pfl_DoB', formatDate(getValue('dob', 'dateOfBirth')));
+        set('pfl_nationality', getValue('nationality'));
+        set('pfl_gender', getValue('gender', 'sex'));
+        set('pfl_Religion', getValue('religion'));
+        set('pfl_class', getValue('class', 'grade'));
+
+        set('pfl_guardian_name', getValue('guardian', 'guardianName', 'parentName'));
+        set('pfl_guardian_relationship', getValue('relationship', 'guardianRelationship'));
+        set('pfl_phone', getValue('phone', 'phoneNo', 'guardianPhone'));
+        set('pfl_Email', getValue('email', 'guardianEmail'));
+        set('pfl_Address', getValue('address', 'physicalAddress'));
+
+        if (typeof populateStatement === 'function') {
+          populateStatement(paymentCache, s.admissionNumber || admissionNumber);
+        }
+
+        if (typeof window.openDialog3 === 'function') {
+          window.openDialog3(admissionNumber);
+        }
+      }
+
       window.viewStudentProfile = populateAndOpenProfile;
 
 
