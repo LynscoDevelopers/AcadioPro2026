@@ -4725,25 +4725,23 @@
 
           </div>
         </div>
-      
+
         <!-- Students-in-class modal -->
-<div class="modal-overlay" id="classStudentsModal">
-  <div class="modal-content" style="max-width: 720px;">
-    <button class="modal-close" onclick="closeClassStudentsModal()">×</button>
+        <div class="modal-overlay" id="classStudentsModal">
+          <div class="modal-content" style="max-width: 720px;">
+            <button class="modal-close" onclick="closeClassStudentsModal()">×</button>
 
-    <h2 style="margin-bottom: .25rem;">
-      <i class="fas fa-users"></i> Students in class
-    </h2>
-    <div id="classStudentsLabel"
-         style="color:#6b7e93; font-size:.9rem; margin-bottom:1rem;">
-    </div>
+            <h2 style="margin-bottom: .25rem;">
+              <i class="fas fa-users"></i> Students in class
+            </h2>
+            <div id="classStudentsLabel" style="color:#6b7e93; font-size:.9rem; margin-bottom:1rem;">
+            </div>
 
-    <div id="classStudentsBody"
-         style="max-height:60vh; overflow-y:auto;">
-    </div>
-  </div>
-</div>
-      
+            <div id="classStudentsBody" style="max-height:60vh; overflow-y:auto;">
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Tab 4: Empty -->
@@ -6299,78 +6297,25 @@
       // ============================================================
       // OPEN A STUDENT PROFILE FROM ANYWHERE
       // ============================================================
-      function populateAndOpenProfile(admissionNumber) {
-        if (!admissionNumber) return;
-        if (typeof studentsCache !== 'object' || !studentsCache) {
-          alert('Student data is currently unavailable.');
-          return;
-        }
-
-        const s = studentsCache[admissionNumber] ||
-          studentsCache[admissionNumber.replace(/\s+/g, '')];
-
-        if (!s) {
-          alert(`Student data for ${admissionNumber} is not available.`);
-          return;
-        }
-
-        const set = (id, value, fallback = '') => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          if (value === null || value === undefined || value === '') {
-            el.textContent = fallback;
-          } else if (typeof value === 'object') {
-            try { el.textContent = JSON.stringify(value); }
-            catch { el.textContent = fallback; }
-          } else {
-            el.textContent = String(value);
-          }
-        };
-
-        const getValue = (...keys) => {
-          for (const key of keys) {
-            const v = s?.[key];
-            if (v !== undefined && v !== null && String(v).trim() !== '') return v;
-          }
-          return '';
-        };
-
-        const formatDate = (dateValue) => {
-          if (!dateValue) return '';
-          try {
-            const date = new Date(dateValue);
-            if (isNaN(date.getTime())) return String(dateValue);
-            const day = String(date.getDate()).padStart(2, '0');
-            const months = ['January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'];
-            return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
-          } catch { return String(dateValue); }
-        };
-
-        set('pfl_name', getValue('name', 'studentName'));
-        set('pfl_admn', getValue('admissionNumber', 'admissionNo') || admissionNumber);
-        set('pfl_BirthNo', getValue('idNumber', 'birthCertificateNo', 'birthNo'));
-        set('pfl_DoB', formatDate(getValue('dob', 'dateOfBirth')));
-        set('pfl_nationality', getValue('nationality'));
-        set('pfl_gender', getValue('gender', 'sex'));
-        set('pfl_Religion', getValue('religion'));
-        set('pfl_class', getValue('class', 'grade'));
-
-        set('pfl_guardian_name', getValue('guardian', 'guardianName', 'parentName'));
-        set('pfl_guardian_relationship', getValue('relationship', 'guardianRelationship'));
-        set('pfl_phone', getValue('phone', 'phoneNo', 'guardianPhone'));
-        set('pfl_Email', getValue('email', 'guardianEmail'));
-        set('pfl_Address', getValue('address', 'physicalAddress'));
-
-        if (typeof populateStatement === 'function') {
-          populateStatement(paymentCache, s.admissionNumber || admissionNumber);
-        }
-
-        if (typeof window.openDialog3 === 'function') {
-          window.openDialog3(admissionNumber);
-        }
+      function normalizeAdmission(raw) {
+        if (!raw) return { key: '', display: '' };
+        const trimmed = String(raw).trim();
+        const dashed = trimmed.replace(/\//g, '-');
+        return { key: dashed, display: trimmed };
       }
 
+      function lookupStudent(rawAdmission) {
+        if (!studentsCache) return null;
+        const { key } = normalizeAdmission(rawAdmission);
+
+        return studentsCache[key]                                        // exact key
+          || studentsCache[rawAdmission]                               // raw (if already dashed)
+          || Object.values(studentsCache).find(s =>                    // scan by field
+            s.admissionNumber &&
+            s.admissionNumber.replace(/\//g, '-') === key
+          )
+          || null;
+      }
       window.viewStudentProfile = populateAndOpenProfile;
 
 
