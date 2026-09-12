@@ -6132,7 +6132,6 @@
 
       window.__tabPanels = panels;
 
-
       // ============================================================
       // MAIN TAB SWITCHING  (+ notify C# host on every change)
       // ============================================================
@@ -6163,8 +6162,8 @@
         }
       }
 
-      const tabs = document.querySelectorAll('.tab-btn');
-      const panels = {
+      const tabx = document.querySelectorAll('.tab-btn');
+      const panelsx = {
         tab0: document.getElementById('tab0'),
         tab1: document.getElementById('tab1'),
         tab2: document.getElementById('tab2'),
@@ -6174,17 +6173,17 @@
         tab6: document.getElementById('tab6')
       };
 
-      tabs.forEach(tab => {
+      tabx.forEach(tab => {
         tab.addEventListener('click', function () {
-          tabs.forEach(t => t.classList.remove('active'));
-          Object.values(panels).forEach(p => {
+          tabx.forEach(t => t.classList.remove('active'));
+          Object.values(panelsx).forEach(p => {
             if (p) p.classList.remove('active');
           });
           this.classList.add('active');
 
           const targetId = this.getAttribute('data-tab');
-          if (panels[targetId]) {
-            panels[targetId].classList.add('active');
+          if (panelsx[targetId]) {
+            panelsx[targetId].classList.add('active');
           }
 
           // 🔔 tell C# host
@@ -6193,18 +6192,18 @@
       });
 
       window.switchTab = function (tabId) {
-        tabs.forEach(t => t.classList.remove('active'));
-        Object.values(panels).forEach(p => {
+        tabx.forEach(t => t.classList.remove('active'));
+        Object.values(panelsx).forEach(p => {
           if (p) p.classList.remove('active');
         });
 
         closeContextMenu();
 
-        const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
+        const targetTab = Array.from(tabx).find(t => t.getAttribute('data-tab') === tabId);
         if (targetTab) {
           targetTab.classList.add('active');
-          if (panels[tabId]) {
-            panels[tabId].classList.add('active');
+          if (panelsx[tabId]) {
+            panelsx[tabId].classList.add('active');
           }
 
           // 🔔 tell C# host (programmatic switch)
@@ -6214,7 +6213,8 @@
         return false;
       };
 
-      window.__tabPanels = panels;
+      // Keep the global handle pointing at the new collection
+      window.__tabPanels = panelsx;
 
       // Expose so C# can query it if needed
       window.getActiveTab = function () {
@@ -6227,7 +6227,6 @@
         const active = document.querySelector('.tab-btn.active');
         if (active) notifyTabChanged(active.getAttribute('data-tab'), 'initial');
       });
-
 
 
       // ============================================================
