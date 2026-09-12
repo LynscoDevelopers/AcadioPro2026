@@ -8145,7 +8145,11 @@
           body.innerHTML = html;
         }
 
-        document.getElementById('classStudentsModal').classList.add('active');
+        const el = document.getElementById('classStudentsModal');
+        if (el) {
+          el.style.display = '';
+          el.classList.add('active');
+        }
       };
 
       window.closeClassStudentsModal = function () {
@@ -10008,7 +10012,11 @@
         };
 
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function (e) {
-          if (e.target === this) this.style.display = 'none';
+          if (e.target === this) {
+            // Prefer class-based hiding so `.active` can re-show it later
+            this.classList.remove('active');
+            this.style.display = '';   // clear any stale inline style
+          }
         }));
 
         window.refreshDashboard = function () {
