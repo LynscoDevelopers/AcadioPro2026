@@ -5632,46 +5632,46 @@
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
     <!-- ============================================================
-     STATE PERSISTENCE — keeps the active tab + search text
-     across page reloads (F5 / WebView2 Reload()).
-     Drop this right before </body>.
+     STATE PERSISTENCE v2 — tab + search text across refresh
+     Replace the previous <script> block with this one.
      ============================================================ -->
     <script>
       (function () {
         'use strict';
 
         const KEYS = {
-          mainTab: 'acadia.state.mainTab',   // .tab-btn  →  tab0…tab6
-          navTab: 'acadia.state.navTab',    // .nav-tab  →  dashboard / assessments / marks
-          search: 'acadia.state.searchText' // #Searchtext
+          mainTab: 'acadia.state.mainTab',
+          navTab: 'acadia.state.navTab',
+          search: 'acadia.state.searchText',
+          feeDlg: 'acadia.state.feeDialogOpen'   // remember if the fee dialog was open
         };
 
-        /* ---------- safe storage helpers ---------- */
-        function save(key, value) { try { localStorage.setItem(key, value); } catch (_) { } }
-        function load(key) { try { return localStorage.getItem(key); } catch (_) { return null; } }
-        function drop(key) { try { localStorage.removeItem(key); } catch (_) { } }
+        const DEBUG = false;                       // flip to true to see console logs
+        const log = (...a) => { if (DEBUG) console.log('[persist]', ...a); };
 
-        /* ============================================================
-           1) MAIN TABS  (.tab-btn → #tab0 … #tab6)
-           ============================================================ */
+        const save = (k, v) => { try { localStorage.setItem(k, v); } catch (_) { } };
+        const load = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
+        const drop = (k) => { try { localStorage.removeItem(k); } catch (_) { } };
+
+        /* =========================================================
+           1) MAIN TABS
+           ========================================================= */
         document.addEventListener('click', function (e) {
           const btn = e.target.closest('.tab-btn');
-          if (btn && btn.dataset.tab) save(KEYS.mainTab, btn.dataset.tab);
-        }, true);                       // capture → runs before the page's own handler
+          if (btn && btn.dataset.tab) { save(KEYS.mainTab, btn.dataset.tab); log('saved mainTab', btn.dataset.tab); }
+        }, true);
 
         function restoreMainTab() {
           const saved = load(KEYS.mainTab);
           if (!saved) return;
-
           const btn = document.querySelector('.tab-btn[data-tab="' + saved + '"]');
-          if (!btn || btn.classList.contains('active')) return;
-
-          btn.click();
+          if (!btn) return;
+          if (!btn.classList.contains('active')) { btn.click(); log('restored mainTab', saved); }
         }
 
-        /* ============================================================
-           2) SUB TABS inside the Assessment tab (.nav-tab)
-           ============================================================ */
+        /* =========================================================
+           2) NAV TABS (inside Assessment tab)
+           ========================================================= */
         document.addEventListener('click', function (e) {
           const btn = e.target.closest('.nav-tab');
           if (btn && btn.dataset.tab) save(KEYS.navTab, btn.dataset.tab);
@@ -5680,72 +5680,122 @@
         function restoreNavTab() {
           const saved = load(KEYS.navTab);
           if (!saved) return;
-
           const btn = document.querySelector('.nav-tab[data-tab="' + saved + '"]');
           if (btn && !btn.classList.contains('active')) btn.click();
         }
 
-        /* ============================================================
-           3) SEARCH BOX  (#Searchtext)
-           ============================================================ */
-        document.addEventListener('input', function (e) {
-          if (e.target && e.target.id === 'Searchtext') save(KEYS.search, e.target.value);
-        }, true);
+        /* =========================================================
+           3) SEARCH BOX  — bind directly once the element exists
+           ========================================================= */
+        function bindSearchInput() {
+          const input = document.getElementById('Searchtext');
+          if (!input || input.__acadiaBound) return !!input;
 
-        document.addEventListener('change', function (e) {
-          if (e.target && e.target.id === 'Searchtext') save(KEYS.search, e.target.value);
-        }, true);
+          input.__acadiaBound = true;
 
-        // The autocomplete dropdown writes the value programmatically on click
-        document.addEventListener('click', function () {
-          setTimeout(function () {
-            const input = document.getElementById('Searchtext');
-            if (input) save(KEYS.search, input.value);
-          }, 0);
-        });
+          const persist = () => { save(KEYS.search, input.value); log('saved search =', input.value); };
 
+          input.addEventListener('input', persist);
+          input.addEventListener('change', persist);
+          input.addEventListener('keyup', persist);
+          input.addEventListener('blur', persist);
+          input.addEventListener('paste', () => setTimeout(persist, 0));
+
+          log('search input bound');
+          return true;
+        }
+
+        // Poll until the input exists (it lives in a dialog that may be injected late)
+        let bindTries = 0;
+        const bindTimer = setInterval(() => {
+          bindTries++;
+          if (bindSearchInput() || bindTries > 60) clearInterval(bindTimer);
+        }, 200);
+        bindSearchInput();                         // try immediately too
+
+        /* =========================================================
+           4) APPLY SEARCH  — sets value + calls searchStudent()
+           ========================================================= */
         function applySearch(value, attempt) {
           attempt = attempt || 0;
 
           const input = document.getElementById('Searchtext');
-          if (!input) {
-            if (attempt < 20) setTimeout(function () { applySearch(value, attempt + 1); }, 150);
-            return;
+          if (input && input.value !== value) {
+            input.value = value;
+            log('applySearch set value', value, 'attempt', attempt);
           }
 
-          if (input.value !== value) input.value = value;
-
+          // Call the app's own filter function
           if (typeof window.searchStudent === 'function') {
             try { window.searchStudent(value); } catch (_) { }
           }
 
-          // Firebase rows arrive asynchronously — re-apply the filter a few times
-          if (attempt < 6) {
-            setTimeout(function () {
+          // Retry a few times — Firebase rows arrive asynchronously
+          if (attempt < 8) {
+            setTimeout(() => {
               const el = document.getElementById('Searchtext');
               if (el && typeof window.searchStudent === 'function') {
                 try { window.searchStudent(el.value); } catch (_) { }
               }
-            }, 250 * (attempt + 1));
+              // also nudge the input handler so the suggestion box logic runs
+              if (el && attempt < 3) {
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }, 200 * (attempt + 1));
           }
         }
 
-        /* ============================================================
-           4) RESTORE EVERYTHING (retried, because data loads late)
-           ============================================================ */
+        function restoreSearch() {
+          const saved = load(KEYS.search);
+          if (!saved) return;
+          applySearch(saved, 0);
+        }
+
+        /* =========================================================
+           5) RESTORE FEE DIALOG (optional — keeps the dialog open)
+           ========================================================= */
+        function restoreFeeDialog() {
+          if (load(KEYS.feeDlg) !== '1') return;
+          if (typeof window.openDialog2 === 'function') {
+            try { window.openDialog2(); log('reopened fee dialog'); } catch (_) { }
+          }
+        }
+
+        // Track dialog open/close so we know whether to reopen on refresh
+        function trackFeeDialog() {
+          const overlay2 = document.getElementById('dialogOverlay2');
+          if (!overlay2 || overlay2.__acadiaTracked) return !!overlay2;
+          overlay2.__acadiaTracked = true;
+
+          const obs = new MutationObserver(() => {
+            if (overlay2.classList.contains('active')) save(KEYS.feeDlg, '1');
+            else save(KEYS.feeDlg, '0');
+          });
+          obs.observe(overlay2, { attributes: true, attributeFilter: ['class'] });
+          log('fee dialog tracked');
+          return true;
+        }
+
+        let trackTries = 0;
+        const trackTimer = setInterval(() => {
+          trackTries++;
+          if (trackFeeDialog() || trackTries > 60) clearInterval(trackTimer);
+        }, 200);
+        trackFeeDialog();
+
+        /* =========================================================
+           6) RESTORE EVERYTHING (with retries)
+           ========================================================= */
         function restoreAll() {
           restoreMainTab();
           restoreNavTab();
-
-          const savedSearch = load(KEYS.search);
-          if (savedSearch) applySearch(savedSearch, 0);
+          restoreFeeDialog();
+          restoreSearch();
         }
 
         function scheduleRestores() {
           restoreAll();
-          [200, 600, 1200, 2200, 3500].forEach(function (ms) {
-            setTimeout(restoreAll, ms);
-          });
+          [150, 400, 800, 1500, 2500, 4000].forEach(ms => setTimeout(restoreAll, ms));
         }
 
         if (document.readyState === 'loading') {
@@ -5755,35 +5805,35 @@
         }
         window.addEventListener('load', scheduleRestores);
 
-        /* ============================================================
-           5) HOOK refreshUIFromFirebase()
-              It wipes + repopulates the tables, which clears the filter.
-              Re-apply the search right after it finishes.
-           ============================================================ */
+        /* =========================================================
+           7) HOOK refreshUIFromFirebase()
+           ========================================================= */
         (function hookRefresh() {
           let tries = 0;
-          const timer = setInterval(function () {
+          const t = setInterval(() => {
             tries++;
-            if (typeof window.refreshUIFromFirebase === 'function' && !window.__refreshHooked) {
-              window.__refreshHooked = true;
+            if (typeof window.refreshUIFromFirebase === 'function' && !window.__refreshHookedV2) {
+              window.__refreshHookedV2 = true;
               const original = window.refreshUIFromFirebase;
-
               window.refreshUIFromFirebase = function () {
-                const result = original.apply(this, arguments);
-                restoreAll();
-                return result;
+                const r = original.apply(this, arguments);
+                // Re-apply the search text right after the table is rebuilt
+                setTimeout(() => {
+                  const saved = load(KEYS.search);
+                  if (saved) applySearch(saved, 0);
+                }, 60);
+                return r;
               };
-              clearInterval(timer);
+              clearInterval(t);
+              log('refreshUIFromFirebase hooked');
             }
-            if (tries > 100) clearInterval(timer);
+            if (tries > 100) clearInterval(t);
           }, 100);
         })();
 
-        /* ============================================================
-           6) PUBLIC API — call these from C# via ExecuteScriptAsync()
-           ============================================================ */
-
-        // Save the current UI state right now
+        /* =========================================================
+           8) PUBLIC API for C# (ExecuteScriptAsync)
+           ========================================================= */
         window.__persistState = function () {
           const activeTab = document.querySelector('.tab-btn.active');
           if (activeTab && activeTab.dataset.tab) save(KEYS.mainTab, activeTab.dataset.tab);
@@ -5794,16 +5844,22 @@
           const input = document.getElementById('Searchtext');
           if (input) save(KEYS.search, input.value);
 
+          const overlay2 = document.getElementById('dialogOverlay2');
+          if (overlay2) save(KEYS.feeDlg, overlay2.classList.contains('active') ? '1' : '0');
+
+          log('__persistState called', {
+            tab: load(KEYS.mainTab), search: load(KEYS.search)
+          });
           return true;
         };
 
-        // Wipe everything (e.g. on logout / new user)
         window.__clearPersistedState = function () {
-          Object.keys(KEYS).forEach(function (k) { drop(KEYS[k]); });
+          Object.values(KEYS).forEach(drop);
+          log('state cleared');
           return true;
         };
 
-        // Last-chance save on reload / navigation / close
+        // Last-chance save
         window.addEventListener('beforeunload', function () {
           try { window.__persistState(); } catch (_) { }
         });
