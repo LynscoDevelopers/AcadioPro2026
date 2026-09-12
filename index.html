@@ -6975,68 +6975,107 @@
         return value;
       }
 
-      function populateFeePaymentsTable(Payments) {
-        const tbody = document.querySelector("#FeePaymentList tbody");
-        if (!tbody || !Payments) return;
-        tbody.innerHTML = "";
+      // ============================================================
+      // FeePaymentList — optimized rendering
+      // ============================================================
 
-        const paymentArray = Object.entries(Payments).map(([key, value]) => ({
-          id: key,
-          ...value
-        }));
+      const FEEPAYMENT_PAGE_SIZE = 200;   // rows rendered per batch
+      let _feePaymentPage = 1;            // current page (1-based)
+      let _feePaymentSortedCache = null;  // cached sorted array
+      let _feePaymentSourceRef = null;    // cache invalidation reference
 
-        paymentArray.sort((a, b) => {
-          const receiptA = (a.ReceiptNo || '').toString();
-          const receiptB = (b.ReceiptNo || '').toString();
-          const numA = parseFloat(receiptA);
-          const numB = parseFloat(receiptB);
-          const isNumA = !isNaN(numA) && receiptA.trim() !== '';
-          const isNumB = !isNaN(numB) && receiptB.trim() !== '';
-          if (isNumA && isNumB) {
-            return numB - numA;
-          }
-          if (isNumA && !isNumB) {
-            return -1;
-          }
-          if (!isNumA && isNumB) {
-            return 1;
-          }
-          return receiptB.localeCompare(receiptA);
-        });
-
-        for (let i = 0; i < paymentArray.length; i++) {
-          const payment = paymentArray[i];
-          const admissionNumber = payment.admissionNumber || 'N/A';
-          const studentName = getStudentName(admissionNumber);
-          const amount = formatCarriedFrom(payment.amount || '0.00');
-          const balance = formatCarriedFrom(payment.balance || '0.00');
-          const account = formatCarriedFrom(payment.Account || '—');
-          const paymentRef = formatCarriedFrom(payment.paymentRef || '—');
-          const entryDate = formatCarriedFrom(payment.entryDate || '—');
-          const receiptNo = formatCarriedFrom(payment.ReceiptNo || '—');
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
-        <td class="col-name">
-            <div class="student-info">
-                <span class="student-name clickable-name"
-                      data-student="${admissionNumber}">
-                    ${studentName}
-                </span>
-                <span class="student-id">${admissionNumber}</span>
-            </div>
-        </td>
-        <td class="col-contact">${amount}</td>
-        <td class="col-national">${balance}</td>
-        <td class="col-contact">${account}</td>
-        <td class="col-contact">${paymentRef}</td>
-        <td class="col-contact">${entryDate}</td>
-        <td class="col-contact">${receiptNo}</td>
-    `;
-          tbody.appendChild(row);
+      function _buildStudentNameMap() {
+        const map = Object.create(null);
+        if (!studentsCache) return map;
+        for (const key in studentsCache) {
+          const s = studentsCache[key];
+          const admn = s.admissionNumber || key.replace(/-/g, '/');
+          map[admn] = s.name || s.studentName || 'Unknown';
         }
+        return map;
       }
 
+      function _getSortedPayments(Payments) {
+        // Re-sort ONLY when the payment object reference changes.
+        // onValue() reassigns paymentCache on each realtime update,
+        // so this is a natural invalidation signal.
+        if (Payments !== _feePaymentSourceRef) {
+          const arr = Object.entries(Payments).map(([k, v]) => ({ id: k, ...v }));
+
+          arr.sort((a, b) => {
+            const ra = (a.ReceiptNo || '').toString();
+            const rb = (b.ReceiptNo || '').toString();
+            const na = parseFloat(ra);
+            const nb = parseFloat(rb);
+            const isNa = !isNaN(na) && ra.trim() !== '';
+            const isNb = !isNaN(nb) && rb.trim() !== '';
+            if (isNa && isNb) return nb - na;
+            if (isNa && !isNb) return -1;
+            if (!isNa && isNb) return 1;
+            return rb.localeCompare(ra);
+          });
+
+          _feePaymentSortedCache = arr;
+          _feePaymentSourceRef = Payments;
+        }
+        return _feePaymentSortedCache;
+      }
+
+      function populateFeePaymentsTable(Payments, resetPage = true) {
+        const tbody = document.querySelector("#FeePaymentList tbody");
+        if (!tbody || !Payments) return;
+
+        if (resetPage) _feePaymentPage = 1;
+
+        const sorted = _getSortedPayments(Payments);
+        const nameMap = _buildStudentNameMap();
+
+        const total = sorted.length;
+        const end = Math.min(_feePaymentPage * FEEPAYMENT_PAGE_SIZE, total);
+
+        // Build the whole batch as ONE string → ONE innerHTML write
+        const rows = new Array(end);
+        for (let i = 0; i < end; i++) {
+          const p = sorted[i];
+          const admn = p.admissionNumber || 'N/A';
+          const name = nameMap[admn] || 'Unknown';
+
+          rows[i] =
+            `<tr>
+        <td class="col-name">
+          <div class="student-info">
+            <span class="student-name clickable-name" data-student="${admn}">${name}</span>
+            <span class="student-id">${admn}</span>
+          </div>
+        </td>
+        <td class="col-contact">${formatCarriedFrom(p.amount || '0.00')}</td>
+        <td class="col-national">${formatCarriedFrom(p.balance || '0.00')}</td>
+        <td class="col-contact">${formatCarriedFrom(p.Account || '—')}</td>
+        <td class="col-contact">${formatCarriedFrom(p.paymentRef || '—')}</td>
+        <td class="col-contact">${formatCarriedFrom(p.entryDate || '—')}</td>
+        <td class="col-contact">${formatCarriedFrom(p.ReceiptNo || '—')}</td>
+      </tr>`;
+        }
+
+        tbody.innerHTML = rows.join('');
+
+        // If there are more rows, show a "Load more" footer
+        if (end < total) {
+          const more = document.createElement('tr');
+          more.innerHTML =
+            `<td colspan="7" style="text-align:center; padding:12px;">
+         <button type="button" class="btn btn-outline btn-sm">
+           Load more (${end} / ${total})
+         </button>
+       </td>`;
+          const btn = more.querySelector('button');
+          btn.addEventListener('click', () => {
+            _feePaymentPage++;
+            populateFeePaymentsTable(Payments, false);  // false = don't reset page
+          });
+          tbody.appendChild(more);
+        }
+      }
       function populateFeePaymentHistory(paymentData, admissionNumber) {
         const tableBody = document.querySelector('#feepaymentHistory tbody');
         if (!tableBody) return;
