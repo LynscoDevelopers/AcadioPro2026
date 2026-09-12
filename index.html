@@ -7731,41 +7731,30 @@
       };
 
       window.getCheckedStudentAndPopulateFee = function () {
-        // ---- 1) Get checked rows ----
-        const checked = document.querySelectorAll(
-          "#FeeBalanceList tbody .custom-checkbox:checked"
-        );
-
-        // 0 checked → do nothing
-        if (checked.length === 0) {
-          return { success: false, error: 'No student selected' };
-        }
-
-        // 2+ checked → do nothing
+        const checked = document.querySelectorAll("#FeeBalanceList tbody .custom-checkbox:checked");
         if (checked.length > 1) {
-          return { success: false, error: 'Select only one student' };
+          alert("Select only one student.");
+          return null;
         }
-
-        // ---- 2) Get admission number ----
+        if (checked.length === 0) {
+          if (typeof window.openDialog2 === "function") window.openDialog2();
+          return null;
+        }
         const row = checked[0].closest("tr");
         const admissionNumber = row?.querySelector(".student-id")?.textContent.trim();
-
         if (!admissionNumber) {
-          return { success: false, error: 'Admission number not found' };
+          if (typeof window.openDialog2 === "function") window.openDialog2();
+          return null;
         }
-
-        // ---- 3) Look up the student ----
         const s = studentsCache?.[admissionNumber];
         if (!s) {
-          return { success: false, error: `Student not found: ${admissionNumber}` };
+          if (typeof window.openDialog2 === "function") window.openDialog2();
+          return null;
         }
-
-        // ---- 4) Populate all Fn_* fields ----
         const set = (id, val) => {
           const el = document.getElementById(id);
           if (el) el.textContent = val ?? "";
         };
-
         set("Fn_Name", s.name);
         set("Fn_Grade", s.class);
         set("Fn_Admn", s.admissionNumber || admissionNumber);
@@ -7773,20 +7762,11 @@
         set("Fn_CurrentBalance", getCurrent(admissionNumber));
         set("Fn_studentExceptions", studentExceptions(admissionNumber));
         set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-
-        if (typeof populateFeePaymentHistory === "function") {
-          populateFeePaymentHistory(paymentCache, admissionNumber);
-        }
-
-        // ---- 5) Open the dialog ----
-        if (typeof window.openDialog2 !== "function") {
-          return { success: false, error: 'Fee dialog unavailable' };
-        }
-
-        window.openDialog2(admissionNumber);
-
-        return { success: true, admissionNumber };
+        populateFeePaymentHistory(paymentCache, admissionNumber);
+        if (typeof window.openDialog2 === "function") window.openDialog2(admissionNumber);
+        return s;
       };
+
       function selectStudentForFee(admissionNumber) {
         if (!admissionNumber) return alert("Admission number not found.");
         const s = studentsCache[admissionNumber];
