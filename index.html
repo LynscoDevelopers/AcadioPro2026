@@ -5680,6 +5680,43 @@
       const classRef = ref(db, "Institution/ Revival/classes");
       const termRef = ref(db, `Institution/ Revival/terms/`);
 
+
+
+      // ============================================================
+      // GLOBAL RIGHT-CLICK BLOCKER
+      // ============================================================
+      // Any element with `data-allow-contextmenu` (or inside one) is whitelisted.
+      // Everything else on the page will not show the browser's default menu.
+
+      const CONTEXTMENU_WHITELIST = [
+        '#register_Tbl',      // Students register table
+        '#FeeBalanceList',    // Fee balance table
+        // add more selectors here if you want to allow right-click elsewhere
+        // e.g. '#FeePaymentList', '[data-allow-contextmenu]'
+      ];
+
+      function isContextMenuAllowed(target) {
+        if (!target || !target.closest) return false;
+
+        // Explicit data attribute wins
+        if (target.closest('[data-allow-contextmenu]')) return true;
+
+        // Check each whitelisted selector
+        for (const sel of CONTEXTMENU_WHITELIST) {
+          if (target.closest(sel)) return true;
+        }
+        return false;
+      }
+
+      document.addEventListener('contextmenu', function (e) {
+        if (!isContextMenuAllowed(e.target)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+        // Allowed: let it bubble so your existing table handlers run
+      }, true); // capture phase → runs BEFORE your existing listeners
+
       // ============================================================
       // UTILITY FUNCTIONS
       // ============================================================
