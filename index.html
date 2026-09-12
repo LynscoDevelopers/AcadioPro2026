@@ -5632,7 +5632,7 @@
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
 
-   
+
 
     <script type="module">
       // ============================================================
@@ -6131,6 +6131,104 @@
       };
 
       window.__tabPanels = panels;
+
+
+      // ============================================================
+      // MAIN TAB SWITCHING  (+ notify C# host on every change)
+      // ============================================================
+
+      // ---- Notify the C# host which tab is now active ----
+      function notifyTabChanged(tabId, source = 'user') {
+        try {
+          const allTabs = Array.from(document.querySelectorAll('.tab-btn'));
+          const btn = allTabs.find(t => t.getAttribute('data-tab') === tabId);
+
+          const payload = {
+            action: 'TAB_CHANGED',
+            tabId: tabId,                              // "tab0" ... "tab6"
+            tabIndex: btn ? allTabs.indexOf(btn) : -1,    // 0-based index
+            tabName: btn ? btn.textContent.trim() : '',  // "Dashboard", "Register", ...
+            source: source,                             // 'user' | 'programmatic' | 'initial'
+            timestamp: new Date().toISOString()
+          };
+
+          if (window.chrome?.webview?.postMessage) {
+            window.chrome.webview.postMessage(payload);
+            console.log('[C# signal] TAB_CHANGED', payload);
+          } else {
+            console.log('[no host] TAB_CHANGED', payload);
+          }
+        } catch (err) {
+          console.warn('notifyTabChanged failed:', err);
+        }
+      }
+
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = {
+        tab0: document.getElementById('tab0'),
+        tab1: document.getElementById('tab1'),
+        tab2: document.getElementById('tab2'),
+        tab3: document.getElementById('tab3'),
+        tab4: document.getElementById('tab4'),
+        tab5: document.getElementById('tab5'),
+        tab6: document.getElementById('tab6')
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+          tabs.forEach(t => t.classList.remove('active'));
+          Object.values(panels).forEach(p => {
+            if (p) p.classList.remove('active');
+          });
+          this.classList.add('active');
+
+          const targetId = this.getAttribute('data-tab');
+          if (panels[targetId]) {
+            panels[targetId].classList.add('active');
+          }
+
+          // 🔔 tell C# host
+          notifyTabChanged(targetId, 'user');
+        });
+      });
+
+      window.switchTab = function (tabId) {
+        tabs.forEach(t => t.classList.remove('active'));
+        Object.values(panels).forEach(p => {
+          if (p) p.classList.remove('active');
+        });
+
+        closeContextMenu();
+
+        const targetTab = Array.from(tabs).find(t => t.getAttribute('data-tab') === tabId);
+        if (targetTab) {
+          targetTab.classList.add('active');
+          if (panels[tabId]) {
+            panels[tabId].classList.add('active');
+          }
+
+          // 🔔 tell C# host (programmatic switch)
+          notifyTabChanged(tabId, 'programmatic');
+          return true;
+        }
+        return false;
+      };
+
+      window.__tabPanels = panels;
+
+      // Expose so C# can query it if needed
+      window.getActiveTab = function () {
+        const active = document.querySelector('.tab-btn.active');
+        return active ? active.getAttribute('data-tab') : null;
+      };
+
+      // 🔔 announce the initial tab once the DOM is ready
+      document.addEventListener('DOMContentLoaded', function () {
+        const active = document.querySelector('.tab-btn.active');
+        if (active) notifyTabChanged(active.getAttribute('data-tab'), 'initial');
+      });
+
+
 
       // ============================================================
       // SAVE / UPDATE STUDENT
