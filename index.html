@@ -10788,25 +10788,66 @@
         let appInitialized = false;
 
 
+        // ---- Generate a random avatar URL ----
+        function generateRandomAvatar(seed, style = 'avataaars') {
+          // seed keeps the same avatar stable for the same user across sessions
+          // styles: avataaars | bottts | adventurer | initials | fun-emoji | pixel-art
+          const safeSeed = encodeURIComponent(String(seed || 'user'));
+          return `https://api.dicebear.com/7.x/${style}/svg?seed=${safeSeed}`;
+        }
+
         // ---- Notify the C# host about auth state ----
         function notifyAuthState(isAuthenticated, user) {
           try {
-            if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
-              window.chrome.webview.postMessage({
-                action: isAuthenticated ? 'AUTH_STATE_SIGNED_IN' : 'AUTH_STATE_SIGNED_OUT',
-                isAuthenticated: isAuthenticated,
-                email: user?.email || null,
-                displayName: user?.displayName || null,
-                uid: user?.uid || null,
-                timestamp: new Date().toISOString()
-              });
-              console.log('[C# signal] AUTH_STATE', isAuthenticated ? 'SIGNED_IN' : 'SIGNED_OUT');
-            }
+            if (!window.chrome || !window.chrome.webview || !window.chrome.webview.postMessage) return;
+
+            const account = user ? {
+              uid: user.uid || null,
+              email: user.email || null,
+              displayName: user.displayName || null,
+              emailVerified: user.emailVerified || false,
+              phoneNumber: user.phoneNumber || null,
+              photoURL: user.photoURL || null,
+              providerId: user.providerData?.[0]?.providerId || 'password',
+              createdAt: user.metadata?.creationTime || null,
+              lastLoginAt: user.metadata?.lastSignInTime || null
+            } : null;
+
+            // Short display name for the greeting
+            const rawName = (user?.displayName && user.displayName.trim())
+              || (user?.email ? user.email.split('@')[0] : '');
+            const shortName = rawName.length > 18 ? rawName.slice(0, 17) + '…' : rawName;
+
+            // Random-but-stable avatar (seeded by uid/email so it doesn't change on reload)
+            const avatarUrl = user
+              ? generateRandomAvatar(user.uid || user.email || 'user')
+              : null;
+
+            window.chrome.webview.postMessage({
+              action: isAuthenticated ? 'AUTH_STATE_SIGNED_IN' : 'AUTH_STATE_SIGNED_OUT',
+              isAuthenticated: isAuthenticated,
+
+              // --- Account fields ---
+              account: account,
+              uid: account?.uid || null,
+              email: account?.email || null,
+              displayName: account?.displayName || null,
+              shortName: shortName || null,
+
+              // --- Avatar ---
+              avatarUrl: avatarUrl,
+
+              timestamp: new Date().toISOString()
+            });
+
+            console.log('[C# signal] AUTH_STATE',
+              isAuthenticated ? 'SIGNED_IN' : 'SIGNED_OUT',
+              { shortName, avatarUrl });
           } catch (err) {
             console.warn('[C# signal] postMessage failed:', err);
           }
         }
-
+        
         // ----- helpers -----
         function showAuthMessage(el, msg, type) {
           if (!el) return;
