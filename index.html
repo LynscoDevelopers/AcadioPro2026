@@ -4484,7 +4484,8 @@
               <div class="card">
                 <div class="card-header">
                   <h3 class="card-title"><i class="fas fa-user-graduate"></i> Recent Students</h3>
-                  <button class="card-action" onclick="alert('View All')">
+                  <!-- Recent Students card -->
+                  <button class="card-action" id="viewAllStudents">
                     View All <i class="fas fa-arrow-right"></i>
                   </button>
                 </div>
@@ -4551,7 +4552,8 @@
               <div class="card">
                 <div class="card-header">
                   <h3 class="card-title"><i class="fas fa-money-bill-wave"></i> Recent Payments</h3>
-                  <button class="card-action" onclick="alert('View All')">
+                  <!-- Recent Payments card -->
+                  <button class="card-action" id="viewAllPayments">
                     View All <i class="fas fa-arrow-right"></i>
                   </button>
                 </div>
@@ -6227,6 +6229,132 @@
       };
 
       window.__tabPanels = panels;
+
+      // ============================================================
+      // DASHBOARD NAVIGATION HELPERS
+      // ============================================================
+
+      // Switch tab from inside the page (View All, etc.)
+      // Notifies C# with a source it will honor so the WinForms nav stays in sync.
+      window.goToTabFromDashboard = function (tabId) {
+        const btnList = document.querySelectorAll('.tab-btn');
+        const panelMap = window.__tabPanels;
+        if (!btnList.length || !panelMap || !panelMap[tabId]) return;
+
+        btnList.forEach(t => t.classList.remove('active'));
+        Object.values(panelMap).forEach(p => p && p.classList.remove('active'));
+
+        const btn = Array.from(btnList).find(t => t.getAttribute('data-tab') === tabId);
+        if (btn) btn.classList.add('active');
+        panelMap[tabId].classList.add('active');
+
+        // 🔔 Tell C# (source is NOT 'programmatic', so C# will sync its nav buttons)
+        try {
+          if (window.chrome?.webview?.postMessage) {
+            window.chrome.webview.postMessage({
+              action: 'TAB_CHANGED',
+              tabId: tabId,
+              tabIndex: btn ? Array.from(btnList).indexOf(btn) : -1,
+              tabName: btn ? btn.textContent.trim() : '',
+              source: 'dashboard',
+              timestamp: new Date().toISOString()
+            });
+          }
+        } catch (_) { }
+
+        // Persist for refresh restore
+        try { sessionStorage.setItem('acadia.activeTab', tabId); } catch (_) { }
+
+        closeContextMenu?.();
+      };
+
+      // Wire the two View All buttons
+      document.getElementById('viewAllStudents')?.addEventListener('click', () => {
+        window.goToTabFromDashboard('tab1');   // Students register
+      });
+
+      document.getElementById('viewAllPayments')?.addEventListener('click', () => {
+        window.goToTabFromDashboard('tab6');   // Transactions / Fee payments
+      });
+
+      // ============================================================
+      // OPEN A STUDENT PROFILE FROM ANYWHERE
+      // ============================================================
+      function populateAndOpenProfile(admissionNumber) {
+        if (!admissionNumber) return;
+        if (typeof studentsCache !== 'object' || !studentsCache) {
+          alert('Student data is currently unavailable.');
+          return;
+        }
+
+        const s = studentsCache[admissionNumber] ||
+          studentsCache[admissionNumber.replace(/\s+/g, '')];
+
+        if (!s) {
+          alert(`Student data for ${admissionNumber} is not available.`);
+          return;
+        }
+
+        const set = (id, value, fallback = '') => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (value === null || value === undefined || value === '') {
+            el.textContent = fallback;
+          } else if (typeof value === 'object') {
+            try { el.textContent = JSON.stringify(value); }
+            catch { el.textContent = fallback; }
+          } else {
+            el.textContent = String(value);
+          }
+        };
+
+        const getValue = (...keys) => {
+          for (const key of keys) {
+            const v = s?.[key];
+            if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+          }
+          return '';
+        };
+
+        const formatDate = (dateValue) => {
+          if (!dateValue) return '';
+          try {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return String(dateValue);
+            const day = String(date.getDate()).padStart(2, '0');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'];
+            return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
+          } catch { return String(dateValue); }
+        };
+
+        set('pfl_name', getValue('name', 'studentName'));
+        set('pfl_admn', getValue('admissionNumber', 'admissionNo') || admissionNumber);
+        set('pfl_BirthNo', getValue('idNumber', 'birthCertificateNo', 'birthNo'));
+        set('pfl_DoB', formatDate(getValue('dob', 'dateOfBirth')));
+        set('pfl_nationality', getValue('nationality'));
+        set('pfl_gender', getValue('gender', 'sex'));
+        set('pfl_Religion', getValue('religion'));
+        set('pfl_class', getValue('class', 'grade'));
+
+        set('pfl_guardian_name', getValue('guardian', 'guardianName', 'parentName'));
+        set('pfl_guardian_relationship', getValue('relationship', 'guardianRelationship'));
+        set('pfl_phone', getValue('phone', 'phoneNo', 'guardianPhone'));
+        set('pfl_Email', getValue('email', 'guardianEmail'));
+        set('pfl_Address', getValue('address', 'physicalAddress'));
+
+        if (typeof populateStatement === 'function') {
+          populateStatement(paymentCache, s.admissionNumber || admissionNumber);
+        }
+
+        if (typeof window.openDialog3 === 'function') {
+          window.openDialog3(admissionNumber);
+        }
+      }
+
+      window.viewStudentProfile = populateAndOpenProfile;
+
+
 
       // ============================================================
       // MAIN TAB SWITCHING  (+ notify C# host on every change)
@@ -8483,12 +8611,12 @@
         if (e.ctrlKey && e.key.toLowerCase() === 'p') {
           e.preventDefault();
           if (!selectedPaymentKey) {
-            alert("Please select a payment first.");
+            showToast('Please select a payment first.', 'error');
             return;
           }
           const paymentData = paymentCache[selectedPaymentKey];
           if (!paymentData) {
-            alert("Selected payment data not found.");
+            showToast('Selected payment data not found.', 'error');
             return;
           }
           const admissionNumber = paymentData.admissionNumber;
@@ -11009,14 +11137,15 @@
         const el = id => document.getElementById(id);
         if (!el('statStudents')) return;
 
-        const nonGraduateActiveStudents = Object.values(studentsCache || {}).filter(s => {
-          const cls = String(s.class || '').trim().toLowerCase();
-          const status = String(s.Status || 'Active').trim().toLowerCase();
-          return cls !== 'graduate' && status === 'active';
-        });
+        const nonGraduateStudents = Object.values(studentsCache || {}).filter(
+          s => String(s.class || '').trim().toLowerCase() !== 'graduate'
+        );
 
-        const totalStudents = nonGraduateActiveStudents.length;
-        const activeStudents = totalStudents;   // "Active" stat now matches total
+        const totalStudents = nonGraduateStudents.length;
+
+        const activeStudents = nonGraduateStudents.filter(
+          s => String(s.Status || 'Active').trim().toLowerCase() === 'active'
+        ).length;
 
         let totalAssessments = 0;
         if (typeof window.__getAssessmentsCount === 'function') {
@@ -11068,7 +11197,7 @@
             <td>${student.gender || '—'}</td>
             <td>${formattedDob}</td>
             <td>
-                <button class="action-btn" onclick="alert('View ${admissionNo}')">
+                <button class="action-btn" onclick="viewStudentProfile('${admissionNo}')">
                     <i class="fas fa-eye"></i>
                 </button>
             </td>
