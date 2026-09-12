@@ -7863,6 +7863,122 @@
           return { success: false, count: 0, ids: [], error: error.message };
         }
       };
+      window.openSelectedStudentProfile = async function () {
+        try {
+          // ---- 1) Find the target admission number ----
+          let admissionNumber = null;
+
+          // 1a. Prefer a checked row
+          const checkedBox = document.querySelector(
+            "#register_Tbl tbody .custom-checkbox:checked"
+          );
+          if (checkedBox) {
+            const row = checkedBox.closest('tr');
+            admissionNumber = row?.querySelector('.student-id')?.textContent.trim() || null;
+          }
+
+          // 1b. Fall back to the currently selected (highlighted) row
+          if (!admissionNumber && typeof selectedAdmissionNumber !== 'undefined' && selectedAdmissionNumber) {
+            admissionNumber = selectedAdmissionNumber;
+          }
+
+          // 1c. Fall back to first row
+          if (!admissionNumber) {
+            const firstRow = document.querySelector("#register_Tbl tbody tr");
+            admissionNumber = firstRow?.querySelector('.student-id')?.textContent.trim() || null;
+          }
+
+          if (!admissionNumber) {
+            return { success: false, error: 'No student row available' };
+          }
+
+          // ---- 2) Look up the student in cache ----
+          if (typeof studentsCache !== 'object' || !studentsCache) {
+            return { success: false, error: 'Student cache unavailable' };
+          }
+
+          const s = studentsCache[admissionNumber]
+            || studentsCache[admissionNumber.replace(/\s+/g, '')];
+
+          if (!s || typeof s !== 'object') {
+            return { success: false, error: `Student data not found for ${admissionNumber}` };
+          }
+
+          // ---- 3) Helper functions (same as your dblclick handler) ----
+          const set = (id, value, fallback = '') => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (value === null || value === undefined || value === '') {
+              el.textContent = fallback;
+            } else if (typeof value === 'object') {
+              try { el.textContent = JSON.stringify(value); }
+              catch { el.textContent = fallback; }
+            } else {
+              el.textContent = String(value);
+            }
+          };
+
+          const getValue = (...keys) => {
+            for (const key of keys) {
+              const value = s?.[key];
+              if (value !== undefined && value !== null && String(value).trim() !== '') {
+                return value;
+              }
+            }
+            return '';
+          };
+
+          const formatDate = (dateValue) => {
+            if (!dateValue) return '';
+            try {
+              const date = new Date(dateValue);
+              if (isNaN(date.getTime())) return String(dateValue);
+              const day = String(date.getDate()).padStart(2, '0');
+              const months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+              return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
+            } catch {
+              return String(dateValue);
+            }
+          };
+
+          // ---- 4) Populate bio-data fields ----
+          set("pfl_name", getValue("name", "studentName"));
+          set("pfl_admn", getValue("admissionNumber", "admissionNo") || admissionNumber);
+          set("pfl_BirthNo", getValue("idNumber", "birthCertificateNo", "birthNo"));
+          set("pfl_DoB", formatDate(getValue("dob", "dateOfBirth")));
+          set("pfl_nationality", getValue("nationality"));
+          set("pfl_gender", getValue("gender", "sex"));
+          set("pfl_Religion", getValue("religion"));
+          set("pfl_class", getValue("class", "grade"));
+
+          // ---- 5) Populate guardian fields ----
+          set("pfl_guardian_name", getValue("guardian", "guardianName", "parentName"));
+          set("pfl_guardian_relationship", getValue("relationship", "guardianRelationship"));
+          set("pfl_phone", getValue("phone", "phoneNo", "guardianPhone"));
+          set("pfl_Email", getValue("email", "guardianEmail"));
+          set("pfl_Address", getValue("address", "physicalAddress"));
+
+          // ---- 6) Populate fee statement ----
+          if (typeof populateStatement === 'function') {
+            populateStatement(paymentCache, s.admissionNumber || admissionNumber);
+          }
+
+          // ---- 7) Open the dialog ----
+          if (typeof window.openDialog3 !== 'function') {
+            return { success: false, error: 'Profile dialog unavailable' };
+          }
+
+          window.openDialog3(admissionNumber);
+
+          console.log('[Profile] Opened for', admissionNumber);
+          return { success: true, admissionNumber };
+
+        } catch (error) {
+          console.error('openSelectedStudentProfile failed:', error);
+          return { success: false, error: error.message };
+        }
+      };
 
       // ============================================================
       // AUTO-GENERATE ADMISSION NUMBER
