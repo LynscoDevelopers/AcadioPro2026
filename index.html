@@ -5796,8 +5796,67 @@
       function closeDialog() {
         overlay.classList.remove('active');
         document.body.style.overflow = '';
+
+        // Clear stale form state so the next open is always clean
+        setTimeout(() => {
+          if (!overlay.classList.contains('active')) {
+            resetStudentForm();
+          }
+        }, 200);   // matches the overlay close transition
+
         if (openBtn) openBtn.focus();
       }
+
+      function resetStudentForm() {
+        const root = document.getElementById('dialogOverlay');
+        if (!root) return;
+
+        // Text / date / number / tel / email inputs + textareas
+        root.querySelectorAll('.form-input, textarea.form-input').forEach(input => {
+          if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+          } else if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+          } else if (input.id === 'admissionNumber') {
+            input.value = '';
+            input.disabled = false;
+          } else {
+            input.value = '';
+          }
+        });
+
+        // Radio groups
+        root.querySelectorAll('input[name="gender"]').forEach(r => (r.checked = false));
+
+        // Image upload placeholder (if you ever swap it)
+        const box = document.getElementById('imageUploadBox');
+        if (box && !box.querySelector('.image-placeholder')) {
+          box.innerHTML = `
+      <div class="image-placeholder">
+        <span>📸</span>
+        <p>Click to upload</p>
+      </div>
+      <input type="file" id="studentImage" accept="image/*" style="display: none;">`;
+        }
+
+        // Auto-generate back to ON
+        const auto = document.getElementById('autoGenerate');
+        if (auto) {
+          auto.checked = true;
+          auto.disabled = false;
+        }
+
+        // Switch back to Personal Info tab
+        switchDialogTab(0);
+
+        // Restore the button label
+        const btn = document.getElementById('saveStudent');
+        if (btn) btn.textContent = 'Complete';
+      }
+
+      // Make it callable from anywhere
+      window.resetStudentForm = resetStudentForm;
+
 
       window.openDialog2 = function () {
         switchDialogTab2(0);
@@ -6230,9 +6289,19 @@
 
 
       // ============================================================
-      // SAVE / UPDATE STUDENT
+      // SAVE / UPDATE STUDENT  (double-click safe)
       // ============================================================
-      document.getElementById("saveStudent")?.addEventListener("click", async () => {
+      let _studentSaveInProgress = false;
+
+      document.getElementById("saveStudent")?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // ---- 1) Hard guard against double-click ----
+        if (_studentSaveInProgress) return;
+
+        const saveBtn = document.getElementById("saveStudent");
+
         const name = document.getElementById("studentName").value.trim();
         const admissionNumber = document.getElementById("admissionNumber").value.trim();
 
@@ -6242,6 +6311,14 @@
         const genderEl = document.querySelector('input[name="gender"]:checked');
         const admissionKey = admissionNumber.replace(/\//g, "-");
         const studentRef = ref(db, `Institution/ Revival/Students/${admissionKey}`);
+
+        // ---- 2) Lock the UI ----
+        _studentSaveInProgress = true;
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.dataset.originalText = saveBtn.innerHTML;
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        }
 
         try {
           const snapshot = await get(studentRef);
@@ -6268,16 +6345,34 @@
           };
 
           await set(studentRef, studentData);
+
+          // ---- 3) Close dialog FIRST, then refresh UI on next tick ----
           closeDialog();
-          if (typeof window.forceUIRefreshAfterWrite === 'function') {
-            window.forceUIRefreshAfterWrite();
-          }
+
+          // Defer the heavy refresh so the dialog close animation finishes
+          // and the browser has a free frame. Prevents the "frozen on reopen" bug.
+          setTimeout(() => {
+            try {
+              if (typeof window.forceUIRefreshAfterWrite === 'function') {
+                window.forceUIRefreshAfterWrite();
+              }
+            } catch (err) {
+              console.warn('Deferred UI refresh failed:', err);
+            }
+          }, 0);
+
         } catch (error) {
           console.error(error);
           alert("Failed to save student:\n" + error.message);
+        } finally {
+          // ---- 4) Always unlock ----
+          _studentSaveInProgress = false;
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = saveBtn.dataset.originalText || 'Complete';
+          }
         }
       });
-
       // ============================================================
       // SAVE PAYMENT
       // ============================================================
