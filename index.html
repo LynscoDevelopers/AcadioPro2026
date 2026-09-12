@@ -7731,30 +7731,41 @@
       };
 
       window.getCheckedStudentAndPopulateFee = function () {
-        const checked = document.querySelectorAll("#FeeBalanceList tbody .custom-checkbox:checked");
-        if (checked.length > 1) {
-          alert("Select only one student.");
-          return null;
-        }
+        // ---- 1) Get checked rows ----
+        const checked = document.querySelectorAll(
+          "#FeeBalanceList tbody .custom-checkbox:checked"
+        );
+
+        // 0 checked → do nothing
         if (checked.length === 0) {
-          if (typeof window.openDialog2 === "function") window.openDialog2();
-          return null;
+          return { success: false, error: 'No student selected' };
         }
+
+        // 2+ checked → do nothing
+        if (checked.length > 1) {
+          return { success: false, error: 'Select only one student' };
+        }
+
+        // ---- 2) Get admission number ----
         const row = checked[0].closest("tr");
         const admissionNumber = row?.querySelector(".student-id")?.textContent.trim();
+
         if (!admissionNumber) {
-          if (typeof window.openDialog2 === "function") window.openDialog2();
-          return null;
+          return { success: false, error: 'Admission number not found' };
         }
+
+        // ---- 3) Look up the student ----
         const s = studentsCache?.[admissionNumber];
         if (!s) {
-          if (typeof window.openDialog2 === "function") window.openDialog2();
-          return null;
+          return { success: false, error: `Student not found: ${admissionNumber}` };
         }
+
+        // ---- 4) Populate all Fn_* fields ----
         const set = (id, val) => {
           const el = document.getElementById(id);
           if (el) el.textContent = val ?? "";
         };
+
         set("Fn_Name", s.name);
         set("Fn_Grade", s.class);
         set("Fn_Admn", s.admissionNumber || admissionNumber);
@@ -7762,11 +7773,20 @@
         set("Fn_CurrentBalance", getCurrent(admissionNumber));
         set("Fn_studentExceptions", studentExceptions(admissionNumber));
         set("Fn_studentgetBalanceBefore", getBalanceBefore(admissionNumber));
-        populateFeePaymentHistory(paymentCache, admissionNumber);
-        if (typeof window.openDialog2 === "function") window.openDialog2(admissionNumber);
-        return s;
-      };
 
+        if (typeof populateFeePaymentHistory === "function") {
+          populateFeePaymentHistory(paymentCache, admissionNumber);
+        }
+
+        // ---- 5) Open the dialog ----
+        if (typeof window.openDialog2 !== "function") {
+          return { success: false, error: 'Fee dialog unavailable' };
+        }
+
+        window.openDialog2(admissionNumber);
+
+        return { success: true, admissionNumber };
+      };
       function selectStudentForFee(admissionNumber) {
         if (!admissionNumber) return alert("Admission number not found.");
         const s = studentsCache[admissionNumber];
@@ -7865,34 +7885,30 @@
       };
       window.openSelectedStudentProfile = async function () {
         try {
-          // ---- 1) Find the target admission number ----
-          let admissionNumber = null;
-
-          // 1a. Prefer a checked row
-          const checkedBox = document.querySelector(
+          // ---- 1) Get checked rows ----
+          const checked = document.querySelectorAll(
             "#register_Tbl tbody .custom-checkbox:checked"
           );
-          if (checkedBox) {
-            const row = checkedBox.closest('tr');
-            admissionNumber = row?.querySelector('.student-id')?.textContent.trim() || null;
+
+          // 0 checked → do nothing
+          if (checked.length === 0) {
+            return { success: false, error: 'No student selected' };
           }
 
-          // 1b. Fall back to the currently selected (highlighted) row
-          if (!admissionNumber && typeof selectedAdmissionNumber !== 'undefined' && selectedAdmissionNumber) {
-            admissionNumber = selectedAdmissionNumber;
+          // 2+ checked → do nothing
+          if (checked.length > 1) {
+            return { success: false, error: 'Select only one student' };
           }
 
-          // 1c. Fall back to first row
+          // ---- 2) Get admission number from the single checked row ----
+          const row = checked[0].closest('tr');
+          const admissionNumber = row?.querySelector('.student-id')?.textContent.trim();
+
           if (!admissionNumber) {
-            const firstRow = document.querySelector("#register_Tbl tbody tr");
-            admissionNumber = firstRow?.querySelector('.student-id')?.textContent.trim() || null;
+            return { success: false, error: 'Admission number not found' };
           }
 
-          if (!admissionNumber) {
-            return { success: false, error: 'No student row available' };
-          }
-
-          // ---- 2) Look up the student in cache ----
+          // ---- 3) Look up the student ----
           if (typeof studentsCache !== 'object' || !studentsCache) {
             return { success: false, error: 'Student cache unavailable' };
           }
@@ -7901,10 +7917,10 @@
             || studentsCache[admissionNumber.replace(/\s+/g, '')];
 
           if (!s || typeof s !== 'object') {
-            return { success: false, error: `Student data not found for ${admissionNumber}` };
+            return { success: false, error: `Student not found: ${admissionNumber}` };
           }
 
-          // ---- 3) Helper functions (same as your dblclick handler) ----
+          // ---- 4) Helpers ----
           const set = (id, value, fallback = '') => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -7942,7 +7958,7 @@
             }
           };
 
-          // ---- 4) Populate bio-data fields ----
+          // ---- 5) Populate bio-data ----
           set("pfl_name", getValue("name", "studentName"));
           set("pfl_admn", getValue("admissionNumber", "admissionNo") || admissionNumber);
           set("pfl_BirthNo", getValue("idNumber", "birthCertificateNo", "birthNo"));
@@ -7952,19 +7968,19 @@
           set("pfl_Religion", getValue("religion"));
           set("pfl_class", getValue("class", "grade"));
 
-          // ---- 5) Populate guardian fields ----
+          // ---- 6) Populate guardian info ----
           set("pfl_guardian_name", getValue("guardian", "guardianName", "parentName"));
           set("pfl_guardian_relationship", getValue("relationship", "guardianRelationship"));
           set("pfl_phone", getValue("phone", "phoneNo", "guardianPhone"));
           set("pfl_Email", getValue("email", "guardianEmail"));
           set("pfl_Address", getValue("address", "physicalAddress"));
 
-          // ---- 6) Populate fee statement ----
+          // ---- 7) Fee statement ----
           if (typeof populateStatement === 'function') {
             populateStatement(paymentCache, s.admissionNumber || admissionNumber);
           }
 
-          // ---- 7) Open the dialog ----
+          // ---- 8) Open the dialog ----
           if (typeof window.openDialog3 !== 'function') {
             return { success: false, error: 'Profile dialog unavailable' };
           }
@@ -7979,7 +7995,6 @@
           return { success: false, error: error.message };
         }
       };
-
       // ============================================================
       // AUTO-GENERATE ADMISSION NUMBER
       // ============================================================
