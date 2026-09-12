@@ -7786,6 +7786,84 @@
         window.openDialog2(admissionNumber);
       }
 
+      window.updateCheckedStudentsStatus = async function (newStatus) {
+        try {
+          // ---- 1) Validate input ----
+          if (typeof newStatus !== 'string' || !newStatus.trim()) {
+            return { success: false, count: 0, ids: [], error: 'Invalid status value' };
+          }
+          const statusValue = newStatus.trim();
+
+          // ---- 2) Collect checked rows ----
+          const checked = document.querySelectorAll(
+            "#register_Tbl tbody .custom-checkbox:checked"
+          );
+
+          if (checked.length === 0) {
+            return { success: false, count: 0, ids: [], error: 'No rows selected' };
+          }
+
+          // ---- 3) Extract admission numbers ----
+          const studentsToUpdate = [];
+          checked.forEach(cb => {
+            const row = cb.closest('tr');
+            if (!row) return;
+
+            const admissionNumber = row.querySelector('.student-id')?.textContent.trim();
+            if (!admissionNumber) return;
+
+            // Firebase keys use dashes instead of slashes
+            const key = admissionNumber.replace(/\//g, '-');
+
+            studentsToUpdate.push({ admissionNumber, key });
+          });
+
+          if (studentsToUpdate.length === 0) {
+            return { success: false, count: 0, ids: [], error: 'No valid students' };
+          }
+
+          // ---- 4) Build the batch update payload ----
+          const updates = {};
+          studentsToUpdate.forEach(({ key }) => {
+            updates[`Institution/ Revival/Students/${key}/Status`] = statusValue;
+          });
+
+          // ---- 5) Push to Firebase (atomic) ----
+          await update(ref(db), updates);
+
+          // ---- 6) Sync local cache so the UI reflects the change instantly ----
+          studentsToUpdate.forEach(({ admissionNumber, key }) => {
+            if (studentsCache[admissionNumber]) {
+              studentsCache[admissionNumber].Status = statusValue;
+            }
+            if (studentsCache[key]) {
+              studentsCache[key].Status = statusValue;
+            }
+          });
+
+          // ---- 7) Clear the checkboxes ----
+          checked.forEach(cb => { cb.checked = false; });
+
+          // ---- 8) Refresh UI ----
+          if (typeof window.forceUIRefreshAfterWrite === 'function') {
+            window.forceUIRefreshAfterWrite();
+          }
+
+          console.log('[Status Update]', statusValue, studentsToUpdate.map(s => s.admissionNumber));
+
+          return {
+            success: true,
+            count: studentsToUpdate.length,
+            ids: studentsToUpdate.map(s => s.admissionNumber),
+            status: statusValue
+          };
+
+        } catch (error) {
+          console.error('updateCheckedStudentsStatus failed:', error);
+          return { success: false, count: 0, ids: [], error: error.message };
+        }
+      };
+
       // ============================================================
       // AUTO-GENERATE ADMISSION NUMBER
       // ============================================================
@@ -10847,7 +10925,7 @@
             console.warn('[C# signal] postMessage failed:', err);
           }
         }
-        
+
         // ----- helpers -----
         function showAuthMessage(el, msg, type) {
           if (!el) return;
