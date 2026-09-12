@@ -6288,6 +6288,7 @@
       // Switch tab from inside the page (View All, etc.)
       // Notifies C# with a source it will honor so the WinForms nav stays in sync.
       window.goToTabFromDashboard = function (tabId) {
+         closeAllDialogs(); 
         const btnList = document.querySelectorAll('.tab-btn');
         const panelMap = window.__tabPanels;
         if (!btnList.length || !panelMap || !panelMap[tabId]) return;
@@ -6488,6 +6489,7 @@
       });
 
       window.switchTab = function (tabId) {
+         closeAllDialogs(); 
         tabx.forEach(t => t.classList.remove('active'));
         Object.values(panelsx).forEach(p => {
           if (p) p.classList.remove('active');
