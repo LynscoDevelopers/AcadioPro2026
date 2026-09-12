@@ -6198,15 +6198,18 @@
       // ---- Notify the C# host which tab is now active ----
       function notifyTabChanged(tabId, source = 'user') {
         try {
+          // 👇 persist the current tab so it survives a refresh
+          try { sessionStorage.setItem('acadia.activeTab', tabId); } catch (_) { }
+
           const allTabs = Array.from(document.querySelectorAll('.tab-btn'));
           const btn = allTabs.find(t => t.getAttribute('data-tab') === tabId);
 
           const payload = {
             action: 'TAB_CHANGED',
-            tabId: tabId,                              // "tab0" ... "tab6"
-            tabIndex: btn ? allTabs.indexOf(btn) : -1,    // 0-based index
-            tabName: btn ? btn.textContent.trim() : '',  // "Dashboard", "Register", ...
-            source: source,                             // 'user' | 'programmatic' | 'initial'
+            tabId: tabId,
+            tabIndex: btn ? allTabs.indexOf(btn) : -1,
+            tabName: btn ? btn.textContent.trim() : '',
+            source: source,
             timestamp: new Date().toISOString()
           };
 
@@ -6220,7 +6223,6 @@
           console.warn('notifyTabChanged failed:', err);
         }
       }
-
       const tabx = document.querySelectorAll('.tab-btn');
       const panelsx = {
         tab0: document.getElementById('tab0'),
@@ -6281,8 +6283,33 @@
         return active ? active.getAttribute('data-tab') : null;
       };
 
-      // 🔔 announce the initial tab once the DOM is ready
+      // 🔔 announce the initial tab once the DOM is ready,
+      //    and restore the previously active tab after a refresh
       document.addEventListener('DOMContentLoaded', function () {
+
+        // ---- 1) Was a tab saved before the refresh? ----
+        let savedTab = null;
+        try { savedTab = sessionStorage.getItem('acadia.activeTab'); } catch (_) { }
+
+        if (savedTab && panelsx[savedTab]) {
+
+          // Manually move active state — we don't call switchTab() here because
+          // that would emit a 'programmatic' notification. We want 'restored'.
+          tabx.forEach(t => t.classList.remove('active'));
+          Object.values(panelsx).forEach(p => p && p.classList.remove('active'));
+
+          const btn = Array.from(tabx).find(t => t.getAttribute('data-tab') === savedTab);
+          if (btn) btn.classList.add('active');
+          panelsx[savedTab].classList.add('active');
+
+          // Tell C# the tab was restored so it can highlight its own nav buttons
+          notifyTabChanged(savedTab, 'restored');
+
+          console.log('[Tab restore] restored to', savedTab);
+          return;
+        }
+
+        // ---- 2) No saved tab → normal initial state (Dashboard) ----
         const active = document.querySelector('.tab-btn.active');
         if (active) notifyTabChanged(active.getAttribute('data-tab'), 'initial');
       });
