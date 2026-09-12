@@ -9009,24 +9009,30 @@
             return;
           }
 
-          students = Object.entries(studentsCache).map(([key, s]) => {
-            const fullClass = String(s.class || '').trim() || 'Unknown';
-            const gradeParts = fullClass.split(' - ');
-            const grade = gradeParts[0].trim() || 'Unknown';
-            const stream = gradeParts.length > 1 ? gradeParts[1].trim() : '';
+          students = Object.entries(studentsCache)
+            // 🚫 skip graduated students and inactive students everywhere in assessments
+            .filter(([key, s]) => {
+              const cls = String(s.class || '').trim().toLowerCase();
+              const status = String(s.Status || 'Active').trim().toLowerCase();
+              return cls !== 'graduate' && status === 'active';
+            })
+            .map(([key, s]) => {
+              const fullClass = String(s.class || '').trim() || 'Unknown';
+              const gradeParts = fullClass.split(' - ');
+              const grade = gradeParts[0].trim() || 'Unknown';
+              const stream = gradeParts.length > 1 ? gradeParts[1].trim() : '';
 
-            return {
-              id: s.admissionNumber || key.replace(/-/g, '/'),
-              name: s.name || 'Unknown',
-              grade: grade,
-              stream: stream,
-              fullClass: fullClass,
-              admissionNumber: s.admissionNumber || key.replace(/-/g, '/'),
-              status: String(s.Status || 'Active').trim()   // ← NEW
-            };
-          });
+              return {
+                id: s.admissionNumber || key.replace(/-/g, '/'),
+                name: s.name || 'Unknown',
+                grade: grade,
+                stream: stream,
+                fullClass: fullClass,
+                admissionNumber: s.admissionNumber || key.replace(/-/g, '/'),
+                status: String(s.Status || 'Active').trim()
+              };
+            });
         }
-
         // ---------- LOAD ASSESSMENTS FROM FIREBASE ----------
         async function loadAssessmentsFromFirebase() {
           try {
@@ -11003,15 +11009,14 @@
         const el = id => document.getElementById(id);
         if (!el('statStudents')) return;
 
-        const nonGraduateStudents = Object.values(studentsCache || {}).filter(
-          s => String(s.class || '').trim().toLowerCase() !== 'graduate'
-        );
+        const nonGraduateActiveStudents = Object.values(studentsCache || {}).filter(s => {
+          const cls = String(s.class || '').trim().toLowerCase();
+          const status = String(s.Status || 'Active').trim().toLowerCase();
+          return cls !== 'graduate' && status === 'active';
+        });
 
-        const totalStudents = nonGraduateStudents.length;
-
-        const activeStudents = nonGraduateStudents.filter(
-          s => String(s.Status || '').trim().toLowerCase() !== 'inactive'
-        ).length;
+        const totalStudents = nonGraduateActiveStudents.length;
+        const activeStudents = totalStudents;   // "Active" stat now matches total
 
         let totalAssessments = 0;
         if (typeof window.__getAssessmentsCount === 'function') {
