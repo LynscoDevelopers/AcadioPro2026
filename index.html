@@ -6952,6 +6952,42 @@
       });
 
       // ============================================================
+      // PRINT STUDENTS IN THE CURRENTLY-VIEWED CLASS
+      // ============================================================
+      function printClassStudents() {
+        const ctx = window.__currentClassStudentsContext;
+        if (!ctx || !ctx.students || ctx.students.length === 0) {
+          alert('No students in this class to print.');
+          return;
+        }
+
+        const studentsList = ctx.students.map(s => ({
+          Admission_No: s.admissionNumber || s.key || '',
+          Name: s.name || '',
+          Gender: s.gender || '',
+          Grade: s.class || ctx.label || '',
+          Phone: s.phone || '',
+          Status: s.Status || ''
+        }));
+
+        // Same sort order as the class roster (by name, then admission no)
+        studentsList.sort((a, b) => {
+          const n = (a.Name || '').toLowerCase().localeCompare((b.Name || '').toLowerCase());
+          if (n !== 0) return n;
+          return (a.Admission_No || '').localeCompare(b.Admission_No || '');
+        });
+
+        if (window.chrome?.webview?.postMessage) {
+          window.chrome.webview.postMessage({
+            action: 'PRINT_STUDENTS_LIST',
+            title: `STUDENTS — ${ctx.label}`,
+            students: studentsList
+          });
+        } else {
+          console.log('[no host] Would print:', studentsList);
+        }
+      }
+      // ============================================================
       // HELPER FUNCTIONS FOR CALCULATIONS
       // ============================================================
       async function updateStudentField(admissionNumber, fieldName, fieldValue) {
@@ -8145,6 +8181,39 @@
           body.innerHTML = html;
         }
 
+
+        // ---- Append the print link footer (right-aligned) ----
+        const footerId = 'classStudentsFooter';
+        let footer = document.getElementById(footerId);
+        if (!footer) {
+          footer = document.createElement('div');
+          footer.id = footerId;
+          footer.style.cssText = 'text-align:right; margin-top:12px; border-top:1px solid #e5e7eb; padding-top:10px;';
+          document.getElementById('classStudentsBody').insertAdjacentElement('afterend', footer);
+        }
+
+        // Save the current class label so the print function knows what to print
+        window.__currentClassStudentsContext = {
+          label: fullLabel,
+          students: matched
+        };
+
+        footer.innerHTML = `
+        <button type="button" id="printClassStudents"
+          style="background:none; border:none; padding:0; cursor:pointer;
+                color:#2a7de1; font-size:0.85rem; font-weight:600;
+                font-family:inherit; text-decoration:underline;">
+          📬 Print this class
+        </button>
+      `;
+
+        footer.querySelector('#printClassStudents').addEventListener('click', () => {
+          printClassStudents();
+        });
+
+
+
+
         const el = document.getElementById('classStudentsModal');
         if (el) {
           el.style.display = '';
@@ -8153,9 +8222,12 @@
       };
 
       window.closeClassStudentsModal = function () {
-        document.getElementById('classStudentsModal').classList.remove('active');
+        const el = document.getElementById('classStudentsModal');
+        if (!el) return;
+        el.classList.remove('active');
+        el.style.display = '';
+        window.__currentClassStudentsContext = null;   // ← clear context
       };
-
 
       function renderGradeFees(grades) {
         gradeFeesContainer.innerHTML = '';
@@ -8165,10 +8237,10 @@
           const row = document.createElement('div');
           row.className = 'grade-fee-row';
           row.innerHTML = `
-    <label>${displayGrade}</label>
-    <input type="number" step="0.01" class="grade-fee-input" data-grade="${grade}" value="${fee}" />
-    <button type="button" class="btn-remove-grade" data-grade="${grade}">✕</button>
-  `;
+            <label>${displayGrade}</label>
+            <input type="number" step="0.01" class="grade-fee-input" data-grade="${grade}" value="${fee}" />
+            <button type="button" class="btn-remove-grade" data-grade="${grade}">✕</button>
+          `;
           gradeFeesContainer.appendChild(row);
         }
         gradeFeesContainer.querySelectorAll('.btn-remove-grade').forEach(btn => {
