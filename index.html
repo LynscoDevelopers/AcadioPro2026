@@ -4725,6 +4725,25 @@
 
           </div>
         </div>
+      
+        <!-- Students-in-class modal -->
+<div class="modal-overlay" id="classStudentsModal">
+  <div class="modal-content" style="max-width: 720px;">
+    <button class="modal-close" onclick="closeClassStudentsModal()">×</button>
+
+    <h2 style="margin-bottom: .25rem;">
+      <i class="fas fa-users"></i> Students in class
+    </h2>
+    <div id="classStudentsLabel"
+         style="color:#6b7e93; font-size:.9rem; margin-bottom:1rem;">
+    </div>
+
+    <div id="classStudentsBody"
+         style="max-height:60vh; overflow-y:auto;">
+    </div>
+  </div>
+</div>
+      
       </div>
 
       <!-- Tab 4: Empty -->
@@ -6772,26 +6791,56 @@
       // SAVE CLASS DETAILS
       // ============================================================
       document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
-        const classData = {
-          grade: document.getElementById('gradeInput').value,
-          stream: document.getElementById('streamInput').value,
+        const saveBtn = document.getElementById("saveClass_Details");
+        if (saveBtn) saveBtn.disabled = true;
+
+        const classDataObj = {
+          grade: document.getElementById('gradeInput').value.trim(),
+          stream: document.getElementById('streamInput').value.trim(),
           capacity: document.getElementById('capacityInput').value,
-          teacher: document.getElementById('teacherInput').value,
-          room: document.getElementById('roomInput').value
+          teacher: document.getElementById('teacherInput').value.trim(),
+          room: document.getElementById('roomInput').value.trim()
         };
 
+        // Basic validation
+        if (!classDataObj.grade || !classDataObj.stream) {
+          alert('Grade and stream are required.');
+          if (saveBtn) saveBtn.disabled = false;
+          return;
+        }
+
         try {
-          await push(ref(db, `Institution/ Revival/classes/`), classData);
-          modalOverlay.classList.remove('active');
+          if (editingClassKey) {
+            // ---- UPDATE ----
+            await update(
+              ref(db, `Institution/ Revival/classes/${editingClassKey}`),
+              classDataObj
+            );
+          } else {
+            // ---- ADD ----
+            await push(ref(db, `Institution/ Revival/classes/`), classDataObj);
+          }
+
+          editingClassKey = null;
+
+          // Reset modal + close
+          document.getElementById('classForm').reset();
+          document.getElementById('modalOverlay').classList.remove('active');
+
+          const title = document.querySelector('#modalOverlay .modal-header h2');
+          if (title) title.innerHTML = '<i class="fas fa-plus-circle"></i> New class';
+          if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Add class';
+
           if (typeof window.forceUIRefreshAfterWrite === 'function') {
             window.forceUIRefreshAfterWrite();
           }
-        } catch (error) {
-          console.error(error);
-          alert("Failed to save Class Details:\n" + error.message);
+        } catch (err) {
+          console.error('Save class failed:', err);
+          alert('Failed to save class details:\n' + err.message);
+        } finally {
+          if (saveBtn) saveBtn.disabled = false;
         }
       });
-
       // ============================================================
       // PRINT FUNCTIONS
       // ============================================================
@@ -7732,7 +7781,8 @@
 
       onValue(classRef, (snapshot) => {
         if (snapshot.exists()) {
-          classData = Object.values(snapshot.val()).map(data => ({
+          classData = Object.entries(snapshot.val()).map(([key, data]) => ({
+            key: key,                                   // ← NEW: firebase push key
             grade: data.grade || '',
             stream: data.stream || '',
             room: data.room || '',
@@ -7752,53 +7802,81 @@
       function renderClasses(classes) {
         if (!grid) return;
         grid.innerHTML = '';
+
+        if (!classes || classes.length === 0) {
+          grid.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-chalkboard"></i>
+        <p>No classes yet. Click <strong>"Add class"</strong> to create one.</p>
+      </div>`;
+          return;
+        }
+
         classes.forEach(cls => {
+          const teacherShort = (cls.teacher || '').trim().split(' ').slice(-1)[0] || '—';
+
           const card = document.createElement('div');
           card.className = 'class-card';
-          const headerDiv = document.createElement('div');
-          headerDiv.className = 'class-header';
-          const gradeStreamDiv = document.createElement('div');
-          gradeStreamDiv.className = 'grade-stream';
-          const gradeSpan = document.createElement('span');
-          gradeSpan.className = 'grade';
-          gradeSpan.textContent = cls.grade;
-          const streamSpan = document.createElement('span');
-          streamSpan.className = 'stream';
-          streamSpan.textContent = cls.stream;
-          gradeStreamDiv.appendChild(gradeSpan);
-          gradeStreamDiv.appendChild(streamSpan);
-          const teacherBadge = document.createElement('div');
-          teacherBadge.className = 'teacher-badge';
-          teacherBadge.innerHTML = `<i class="fas fa-user-graduate"></i> ${cls.teacher.split(' ').slice(-1)[0]}`;
-          headerDiv.appendChild(gradeStreamDiv);
-          headerDiv.appendChild(teacherBadge);
-          card.appendChild(headerDiv);
-          const detailsDiv = document.createElement('div');
-          detailsDiv.className = 'class-details';
-          const roomRow = document.createElement('div');
-          roomRow.className = 'detail-row';
-          roomRow.innerHTML = `<i class="fas fa-door-open"></i><span class="detail-label">Room</span><span class="detail-value">${cls.room}</span>`;
-          detailsDiv.appendChild(roomRow);
-          const capacityRow = document.createElement('div');
-          capacityRow.className = 'detail-row';
-          capacityRow.innerHTML = `<i class="fas fa-user-friends"></i><span class="detail-label">Capacity</span><span class="detail-value">${cls.capacity}</span>`;
-          detailsDiv.appendChild(capacityRow);
-          const teacherRow = document.createElement('div');
-          teacherRow.className = 'detail-row';
-          teacherRow.innerHTML = `<i class="fas fa-chalkboard-teacher"></i><span class="detail-label">Teacher</span><span class="detail-value">${cls.teacher}</span>`;
-          detailsDiv.appendChild(teacherRow);
-          card.appendChild(detailsDiv);
-          const footerDiv = document.createElement('div');
-          footerDiv.className = 'class-footer';
-          const teacherChip = document.createElement('div');
-          teacherChip.className = 'class-teacher';
-          teacherChip.innerHTML = `<i class="fas fa-user-tie"></i> ${cls.teacher}`;
-          footerDiv.appendChild(teacherChip);
-          card.appendChild(footerDiv);
+          card.dataset.key = cls.key;
+
+          card.innerHTML = `
+      <div class="class-header">
+        <div class="grade-stream">
+          <span class="grade">${cls.grade}</span>
+          <span class="stream">${cls.stream}</span>
+        </div>
+        <div class="teacher-badge">
+          <i class="fas fa-user-graduate"></i> ${teacherShort}
+        </div>
+      </div>
+
+      <div class="class-details">
+        <div class="detail-row">
+          <i class="fas fa-door-open"></i>
+          <span class="detail-label">Room</span>
+          <span class="detail-value">${cls.room || '—'}</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-user-friends"></i>
+          <span class="detail-label">Capacity</span>
+          <span class="detail-value">${cls.capacity || 0}</span>
+        </div>
+        <div class="detail-row">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <span class="detail-label">Teacher</span>
+          <span class="detail-value">${cls.teacher || '—'}</span>
+        </div>
+      </div>
+
+      <div class="class-actions" style="
+        display:flex; gap:6px; padding:10px 12px;
+        border-top:1px solid var(--border); flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" data-action="view">
+          <i class="fas fa-users"></i> Students
+        </button>
+        <button class="btn btn-outline btn-sm" data-action="edit">
+          <i class="fas fa-pen"></i> Edit
+        </button>
+        <button class="btn btn-danger btn-sm" data-action="delete">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    `;
+
+          // Wire per-card actions
+          card.querySelector('[data-action="view"]').addEventListener('click', () => {
+            viewClassStudents(cls.key);
+          });
+          card.querySelector('[data-action="edit"]').addEventListener('click', () => {
+            openClassModalForEdit(cls.key);
+          });
+          card.querySelector('[data-action="delete"]').addEventListener('click', () => {
+            deleteClass(cls.key);
+          });
+
           grid.appendChild(card);
         });
       }
-
       function populateClassSelect(classData) {
         const select = document.getElementById('studentClass');
         const select2 = document.getElementById('assessment-grade');
@@ -7905,6 +7983,159 @@
         modal.classList.remove('active');
         editingIndex = -1;
       }
+
+
+      // ============================================================
+      // CLASS MODAL — ADD / EDIT / DELETE
+      // ============================================================
+
+      let editingClassKey = null;   // null = add mode, string = edit mode
+
+      // ---- Open modal in EDIT mode ----
+      window.openClassModalForEdit = function (key) {
+        const cls = classData.find(c => c.key === key);
+        if (!cls) return;
+
+        editingClassKey = key;
+
+        document.getElementById('gradeInput').value = cls.grade || '';
+        document.getElementById('streamInput').value = cls.stream || '';
+        document.getElementById('capacityInput').value = cls.capacity || '';
+        document.getElementById('teacherInput').value = cls.teacher || '';
+        document.getElementById('roomInput').value = cls.room || '';
+
+        // Swap button label
+        const saveBtn = document.getElementById('saveClass_Details');
+        if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Update class';
+
+        // Swap modal title (if you have an h2 inside it)
+        const title = document.querySelector('#modalOverlay .modal-header h2');
+        if (title) title.innerHTML = '<i class="fas fa-pen"></i> Edit class';
+
+        document.getElementById('modalOverlay').classList.add('active');
+      };
+
+      // ---- Open modal in ADD mode (resets everything) ----
+      function openClassModalForAdd() {
+        editingClassKey = null;
+
+        document.getElementById('gradeInput').value = '';
+        document.getElementById('streamInput').value = '';
+        document.getElementById('capacityInput').value = '';
+        document.getElementById('teacherInput').value = '';
+        document.getElementById('roomInput').value = '';
+
+        const saveBtn = document.getElementById('saveClass_Details');
+        if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Add class';
+
+        const title = document.querySelector('#modalOverlay .modal-header h2');
+        if (title) title.innerHTML = '<i class="fas fa-plus-circle"></i> New class';
+
+        document.getElementById('modalOverlay').classList.add('active');
+      }
+
+      // ---- Delete a class ----
+      window.deleteClass = async function (key) {
+        const cls = classData.find(c => c.key === key);
+        if (!cls) return;
+
+        const label = `${cls.grade}${cls.stream ? ' - ' + cls.stream : ''}`;
+        if (!confirm(`Delete class "${label}"?\n\nStudents already assigned to it will keep their class value until you reassign them.`)) {
+          return;
+        }
+
+        try {
+          await remove(ref(db, `Institution/ Revival/classes/${key}`));
+          if (typeof window.forceUIRefreshAfterWrite === 'function') {
+            window.forceUIRefreshAfterWrite();
+          }
+        } catch (err) {
+          console.error('Delete class failed:', err);
+          alert('Failed to delete class:\n' + err.message);
+        }
+      };
+
+      // ---- View students in a class ----
+      window.viewClassStudents = function (key) {
+        const cls = classData.find(c => c.key === key);
+        if (!cls) return;
+
+        // Match either "Grade 1 - Alpha" or just "Grade 1"
+        const fullLabel = cls.stream ? `${cls.grade} - ${cls.stream}` : cls.grade;
+        const labelOnly = cls.grade;
+
+        const matched = Object.entries(studentsCache || {})
+          .filter(([key, s]) => {
+            const sc = String(s.class || '').trim();
+            return sc === fullLabel || (!cls.stream && sc === labelOnly);
+          })
+          .map(([key, s]) => ({ key, ...s }))
+          // sort by name
+          .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+        // Build modal body
+        const body = document.getElementById('classStudentsBody');
+        const headerLabel = document.getElementById('classStudentsLabel');
+        if (headerLabel) {
+          headerLabel.textContent = `${fullLabel} — ${matched.length} student${matched.length === 1 ? '' : 's'}`;
+        }
+
+        if (matched.length === 0) {
+          body.innerHTML = `
+      <div style="text-align:center; padding:2rem; color:#6b7e93;">
+        <i class="fas fa-user-slash" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
+        No students in this class yet.
+      </div>`;
+        } else {
+          let html = `
+      <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+        <thead>
+          <tr style="text-align:left; border-bottom:1px solid var(--border);">
+            <th style="padding:6px 8px;">#</th>
+            <th style="padding:6px 8px;">Student</th>
+            <th style="padding:6px 8px;">Admission No.</th>
+            <th style="padding:6px 8px;">Gender</th>
+            <th style="padding:6px 8px;">Status</th>
+            <th style="padding:6px 8px;"></th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+          matched.forEach((s, i) => {
+            const statusText = s.Status || 'Active';
+            const statusClass = statusText.toLowerCase() === 'inactive'
+              ? 'badge-danger'
+              : (String(s.class || '').toLowerCase() === 'graduate' ? 'badge-warning' : 'badge-success');
+
+            html += `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:6px 8px;">${i + 1}</td>
+          <td style="padding:6px 8px;"><strong>${s.name || 'Unknown'}</strong></td>
+          <td style="padding:6px 8px;">${s.admissionNumber || s.key}</td>
+          <td style="padding:6px 8px;">${s.gender || '—'}</td>
+          <td style="padding:6px 8px;">
+            <span class="badge ${statusClass}">${statusText}</span>
+          </td>
+          <td style="padding:6px 8px; text-align:right;">
+            <button class="btn btn-outline btn-sm"
+              onclick="viewStudentProfile('${s.admissionNumber || s.key}')">
+              <i class="fas fa-eye"></i> Profile
+            </button>
+          </td>
+        </tr>`;
+          });
+
+          html += '</tbody></table>';
+          body.innerHTML = html;
+        }
+
+        document.getElementById('classStudentsModal').classList.add('active');
+      };
+
+      window.closeClassStudentsModal = function () {
+        document.getElementById('classStudentsModal').classList.remove('active');
+      };
+
 
       function renderGradeFees(grades) {
         gradeFeesContainer.innerHTML = '';
