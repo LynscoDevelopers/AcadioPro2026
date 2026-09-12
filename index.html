@@ -5631,9 +5631,11 @@
     <script src="classScript.js"></script>
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
+
     <!-- ============================================================
-     STATE PERSISTENCE v2 — tab + search text across refresh
-     Replace the previous <script> block with this one.
+     STATE PERSISTENCE v3 — main tab + C#-driven search text
+     Fixes: search invoked via window.searchStudent() from C#
+            was never persisted (no input event fired).
      ============================================================ -->
     <script>
       (function () {
@@ -5643,13 +5645,13 @@
           mainTab: 'acadia.state.mainTab',
           navTab: 'acadia.state.navTab',
           search: 'acadia.state.searchText',
-          feeDlg: 'acadia.state.feeDialogOpen'   // remember if the fee dialog was open
+          feeDlg: 'acadia.state.feeDialogOpen'
         };
 
-        const DEBUG = false;                       // flip to true to see console logs
+        const DEBUG = false;
         const log = (...a) => { if (DEBUG) console.log('[persist]', ...a); };
 
-        const save = (k, v) => { try { localStorage.setItem(k, v); } catch (_) { } };
+        const save = (k, v) => { try { localStorage.setItem(k, v == null ? '' : String(v)); } catch (_) { } };
         const load = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
         const drop = (k) => { try { localStorage.removeItem(k); } catch (_) { } };
 
@@ -5685,61 +5687,82 @@
         }
 
         /* =========================================================
-           3) SEARCH BOX  — bind directly once the element exists
+           3) HOOK window.searchStudent()
+              C# calls window.searchStudent('text') directly, so no
+              'input' event ever fires — we MUST wrap the function
+              itself to capture the value.
            ========================================================= */
-        function bindSearchInput() {
-          const input = document.getElementById('Searchtext');
-          if (!input || input.__acadiaBound) return !!input;
+        (function hookSearchStudent() {
+          let tries = 0;
+          const t = setInterval(function () {
+            tries++;
 
-          input.__acadiaBound = true;
+            // Hook as soon as the function exists
+            if (typeof window.searchStudent === 'function' && !window.__searchStudentHooked) {
+              window.__searchStudentHooked = true;
+              const original = window.searchStudent;
 
-          const persist = () => { save(KEYS.search, input.value); log('saved search =', input.value); };
+              window.searchStudent = function (text) {
+                const value = (text == null) ? '' : String(text);
+                save(KEYS.search, value);
+                log('searchStudent called → saved', value);
 
-          input.addEventListener('input', persist);
-          input.addEventListener('change', persist);
-          input.addEventListener('keyup', persist);
-          input.addEventListener('blur', persist);
-          input.addEventListener('paste', () => setTimeout(persist, 0));
+                // Keep the HTML dialog input in sync (it exists in the fee dialog)
+                const input = document.getElementById('Searchtext');
+                if (input && input.value !== value) input.value = value;
 
-          log('search input bound');
-          return true;
-        }
+                return original.apply(this, arguments);
+              };
 
-        // Poll until the input exists (it lives in a dialog that may be injected late)
-        let bindTries = 0;
-        const bindTimer = setInterval(() => {
-          bindTries++;
-          if (bindSearchInput() || bindTries > 60) clearInterval(bindTimer);
-        }, 200);
-        bindSearchInput();                         // try immediately too
+              log('window.searchStudent hooked');
+              clearInterval(t);
+            }
+
+            if (tries > 300) clearInterval(t);   // give up after ~30s
+          }, 100);
+        })();
+
+        /* Also hook the HTML #Searchtext input itself, in case the user
+           types in it (fee dialog has its own copy). */
+        (function bindHtmlSearchInput() {
+          let tries = 0;
+          const t = setInterval(function () {
+            tries++;
+            const input = document.getElementById('Searchtext');
+            if (input && !input.__acadiaBound) {
+              input.__acadiaBound = true;
+              const persist = () => { save(KEYS.search, input.value); log('input → saved', input.value); };
+              input.addEventListener('input', persist);
+              input.addEventListener('change', persist);
+              input.addEventListener('keyup', persist);
+              input.addEventListener('blur', persist);
+              clearInterval(t);
+            }
+            if (tries > 300) clearInterval(t);
+          }, 100);
+        })();
 
         /* =========================================================
-           4) APPLY SEARCH  — sets value + calls searchStudent()
+           4) APPLY SEARCH — goes through window.searchStudent
            ========================================================= */
         function applySearch(value, attempt) {
           attempt = attempt || 0;
 
+          // Make sure the HTML dialog input reflects the value too
           const input = document.getElementById('Searchtext');
-          if (input && input.value !== value) {
-            input.value = value;
-            log('applySearch set value', value, 'attempt', attempt);
-          }
+          if (input && input.value !== value) input.value = value;
 
-          // Call the app's own filter function
+          // Call the (now wrapped) searchStudent — wrapped version
+          // will just re-save the same value, which is harmless.
           if (typeof window.searchStudent === 'function') {
             try { window.searchStudent(value); } catch (_) { }
           }
 
           // Retry a few times — Firebase rows arrive asynchronously
           if (attempt < 8) {
-            setTimeout(() => {
-              const el = document.getElementById('Searchtext');
-              if (el && typeof window.searchStudent === 'function') {
-                try { window.searchStudent(el.value); } catch (_) { }
-              }
-              // also nudge the input handler so the suggestion box logic runs
-              if (el && attempt < 3) {
-                el.dispatchEvent(new Event('input', { bubbles: true }));
+            setTimeout(function () {
+              if (typeof window.searchStudent === 'function') {
+                try { window.searchStudent(value); } catch (_) { }
               }
             }, 200 * (attempt + 1));
           }
@@ -5747,55 +5770,54 @@
 
         function restoreSearch() {
           const saved = load(KEYS.search);
-          if (!saved) return;
+          if (saved == null) return;
+          if (saved === '') return;              // empty is fine, nothing to restore
           applySearch(saved, 0);
         }
 
         /* =========================================================
-           5) RESTORE FEE DIALOG (optional — keeps the dialog open)
+           5) FEE DIALOG reopen (optional)
            ========================================================= */
-        function restoreFeeDialog() {
-          if (load(KEYS.feeDlg) !== '1') return;
-          if (typeof window.openDialog2 === 'function') {
-            try { window.openDialog2(); log('reopened fee dialog'); } catch (_) { }
-          }
-        }
-
-        // Track dialog open/close so we know whether to reopen on refresh
         function trackFeeDialog() {
           const overlay2 = document.getElementById('dialogOverlay2');
           if (!overlay2 || overlay2.__acadiaTracked) return !!overlay2;
           overlay2.__acadiaTracked = true;
-
-          const obs = new MutationObserver(() => {
-            if (overlay2.classList.contains('active')) save(KEYS.feeDlg, '1');
-            else save(KEYS.feeDlg, '0');
+          const obs = new MutationObserver(function () {
+            save(KEYS.feeDlg, overlay2.classList.contains('active') ? '1' : '0');
           });
           obs.observe(overlay2, { attributes: true, attributeFilter: ['class'] });
-          log('fee dialog tracked');
           return true;
         }
 
+        function restoreFeeDialog() {
+          if (load(KEYS.feeDlg) !== '1') return;
+          if (typeof window.openDialog2 === 'function') {
+            try { window.openDialog2(); } catch (_) { }
+          }
+        }
+
         let trackTries = 0;
-        const trackTimer = setInterval(() => {
+        const trackTimer = setInterval(function () {
           trackTries++;
-          if (trackFeeDialog() || trackTries > 60) clearInterval(trackTimer);
+          if (trackFeeDialog() || trackTries > 100) clearInterval(trackTimer);
         }, 200);
         trackFeeDialog();
 
         /* =========================================================
-           6) RESTORE EVERYTHING (with retries)
+           6) RESTORE EVERYTHING (retried, because Firebase is slow)
            ========================================================= */
         function restoreAll() {
           restoreMainTab();
           restoreNavTab();
           restoreFeeDialog();
-          restoreSearch();
+          restoreSearch();          // must be LAST — needs the right tab active
         }
 
         function scheduleRestores() {
           restoreAll();
-          [150, 400, 800, 1500, 2500, 4000].forEach(ms => setTimeout(restoreAll, ms));
+          [150, 400, 900, 1600, 2500, 4000, 6000].forEach(function (ms) {
+            setTimeout(restoreAll, ms);
+          });
         }
 
         if (document.readyState === 'loading') {
@@ -5806,22 +5828,22 @@
         window.addEventListener('load', scheduleRestores);
 
         /* =========================================================
-           7) HOOK refreshUIFromFirebase()
+           7) HOOK refreshUIFromFirebase() — repopulates the table,
+              so we re-apply the search right after.
            ========================================================= */
         (function hookRefresh() {
           let tries = 0;
-          const t = setInterval(() => {
+          const t = setInterval(function () {
             tries++;
-            if (typeof window.refreshUIFromFirebase === 'function' && !window.__refreshHookedV2) {
-              window.__refreshHookedV2 = true;
+            if (typeof window.refreshUIFromFirebase === 'function' && !window.__refreshHookedV3) {
+              window.__refreshHookedV3 = true;
               const original = window.refreshUIFromFirebase;
               window.refreshUIFromFirebase = function () {
                 const r = original.apply(this, arguments);
-                // Re-apply the search text right after the table is rebuilt
-                setTimeout(() => {
+                setTimeout(function () {
                   const saved = load(KEYS.search);
                   if (saved) applySearch(saved, 0);
-                }, 60);
+                }, 80);
                 return r;
               };
               clearInterval(t);
@@ -5832,7 +5854,7 @@
         })();
 
         /* =========================================================
-           8) PUBLIC API for C# (ExecuteScriptAsync)
+           8) PUBLIC API
            ========================================================= */
         window.__persistState = function () {
           const activeTab = document.querySelector('.tab-btn.active');
@@ -5841,31 +5863,35 @@
           const activeNav = document.querySelector('.nav-tab.active');
           if (activeNav && activeNav.dataset.tab) save(KEYS.navTab, activeNav.dataset.tab);
 
+          // #Searchtext dialog input
           const input = document.getElementById('Searchtext');
           if (input) save(KEYS.search, input.value);
 
           const overlay2 = document.getElementById('dialogOverlay2');
           if (overlay2) save(KEYS.feeDlg, overlay2.classList.contains('active') ? '1' : '0');
 
-          log('__persistState called', {
-            tab: load(KEYS.mainTab), search: load(KEYS.search)
-          });
           return true;
         };
 
         window.__clearPersistedState = function () {
           Object.values(KEYS).forEach(drop);
-          log('state cleared');
           return true;
         };
 
-        // Last-chance save
+        // Convenience: lets C# save any arbitrary search value it holds
+        // (e.g. right before calling webView.Reload())
+        window.__saveSearchValue = function (value) {
+          save(KEYS.search, value);
+          return true;
+        };
+
         window.addEventListener('beforeunload', function () {
           try { window.__persistState(); } catch (_) { }
         });
 
       })();
     </script>
+
     <script type="module">
       // ============================================================
       // FIREBASE IMPORTS
