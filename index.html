@@ -6244,8 +6244,42 @@
         }
         return false;
       };
-
       window.__tabPanels = panels;
+
+
+      // ============================================================
+      // CLOSE ALL DIALOGS / MODALS / CONTEXT MENUS
+      // ============================================================
+      function closeAllDialogs() {
+        // Class-based overlays (use .active)
+        document.querySelectorAll('.dialog-overlay.active, .modal-overlay.active')
+          .forEach(el => {
+            el.classList.remove('active');
+            el.style.display = ''; // clear any stale inline display
+          });
+
+        // Modals that use inline display:flex / block
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+          if (el.style.display === 'flex' || el.style.display === 'block') {
+            el.style.display = 'none';
+          }
+        });
+
+        // Right-click context menu
+        if (typeof closeContextMenu === 'function') closeContextMenu();
+
+        // Restore body scroll
+        document.body.style.overflow = '';
+
+        // Clear any stored editing state so reopens are clean
+        if (typeof window.setEditingClassKey === 'function') {
+          window.setEditingClassKey(null);
+        }
+        window.__currentClassStudentsContext = null;
+      }
+
+      window.closeAllDialogs = closeAllDialogs;
+
 
       // ============================================================
       // DASHBOARD NAVIGATION HELPERS
@@ -6436,6 +6470,7 @@
 
       tabx.forEach(tab => {
         tab.addEventListener('click', function () {
+          closeAllDialogs(); 
           tabx.forEach(t => t.classList.remove('active'));
           Object.values(panelsx).forEach(p => {
             if (p) p.classList.remove('active');
