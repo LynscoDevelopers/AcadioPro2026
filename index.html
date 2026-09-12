@@ -6861,17 +6861,24 @@
       // PRINT FUNCTIONS
       // ============================================================
       document.getElementById("printStudents")?.addEventListener("click", () => {
-        const studentsList = Object.entries(studentsCache).map(([key, student]) => ({
-          Admission_No: student.admissionNumber,
-          Name: student.name || "",
-          Gender: student.gender || "",
-          Grade: student.class || "",
-          Phone: student.phone || "",
-          Status: student.Status || ""
-        }));
+        const studentsList = Object.entries(studentsCache)
+          // 🔒 only Active, non-Graduate students
+          .filter(([, student]) => {
+            const cls = String(student.class || '').trim().toLowerCase();
+            const status = String(student.Status || 'Active').trim().toLowerCase();
+            return cls !== 'graduate' && status === 'active';
+          })
+          .map(([key, student]) => ({
+            Admission_No: student.admissionNumber || key,
+            Name: student.name || "",
+            Gender: student.gender || "",
+            Grade: student.class || "",
+            Phone: student.phone || "",
+            Status: student.Status || ""
+          }));
 
         if (!studentsList.length) {
-          alert("No students available to print.");
+          alert("No active students available to print.");
           return;
         }
 
@@ -6891,32 +6898,34 @@
           students: studentsList
         });
       });
-
       document.getElementById("printStudents2")?.addEventListener("click", () => {
-        const balancesList = Object.entries(studentsCache).map(([admissionNumber, student]) => ({
-          Admission_No: admissionNumber,
-          Name: student.name || "",
-          Grade: student.class || "",
-          Status: student.Status || "",
-          RequiredFee: formatCurrency(getStudentRequiredFee(admissionNumber)),
-          Exemptions: formatCurrency(studentExceptions(admissionNumber)),
-          BalanceBefore: formatCurrency(getBalanceBefore(admissionNumber)),
-          Installments: formatCurrency(getInstallmentsForStudent(admissionNumber)),
-          CurrentBalance: formatCurrency(getCurrent(admissionNumber))
-        }));
+        const balancesList = Object.entries(studentsCache)
+          // 🔒 only Active, non-Graduate students
+          .filter(([, student]) => {
+            const cls = String(student.class || '').trim().toLowerCase();
+            const status = String(student.Status || 'Active').trim().toLowerCase();
+            return cls !== 'graduate' && status === 'active';
+          })
+          .map(([admissionNumber, student]) => ({
+            Admission_No: admissionNumber,
+            Name: student.name || "",
+            Grade: student.class || "",
+            Status: student.Status || "",
+            RequiredFee: formatCurrency(getStudentRequiredFee(admissionNumber)),
+            Exemptions: formatCurrency(studentExceptions(admissionNumber)),
+            BalanceBefore: formatCurrency(getBalanceBefore(admissionNumber)),
+            Installments: formatCurrency(getInstallmentsForStudent(admissionNumber)),
+            CurrentBalance: formatCurrency(getCurrent(admissionNumber))
+          }));
 
         if (!balancesList.length) {
-          alert("No students available to print.");
+          alert("No active students available to print.");
           return;
         }
 
         balancesList.sort((a, b) => {
           const gradeA = a.Grade || "";
           const gradeB = b.Grade || "";
-          const isGraduateA = gradeA.toLowerCase() === "graduate";
-          const isGraduateB = gradeB.toLowerCase() === "graduate";
-          if (isGraduateA && !isGraduateB) return 1;
-          if (!isGraduateA && isGraduateB) return -1;
           const isInactiveA = (a.Status || "").toLowerCase() === "inactive";
           const isInactiveB = (b.Status || "").toLowerCase() === "inactive";
           if (isInactiveA && !isInactiveB) return 1;
@@ -6961,16 +6970,27 @@
           return;
         }
 
-        const studentsList = ctx.students.map(s => ({
-          Admission_No: s.admissionNumber || s.key || '',
-          Name: s.name || '',
-          Gender: s.gender || '',
-          Grade: s.class || ctx.label || '',
-          Phone: s.phone || '',
-          Status: s.Status || ''
-        }));
+        const studentsList = ctx.students
+          // 🔒 only Active, non-Graduate students
+          .filter(s => {
+            const cls = String(s.class || '').trim().toLowerCase();
+            const status = String(s.Status || 'Active').trim().toLowerCase();
+            return cls !== 'graduate' && status === 'active';
+          })
+          .map(s => ({
+            Admission_No: s.admissionNumber || s.key || '',
+            Name: s.name || '',
+            Gender: s.gender || '',
+            Grade: s.class || ctx.label || '',
+            Phone: s.phone || '',
+            Status: s.Status || ''
+          }));
 
-        // Same sort order as the class roster (by name, then admission no)
+        if (!studentsList.length) {
+          alert('No active students in this class to print.');
+          return;
+        }
+
         studentsList.sort((a, b) => {
           const n = (a.Name || '').toLowerCase().localeCompare((b.Name || '').toLowerCase());
           if (n !== 0) return n;
