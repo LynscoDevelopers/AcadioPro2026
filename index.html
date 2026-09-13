@@ -5704,13 +5704,14 @@
       // ============================================================
       // GLOBAL RIGHT-CLICK BLOCKER
       // ============================================================
-      // Any element with `data-allow-contextmenu` (or inside one) is whitelisted.
-      // Everything else on the page will not show the browser's default menu.
+      // The native browser menu is ALWAYS suppressed.
+      // Whitelisted elements still let the event bubble so the custom
+      // #registerContextMenu (Meal / Boarding / Sponsored) can open.
 
       const CONTEXTMENU_WHITELIST = [
         '#register_Tbl',      // Students register table
         '#FeeBalanceList',    // Fee balance table
-        // add more selectors here if you want to allow right-click elsewhere
+        // add more selectors here if you want the custom menu elsewhere
         // e.g. '#FeePaymentList', '[data-allow-contextmenu]'
       ];
 
@@ -5728,13 +5729,21 @@
       }
 
       document.addEventListener('contextmenu', function (e) {
+        // 1) ALWAYS block the browser's native menu
+        e.preventDefault();
+
+        // 2) Only let whitelisted areas continue to your table handlers
         if (!isContextMenuAllowed(e.target)) {
-          e.preventDefault();
           e.stopPropagation();
           return false;
         }
-        // Allowed: let it bubble so your existing table handlers run
+
+        // Whitelisted → event bubbles; your existing table listeners run
       }, true); // capture phase → runs BEFORE your existing listeners
+
+
+
+
 
       // ============================================================
       // UTILITY FUNCTIONS
@@ -6288,7 +6297,7 @@
       // Switch tab from inside the page (View All, etc.)
       // Notifies C# with a source it will honor so the WinForms nav stays in sync.
       window.goToTabFromDashboard = function (tabId) {
-         closeAllDialogs(); 
+        closeAllDialogs();
         const btnList = document.querySelectorAll('.tab-btn');
         const panelMap = window.__tabPanels;
         if (!btnList.length || !panelMap || !panelMap[tabId]) return;
@@ -6471,7 +6480,7 @@
 
       tabx.forEach(tab => {
         tab.addEventListener('click', function () {
-          closeAllDialogs(); 
+          closeAllDialogs();
           tabx.forEach(t => t.classList.remove('active'));
           Object.values(panelsx).forEach(p => {
             if (p) p.classList.remove('active');
@@ -6489,7 +6498,7 @@
       });
 
       window.switchTab = function (tabId) {
-         closeAllDialogs(); 
+        closeAllDialogs();
         tabx.forEach(t => t.classList.remove('active'));
         Object.values(panelsx).forEach(p => {
           if (p) p.classList.remove('active');
