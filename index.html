@@ -6625,33 +6625,29 @@
             const paymentDate = todayISODate();
             const activeTerm = getActiveTerm() || "";
 
+            // Opening balance = grade fee + admission charges
+            // (required fee for newly admitted in current term)
+            const openingBalance = gradeFee + admissionCharges;
+
             const admissionPayment = {
               term: activeTerm,
               fee: formatCurrency(gradeFee),
-              boarding: senior,                    // true only for G7 / G8 / G9
+              boarding: senior,
               class: studentClass,
               entryDate,
               admissionNumber,
               amount: formatCurrency(0),
-              balance: formatCurrency(admissionCharges),  // GetAdmissionCharges
+              balance: formatCurrency(openingBalance),  // grade fee + admission charges
               Account: "Admission",
               paymentDate,
               paymentRef: "Admission",
-              // G7–G9 → 0; otherwise Meal amount from current term
               Exemption: formatCurrency(senior ? 0 : mealExempt),
               ReceiptNo: "Admission"
             };
 
-            // Push payment under Fee_payment
-            const paymentPushRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
-
-            // Attach lastPayment on student record
+            await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
             studentData.lastPayment = admissionPayment;
-
-            // Optional: keep key if you need it later
-            // studentData.lastPaymentKey = paymentPushRef.key;
           }
-
           await set(studentRef, studentData);
 
           if (typeof window.forceUIRefreshAfterWrite === 'function') {
@@ -7149,9 +7145,15 @@
         if (!admissionNumber || !studentsCache) return "0.00";
         const student = studentsCache[admissionNumber];
         if (!student?.class) return "0.00";
+
         const grade = String(student.class).split('-')[0].trim();
-        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
-        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return "0.00";
+        const activeTerm = terms.find(
+          term => String(term.status || '').trim().toLowerCase() === 'active'
+        );
+        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+          return "0.00";
+        }
+
         const fees = {
           grade: parseFloat(activeTerm.grades[grade]) || 0,
           meal: parseFloat(activeTerm.meal) || 0,
@@ -7159,21 +7161,33 @@
           boarding: parseFloat(activeTerm.boarding) || 0,
           break: parseFloat(activeTerm.breakFee) || 0
         };
+
         if (/[789]/.test(grade)) {
           fees.boarding = Math.max(0, fees.boarding - 2000);
         }
+
         const ex = student.Exceptions || {};
         if (ex.Sponsored === true) return "Sponsored";
+
         let requiredFee = fees.grade;
+
         if (ex.Boarding === true) {
-          return formatCurrency(requiredFee + fees.boarding);
+          requiredFee += fees.boarding;
+        } else {
+          requiredFee += fees.transport;
+          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
+          if (ex.Break === true) requiredFee += fees.break;
         }
-        requiredFee += fees.transport;
-        if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
-        if (ex.Break === true) requiredFee += fees.break;
+
+        // Newly admitted in the current term → include admission charges
+        if (typeof wasAdmittedInCurrentTerm === 'function' && wasAdmittedInCurrentTerm(admissionNumber)) {
+          requiredFee += (typeof getAdmissionCharges === 'function'
+            ? getAdmissionCharges(student.class)
+            : 0);
+        }
+
         return formatCurrency(requiredFee);
       }
-
       function studentExceptions(admissionNumber) {
         if (!admissionNumber || !studentsCache) return "0.00";
         const student = studentsCache[admissionNumber];
