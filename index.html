@@ -6591,6 +6591,9 @@
         try {
           const snapshot = await get(studentRef);
           const existingStudent = snapshot.exists() ? snapshot.val() : null;
+          const isNewStudent = !existingStudent;
+
+          const studentClass = document.getElementById("studentClass").value;
 
           const studentData = {
             name,
@@ -6605,14 +6608,55 @@
             email: document.getElementById("guardianEmail").value.trim(),
             address: document.getElementById("guardianAddress").value.trim(),
             admissionNumber,
-            class: document.getElementById("studentClass").value,
+            class: studentClass,
             consent: document.getElementById("consentCheck").checked,
             Status: existingStudent?.Status || "Active",
             Exceptions: existingStudent?.Exceptions || {},
             lastPayment: existingStudent?.lastPayment ?? null
           };
 
+          // ── New admission: create opening fee-payment + lastPayment ──
+          if (isNewStudent) {
+            const admissionCharges = getAdmissionCharges(studentClass);
+            const senior = isSeniorGradeClass(studentClass);
+            const gradeFee = getGradeFeeOnly(studentClass);
+            const mealExempt = getMealExemptionAmount();
+            const entryDate = todayDDMMYYYY();
+            const paymentDate = todayISODate();
+            const activeTerm = getActiveTerm() || "";
+
+            const admissionPayment = {
+              term: activeTerm,
+              fee: formatCurrency(gradeFee),
+              boarding: senior,                    // true only for G7 / G8 / G9
+              class: studentClass,
+              entryDate,
+              admissionNumber,
+              amount: formatCurrency(0),
+              balance: formatCurrency(admissionCharges),  // GetAdmissionCharges
+              Account: "Admission",
+              paymentDate,
+              paymentRef: "Admission",
+              // G7–G9 → 0; otherwise Meal amount from current term
+              Exemption: formatCurrency(senior ? 0 : mealExempt),
+              ReceiptNo: "Admission"
+            };
+
+            // Push payment under Fee_payment
+            const paymentPushRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
+
+            // Attach lastPayment on student record
+            studentData.lastPayment = admissionPayment;
+
+            // Optional: keep key if you need it later
+            // studentData.lastPaymentKey = paymentPushRef.key;
+          }
+
           await set(studentRef, studentData);
+
+          if (typeof window.forceUIRefreshAfterWrite === 'function') {
+            window.forceUIRefreshAfterWrite();
+          }
 
           closeDialog();
 
@@ -7276,8 +7320,87 @@
         return ex.Boarding === true;
       }
 
+      function getAdmissionCharges(className) {
+        const c = String(className || '').toUpperCase();
+        if (c.includes('DAYCARE') || c.includes('PP1') || c.includes('PP2')) return 1350;
+        if (c.includes('G1')) return 1400;
+        if (c.includes('G2') || c.includes('G3')) return 3500;
+        if (c.includes('G4') || c.includes('G5') || c.includes('G6')) return 1500;
+        if (c.includes('G7') || c.includes('G8') || c.includes('G9')) return 1000;
+        return 0;
+      }
+      /** Find the Admission payment for this student in paymentCache. */
+      function getAdmissionPayment(admissionNumber) {
+        if (!admissionNumber || !paymentCache || typeof paymentCache !== 'object') return null;
 
-      
+        const normalized = String(admissionNumber).replace(/-/g, '/').trim();
+
+        for (const payment of Object.values(paymentCache)) {
+          if (!payment) continue;
+          const payAdmn = String(payment.admissionNumber || '').replace(/-/g, '/').trim();
+          if (payAdmn !== normalized) continue;
+
+          const isAdmission =
+            String(payment.Account || '').toLowerCase() === 'admission' ||
+            String(payment.paymentRef || '').toLowerCase() === 'admission' ||
+            String(payment.ReceiptNo || '').toLowerCase() === 'admission';
+
+          if (isAdmission) return payment;
+        }
+        return null;
+      }
+
+      /** Term the student was admitted in (from fee list). */
+      function getStudentAdmissionTerm(admissionNumber) {
+        const pay = getAdmissionPayment(admissionNumber);
+        return pay?.term ? String(pay.term).trim() : null;
+      }
+
+      /** True if admitted in the currently active term. */
+      function wasAdmittedInCurrentTerm(admissionNumber) {
+        const active = getActiveTerm();
+        if (!active) return false;
+        const admittedTerm = getStudentAdmissionTerm(admissionNumber);
+        return !!admittedTerm && admittedTerm === active;
+      }
+
+
+      function isSeniorGradeClass(className) {
+        const grade = String(className || '').split('-')[0].trim().toUpperCase();
+        return /G?[789]\b/.test(grade) || /^[789]$/.test(grade) ||
+          grade.includes('G7') || grade.includes('G8') || grade.includes('G9');
+      }
+
+      /** Grade-only fee from the active term (not full required package). */
+      function getGradeFeeOnly(className) {
+        if (!className) return 0;
+        const grade = String(className).split('-')[0].trim();
+        const activeTerm = terms.find(
+          t => String(t.status || '').trim().toLowerCase() === 'active'
+        );
+        if (!activeTerm?.grades) return 0;
+        return parseFloat(activeTerm.grades[grade]) || 0;
+      }
+
+      /** Meal amount from active term — used as Exemption when not G7–G9. */
+      function getMealExemptionAmount() {
+        const activeTerm = terms.find(
+          t => String(t.status || '').trim().toLowerCase() === 'active'
+        );
+        if (!activeTerm) return 0;
+        return parseFloat(activeTerm.meal) || 0;
+      }
+
+      function todayDDMMYYYY() {
+        const d = new Date();
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+      }
+
+      function todayISODate() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+
       function getLastReceiptNo() {
         if (!paymentCache || Object.keys(paymentCache).length === 0) {
           return 1;
@@ -11493,14 +11616,14 @@
           return active ? active.termId : null;
         }
 
-        function getStudentRequiredFee(admission) {
-          if (!admission || !studentsCache?.[admission]) return "0.00";
-          const student = studentsCache[admission];
-          if (!student.class) return "0.00";
+        function getStudentRequiredFee(admissionNumber) {
+          if (!admissionNumber || !studentsCache) return "0.00";
+          const student = studentsCache[admissionNumber];
+          if (!student?.class) return "0.00";
 
           const grade = String(student.class).split('-')[0].trim();
           const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
-            t => String(t.status || '').toLowerCase() === 'active'
+            term => String(term.status || '').trim().toLowerCase() === 'active'
           );
           if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
             return "0.00";
@@ -11522,13 +11645,19 @@
           if (ex.Sponsored === true) return "Sponsored";
 
           let requiredFee = fees.grade;
+
           if (ex.Boarding === true) {
-            return formatCurrency(requiredFee + fees.boarding);
+            requiredFee = requiredFee + fees.boarding;
+          } else {
+            requiredFee += fees.transport;
+            if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
+            if (ex.Break === true) requiredFee += fees.break;
           }
 
-          requiredFee += fees.transport;
-          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
-          if (ex.Break === true) requiredFee += fees.break;
+          // Admitted in current term → add admission charges from class band
+          if (typeof wasAdmittedInCurrentTerm === 'function' && wasAdmittedInCurrentTerm(admissionNumber)) {
+            requiredFee += (typeof getAdmissionCharges === 'function' ? getAdmissionCharges(student.class) : 0);
+          }
 
           return formatCurrency(requiredFee);
         }
@@ -11749,6 +11878,7 @@
         }
       }
 
+      window.updateDashboard = updateDashboard;
       window.updateDashboard = updateDashboard;
 
       // ============================================================
