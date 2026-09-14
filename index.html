@@ -6615,7 +6615,6 @@
             lastPayment: existingStudent?.lastPayment ?? null
           };
 
-          // ── New admission: create opening fee-payment + lastPayment ──
           if (isNewStudent) {
             const admissionCharges = getAdmissionCharges(studentClass);
             const senior = isSeniorGradeClass(studentClass);
@@ -6625,19 +6624,18 @@
             const paymentDate = todayISODate();
             const activeTerm = getActiveTerm() || "";
 
-            // Opening balance = grade fee + admission charges
-            // (required fee for newly admitted in current term)
-            const openingBalance = gradeFee + admissionCharges;
+            // Required fee at admission = grade fee + admission charges
+            const requiredAtAdmission = gradeFee + admissionCharges;
 
             const admissionPayment = {
               term: activeTerm,
-              fee: formatCurrency(gradeFee),
+              fee: formatCurrency(requiredAtAdmission),
               boarding: senior,
               class: studentClass,
               entryDate,
               admissionNumber,
               amount: formatCurrency(0),
-              balance: formatCurrency(openingBalance),  // grade fee + admission charges
+              balance: formatCurrency(requiredAtAdmission),
               Account: "Admission",
               paymentDate,
               paymentRef: "Admission",
@@ -7235,8 +7233,12 @@
         if (!student?.class) return 0;
 
         const grade = String(student.class).split('-')[0].trim();
-        const activeTerm = terms.find(term => String(term.status || '').trim().toLowerCase() === 'active');
-        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) return 0;
+        const activeTerm = terms.find(
+          term => String(term.status || '').trim().toLowerCase() === 'active'
+        );
+        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+          return 0;
+        }
 
         const fees = {
           meal: parseFloat(activeTerm.meal) || 0,
@@ -7266,6 +7268,7 @@
 
         return falseExceptionsSum;
       }
+
       function getInstallmentsForStudent(admissionNumber) {
         const activeTerm = getActiveTerm();
         let totalInstallments = 0;
@@ -7343,7 +7346,7 @@
         if (c.includes('G7') || c.includes('G8') || c.includes('G9')) return 1000;
         return 0;
       }
-      /** Find the Admission payment for this student in paymentCache. */
+
       function getAdmissionPayment(admissionNumber) {
         if (!admissionNumber || !paymentCache || typeof paymentCache !== 'object') return null;
 
@@ -7364,13 +7367,11 @@
         return null;
       }
 
-      /** Term the student was admitted in (from fee list). */
       function getStudentAdmissionTerm(admissionNumber) {
         const pay = getAdmissionPayment(admissionNumber);
         return pay?.term ? String(pay.term).trim() : null;
       }
 
-      /** True if admitted in the currently active term. */
       function wasAdmittedInCurrentTerm(admissionNumber) {
         const active = getActiveTerm();
         if (!active) return false;
@@ -7378,14 +7379,12 @@
         return !!admittedTerm && admittedTerm === active;
       }
 
-
       function isSeniorGradeClass(className) {
         const grade = String(className || '').split('-')[0].trim().toUpperCase();
         return /G?[789]\b/.test(grade) || /^[789]$/.test(grade) ||
           grade.includes('G7') || grade.includes('G8') || grade.includes('G9');
       }
 
-      /** Grade-only fee from the active term (not full required package). */
       function getGradeFeeOnly(className) {
         if (!className) return 0;
         const grade = String(className).split('-')[0].trim();
@@ -7396,7 +7395,6 @@
         return parseFloat(activeTerm.grades[grade]) || 0;
       }
 
-      /** Meal amount from active term — used as Exemption when not G7–G9. */
       function getMealExemptionAmount() {
         const activeTerm = terms.find(
           t => String(t.status || '').trim().toLowerCase() === 'active'
@@ -9424,7 +9422,7 @@
         /**
          * Checked  → +fee, −Exemption, +balance
          * Unchecked → −fee, +Exemption, −balance
-         * For newly admitted: feeDelta is forced to 0 later (fee locked on last txn).
+         * For newly admitted: feeDelta forced to 0 (fee locked on last txn).
          */
         function deltasFromExceptionChange(admissionNumber, prev, next) {
           const fees = getActiveTermFeeParts(admissionNumber);
@@ -9586,7 +9584,7 @@
               parseFloat(String(lastPayment.balance || 0).replace(/,/g, '')) || 0;
 
             const newFee = isNewlyAdmitted
-              ? oldFee                          // keep original required fee
+              ? oldFee
               : Math.max(0, oldFee + feeDelta);
 
             const finalExemption = newExemptionAmount;
@@ -9641,12 +9639,13 @@
 
           await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), studentUpdates);
 
+          // Update Fee_payment list record
           if (paymentUpdates && lastEntry?.key) {
             const patch = {
               Exemption: paymentUpdates.Exemption,
               balance: paymentUpdates.balance
             };
-            // Only write fee when not a new admission (or when value unchanged — safe either way)
+            // Only write fee when NOT a new admission
             if (!isNewlyAdmitted) {
               patch.fee = paymentUpdates.fee;
             }
@@ -9690,7 +9689,6 @@
           alert('Failed to update student exceptions:\n' + error.message);
         }
       }
-
       menuBoarding?.addEventListener("change", async function (e) {
         e.stopPropagation();
         await updateStudentExceptions();
@@ -11759,7 +11757,7 @@
           if (!student?.class) return "0.00";
 
           const grade = String(student.class).split('-')[0].trim();
-          const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
+          const activeTerm = terms.find(
             term => String(term.status || '').trim().toLowerCase() === 'active'
           );
           if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
@@ -11784,21 +11782,22 @@
           let requiredFee = fees.grade;
 
           if (ex.Boarding === true) {
-            requiredFee = requiredFee + fees.boarding;
+            requiredFee += fees.boarding;
           } else {
             requiredFee += fees.transport;
             if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
             if (ex.Break === true) requiredFee += fees.break;
           }
 
-          // Admitted in current term → add admission charges from class band
+          // Newly admitted in current term → include admission charges
           if (typeof wasAdmittedInCurrentTerm === 'function' && wasAdmittedInCurrentTerm(admissionNumber)) {
-            requiredFee += (typeof getAdmissionCharges === 'function' ? getAdmissionCharges(student.class) : 0);
+            requiredFee += (typeof getAdmissionCharges === 'function'
+              ? getAdmissionCharges(student.class)
+              : 0);
           }
 
           return formatCurrency(requiredFee);
         }
-
         function getCurrentBalance(admission) {
           if (!admission || !studentsCache?.[admission]) return "0.00";
           const student = studentsCache[admission];
