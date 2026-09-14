@@ -11616,14 +11616,14 @@
           return active ? active.termId : null;
         }
 
-        function getStudentRequiredFee(admissionNumber) {
-          if (!admissionNumber || !studentsCache) return "0.00";
-          const student = studentsCache[admissionNumber];
-          if (!student?.class) return "0.00";
+        function getStudentRequiredFee(admission) {
+          if (!admission || !studentsCache?.[admission]) return "0.00";
+          const student = studentsCache[admission];
+          if (!student.class) return "0.00";
 
           const grade = String(student.class).split('-')[0].trim();
           const activeTerm = (typeof terms !== 'undefined' ? terms : []).find(
-            term => String(term.status || '').trim().toLowerCase() === 'active'
+            t => String(t.status || '').toLowerCase() === 'active'
           );
           if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
             return "0.00";
@@ -11645,19 +11645,13 @@
           if (ex.Sponsored === true) return "Sponsored";
 
           let requiredFee = fees.grade;
-
           if (ex.Boarding === true) {
-            requiredFee = requiredFee + fees.boarding;
-          } else {
-            requiredFee += fees.transport;
-            if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
-            if (ex.Break === true) requiredFee += fees.break;
+            return formatCurrency(requiredFee + fees.boarding);
           }
 
-          // Admitted in current term → add admission charges from class band
-          if (typeof wasAdmittedInCurrentTerm === 'function' && wasAdmittedInCurrentTerm(admissionNumber)) {
-            requiredFee += (typeof getAdmissionCharges === 'function' ? getAdmissionCharges(student.class) : 0);
-          }
+          requiredFee += fees.transport;
+          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
+          if (ex.Break === true) requiredFee += fees.break;
 
           return formatCurrency(requiredFee);
         }
@@ -11878,7 +11872,6 @@
         }
       }
 
-      window.updateDashboard = updateDashboard;
       window.updateDashboard = updateDashboard;
 
       // ============================================================
