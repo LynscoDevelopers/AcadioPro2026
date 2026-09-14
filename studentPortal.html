@@ -1631,6 +1631,8 @@
         const db = getDatabase(app);
 
         let currentStudent = null;
+        let schoolId = null;
+        let schoolName = null;
         let allStudents = {};
         let allPayments = {};
         let allTerms = [];
@@ -1827,13 +1829,62 @@
         }
 
         // ============================================================
+        // SCHOOL-SCOPED PATHS
+        // (mirrors the Institution/Schools/{schoolId}/... structure used
+        //  in the main app, instead of a single hardcoded school)
+        // ============================================================
+        function schoolPath(sub) {
+            if (!schoolId) throw new Error('School context not loaded yet');
+            return `Institution/Schools/${schoolId}/${sub}`;
+        }
+
+        // Resolve which school this portal belongs to, from the link's
+        // ?school=/?schoolId=/?sid= parameter. Falls back to the only
+        // school on record if there's just one (single-school deployments).
+        async function resolveSchoolId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromUrl = urlParams.get('school') || urlParams.get('schoolId') || urlParams.get('sid');
+            if (fromUrl) return fromUrl;
+
+            const schoolsSnap = await get(ref(db, 'Institution/Schools'));
+            if (schoolsSnap.exists()) {
+                const ids = Object.keys(schoolsSnap.val());
+                if (ids.length === 1) return ids[0];
+            }
+            return null;
+        }
+
+        async function ensureSchoolContext() {
+            if (schoolId) return true;
+            schoolId = await resolveSchoolId();
+            if (!schoolId) {
+                showLoginError('This portal link is missing a school reference. Please use the link provided by your school.');
+                return false;
+            }
+            try {
+                const schoolSnap = await get(ref(db, `Institution/Schools/${schoolId}`));
+                if (schoolSnap.exists()) {
+                    schoolName = schoolSnap.val().name || null;
+                    const brandEl = document.querySelector('.login-brand-name');
+                    if (schoolName && brandEl) brandEl.textContent = schoolName;
+                }
+            } catch (_) { /* non-critical */ }
+            return true;
+        }
+
+        // ============================================================
         // AUTO LOGIN
         // ============================================================
         async function autoLoginFromUid(uid) {
             document.getElementById('loadingOverlay').classList.add('active');
             document.getElementById('loginContainer').style.display = 'none';
             try {
-                const studentsSnapshot = await get(ref(db, "Institution/ Revival/Students"));
+                if (!(await ensureSchoolContext())) {
+                    document.getElementById('loadingOverlay').classList.remove('active');
+                    document.getElementById('loginContainer').style.display = 'flex';
+                    return;
+                }
+                const studentsSnapshot = await get(ref(db, schoolPath('Students')));
                 allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
                 let foundStudent = null, foundAdmission = null;
                 for (const [key, student] of Object.entries(allStudents)) {
@@ -1879,7 +1930,12 @@
             loginBtn.disabled = true;
             document.getElementById('loginError').style.display = 'none';
             try {
-                const studentsSnapshot = await get(ref(db, "Institution/ Revival/Students"));
+                if (!(await ensureSchoolContext())) {
+                    loginBtn.innerHTML = originalBtnText;
+                    loginBtn.disabled = false;
+                    return;
+                }
+                const studentsSnapshot = await get(ref(db, schoolPath('Students')));
                 allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
                 let foundStudent = null, foundAdmission = null;
                 for (const [key, student] of Object.entries(allStudents)) {
@@ -1921,9 +1977,9 @@
         async function loadPortalData() {
             try {
                 document.getElementById('loadingOverlay').classList.add('active');
-                const paymentsSnapshot = await get(ref(db, "Institution/ Revival/Fee_payment"));
+                const paymentsSnapshot = await get(ref(db, schoolPath('Fee_payment')));
                 allPayments = paymentsSnapshot.exists() ? paymentsSnapshot.val() : {};
-                const termsSnapshot = await get(ref(db, "Institution/ Revival/terms"));
+                const termsSnapshot = await get(ref(db, schoolPath('terms')));
                 if (termsSnapshot.exists()) {
                     allTerms = Object.entries(termsSnapshot.val()).map(([key, data]) => ({
                         termId: key,
@@ -1937,9 +1993,9 @@
                         grades: data.grades || {}
                     }));
                 }
-                const assessmentsSnapshot = await get(ref(db, "Institution/ Revival/Assessments"));
+                const assessmentsSnapshot = await get(ref(db, schoolPath('Assessments')));
                 allAssessments = assessmentsSnapshot.exists() ? Object.values(assessmentsSnapshot.val()) : [];
-                const marksSnapshot = await get(ref(db, "Institution/ Revival/Marks"));
+                const marksSnapshot = await get(ref(db, schoolPath('Marks')));
                 if (marksSnapshot.exists()) {
                     const marksData = marksSnapshot.val();
                     allMarks = [];
@@ -2057,7 +2113,7 @@
             try {
                 const updateData = { name: fullName, gender, dob, class: studentClass, nationality, religion };
                 const admissionKey = currentStudent.admissionNumber.replace(/\//g, '-');
-                await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), updateData);
+                await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), updateData);
                 currentStudent = { ...currentStudent, ...updateData };
                 populatePortal();
                 personalEditMode = false;
@@ -2089,7 +2145,7 @@
             try {
                 const updateData = { guardian, relationship, phone, email, address };
                 const admissionKey = currentStudent.admissionNumber.replace(/\//g, '-');
-                await update(ref(db, `Institution/ Revival/Students/${admissionKey}`), updateData);
+                await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), updateData);
                 currentStudent = { ...currentStudent, ...updateData };
                 populatePortal();
                 contactEditMode = false;

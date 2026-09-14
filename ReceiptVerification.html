@@ -978,9 +978,34 @@
         // GLOBAL STATE
         // ============================================================
         let studentsCache = {};
+        let schoolId = null;
+        let schoolName = null;
 
-        // Students Reference
-        const studentsRef = ref(db, "Institution/ Revival/Students");
+        // ============================================================
+        // SCHOOL-SCOPED PATHS
+        // (mirrors the Institution/Schools/{schoolId}/... structure used
+        //  in the main app, instead of a single hardcoded school)
+        // ============================================================
+        function schoolPath(sub) {
+            if (!schoolId) throw new Error('School context not loaded yet');
+            return `Institution/Schools/${schoolId}/${sub}`;
+        }
+
+        // Resolve which school this receipt belongs to, from the link's
+        // ?school=/?schoolId=/?sid= parameter. Falls back to the only
+        // school on record if there's just one (single-school deployments).
+        async function resolveSchoolId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromUrl = urlParams.get('school') || urlParams.get('schoolId') || urlParams.get('sid');
+            if (fromUrl) return fromUrl;
+
+            const schoolsSnap = await get(ref(db, 'Institution/Schools'));
+            if (schoolsSnap.exists()) {
+                const ids = Object.keys(schoolsSnap.val());
+                if (ids.length === 1) return ids[0];
+            }
+            return null;
+        }
 
         // ============================================================
         // UTILITY FUNCTIONS
@@ -1024,7 +1049,7 @@
         // ============================================================
         async function loadStudentsCache() {
             try {
-                const snapshot = await get(studentsRef);
+                const snapshot = await get(ref(db, schoolPath('Students')));
                 if (snapshot.exists()) {
                     studentsCache = snapshot.val();
                     console.log('Students cache loaded:', Object.keys(studentsCache).length, 'students');
@@ -1064,6 +1089,26 @@
             document.getElementById('loadingState').classList.add('active');
             document.getElementById('receiptContainer').classList.remove('active');
             document.getElementById('errorState').classList.remove('active');
+
+            // Resolve which school this receipt belongs to
+            schoolId = await resolveSchoolId();
+            if (!schoolId) {
+                document.getElementById('loadingState').classList.remove('active');
+                document.getElementById('errorState').classList.add('active');
+                document.getElementById('errorMessage').textContent = 'This link is missing a school reference. Please use the link or QR code provided on your receipt.';
+                return;
+            }
+
+            try {
+                const schoolSnap = await get(ref(db, `Institution/Schools/${schoolId}`));
+                if (schoolSnap.exists()) {
+                    schoolName = schoolSnap.val().name || null;
+                    const subtitleEl = document.querySelector('.header-subtitle');
+                    if (schoolName && subtitleEl) {
+                        subtitleEl.textContent = `${schoolName} — Digital receipt verification`;
+                    }
+                }
+            } catch (_) { /* non-critical, keep default subtitle */ }
 
             // Load students cache first
             await loadStudentsCache();
@@ -1109,7 +1154,7 @@
 
             try {
                 // Try to find the payment directly by key
-                const paymentRef = ref(db, `Institution/ Revival/Fee_payment/${receiptKey}`);
+                const paymentRef = ref(db, `${schoolPath('Fee_payment')}/${receiptKey}`);
                 const paymentSnapshot = await get(paymentRef);
 
                 if (paymentSnapshot.exists()) {
@@ -1121,7 +1166,7 @@
                     showVerificationStatus(true, 'Receipt verified successfully');
                 } else {
                     // If not found by key, search all payments for ReceiptNo
-                    const allPaymentsRef = ref(db, 'Institution/ Revival/Fee_payment');
+                    const allPaymentsRef = ref(db, schoolPath('Fee_payment'));
                     const allPaymentsSnapshot = await get(allPaymentsRef);
 
                     if (allPaymentsSnapshot.exists()) {
