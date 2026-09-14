@@ -9393,7 +9393,6 @@
           menuMeal.disabled = false;
         }
 
-        // ── Current-term fee components (same source as getStudentRequiredFee) ──
         function getActiveTermFeeParts(admissionNumber) {
           const s = studentsCache?.[admissionNumber];
           if (!s?.class) {
@@ -9423,14 +9422,14 @@
         }
 
         /**
-         * Amount to ADD to balance when going from prev → next exceptions.
-         * Checking a component  → student now pays it → +fee
-         * Unchecking a component → student is exempt → −fee
-         * Values always come from the current active term.
+         * Checked  → student pays component → +fee, −Exemption, +balance
+         * Unchecked → exempt                → −fee, +Exemption, −balance
          */
-        function balanceDeltaFromExceptionChange(admissionNumber, prev, next) {
+        function deltasFromExceptionChange(admissionNumber, prev, next) {
           const fees = getActiveTermFeeParts(admissionNumber);
-          let delta = 0;
+          let feeDelta = 0;
+          let exemptionDelta = 0;
+          let balanceDelta = 0;
 
           const prevMeal = prev.Meal === true || prev.meals === true;
           const nextMeal = next.Meal === true || next.meals === true;
@@ -9439,45 +9438,124 @@
           const prevSpon = prev.Sponsored === true;
           const nextSpon = next.Sponsored === true;
 
-          // ── Meal ──────────────────────────────────────────────
-          // Checked = include meal in required fees → add to balance
-          // Unchecked = treat as exemption → remove from balance
-          if (!prevMeal && nextMeal) delta += fees.meal;
-          if (prevMeal && !nextMeal) delta -= fees.meal;
+          // ── Meal ────────────────────────────────────────────────
+          // Checked = pay meal → +fee, −exemption, +balance
+          if (!prevMeal && nextMeal) {
+            feeDelta += fees.meal;
+            exemptionDelta -= fees.meal;
+            balanceDelta += fees.meal;
+          }
+          if (prevMeal && !nextMeal) {
+            feeDelta -= fees.meal;
+            exemptionDelta += fees.meal;
+            balanceDelta -= fees.meal;
+          }
 
-          // ── Boarding ──────────────────────────────────────────
-          // Checked = student pays boarding → add boarding from current term
-          // Unchecked = remove boarding from balance
-          if (!prevBoard && nextBoard) delta += fees.boarding;
-          if (prevBoard && !nextBoard) delta -= fees.boarding;
+          // ── Boarding ────────────────────────────────────────────
+          if (!prevBoard && nextBoard) {
+            feeDelta += fees.boarding;
+            // day-student package may drop transport when boarding on
+            if (!prevSpon) {
+              // transport was part of day package; boarding replaces it
+              // adjust only boarding amount into fee/balance
+            }
+            balanceDelta += fees.boarding;
+            // boarding checked → exemption for boarding path is 0; no exemption add
+          }
+          if (prevBoard && !nextBoard) {
+            feeDelta -= fees.boarding;
+            balanceDelta -= fees.boarding;
+          }
 
-          // ── Sponsored ─────────────────────────────────────────
-          // Becoming sponsored: clear the package the student was paying
-          // Leaving sponsored: restore as if none of the flags were set
-          // (simple, term-based adjustment — adjust if your policy differs)
+          // ── Sponsored ───────────────────────────────────────────
+          // Becoming sponsored: zero out payable extras currently on
           if (!prevSpon && nextSpon) {
-            // Was paying whatever non-sponsored package implied; zero it out softly:
-            // subtract meal/boarding/transport/break that were "on" before sponsor
-            if (prevMeal) delta -= fees.meal;
-            if (prevBoard) delta -= fees.boarding;
-            if (!prevBoard) delta -= fees.transport; // day student transport was on
+            if (prevMeal) {
+              feeDelta -= fees.meal;
+              balanceDelta -= fees.meal;
+              exemptionDelta += fees.meal; // treat as fully exempt / sponsored
+            }
+            if (prevBoard) {
+              feeDelta -= fees.boarding;
+              balanceDelta -= fees.boarding;
+            }
+            if (!prevBoard) {
+              feeDelta -= fees.transport;
+              balanceDelta -= fees.transport;
+              exemptionDelta += fees.transport;
+            }
           }
+          // Leaving sponsored: restore based on next flags
           if (prevSpon && !nextSpon) {
-            if (nextMeal) delta += fees.meal;
-            if (nextBoard) delta += fees.boarding;
-            if (!nextBoard) delta += fees.transport;
+            if (nextMeal) {
+              feeDelta += fees.meal;
+              balanceDelta += fees.meal;
+              exemptionDelta -= fees.meal;
+            }
+            if (nextBoard) {
+              feeDelta += fees.boarding;
+              balanceDelta += fees.boarding;
+            }
+            if (!nextBoard) {
+              feeDelta += fees.transport;
+              balanceDelta += fees.transport;
+              exemptionDelta -= fees.transport;
+            }
           }
 
-          return delta;
+          return { feeDelta, exemptionDelta, balanceDelta };
+        }
+
+        /** Find Firebase key + record of the student's last payment (prefer current term). */
+        function findLastPaymentEntry(admissionNumber) {
+          if (!paymentCache || typeof paymentCache !== 'object') return null;
+
+          const normalized = String(admissionNumber).replace(/-/g, '/').trim();
+          const activeTerm = getActiveTerm();
+
+          let bestKey = null;
+          let bestPay = null;
+          let bestScore = -1;
+
+          for (const [key, payment] of Object.entries(paymentCache)) {
+            if (!payment) continue;
+            const payAdmn = String(payment.admissionNumber || '').replace(/-/g, '/').trim();
+            if (payAdmn !== normalized) continue;
+
+            // Prefer current-term payments; then higher receipt / later entry
+            let score = 0;
+            if (activeTerm && payment.term === activeTerm) score += 1000000;
+
+            const receipt = parseInt(payment.ReceiptNo, 10);
+            if (!isNaN(receipt)) score += receipt;
+
+            const entry = String(payment.entryDate || payment.paymentDate || '');
+            // crude date boost if DD/MM/YYYY
+            const m = entry.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (m) {
+              score += parseInt(m[3], 10) * 10000 + parseInt(m[2], 10) * 100 + parseInt(m[1], 10);
+            }
+
+            if (score >= bestScore) {
+              bestScore = score;
+              bestKey = key;
+              bestPay = payment;
+            }
+          }
+
+          if (!bestKey || !bestPay) return null;
+          return { key: bestKey, payment: bestPay };
         }
 
         const activeTerm = getActiveTerm();
-        const lastPayment = student.lastPayment || null;
+        const lastEntry = findLastPaymentEntry(selectedAdmissionNumber);
+        const lastPayment = lastEntry?.payment || student.lastPayment || null;
+
         const lastPaymentIsCurrentTerm = !!(
           lastPayment && activeTerm && lastPayment.term === activeTerm
         );
 
-        let lastPaymentUpdates = null;
+        let paymentUpdates = null;
 
         if (lastPaymentIsCurrentTerm) {
           const oldExemptionAmount = computeExceptionsAmountFor(
@@ -9489,25 +9567,39 @@
             exceptions
           );
 
-          const balanceAdj = balanceDeltaFromExceptionChange(
+          const { feeDelta, exemptionDelta, balanceDelta } = deltasFromExceptionChange(
             selectedAdmissionNumber,
             previousExceptions,
             exceptions
           );
 
-          if (balanceAdj !== 0 || oldExemptionAmount !== newExemptionAmount) {
+          if (feeDelta !== 0 || exemptionDelta !== 0 || balanceDelta !== 0 ||
+            oldExemptionAmount !== newExemptionAmount) {
+
+            const oldFee =
+              parseFloat(String(lastPayment.fee || 0).replace(/,/g, '')) || 0;
+            const oldExemption =
+              parseFloat(String(lastPayment.Exemption || 0).replace(/,/g, '')) || 0;
             const oldBalance =
               parseFloat(String(lastPayment.balance || 0).replace(/,/g, '')) || 0;
-            const newBalance = oldBalance + balanceAdj;
+
+            // Checked: +fee, −Exemption, +balance
+            const newFee = Math.max(0, oldFee + feeDelta);
+            const newExemption = Math.max(0, oldExemption + exemptionDelta);
+            // Prefer computed exemption from rules when available
+            const finalExemption = newExemptionAmount;
+            const newBalance = oldBalance + balanceDelta;
 
             const proceed = confirm(
-              `This exception change affects the student's current term (${activeTerm}) exemption.\n\n` +
-              `Exemption: KES ${formatCurrency(oldExemptionAmount)} → KES ${formatCurrency(newExemptionAmount)}\n` +
-              `Last payment balance: KES ${formatCurrency(oldBalance)} → KES ${formatCurrency(newBalance)}\n\n` +
-              `Apply these changes to the student's last payment record?`
+              `This exception change affects the student's current-term payment (${activeTerm}).\n\n` +
+              `Fee: KES ${formatCurrency(oldFee)} → ${formatCurrency(newFee)}\n` +
+              `Exemption: KES ${formatCurrency(oldExemption)} → ${formatCurrency(finalExemption)}\n` +
+              `Balance: KES ${formatCurrency(oldBalance)} → ${formatCurrency(newBalance)}\n\n` +
+              `Update the last payment record in the fee list?`
             );
 
             if (!proceed) {
+              // revert UI checkboxes
               if (menuMeal) {
                 menuMeal.checked =
                   previousExceptions.Meal === true || previousExceptions.meals === true;
@@ -9525,27 +9617,50 @@
               return;
             }
 
-            lastPaymentUpdates = {
+            paymentUpdates = {
               ...lastPayment,
-              balance: formatCurrency(newBalance),
-              Exemption: formatCurrency(newExemptionAmount)
+              fee: formatCurrency(newFee),
+              Exemption: formatCurrency(finalExemption),
+              balance: formatCurrency(newBalance)
             };
           }
         }
 
         const admissionKey = selectedAdmissionNumber.replace(/\//g, '-');
+
         try {
-          const updates = { Exceptions: exceptions };
-          if (lastPaymentUpdates) {
-            updates.lastPayment = lastPaymentUpdates;
+          const studentUpdates = { Exceptions: exceptions };
+          if (paymentUpdates) {
+            studentUpdates.lastPayment = paymentUpdates;
           }
 
-          await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), updates);
+          await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), studentUpdates);
+
+          // Also update the actual record in Fee_payment list
+          if (paymentUpdates && lastEntry?.key) {
+            await update(
+              ref(db, `${schoolPath('Fee_payment')}/${lastEntry.key}`),
+              {
+                fee: paymentUpdates.fee,
+                Exemption: paymentUpdates.Exemption,
+                balance: paymentUpdates.balance
+              }
+            );
+
+            if (paymentCache && typeof paymentCache === 'object') {
+              paymentCache[lastEntry.key] = {
+                ...paymentCache[lastEntry.key],
+                fee: paymentUpdates.fee,
+                Exemption: paymentUpdates.Exemption,
+                balance: paymentUpdates.balance
+              };
+            }
+          }
 
           if (studentsCache[selectedAdmissionNumber]) {
             studentsCache[selectedAdmissionNumber].Exceptions = exceptions;
-            if (lastPaymentUpdates) {
-              studentsCache[selectedAdmissionNumber].lastPayment = lastPaymentUpdates;
+            if (paymentUpdates) {
+              studentsCache[selectedAdmissionNumber].lastPayment = paymentUpdates;
             }
           }
 
@@ -9559,15 +9674,14 @@
             positionContextMenu();
           });
 
-          if (lastPaymentUpdates && typeof showToast === 'function') {
-            showToast('Last payment balance updated for the current term.');
+          if (paymentUpdates && typeof showToast === 'function') {
+            showToast('Last payment (fee / exemption / balance) updated for the current term.');
           }
         } catch (error) {
           console.error('Failed to update exceptions:', error);
           alert('Failed to update student exceptions:\n' + error.message);
         }
       }
-
       menuBoarding?.addEventListener("change", async function (e) {
         e.stopPropagation();
         await updateStudentExceptions();
