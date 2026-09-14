@@ -9232,7 +9232,9 @@
         if (!selectedAdmissionNumber) return;
 
         const student = studentsCache?.[selectedAdmissionNumber];
-        const previousExceptions = student?.Exceptions || {};
+        if (!student) return;
+
+        const previousExceptions = student.Exceptions || {};
         const previousMealDisabled = menuMeal?.disabled;
 
         const exceptions = {
@@ -9241,24 +9243,123 @@
           Sponsored: menuSponsored?.checked || false
         };
 
+        // Boarding forces Meal off
+        if (exceptions.Boarding) {
+          exceptions.Meal = false;
+          if (menuMeal) {
+            menuMeal.checked = false;
+            menuMeal.disabled = true;
+          }
+        } else if (menuMeal) {
+          menuMeal.disabled = false;
+        }
+
+        // ── Current-term fee components (same source as getStudentRequiredFee) ──
+        function getActiveTermFeeParts(admissionNumber) {
+          const s = studentsCache?.[admissionNumber];
+          if (!s?.class) {
+            return { meal: 0, transport: 0, boarding: 0, breakFee: 0, grade: 0 };
+          }
+
+          const grade = String(s.class).split('-')[0].trim();
+          const activeTerm = terms.find(
+            t => String(t.status || '').trim().toLowerCase() === 'active'
+          );
+          if (!activeTerm) {
+            return { meal: 0, transport: 0, boarding: 0, breakFee: 0, grade: 0 };
+          }
+
+          let boarding = parseFloat(activeTerm.boarding) || 0;
+          if (/[789]/.test(grade)) {
+            boarding = Math.max(0, boarding - 2000);
+          }
+
+          return {
+            grade: parseFloat(activeTerm.grades?.[grade]) || 0,
+            meal: parseFloat(activeTerm.meal) || 0,
+            transport: parseFloat(activeTerm.transport) || 0,
+            boarding,
+            breakFee: parseFloat(activeTerm.breakFee) || 0
+          };
+        }
+
+        /**
+         * Amount to ADD to balance when going from prev → next exceptions.
+         * Checking a component  → student now pays it → +fee
+         * Unchecking a component → student is exempt → −fee
+         * Values always come from the current active term.
+         */
+        function balanceDeltaFromExceptionChange(admissionNumber, prev, next) {
+          const fees = getActiveTermFeeParts(admissionNumber);
+          let delta = 0;
+
+          const prevMeal = prev.Meal === true || prev.meals === true;
+          const nextMeal = next.Meal === true || next.meals === true;
+          const prevBoard = prev.Boarding === true;
+          const nextBoard = next.Boarding === true;
+          const prevSpon = prev.Sponsored === true;
+          const nextSpon = next.Sponsored === true;
+
+          // ── Meal ──────────────────────────────────────────────
+          // Checked = include meal in required fees → add to balance
+          // Unchecked = treat as exemption → remove from balance
+          if (!prevMeal && nextMeal) delta += fees.meal;
+          if (prevMeal && !nextMeal) delta -= fees.meal;
+
+          // ── Boarding ──────────────────────────────────────────
+          // Checked = student pays boarding → add boarding from current term
+          // Unchecked = remove boarding from balance
+          if (!prevBoard && nextBoard) delta += fees.boarding;
+          if (prevBoard && !nextBoard) delta -= fees.boarding;
+
+          // ── Sponsored ─────────────────────────────────────────
+          // Becoming sponsored: clear the package the student was paying
+          // Leaving sponsored: restore as if none of the flags were set
+          // (simple, term-based adjustment — adjust if your policy differs)
+          if (!prevSpon && nextSpon) {
+            // Was paying whatever non-sponsored package implied; zero it out softly:
+            // subtract meal/boarding/transport/break that were "on" before sponsor
+            if (prevMeal) delta -= fees.meal;
+            if (prevBoard) delta -= fees.boarding;
+            if (!prevBoard) delta -= fees.transport; // day student transport was on
+          }
+          if (prevSpon && !nextSpon) {
+            if (nextMeal) delta += fees.meal;
+            if (nextBoard) delta += fees.boarding;
+            if (!nextBoard) delta += fees.transport;
+          }
+
+          return delta;
+        }
+
         const activeTerm = getActiveTerm();
-        const lastPayment = student?.lastPayment || null;
-        const lastPaymentIsCurrentTerm = !!(lastPayment && activeTerm && lastPayment.term === activeTerm);
+        const lastPayment = student.lastPayment || null;
+        const lastPaymentIsCurrentTerm = !!(
+          lastPayment && activeTerm && lastPayment.term === activeTerm
+        );
 
         let lastPaymentUpdates = null;
 
         if (lastPaymentIsCurrentTerm) {
-          const oldExemptionAmount = computeExceptionsAmountFor(selectedAdmissionNumber, previousExceptions);
-          const newExemptionAmount = computeExceptionsAmountFor(selectedAdmissionNumber, exceptions);
-          // Positive when exemption increases (e.g. uncheck Meal)
-          // Negative when exemption decreases (e.g. check Meal)
-          const delta = newExemptionAmount - oldExemptionAmount;
+          const oldExemptionAmount = computeExceptionsAmountFor(
+            selectedAdmissionNumber,
+            previousExceptions
+          );
+          const newExemptionAmount = computeExceptionsAmountFor(
+            selectedAdmissionNumber,
+            exceptions
+          );
 
-          if (delta !== 0) {
-            const oldBalance = parseFloat(String(lastPayment.balance || 0).replace(/,/g, "")) || 0;
-            // Exemption up  → balance down (owe less)
-            // Exemption down → balance up   (owe more)
-            const newBalance = oldBalance - delta;
+          const balanceAdj = balanceDeltaFromExceptionChange(
+            selectedAdmissionNumber,
+            previousExceptions,
+            exceptions
+          );
+
+          if (balanceAdj !== 0 || oldExemptionAmount !== newExemptionAmount) {
+            const oldBalance =
+              parseFloat(String(lastPayment.balance || 0).replace(/,/g, '')) || 0;
+            const newBalance = oldBalance + balanceAdj;
 
             const proceed = confirm(
               `This exception change affects the student's current term (${activeTerm}) exemption.\n\n` +
@@ -9269,12 +9370,18 @@
 
             if (!proceed) {
               if (menuMeal) {
-                menuMeal.checked = previousExceptions.Meal === true || previousExceptions.meals === true;
+                menuMeal.checked =
+                  previousExceptions.Meal === true || previousExceptions.meals === true;
               }
-              if (menuBoarding) menuBoarding.checked = previousExceptions.Boarding === true;
-              if (menuSponsored) menuSponsored.checked = previousExceptions.Sponsored === true;
+              if (menuBoarding) {
+                menuBoarding.checked = previousExceptions.Boarding === true;
+              }
+              if (menuSponsored) {
+                menuSponsored.checked = previousExceptions.Sponsored === true;
+              }
               if (menuMeal) {
-                menuMeal.disabled = previousMealDisabled ?? (previousExceptions.Boarding === true);
+                menuMeal.disabled =
+                  previousMealDisabled ?? (previousExceptions.Boarding === true);
               }
               return;
             }
@@ -9287,17 +9394,7 @@
           }
         }
 
-        if (menuBoarding?.checked) {
-          if (menuMeal) {
-            menuMeal.checked = false;
-            menuMeal.disabled = true;
-          }
-          exceptions.Meal = false;
-        } else if (menuMeal) {
-          menuMeal.disabled = false;
-        }
-
-        const admissionKey = selectedAdmissionNumber.replace(/\//g, "-");
+        const admissionKey = selectedAdmissionNumber.replace(/\//g, '-');
         try {
           const updates = { Exceptions: exceptions };
           if (lastPaymentUpdates) {
@@ -9323,20 +9420,15 @@
             positionContextMenu();
           });
 
-          console.log(
-            "Exceptions updated:",
-            selectedAdmissionNumber,
-            exceptions,
-            lastPaymentUpdates ? { lastPaymentUpdates } : ""
-          );
           if (lastPaymentUpdates && typeof showToast === 'function') {
             showToast('Last payment balance updated for the current term.');
           }
         } catch (error) {
-          console.error("Failed to update exceptions:", error);
-          alert("Failed to update student exceptions:\n" + error.message);
+          console.error('Failed to update exceptions:', error);
+          alert('Failed to update student exceptions:\n' + error.message);
         }
       }
+
       menuBoarding?.addEventListener("change", async function (e) {
         e.stopPropagation();
         await updateStudentExceptions();
