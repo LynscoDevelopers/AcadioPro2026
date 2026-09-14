@@ -6629,12 +6629,13 @@
 
             const admissionPayment = {
               term: activeTerm,
-              fee: formatCurrency(requiredAtAdmission),
+              
               boarding: senior,
               class: studentClass,
               entryDate,
               admissionNumber,
               amount: formatCurrency(0),
+              fee: formatCurrency(requiredAtAdmission) + formatCurrency(senior ? 0 : mealExempt),
               balance: formatCurrency(requiredAtAdmission),
               Account: "Admission",
               paymentDate,
