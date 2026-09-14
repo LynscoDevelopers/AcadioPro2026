@@ -9250,11 +9250,15 @@
         if (lastPaymentIsCurrentTerm) {
           const oldExemptionAmount = computeExceptionsAmountFor(selectedAdmissionNumber, previousExceptions);
           const newExemptionAmount = computeExceptionsAmountFor(selectedAdmissionNumber, exceptions);
+          // Positive when exemption increases (e.g. uncheck Meal)
+          // Negative when exemption decreases (e.g. check Meal)
           const delta = newExemptionAmount - oldExemptionAmount;
 
           if (delta !== 0) {
             const oldBalance = parseFloat(String(lastPayment.balance || 0).replace(/,/g, "")) || 0;
-            const newBalance = oldBalance + delta;
+            // Exemption up  → balance down (owe less)
+            // Exemption down → balance up   (owe more)
+            const newBalance = oldBalance - delta;
 
             const proceed = confirm(
               `This exception change affects the student's current term (${activeTerm}) exemption.\n\n` +
@@ -9264,10 +9268,14 @@
             );
 
             if (!proceed) {
-              if (menuMeal) menuMeal.checked = previousExceptions.Meal === true || previousExceptions.meals === true;
+              if (menuMeal) {
+                menuMeal.checked = previousExceptions.Meal === true || previousExceptions.meals === true;
+              }
               if (menuBoarding) menuBoarding.checked = previousExceptions.Boarding === true;
               if (menuSponsored) menuSponsored.checked = previousExceptions.Sponsored === true;
-              if (menuMeal) menuMeal.disabled = previousMealDisabled ?? (previousExceptions.Boarding === true);
+              if (menuMeal) {
+                menuMeal.disabled = previousMealDisabled ?? (previousExceptions.Boarding === true);
+              }
               return;
             }
 
@@ -9285,10 +9293,8 @@
             menuMeal.disabled = true;
           }
           exceptions.Meal = false;
-        } else {
-          if (menuMeal) {
-            menuMeal.disabled = false;
-          }
+        } else if (menuMeal) {
+          menuMeal.disabled = false;
         }
 
         const admissionKey = selectedAdmissionNumber.replace(/\//g, "-");
@@ -9317,7 +9323,12 @@
             positionContextMenu();
           });
 
-          console.log("Exceptions updated:", selectedAdmissionNumber, exceptions, lastPaymentUpdates ? { lastPaymentUpdates } : "");
+          console.log(
+            "Exceptions updated:",
+            selectedAdmissionNumber,
+            exceptions,
+            lastPaymentUpdates ? { lastPaymentUpdates } : ""
+          );
           if (lastPaymentUpdates && typeof showToast === 'function') {
             showToast('Last payment balance updated for the current term.');
           }
