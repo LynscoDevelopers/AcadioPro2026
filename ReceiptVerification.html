@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
@@ -110,6 +111,7 @@
                 opacity: 0;
                 transform: translateY(15px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -226,140 +228,6 @@
         .error-btn.secondary:hover {
             background: #e8e9ed;
             transform: translateY(-2px);
-        }
-
-        /* ============ LOOKUP STATE ============ */
-        .lookup-state {
-            display: none;
-            text-align: center;
-            padding: 60px 20px;
-            max-width: 460px;
-            margin: 0 auto;
-        }
-
-        .lookup-state.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .lookup-icon {
-            width: 70px;
-            height: 70px;
-            background: #eef0fb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 18px;
-            font-size: 1.7rem;
-            color: var(--primary);
-        }
-
-        .lookup-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .lookup-subtitle {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 22px;
-            line-height: 1.6;
-        }
-
-        .lookup-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            text-align: left;
-        }
-
-        .lookup-label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .lookup-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            color: var(--text);
-            background: var(--card);
-            transition: border-color 0.2s;
-        }
-
-        .lookup-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .lookup-hint {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            opacity: 0.85;
-        }
-
-        .lookup-btn {
-            margin-top: 4px;
-            padding: 12px 20px;
-            border-radius: 10px;
-            border: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            font-family: inherit;
-            color: white;
-            background: var(--accent);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .lookup-btn:hover {
-            background: var(--accent-light);
-            transform: translateY(-2px);
-        }
-
-        .lookup-btn:disabled {
-            opacity: 0.65;
-            cursor: default;
-            transform: none;
-        }
-
-        .lookup-error {
-            display: none;
-            font-size: 0.8rem;
-            color: var(--danger);
-            margin-top: 2px;
-        }
-
-        .lookup-error.active {
-            display: block;
-        }
-
-        .search-again-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 4px;
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-family: inherit;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: underline;
         }
 
         /* ============ RECEIPT CONTAINER ============ */
@@ -842,6 +710,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Header -->
@@ -870,36 +739,17 @@
         <p class="loading-subtext">Please wait while we verify the receipt</p>
     </div>
 
-    <!-- Manual Lookup State -->
-    <div class="lookup-state" id="lookupState">
-        <div class="lookup-icon">
-            <i class="fas fa-key"></i>
-        </div>
-        <h2 class="lookup-title">Look Up a Receipt</h2>
-        <p class="lookup-subtitle">Enter the transaction key from your receipt link, QR code, or the reference given to you by the school office.</p>
-        <div class="lookup-form">
-            <div>
-                <label class="lookup-label" for="lookupKeyInput">Transaction key</label>
-                <input type="text" id="lookupKeyInput" class="lookup-input" placeholder="e.g. -NxYz1AbCdEfGhIjKlMn" autocomplete="off" autocapitalize="off" spellcheck="false">
-                <p class="lookup-error" id="lookupError"></p>
-            </div>
-            <p class="lookup-hint">You can also paste the full receipt link — the key will be pulled out automatically.</p>
-            <button class="lookup-btn" id="lookupSubmitBtn" onclick="window.verifyManualKey()">
-                <i class="fas fa-search"></i> Verify Receipt
-            </button>
-        </div>
-    </div>
-
     <!-- Error State -->
     <div class="error-state" id="errorState">
         <div class="error-icon">
             <i class="fas fa-times-circle"></i>
         </div>
         <h2 class="error-title">Receipt Not Found</h2>
-        <p class="error-message" id="errorMessage">The receipt you are looking for could not be found or has been invalidated.</p>
+        <p class="error-message" id="errorMessage">The receipt you are looking for could not be found or has been
+            invalidated.</p>
         <div class="error-actions">
-            <button class="error-btn primary" onclick="window.showLookupForm()">
-                <i class="fas fa-key"></i> Enter Transaction Key
+            <button class="error-btn primary" onclick="window.location.href = window.location.pathname">
+                <i class="fas fa-redo"></i> Try Again
             </button>
             <button class="error-btn secondary" onclick="window.close()">
                 <i class="fas fa-times"></i> Close
@@ -1093,11 +943,6 @@
                 <i class="fas fa-share-alt"></i> Share
             </button>
         </div>
-        <div style="text-align: center; margin-top: 16px;">
-            <button class="search-again-link" onclick="window.showLookupForm()">
-                <i class="fas fa-key"></i> Look up another receipt
-            </button>
-        </div>
     </div>
 
     <!-- Firebase Scripts -->
@@ -1113,6 +958,7 @@
             get
         } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
+
         // ============================================================
         // FIREBASE CONFIG
         // ============================================================
@@ -1127,11 +973,14 @@
             measurementId: "G-6E1J42CD4R"
         };
 
+
         // ============================================================
         // INITIALIZE
         // ============================================================
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
+
 
         // ============================================================
         // GLOBAL STATE
@@ -1140,516 +989,875 @@
         let schoolId = null;
         let schoolName = null;
 
+
         // ============================================================
-        // SCHOOL-SCOPED PATHS
-        // (mirrors the Institution/Schools/{schoolId}/... structure used
-        //  in the main app, instead of a single hardcoded school)
+        // SCHOOL-SCOPED PATH
         // ============================================================
         function schoolPath(sub) {
-            if (!schoolId) throw new Error('School context not loaded yet');
+            if (!schoolId) {
+                throw new Error("School context not loaded yet");
+            }
+
             return `Institution/Schools/${schoolId}/${sub}`;
         }
 
-        // Resolve which school this receipt belongs to, from the link's
-        // ?school=/?schoolId=/?sid= parameter. Falls back to the only
-        // school on record if there's just one (single-school deployments).
-        async function resolveSchoolId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const fromUrl = urlParams.get('school') || urlParams.get('schoolId') || urlParams.get('sid');
-            if (fromUrl) return fromUrl;
-
-            const schoolsSnap = await get(ref(db, 'Institution/Schools'));
-            if (schoolsSnap.exists()) {
-                const ids = Object.keys(schoolsSnap.val());
-                if (ids.length === 1) return ids[0];
-            }
-            return null;
-        }
 
         // ============================================================
-        // UTILITY FUNCTIONS
+        // FORMAT CURRENCY
         // ============================================================
         function formatCurrency(value) {
-            if (value === null || value === undefined || value === "") return "0.00";
-            if (value === "Sponsored") return "Sponsored";
-            const num = typeof value === 'string' ? parseFloat(value.replace(/,/g, '')) : parseFloat(value);
-            if (isNaN(num)) return "0.00";
-            return num.toLocaleString('en-US', {
+            if (value === null || value === undefined || value === "") {
+                return "0.00";
+            }
+
+            if (value === "Sponsored") {
+                return "Sponsored";
+            }
+
+            const num =
+                typeof value === "string"
+                    ? parseFloat(value.replace(/,/g, ""))
+                    : parseFloat(value);
+
+            if (isNaN(num)) {
+                return "0.00";
+            }
+
+            return num.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
         }
 
+
+        // ============================================================
+        // FORMAT DATE
+        // ============================================================
         function formatDateToDDMMYYYY(dateString) {
-            if (!dateString) return '—';
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) return dateString;
+            if (!dateString) {
+                return "—";
+            }
+
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+                return dateString;
+            }
+
             const d = new Date(dateString);
-            if (isNaN(d)) return dateString;
-            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+
+            if (isNaN(d)) {
+                return dateString;
+            }
+
+            return `${String(d.getDate()).padStart(2, "0")}/${String(
+                d.getMonth() + 1
+            ).padStart(2, "0")}/${d.getFullYear()}`;
         }
 
+
+        // ============================================================
+        // CURRENT DATE
+        // ============================================================
         function getCurrentDate() {
             const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                2,
+                "0"
+            )}-${String(d.getDate()).padStart(2, "0")}`;
         }
 
+
         // ============================================================
-        // GET STUDENT NAME FROM FIREBASE
+        // GET STUDENT NAME
         // ============================================================
         function getStudentName(admissionNumber) {
-            if (!studentsCache || !admissionNumber) return 'Unknown';
-            const key = String(admissionNumber).replace(/\//g, '-');
+            if (!studentsCache || !admissionNumber) {
+                return "Unknown";
+            }
+
+            const key = String(admissionNumber).replace(/\//g, "-");
             const student = studentsCache[key];
-            return student?.name || student?.studentName || 'Unknown';
+
+            return student?.name || student?.studentName || "Unknown";
         }
 
+
         // ============================================================
-        // LOAD STUDENTS CACHE
+        // LOAD STUDENTS
         // ============================================================
         async function loadStudentsCache() {
             try {
-                const snapshot = await get(ref(db, schoolPath('Students')));
+                const snapshot = await get(
+                    ref(db, schoolPath("Students"))
+                );
+
                 if (snapshot.exists()) {
                     studentsCache = snapshot.val();
-                    console.log('Students cache loaded:', Object.keys(studentsCache).length, 'students');
+
+                    console.log(
+                        "Students cache loaded:",
+                        Object.keys(studentsCache).length,
+                        "students"
+                    );
                 } else {
                     studentsCache = {};
-                    console.log('No students found in database');
+                    console.log("No students found in database");
                 }
+
             } catch (error) {
-                console.error('Error loading students:', error);
+                console.error("Error loading students:", error);
                 studentsCache = {};
             }
         }
 
+
         // ============================================================
-        // EXTRACT FIREBASE KEY FROM URL
+        // EXTRACT FIREBASE KEY
         // ============================================================
         function extractFirebaseKey(input) {
-            if (input.includes('http')) {
+            if (!input) {
+                return null;
+            }
+
+            input = String(input).trim();
+
+            // If a complete URL was supplied
+            if (input.includes("http")) {
                 try {
                     const url = new URL(input);
-                    const parts = url.pathname.split('/').filter(p => p);
+
+                    const receipt =
+                        new URLSearchParams(url.search).get("receipt");
+
+                    if (receipt) {
+                        return receipt;
+                    }
+
+                    const parts = url.pathname
+                        .split("/")
+                        .filter(p => p);
+
                     return parts[parts.length - 1] || null;
+
                 } catch (e) {
                     return null;
                 }
             }
-            
-            const cleaned = input.trim().replace(/^\/+|\/+$/g, '');
-            return cleaned || null;
+
+            return input.replace(/^\/+|\/+$/g, "") || null;
         }
 
+
         // ============================================================
-        // STATE HELPERS
+        // GET SCHOOL + PAYMENT KEY FROM RECEIPT VALUE
+        //
+        // Expected:
+        //
+        // ?receipt=schoolId/paymentKey
+        //
+        // Example:
+        //
+        // ?receipt=-P1WVbjsWLyWYp5sIWMR/-Oabc123XYZ
         // ============================================================
-        function hideAllStates() {
-            document.getElementById('loadingState').classList.remove('active');
-            document.getElementById('lookupState').classList.remove('active');
-            document.getElementById('errorState').classList.remove('active');
-            document.getElementById('receiptContainer').classList.remove('active');
+        function parseReceiptValue(value) {
+            if (!value) {
+                return null;
+            }
+
+            const cleaned = decodeURIComponent(String(value))
+                .trim()
+                .replace(/^\/+|\/+$/g, "");
+
+            const parts = cleaned.split("/");
+
+            if (parts.length !== 2) {
+                return null;
+            }
+
+            const parsedSchoolId = parts[0].trim();
+            const paymentKey = parts[1].trim();
+
+            if (!parsedSchoolId || !paymentKey) {
+                return null;
+            }
+
+            return {
+                schoolId: parsedSchoolId,
+                paymentKey: paymentKey
+            };
         }
 
-        // Bring back the manual-entry form (e.g. from the error state,
-        // or "look up another receipt" after a successful verification).
-        window.showLookupForm = function() {
-            hideAllStates();
-            document.getElementById('lookupState').classList.add('active');
-            const input = document.getElementById('lookupKeyInput');
-            const errEl = document.getElementById('lookupError');
-            if (errEl) errEl.classList.remove('active');
-            if (input) {
-                input.value = '';
-                setTimeout(() => input.focus(), 50);
-            }
-            // Clear any receipt-identifying query params/hash so a page
-            // refresh doesn't just re-trigger the same auto-load.
-            try {
-                const url = new URL(window.location.href);
-                ['receipt', 'key', 'id', 'ref', 't'].forEach(p => url.searchParams.delete(p));
-                window.history.replaceState({}, '', url.pathname + url.search);
-            } catch (_) { /* non-critical */ }
-        };
 
         // ============================================================
-        // LOOK UP A PAYMENT/RECEIPT BY ITS FIREBASE TRANSACTION KEY
-        // (also falls back to matching on ReceiptNo / paymentRef / Qr_Key
-        // in case the person pastes a receipt number instead of the key)
+        // AUTO LOAD RECEIPT
         // ============================================================
-        async function lookupReceiptByKey(rawKey) {
-            const receiptKey = extractFirebaseKey(rawKey);
+        async function autoLoadReceipt() {
 
-            if (!receiptKey) {
-                return { ok: false, message: 'Invalid receipt key format.' };
+            // Show loading
+            document.getElementById("loadingState").classList.add("active");
+            document.getElementById("receiptContainer").classList.remove("active");
+            document.getElementById("errorState").classList.remove("active");
+
+
+            // ========================================================
+            // GET RECEIPT FROM URL
+            // ========================================================
+            const urlParams = new URLSearchParams(window.location.search);
+
+            let receiptValue =
+                urlParams.get("receipt") ||
+                urlParams.get("key") ||
+                urlParams.get("id") ||
+                urlParams.get("ref") ||
+                urlParams.get("t");
+
+
+            // Also support hash
+            if (!receiptValue && window.location.hash) {
+                receiptValue = window.location.hash.replace("#", "");
             }
 
-            console.log('Looking for receipt with key:', receiptKey);
+
+            // ========================================================
+            // CHECK RECEIPT VALUE
+            // ========================================================
+            if (!receiptValue) {
+
+                document.getElementById("loadingState").classList.remove("active");
+                document.getElementById("errorState").classList.add("active");
+
+                document.getElementById("errorMessage").textContent =
+                    "No receipt key found in the URL. Please check the link or QR code.";
+
+                return;
+            }
+
+
+            // ========================================================
+            // PARSE schoolId/paymentKey
+            // ========================================================
+            const parsed = parseReceiptValue(receiptValue);
+
+
+            if (!parsed) {
+
+                document.getElementById("loadingState").classList.remove("active");
+                document.getElementById("errorState").classList.add("active");
+
+                document.getElementById("errorMessage").textContent =
+                    "Invalid receipt format. Expected schoolId/paymentKey.";
+
+                return;
+            }
+
+
+            // ========================================================
+            // SET SCHOOL + PAYMENT KEY
+            // ========================================================
+            schoolId = parsed.schoolId;
+
+            const receiptKey = parsed.paymentKey;
+
+
+            console.log("=================================");
+            console.log("Receipt verification");
+            console.log("School ID:", schoolId);
+            console.log("Payment Key:", receiptKey);
+            console.log("=================================");
+
 
             try {
-                // Try to find the payment directly by its Firebase transaction key
-                const paymentRef = ref(db, `${schoolPath('Fee_payment')}/${receiptKey}`);
-                const paymentSnapshot = await get(paymentRef);
 
-                if (paymentSnapshot.exists()) {
-                    const paymentData = paymentSnapshot.val();
-                    console.log('Receipt found:', paymentData);
-                    displayReceipt(paymentData, receiptKey);
-                    showVerificationStatus(true, 'Receipt verified successfully');
-                    return { ok: true };
-                }
+                // ====================================================
+                // LOAD SCHOOL INFORMATION
+                // ====================================================
+                try {
 
-                // If not found by key, search all payments for a matching
-                // ReceiptNo / paymentRef / Qr_Key instead.
-                const allPaymentsRef = ref(db, schoolPath('Fee_payment'));
-                const allPaymentsSnapshot = await get(allPaymentsRef);
+                    const schoolSnap = await get(
+                        ref(db, `Institution/Schools/${schoolId}`)
+                    );
 
-                if (allPaymentsSnapshot.exists()) {
-                    const allPayments = allPaymentsSnapshot.val();
-                    let foundPayment = null;
-                    let foundKey = null;
+                    if (schoolSnap.exists()) {
 
-                    for (const [key, payment] of Object.entries(allPayments)) {
-                        if (payment.ReceiptNo === receiptKey ||
-                            payment.paymentRef === receiptKey ||
-                            payment.Qr_Key === receiptKey) {
-                            foundPayment = payment;
-                            foundKey = key;
-                            break;
+                        schoolName = schoolSnap.val().name || null;
+
+                        const subtitleEl =
+                            document.querySelector(".header-subtitle");
+
+                        if (schoolName && subtitleEl) {
+                            subtitleEl.textContent =
+                                `${schoolName} — Digital receipt verification`;
                         }
                     }
 
-                    if (foundPayment) {
-                        displayReceipt(foundPayment, foundKey);
-                        showVerificationStatus(true, 'Receipt verified successfully');
-                        return { ok: true };
+                } catch (_) {
+                    // Non-critical
+                }
+
+
+                // ====================================================
+                // LOAD STUDENTS
+                // ====================================================
+                await loadStudentsCache();
+
+
+                // ====================================================
+                // LOAD PAYMENT DIRECTLY
+                // ====================================================
+                console.log(
+                    "Looking for payment:",
+                    `Institution/Schools/${schoolId}/Fee_payment/${receiptKey}`
+                );
+
+
+                const paymentRef = ref(
+                    db,
+                    `${schoolPath("Fee_payment")}/${receiptKey}`
+                );
+
+                const paymentSnapshot = await get(paymentRef);
+
+
+                // ====================================================
+                // PAYMENT FOUND
+                // ====================================================
+                if (paymentSnapshot.exists()) {
+
+                    const paymentData = paymentSnapshot.val();
+
+                    console.log("Receipt found:", paymentData);
+
+                    displayReceipt(paymentData, receiptKey);
+
+                    showVerificationStatus(
+                        true,
+                        "Receipt verified successfully"
+                    );
+
+                }
+
+                // ====================================================
+                // PAYMENT NOT FOUND
+                // ====================================================
+                else {
+
+                    // Search by ReceiptNo/paymentRef/Qr_Key
+                    const allPaymentsRef =
+                        ref(db, schoolPath("Fee_payment"));
+
+                    const allPaymentsSnapshot =
+                        await get(allPaymentsRef);
+
+
+                    if (allPaymentsSnapshot.exists()) {
+
+                        const allPayments =
+                            allPaymentsSnapshot.val();
+
+                        let foundPayment = null;
+                        let foundKey = null;
+
+
+                        for (const [key, payment] of Object.entries(allPayments)) {
+
+                            if (
+                                payment.ReceiptNo === receiptKey ||
+                                payment.paymentRef === receiptKey ||
+                                payment.Qr_Key === receiptValue
+                            ) {
+
+                                foundPayment = payment;
+                                foundKey = key;
+
+                                break;
+                            }
+                        }
+
+
+                        if (foundPayment) {
+
+                            displayReceipt(
+                                foundPayment,
+                                foundKey
+                            );
+
+                            showVerificationStatus(
+                                true,
+                                "Receipt verified successfully"
+                            );
+
+                        } else {
+
+                            showError(
+                                "Receipt not found. The receipt may have been deleted or is invalid."
+                            );
+                        }
+
+                    } else {
+
+                        showError(
+                            "No receipts found in the database."
+                        );
                     }
                 }
 
-                return { ok: false, message: 'Receipt not found. Double-check the transaction key and try again.' };
 
             } catch (error) {
-                console.error('Error loading receipt:', error);
-                return { ok: false, message: 'An error occurred while verifying the receipt. Please try again later.' };
+
+                console.error(
+                    "Error loading receipt:",
+                    error
+                );
+
+                showError(
+                    "An error occurred while verifying the receipt. Please try again later."
+                );
+
+            } finally {
+
+                document
+                    .getElementById("loadingState")
+                    .classList.remove("active");
             }
         }
 
-        // ============================================================
-        // MANUAL LOOKUP (transaction key entered by hand)
-        // ============================================================
-        window.verifyManualKey = async function() {
-            const input = document.getElementById('lookupKeyInput');
-            const errEl = document.getElementById('lookupError');
-            const btn = document.getElementById('lookupSubmitBtn');
-            const rawKey = (input?.value || '').trim();
-
-            if (!rawKey) {
-                errEl.textContent = 'Please enter a transaction key.';
-                errEl.classList.add('active');
-                input?.focus();
-                return;
-            }
-            errEl.classList.remove('active');
-
-            const originalBtnHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-
-            try {
-                if (!schoolId) {
-                    schoolId = await resolveSchoolId();
-                    if (!schoolId) {
-                        errEl.textContent = 'This page is missing a school reference. Please use the link provided by your school.';
-                        errEl.classList.add('active');
-                        return;
-                    }
-                }
-                if (!Object.keys(studentsCache).length) {
-                    await loadStudentsCache();
-                }
-
-                const result = await lookupReceiptByKey(rawKey);
-                if (result.ok) {
-                    hideAllStates();
-                    document.getElementById('receiptContainer').classList.add('active');
-                } else {
-                    errEl.textContent = result.message;
-                    errEl.classList.add('active');
-                }
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnHtml;
-            }
-        };
-
-        document.getElementById('lookupKeyInput')?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                window.verifyManualKey();
-            }
-        });
-
-        // ============================================================
-        // AUTO-LOAD RECEIPT FROM URL
-        // ============================================================
-        async function autoLoadReceipt() {
-            // Show loading
-            hideAllStates();
-            document.getElementById('loadingState').classList.add('active');
-
-            // Resolve which school this receipt belongs to
-            schoolId = await resolveSchoolId();
-            if (!schoolId) {
-                hideAllStates();
-                document.getElementById('errorState').classList.add('active');
-                document.getElementById('errorMessage').textContent = 'This link is missing a school reference. Please use the link or QR code provided on your receipt.';
-                return;
-            }
-
-            try {
-                const schoolSnap = await get(ref(db, `Institution/Schools/${schoolId}`));
-                if (schoolSnap.exists()) {
-                    schoolName = schoolSnap.val().name || null;
-                    const subtitleEl = document.querySelector('.header-subtitle');
-                    if (schoolName && subtitleEl) {
-                        subtitleEl.textContent = `${schoolName} — Digital receipt verification`;
-                    }
-                }
-            } catch (_) { /* non-critical, keep default subtitle */ }
-
-            // Load students cache first
-            await loadStudentsCache();
-
-            // Extract receipt key from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            let receiptKey = null;
-
-            receiptKey = urlParams.get('receipt') || 
-                        urlParams.get('key') || 
-                        urlParams.get('id') || 
-                        urlParams.get('ref') ||
-                        urlParams.get('t');
-
-            if (!receiptKey && window.location.hash) {
-                receiptKey = window.location.hash.replace('#', '');
-            }
-
-            if (!receiptKey) {
-                const pathParts = window.location.pathname.split('/').filter(p => p);
-                if (pathParts.length > 1) {
-                    receiptKey = pathParts[pathParts.length - 1];
-                }
-            }
-
-            if (!receiptKey) {
-                // No key anywhere in the URL — let the person type one in.
-                window.showLookupForm();
-                return;
-            }
-
-            try {
-                const result = await lookupReceiptByKey(receiptKey);
-                if (!result.ok) {
-                    showError(result.message);
-                }
-            } finally {
-                document.getElementById('loadingState').classList.remove('active');
-            }
-        }
 
         // ============================================================
         // DISPLAY RECEIPT
         // ============================================================
         function displayReceipt(paymentData, firebaseKey) {
-            // Get student name from studentsCache using admission number
-            const admissionNumber = paymentData.admissionNumber || 'N/A';
-            const studentName = getStudentName(admissionNumber) || paymentData.studentName || 'Unknown Student';
 
-            // Student Info
-            document.getElementById('studentName').textContent = studentName;
-            document.getElementById('admissionNumber').textContent = admissionNumber;
-            document.getElementById('studentClass').textContent = paymentData.class || 'N/A';
-            
-            // Receipt Info
-            document.getElementById('receiptNumber').textContent = paymentData.ReceiptNo || 'N/A';
-            document.getElementById('term').textContent = paymentData.term || 'N/A';
-            document.getElementById('account').textContent = paymentData.Account || 'N/A';
-            document.getElementById('paymentDate').textContent = formatDateToDDMMYYYY(paymentData.paymentDate) || formatDateToDDMMYYYY(paymentData.entryDate) || 'N/A';
-            
-            // Payment Summary
-            document.getElementById('amountPaid').textContent = formatCurrency(paymentData.amount);
-            document.getElementById('balance').textContent = formatCurrency(paymentData.balance);
-            document.getElementById('exemption').textContent = formatCurrency(paymentData.Exemption);
-            
-            // Calculate total fee (amount + balance)
-            const amount = parseFloat(String(paymentData.amount || 0).replace(/,/g, '')) || 0;
-            const balance = parseFloat(String(paymentData.balance || 0).replace(/,/g, '')) || 0;
+            // Student
+            const admissionNumber =
+                paymentData.admissionNumber || "N/A";
+
+            const studentName =
+                getStudentName(admissionNumber) ||
+                paymentData.studentName ||
+                "Unknown Student";
+
+
+            // Student information
+            document.getElementById("studentName").textContent =
+                studentName;
+
+            document.getElementById("admissionNumber").textContent =
+                admissionNumber;
+
+            document.getElementById("studentClass").textContent =
+                paymentData.class || "N/A";
+
+
+            // Receipt information
+            document.getElementById("receiptNumber").textContent =
+                paymentData.ReceiptNo || "N/A";
+
+            document.getElementById("term").textContent =
+                paymentData.term || "N/A";
+
+            document.getElementById("account").textContent =
+                paymentData.Account || "N/A";
+
+            document.getElementById("paymentDate").textContent =
+                formatDateToDDMMYYYY(paymentData.paymentDate) ||
+                formatDateToDDMMYYYY(paymentData.entryDate) ||
+                "N/A";
+
+
+            // Payment summary
+            document.getElementById("amountPaid").textContent =
+                formatCurrency(paymentData.amount);
+
+            document.getElementById("balance").textContent =
+                formatCurrency(paymentData.balance);
+
+            document.getElementById("exemption").textContent =
+                formatCurrency(paymentData.Exemption);
+
+
+            // Total fee
+            const amount =
+                parseFloat(
+                    String(paymentData.amount || 0)
+                        .replace(/,/g, "")
+                ) || 0;
+
+            const balance =
+                parseFloat(
+                    String(paymentData.balance || 0)
+                        .replace(/,/g, "")
+                ) || 0;
+
             const totalFee = amount + balance;
-            document.getElementById('totalFee').textContent = formatCurrency(totalFee);
-            
+
+            document.getElementById("totalFee").textContent =
+                formatCurrency(totalFee);
+
+
             // Balance color
-            const balanceEl = document.getElementById('balance');
+            const balanceEl =
+                document.getElementById("balance");
+
             if (balance > 0) {
-                balanceEl.classList.remove('balance-ok');
-                balanceEl.classList.add('balance-warning');
+
+                balanceEl.classList.remove("balance-ok");
+                balanceEl.classList.add("balance-warning");
+
             } else {
-                balanceEl.classList.remove('balance-warning');
-                balanceEl.classList.add('balance-ok');
+
+                balanceEl.classList.remove("balance-warning");
+                balanceEl.classList.add("balance-ok");
             }
-            
-            // Transaction Details
-            document.getElementById('transactionRef').textContent = paymentData.paymentRef || 'N/A';
-            document.getElementById('receiptKey').textContent = firebaseKey || 'N/A';
-            document.getElementById('entryDate').textContent = formatDateToDDMMYYYY(paymentData.entryDate) || 'N/A';
-            
+
+
+            // Transaction details
+            document.getElementById("transactionRef").textContent =
+                paymentData.paymentRef || "N/A";
+
+            document.getElementById("receiptKey").textContent =
+                `${schoolId}/${firebaseKey}`;
+
+            document.getElementById("entryDate").textContent =
+                formatDateToDDMMYYYY(paymentData.entryDate) ||
+                "N/A";
+
+
             // Generated date
-            document.getElementById('generatedDate').textContent = getCurrentDate();
+            document.getElementById("generatedDate").textContent =
+                getCurrentDate();
+
 
             // Show receipt
-            document.getElementById('receiptContainer').classList.add('active');
+            document
+                .getElementById("receiptContainer")
+                .classList.add("active");
         }
 
+
         // ============================================================
-        // SHOW VERIFICATION STATUS
+        // VERIFICATION STATUS
         // ============================================================
         function showVerificationStatus(isValid, message) {
-            const statusEl = document.getElementById('verificationStatus');
-            const iconEl = document.getElementById('verificationIcon');
-            const textEl = document.getElementById('verificationText');
 
-            statusEl.classList.add('active');
-            
+            const statusEl =
+                document.getElementById("verificationStatus");
+
+            const iconEl =
+                document.getElementById("verificationIcon");
+
+            const textEl =
+                document.getElementById("verificationText");
+
+
+            statusEl.classList.add("active");
+
+
             if (isValid) {
-                statusEl.classList.remove('invalid');
-                statusEl.classList.add('valid');
-                iconEl.className = 'fas fa-check-circle verification-icon';
+
+                statusEl.classList.remove("invalid");
+                statusEl.classList.add("valid");
+
+                iconEl.className =
+                    "fas fa-check-circle verification-icon";
+
                 textEl.textContent = message;
+
             } else {
-                statusEl.classList.remove('valid');
-                statusEl.classList.add('invalid');
-                iconEl.className = 'fas fa-times-circle verification-icon';
+
+                statusEl.classList.remove("valid");
+                statusEl.classList.add("invalid");
+
+                iconEl.className =
+                    "fas fa-times-circle verification-icon";
+
                 textEl.textContent = message;
             }
         }
+
 
         // ============================================================
         // SHOW ERROR
         // ============================================================
         function showError(message) {
-            document.getElementById('receiptContainer').classList.remove('active');
-            document.getElementById('errorState').classList.add('active');
-            document.getElementById('errorMessage').textContent = message;
+
+            document
+                .getElementById("receiptContainer")
+                .classList.remove("active");
+
+            document
+                .getElementById("errorState")
+                .classList.add("active");
+
+            document
+                .getElementById("errorMessage")
+                .textContent = message;
         }
+
 
         // ============================================================
         // PRINT RECEIPT
         // ============================================================
-        window.printReceipt = function() {
-            const receiptContent = document.getElementById('receiptContainer').innerHTML;
-            
-            const printWindow = window.open('', '_blank');
+        window.printReceipt = function () {
+
+            const receiptContent =
+                document.getElementById("receiptContainer").innerHTML;
+
+
+            const printWindow =
+                window.open("", "_blank");
+
+
             printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Receipt - ${document.getElementById('receiptNumber').textContent}</title>
-                    <style>
-                        * { margin: 0; padding: 0; box-sizing: border-box; }
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        .receipt-actions, .verification-status { display: none; }
-                        @media print {
-                            .receipt-actions, .verification-status { display: none; }
-                            body { padding: 0; }
-                            .receipt-card { border: none; box-shadow: none; }
+            <html>
+            <head>
+
+                <title>
+                    Receipt - ${document.getElementById("receiptNumber").textContent
+                }
+                </title>
+
+                <style>
+
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                    }
+
+                    .receipt-actions,
+                    .verification-status {
+                        display: none;
+                    }
+
+                    @media print {
+
+                        .receipt-actions,
+                        .verification-status {
+                            display: none;
                         }
-                    </style>
-                </head>
-                <body>
-                    ${receiptContent}
-                </body>
-                </html>
-            `);
+
+                        body {
+                            padding: 0;
+                        }
+
+                        .receipt-card {
+                            border: none;
+                            box-shadow: none;
+                        }
+                    }
+
+                </style>
+
+            </head>
+
+            <body>
+
+                ${receiptContent}
+
+            </body>
+
+            </html>
+        `);
+
+
             printWindow.document.close();
             printWindow.focus();
+
+
             setTimeout(() => {
+
                 printWindow.print();
                 printWindow.close();
+
             }, 500);
         };
+
 
         // ============================================================
         // DOWNLOAD RECEIPT
         // ============================================================
-        window.downloadReceipt = function() {
-            const receiptNumber = document.getElementById('receiptNumber').textContent;
-            
+        window.downloadReceipt = function () {
+
+            const receiptNumber =
+                document.getElementById("receiptNumber").textContent;
+
+
             const receiptData = {
-                receiptNumber: receiptNumber,
-                studentName: document.getElementById('studentName').textContent,
-                admissionNumber: document.getElementById('admissionNumber').textContent,
-                amountPaid: document.getElementById('amountPaid').textContent,
-                balance: document.getElementById('balance').textContent,
-                date: document.getElementById('paymentDate').textContent
+
+                receiptNumber:
+                    receiptNumber,
+
+                studentName:
+                    document.getElementById("studentName").textContent,
+
+                admissionNumber:
+                    document.getElementById("admissionNumber").textContent,
+
+                amountPaid:
+                    document.getElementById("amountPaid").textContent,
+
+                balance:
+                    document.getElementById("balance").textContent,
+
+                date:
+                    document.getElementById("paymentDate").textContent
             };
 
-            const blob = new Blob([JSON.stringify(receiptData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+
+            const blob =
+                new Blob(
+                    [
+                        JSON.stringify(
+                            receiptData,
+                            null,
+                            2
+                        )
+                    ],
+                    {
+                        type: "application/json"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const a =
+                document.createElement("a");
+
             a.href = url;
-            a.download = `receipt_${receiptNumber}.json`;
+
+            a.download =
+                `receipt_${receiptNumber}.json`;
+
             document.body.appendChild(a);
+
             a.click();
+
             document.body.removeChild(a);
+
             URL.revokeObjectURL(url);
 
-            showToast('Receipt download started');
+
+            showToast(
+                "Receipt download started"
+            );
         };
+
 
         // ============================================================
         // SHARE RECEIPT
         // ============================================================
-        window.shareReceipt = function() {
-            const receiptNumber = document.getElementById('receiptNumber').textContent;
-            const studentName = document.getElementById('studentName').textContent;
-            
+        window.shareReceipt = function () {
+
+            const receiptNumber =
+                document.getElementById("receiptNumber").textContent;
+
+            const studentName =
+                document.getElementById("studentName").textContent;
+
+
             if (navigator.share) {
+
                 navigator.share({
-                    title: `Receipt ${receiptNumber}`,
-                    text: `Receipt for ${studentName} - Amount: ${document.getElementById('amountPaid').textContent}`,
-                    url: window.location.href
-                }).catch(err => console.log('Share cancelled'));
+
+                    title:
+                        `Receipt ${receiptNumber}`,
+
+                    text:
+                        `Receipt for ${studentName} - Amount: ${document.getElementById("amountPaid").textContent
+                        }`,
+
+                    url:
+                        window.location.href
+
+                }).catch(() =>
+                    console.log("Share cancelled")
+                );
+
             } else {
-                const shareText = `Receipt ${receiptNumber}\nStudent: ${studentName}\nAmount: ${document.getElementById('amountPaid').textContent}\nBalance: ${document.getElementById('balance').textContent}`;
-                
-                navigator.clipboard.writeText(shareText).then(() => {
-                    showToast('Receipt details copied to clipboard');
-                });
+
+                const shareText =
+                    `Receipt ${receiptNumber}\n` +
+                    `Student: ${studentName}\n` +
+                    `Amount: ${document.getElementById("amountPaid").textContent
+                    }\n` +
+                    `Balance: ${document.getElementById("balance").textContent
+                    }`;
+
+
+                navigator.clipboard
+                    .writeText(shareText)
+                    .then(() => {
+
+                        showToast(
+                            "Receipt details copied to clipboard"
+                        );
+
+                    });
             }
         };
 
+
         // ============================================================
-        // TOAST NOTIFICATION
+        // TOAST
         // ============================================================
         function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = '<i class="fas fa-check-circle" style="color: #00b894;"></i> ' + message;
+
+            const toast =
+                document.createElement("div");
+
+            toast.className = "toast";
+
+            toast.innerHTML =
+                '<i class="fas fa-check-circle" style="color: #00b894;"></i> ' +
+                message;
+
+
             document.body.appendChild(toast);
 
-            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() =>
+                toast.classList.add("show"),
+                10
+            );
+
+
             setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
+
+                toast.classList.remove("show");
+
+                setTimeout(() =>
+                    toast.remove(),
+                    300
+                );
+
             }, 3000);
         }
+
 
         // ============================================================
         // INITIALIZE
         // ============================================================
-        document.getElementById('dateText').textContent = getCurrentDate();
+        document.getElementById("dateText").textContent =
+            getCurrentDate();
 
-        // Auto-load receipt from URL
-        window.addEventListener('DOMContentLoaded', () => {
-            autoLoadReceipt();
-        });
+
+        window.addEventListener(
+            "DOMContentLoaded",
+            () => {
+                autoLoadReceipt();
+            }
+        );
+
     </script>
+
 </body>
+
 </html>
