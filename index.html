@@ -5781,6 +5781,21 @@
       const db = getDatabase(app);
 
       // ============================================================
+      // PAYMENT LINK — used as the QR payload for verification.
+      // Produces the direct REST URL for one Fee_payment record, e.g.
+      //   https://<db>.firebaseio.com/Institution/Schools/{schoolId}/Fee_payment/{key}.json
+      // ============================================================
+      const RTDB_URL = "https://acadiapro-software-default-rtdb.firebaseio.com";
+
+      function buildPaymentLink(firebaseKey) {
+        if (!firebaseKey) throw new Error("firebaseKey is required");
+        if (!SCHOOL_BASE) throw new Error("School context not loaded yet");
+        return `${RTDB_URL}/${SCHOOL_BASE}/Fee_payment/${firebaseKey}.json`;
+      }
+
+      window.buildPaymentLink = buildPaymentLink;
+
+      // ============================================================
       // SCHOOL-SCOPED PATHS
       // ============================================================
       let SCHOOL_BASE = null;
@@ -7050,6 +7065,16 @@
 
           showToast(`Payment of ${formatCurrency(amount)} received successfully.`);
 
+          // ── Full Firebase link to this exact transaction (goes in Qr_Key) ──
+          let qrPayload;
+          try {
+            qrPayload = buildPaymentLink(firebaseKey);
+          } catch (_) {
+            // Fallback: if school context isn't ready yet, still send
+            // the raw key so nothing breaks.
+            qrPayload = firebaseKey;
+          }
+
           if (window.chrome?.webview?.postMessage) {
             window.chrome.webview.postMessage({
               action: "PRINT_RECEIPT",
@@ -7064,7 +7089,7 @@
               DateofPayment: paymentData.paymentDate,
               TransactionRef: paymentData.paymentRef,
               Account: paymentData.Account,
-              Qr_Key: firebaseKey
+              Qr_Key: qrPayload
             });
           }
 
@@ -9382,6 +9407,15 @@
             return;
           }
           const admissionNumber = paymentData.admissionNumber;
+
+          // ── Full Firebase link to this transaction (goes in Qr_Key) ──
+          let qrPayload;
+          try {
+            qrPayload = buildPaymentLink(selectedPaymentKey);
+          } catch (_) {
+            qrPayload = selectedPaymentKey;
+          }
+
           window.chrome.webview.postMessage({
             action: "PRINT_RECEIPT",
             DateandTime: paymentData.entryDate,
@@ -9395,7 +9429,7 @@
             DateofPayment: paymentData.paymentDate,
             TransactionRef: paymentData.paymentRef,
             Account: paymentData.Account,
-            Qr_Key: selectedPaymentKey
+            Qr_Key: qrPayload
           });
         }
       });
@@ -12925,7 +12959,6 @@
       })();
 
     </script>
-
 
   </div>
 
