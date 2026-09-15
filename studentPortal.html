@@ -2065,6 +2065,51 @@
         let contactEditMode = false;
 
         // ============================================================
+        // VERIFICATION-CODE DECODER (URL-safe Base64 → UTF-8)
+        // ============================================================
+        function decodeVerificationCode(code) {
+            if (!code)
+                return "";
+
+            // Convert URL-safe Base64 back to normal Base64
+            let base64 = code
+                .replace(/-/g, "+")
+                .replace(/_/g, "/");
+
+            // Restore padding
+            while (base64.length % 4 !== 0) {
+                base64 += "=";
+            }
+
+            try {
+                const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                return new TextDecoder("utf-8").decode(bytes);
+            } catch (err) {
+                console.warn("decodeVerificationCode failed:", err);
+                return "";
+            }
+        }
+
+        // Parses "admission=name" (or "admissionNo=name") into parts.
+        // Returns { admission, name } or null if it doesn't look valid.
+        function parseVerificationPayload(raw) {
+            if (!raw) return null;
+            const decoded = decodeVerificationCode(raw).trim();
+            if (!decoded) return null;
+
+            // Split on the FIRST '=' only — names may contain '='
+            const eq = decoded.indexOf("=");
+            if (eq === -1) return null;
+
+            const admission = decoded.slice(0, eq).trim();
+            const name = decoded.slice(eq + 1).trim();
+
+            if (!admission || !name) return null;
+
+            return { admission, name };
+        }
+
+        // ============================================================
         // UTILITIES
         // ============================================================
         function formatCurrency(value) {
@@ -2253,181 +2298,182 @@
 
         // ============================================================
         // SCHOOL-SCOPED PATHS
-        // (mirrors the Institution/Schools/{schoolId}/... structure used
-        //  in the main app, instead of a single hardcoded school)
         // ============================================================
         function schoolPath(sub) {
             if (!schoolId) throw new Error('School context not loaded yet');
             return `Institution/Schools/${schoolId}/${sub}`;
         }
 
-        // Resolve which school this portal belongs to, from the link's
-        // ?school=/?schoolId=/?sid= parameter. Falls back to the only
-        // school on record if there's just one (single-school deployments).
-        async function resolveSchoolId() {
-            const urlParams = new URLSearchParams(window.location.search);
+        // ============================================================
+        // SCHOOL RESOLUTION
+        // ============================================================
+        function getSchoolFromUrl() {
+            const p = new URLSearchParams(window.location.search);
+            return p.get('school') || p.get('schoolId') || p.get('sid') || null;
+        }
 
-            // First priority: schoolId explicitly in URL
-            const fromUrl =
-                urlParams.get('school') ||
-                urlParams.get('schoolId') ||
-                urlParams.get('sid');
+        async function getAllSchoolIds() {
+            const snap = await get(ref(db, 'Institution/Schools'));
+            if (!snap.exists()) return [];
+            return Object.keys(snap.val());
+        }
 
-            if (fromUrl) return fromUrl;
-
-            // Second priority: schoolId/paymentKey inside receipt
-            const receipt = urlParams.get('receipt');
-
-            if (receipt) {
-                const parts = decodeURIComponent(receipt).split('/');
-
-                if (parts.length === 2 && parts[0]) {
-                    return parts[0];
+        async function loadSchoolName(sid) {
+            if (!sid) return null;
+            try {
+                const snap = await get(ref(db, `Institution/Schools/${sid}`));
+                if (snap.exists()) {
+                    schoolName = snap.val().name || null;
+                    const brandEl = document.querySelector('.login-brand-name');
+                    if (schoolName && brandEl) brandEl.textContent = schoolName;
+                    return schoolName;
                 }
-            }
-
-            // Fallback for single-school deployment
-            const schoolsSnap = await get(
-                ref(db, 'Institution/Schools')
-            );
-
-            if (schoolsSnap.exists()) {
-                const ids = Object.keys(schoolsSnap.val());
-
-                if (ids.length === 1) {
-                    return ids[0];
-                }
-            }
-
+            } catch (_) { /* non-critical */ }
             return null;
         }
 
+        // Resolve school strictly (used when URL has one), but never abort login.
         async function ensureSchoolContext() {
             if (schoolId) return true;
 
-            schoolId = await resolveSchoolId();
-
-            if (!schoolId) {
-                showLoginError(
-                    'This portal link is missing a school reference. Please use the link provided by your school.'
-                );
-                return false;
+            const fromUrl = getSchoolFromUrl();
+            if (fromUrl) {
+                schoolId = fromUrl;
+                await loadSchoolName(schoolId);
+                return true;
             }
 
+            // Only auto-resolve if there's exactly ONE school (single-tenant deploy)
             try {
-                const schoolSnap = await get(
-                    ref(db, `Institution/Schools/${schoolId}`)
-                );
-
-                if (schoolSnap.exists()) {
-                    schoolName = schoolSnap.val().name || null;
-
-                    const brandEl =
-                        document.querySelector('.login-brand-name');
-
-                    if (schoolName && brandEl) {
-                        brandEl.textContent = schoolName;
-                    }
+                const ids = await getAllSchoolIds();
+                if (ids.length === 1) {
+                    schoolId = ids[0];
+                    await loadSchoolName(schoolId);
                 }
+            } catch (_) { /* ignore */ }
 
-            } catch (_) {
-                // Non-critical
-            }
-
+            // Do NOT fail — login will search all schools if schoolId is still null.
             return true;
         }
 
-        async function loadReceiptFromUrl() {
-            const urlParams =
-                new URLSearchParams(window.location.search);
+        // Search every school (or just the resolved one) for a matching student.
+        // Returns { schoolId, key, admission, student } or null.
+        async function findStudentAcrossSchools(nameQuery, admissionQuery) {
+            const ids = schoolId ? [schoolId] : await getAllSchoolIds();
+            if (!ids.length) return null;
 
-            const receiptValue =
-                urlParams.get('receipt');
+            const wantName = String(nameQuery || '').trim().toLowerCase();
+            const wantAdm  = String(admissionQuery || '').trim().toLowerCase();
 
-            if (!receiptValue) {
-                return false;
-            }
-
-            const parts =
-                decodeURIComponent(receiptValue)
-                    .trim()
-                    .split('/');
-
-            if (parts.length !== 2) {
-                showLoginError(
-                    'Invalid receipt link.'
-                );
-                return true;
-            }
-
-            schoolId = parts[0];
-            const paymentKey = parts[1];
-
-            try {
-                const paymentSnap = await get(
-                    ref(
-                        db,
-                        `Institution/Schools/${schoolId}/Fee_payment/${paymentKey}`
-                    )
-                );
-
-                if (!paymentSnap.exists()) {
-                    showLoginError(
-                        'Receipt not found or has been deleted.'
-                    );
-                    return true;
+            for (const sid of ids) {
+                let snap;
+                try {
+                    snap = await get(ref(db, `Institution/Schools/${sid}/Students`));
+                } catch (err) {
+                    console.warn(`Skipping school ${sid}:`, err);
+                    continue;
                 }
+                if (!snap.exists()) continue;
 
-                const payment = paymentSnap.val();
+                const students = snap.val();
+                for (const [key, student] of Object.entries(students)) {
+                    const adm = String(
+                        student.admissionNumber || key.replace(/-/g, '/')
+                    ).toLowerCase();
+                    const name = String(student.name || '').toLowerCase();
 
-                console.log('Receipt found:', payment);
+                    const nameMatch = name.includes(wantName);
+                    const admMatch  = adm === wantAdm;
 
-                return true;
-
-            } catch (error) {
-                console.error(
-                    'Receipt loading error:',
-                    error
-                );
-
-                showLoginError(
-                    'Unable to verify this receipt.'
-                );
-
-                return true;
+                    if (nameMatch && admMatch) {
+                        return {
+                            schoolId: sid,
+                            key,
+                            admission: student.admissionNumber || key.replace(/-/g, '/'),
+                            student
+                        };
+                    }
+                }
             }
+            return null;
         }
+
+        // Admission-only match (used as a fallback for the ?uid= path)
+        async function findStudentByAdmission(admissionQuery) {
+            const ids = schoolId ? [schoolId] : await getAllSchoolIds();
+            const want = String(admissionQuery || '').trim().toLowerCase();
+
+            for (const sid of ids) {
+                let snap;
+                try {
+                    snap = await get(ref(db, `Institution/Schools/${sid}/Students`));
+                } catch (_) { continue; }
+                if (!snap.exists()) continue;
+
+                const students = snap.val();
+                for (const [key, student] of Object.entries(students)) {
+                    const adm = String(
+                        student.admissionNumber || key.replace(/-/g, '/')
+                    );
+                    if (adm.toLowerCase() === want ||
+                        key.toLowerCase() === want ||
+                        key.replace(/-/g, '/').toLowerCase() === want) {
+                        return {
+                            schoolId: sid,
+                            key,
+                            admission: adm,
+                            student
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
         // ============================================================
         // AUTO LOGIN
+        // ------------------------------------------------------------
+        // URL form:  ?uid=<url-safe-base64 of "admission=name">
+        // e.g.       ?uid=UlMvMjAyNi8wMDI=Sm9obiBEb2U=
+        //            (decodes to "RS/2026/002=John Doe")
+        //
+        // Falls back to treating the raw ?uid= value as a plain
+        // admission number, for backwards compatibility.
         // ============================================================
-        async function autoLoginFromUid(uid) {
+        async function autoLoginFromUid(rawUid) {
             document.getElementById('loadingOverlay').classList.add('active');
             document.getElementById('loginContainer').style.display = 'none';
             try {
-                if (!(await ensureSchoolContext())) {
-                    document.getElementById('loadingOverlay').classList.remove('active');
-                    document.getElementById('loginContainer').style.display = 'flex';
-                    return;
+                // Best-effort context resolve (won't hard-fail)
+                await ensureSchoolContext();
+
+                let match = null;
+
+                // 1) Try the encoded "admission=name" payload first
+                const payload = parseVerificationPayload(rawUid);
+                if (payload) {
+                    match = await findStudentAcrossSchools(payload.name, payload.admission);
                 }
-                const studentsSnapshot = await get(ref(db, schoolPath('Students')));
-                allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
-                let foundStudent = null, foundAdmission = null;
-                for (const [key, student] of Object.entries(allStudents)) {
-                    const admission = String(student.admissionNumber || key.replace(/-/g, '/'));
-                    if (admission === uid || key === uid || key.replace(/-/g, '/') === uid) {
-                        foundStudent = student;
-                        foundAdmission = admission;
-                        break;
-                    }
+
+                // 2) Fallback: treat rawUid as a plain admission number
+                if (!match) {
+                    match = await findStudentByAdmission(rawUid);
                 }
-                if (!foundStudent) {
+
+                if (!match) {
                     document.getElementById('loadingOverlay').classList.remove('active');
                     document.getElementById('loginContainer').style.display = 'flex';
                     showLoginError("Student not found. Please login manually.");
                     return;
                 }
-                currentStudent = { ...foundStudent, admissionNumber: foundAdmission };
+
+                // Adopt the school the student belongs to
+                schoolId = match.schoolId;
+                await loadSchoolName(schoolId);
+
+                currentStudent = { ...match.student, admissionNumber: match.admission };
                 await loadPortalData();
+
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('portalContainer').style.display = 'block';
                 populatePortal();
@@ -2443,41 +2489,37 @@
         // LOGIN
         // ============================================================
         window.login = async function () {
-            const firstName = document.getElementById('loginFirstName').value.trim().toLowerCase();
-            const admissionNumber = document.getElementById('loginAdmission').value.trim();
-            if (!firstName || !admissionNumber) {
-                showLoginError("Please enter your first name and admission number.");
+            const nameInput      = document.getElementById('loginFirstName').value.trim();
+            const admissionInput = document.getElementById('loginAdmission').value.trim();
+
+            if (!nameInput || !admissionInput) {
+                showLoginError("Please enter your name and admission number.");
                 return;
             }
+
             const loginBtn = document.querySelector('.login-btn');
             const originalBtnText = loginBtn.innerHTML;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
             loginBtn.disabled = true;
             document.getElementById('loginError').style.display = 'none';
+
             try {
-                if (!(await ensureSchoolContext())) {
-                    loginBtn.innerHTML = originalBtnText;
-                    loginBtn.disabled = false;
-                    return;
-                }
-                const studentsSnapshot = await get(ref(db, schoolPath('Students')));
-                allStudents = studentsSnapshot.exists() ? studentsSnapshot.val() : {};
-                let foundStudent = null, foundAdmission = null;
-                for (const [key, student] of Object.entries(allStudents)) {
-                    const name = String(student.name || '').toLowerCase();
-                    const admission = String(student.admissionNumber || key.replace(/-/g, '/')).toLowerCase();
-                    if (name.includes(firstName) && admission === admissionNumber.toLowerCase()) {
-                        foundStudent = student;
-                        foundAdmission = student.admissionNumber || key.replace(/-/g, '/');
-                        break;
-                    }
-                }
-                if (!foundStudent) {
+                // Try URL-resolved school first, but never block on it
+                await ensureSchoolContext();
+
+                const match = await findStudentAcrossSchools(nameInput, admissionInput);
+                if (!match) {
                     showLoginError("Invalid credentials. Please try again.");
                     return;
                 }
-                currentStudent = { ...foundStudent, admissionNumber: foundAdmission };
+
+                // Adopt the school context from the match
+                schoolId = match.schoolId;
+                await loadSchoolName(schoolId);
+
+                currentStudent = { ...match.student, admissionNumber: match.admission };
                 await loadPortalData();
+
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('portalContainer').style.display = 'block';
                 populatePortal();
@@ -3148,6 +3190,8 @@
 
         window.logout = function () {
             currentStudent = null;
+            schoolId = null;
+            schoolName = null;
             document.getElementById('portalContainer').style.display = 'none';
             document.getElementById('loginContainer').style.display = 'flex';
             document.getElementById('loginFirstName').value = '';
@@ -3172,7 +3216,6 @@
             if (uid) autoLoginFromUid(uid);
         })();
     </script>
-
 </body>
 
 </html>
