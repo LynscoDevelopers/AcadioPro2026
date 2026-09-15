@@ -228,6 +228,140 @@
             transform: translateY(-2px);
         }
 
+        /* ============ LOOKUP STATE ============ */
+        .lookup-state {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 460px;
+            margin: 0 auto;
+        }
+
+        .lookup-state.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lookup-icon {
+            width: 70px;
+            height: 70px;
+            background: #eef0fb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 1.7rem;
+            color: var(--primary);
+        }
+
+        .lookup-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .lookup-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+
+        .lookup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .lookup-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .lookup-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--card);
+            transition: border-color 0.2s;
+        }
+
+        .lookup-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .lookup-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.85;
+        }
+
+        .lookup-btn {
+            margin-top: 4px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: white;
+            background: var(--accent);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .lookup-btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .lookup-btn:disabled {
+            opacity: 0.65;
+            cursor: default;
+            transform: none;
+        }
+
+        .lookup-error {
+            display: none;
+            font-size: 0.8rem;
+            color: var(--danger);
+            margin-top: 2px;
+        }
+
+        .lookup-error.active {
+            display: block;
+        }
+
+        .search-again-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         /* ============ RECEIPT CONTAINER ============ */
         .receipt-container {
             max-width: 900px;
@@ -736,6 +870,26 @@
         <p class="loading-subtext">Please wait while we verify the receipt</p>
     </div>
 
+    <!-- Manual Lookup State -->
+    <div class="lookup-state" id="lookupState">
+        <div class="lookup-icon">
+            <i class="fas fa-key"></i>
+        </div>
+        <h2 class="lookup-title">Look Up a Receipt</h2>
+        <p class="lookup-subtitle">Enter the transaction key from your receipt link, QR code, or the reference given to you by the school office.</p>
+        <div class="lookup-form">
+            <div>
+                <label class="lookup-label" for="lookupKeyInput">Transaction key</label>
+                <input type="text" id="lookupKeyInput" class="lookup-input" placeholder="e.g. -NxYz1AbCdEfGhIjKlMn" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <p class="lookup-error" id="lookupError"></p>
+            </div>
+            <p class="lookup-hint">You can also paste the full receipt link — the key will be pulled out automatically.</p>
+            <button class="lookup-btn" id="lookupSubmitBtn" onclick="window.verifyManualKey()">
+                <i class="fas fa-search"></i> Verify Receipt
+            </button>
+        </div>
+    </div>
+
     <!-- Error State -->
     <div class="error-state" id="errorState">
         <div class="error-icon">
@@ -744,8 +898,8 @@
         <h2 class="error-title">Receipt Not Found</h2>
         <p class="error-message" id="errorMessage">The receipt you are looking for could not be found or has been invalidated.</p>
         <div class="error-actions">
-            <button class="error-btn primary" onclick="window.location.href = window.location.pathname">
-                <i class="fas fa-redo"></i> Try Again
+            <button class="error-btn primary" onclick="window.showLookupForm()">
+                <i class="fas fa-key"></i> Enter Transaction Key
             </button>
             <button class="error-btn secondary" onclick="window.close()">
                 <i class="fas fa-times"></i> Close
@@ -939,6 +1093,11 @@
                 <i class="fas fa-share-alt"></i> Share
             </button>
         </div>
+        <div style="text-align: center; margin-top: 16px;">
+            <button class="search-again-link" onclick="window.showLookupForm()">
+                <i class="fas fa-key"></i> Look up another receipt
+            </button>
+        </div>
     </div>
 
     <!-- Firebase Scripts -->
@@ -1082,18 +1241,165 @@
         }
 
         // ============================================================
+        // STATE HELPERS
+        // ============================================================
+        function hideAllStates() {
+            document.getElementById('loadingState').classList.remove('active');
+            document.getElementById('lookupState').classList.remove('active');
+            document.getElementById('errorState').classList.remove('active');
+            document.getElementById('receiptContainer').classList.remove('active');
+        }
+
+        // Bring back the manual-entry form (e.g. from the error state,
+        // or "look up another receipt" after a successful verification).
+        window.showLookupForm = function() {
+            hideAllStates();
+            document.getElementById('lookupState').classList.add('active');
+            const input = document.getElementById('lookupKeyInput');
+            const errEl = document.getElementById('lookupError');
+            if (errEl) errEl.classList.remove('active');
+            if (input) {
+                input.value = '';
+                setTimeout(() => input.focus(), 50);
+            }
+            // Clear any receipt-identifying query params/hash so a page
+            // refresh doesn't just re-trigger the same auto-load.
+            try {
+                const url = new URL(window.location.href);
+                ['receipt', 'key', 'id', 'ref', 't'].forEach(p => url.searchParams.delete(p));
+                window.history.replaceState({}, '', url.pathname + url.search);
+            } catch (_) { /* non-critical */ }
+        };
+
+        // ============================================================
+        // LOOK UP A PAYMENT/RECEIPT BY ITS FIREBASE TRANSACTION KEY
+        // (also falls back to matching on ReceiptNo / paymentRef / Qr_Key
+        // in case the person pastes a receipt number instead of the key)
+        // ============================================================
+        async function lookupReceiptByKey(rawKey) {
+            const receiptKey = extractFirebaseKey(rawKey);
+
+            if (!receiptKey) {
+                return { ok: false, message: 'Invalid receipt key format.' };
+            }
+
+            console.log('Looking for receipt with key:', receiptKey);
+
+            try {
+                // Try to find the payment directly by its Firebase transaction key
+                const paymentRef = ref(db, `${schoolPath('Fee_payment')}/${receiptKey}`);
+                const paymentSnapshot = await get(paymentRef);
+
+                if (paymentSnapshot.exists()) {
+                    const paymentData = paymentSnapshot.val();
+                    console.log('Receipt found:', paymentData);
+                    displayReceipt(paymentData, receiptKey);
+                    showVerificationStatus(true, 'Receipt verified successfully');
+                    return { ok: true };
+                }
+
+                // If not found by key, search all payments for a matching
+                // ReceiptNo / paymentRef / Qr_Key instead.
+                const allPaymentsRef = ref(db, schoolPath('Fee_payment'));
+                const allPaymentsSnapshot = await get(allPaymentsRef);
+
+                if (allPaymentsSnapshot.exists()) {
+                    const allPayments = allPaymentsSnapshot.val();
+                    let foundPayment = null;
+                    let foundKey = null;
+
+                    for (const [key, payment] of Object.entries(allPayments)) {
+                        if (payment.ReceiptNo === receiptKey ||
+                            payment.paymentRef === receiptKey ||
+                            payment.Qr_Key === receiptKey) {
+                            foundPayment = payment;
+                            foundKey = key;
+                            break;
+                        }
+                    }
+
+                    if (foundPayment) {
+                        displayReceipt(foundPayment, foundKey);
+                        showVerificationStatus(true, 'Receipt verified successfully');
+                        return { ok: true };
+                    }
+                }
+
+                return { ok: false, message: 'Receipt not found. Double-check the transaction key and try again.' };
+
+            } catch (error) {
+                console.error('Error loading receipt:', error);
+                return { ok: false, message: 'An error occurred while verifying the receipt. Please try again later.' };
+            }
+        }
+
+        // ============================================================
+        // MANUAL LOOKUP (transaction key entered by hand)
+        // ============================================================
+        window.verifyManualKey = async function() {
+            const input = document.getElementById('lookupKeyInput');
+            const errEl = document.getElementById('lookupError');
+            const btn = document.getElementById('lookupSubmitBtn');
+            const rawKey = (input?.value || '').trim();
+
+            if (!rawKey) {
+                errEl.textContent = 'Please enter a transaction key.';
+                errEl.classList.add('active');
+                input?.focus();
+                return;
+            }
+            errEl.classList.remove('active');
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+            try {
+                if (!schoolId) {
+                    schoolId = await resolveSchoolId();
+                    if (!schoolId) {
+                        errEl.textContent = 'This page is missing a school reference. Please use the link provided by your school.';
+                        errEl.classList.add('active');
+                        return;
+                    }
+                }
+                if (!Object.keys(studentsCache).length) {
+                    await loadStudentsCache();
+                }
+
+                const result = await lookupReceiptByKey(rawKey);
+                if (result.ok) {
+                    hideAllStates();
+                    document.getElementById('receiptContainer').classList.add('active');
+                } else {
+                    errEl.textContent = result.message;
+                    errEl.classList.add('active');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        };
+
+        document.getElementById('lookupKeyInput')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.verifyManualKey();
+            }
+        });
+
+        // ============================================================
         // AUTO-LOAD RECEIPT FROM URL
         // ============================================================
         async function autoLoadReceipt() {
             // Show loading
+            hideAllStates();
             document.getElementById('loadingState').classList.add('active');
-            document.getElementById('receiptContainer').classList.remove('active');
-            document.getElementById('errorState').classList.remove('active');
 
             // Resolve which school this receipt belongs to
             schoolId = await resolveSchoolId();
             if (!schoolId) {
-                document.getElementById('loadingState').classList.remove('active');
+                hideAllStates();
                 document.getElementById('errorState').classList.add('active');
                 document.getElementById('errorMessage').textContent = 'This link is missing a school reference. Please use the link or QR code provided on your receipt.';
                 return;
@@ -1135,69 +1441,16 @@
             }
 
             if (!receiptKey) {
-                document.getElementById('loadingState').classList.remove('active');
-                document.getElementById('errorState').classList.add('active');
-                document.getElementById('errorMessage').textContent = 'No receipt key found in the URL. Please check the link and try again.';
+                // No key anywhere in the URL — let the person type one in.
+                window.showLookupForm();
                 return;
             }
-
-            receiptKey = extractFirebaseKey(receiptKey);
-
-            if (!receiptKey) {
-                document.getElementById('loadingState').classList.remove('active');
-                document.getElementById('errorState').classList.add('active');
-                document.getElementById('errorMessage').textContent = 'Invalid receipt key format.';
-                return;
-            }
-
-            console.log('Looking for receipt with key:', receiptKey);
 
             try {
-                // Try to find the payment directly by key
-                const paymentRef = ref(db, `${schoolPath('Fee_payment')}/${receiptKey}`);
-                const paymentSnapshot = await get(paymentRef);
-
-                if (paymentSnapshot.exists()) {
-                    const paymentData = paymentSnapshot.val();
-                    console.log('Receipt found:', paymentData);
-                    
-                    // Display receipt
-                    displayReceipt(paymentData, receiptKey);
-                    showVerificationStatus(true, 'Receipt verified successfully');
-                } else {
-                    // If not found by key, search all payments for ReceiptNo
-                    const allPaymentsRef = ref(db, schoolPath('Fee_payment'));
-                    const allPaymentsSnapshot = await get(allPaymentsRef);
-
-                    if (allPaymentsSnapshot.exists()) {
-                        const allPayments = allPaymentsSnapshot.val();
-                        let foundPayment = null;
-                        let foundKey = null;
-
-                        for (const [key, payment] of Object.entries(allPayments)) {
-                            if (payment.ReceiptNo === receiptKey || 
-                                payment.paymentRef === receiptKey ||
-                                payment.Qr_Key === receiptKey) {
-                                foundPayment = payment;
-                                foundKey = key;
-                                break;
-                            }
-                        }
-
-                        if (foundPayment) {
-                            displayReceipt(foundPayment, foundKey);
-                            showVerificationStatus(true, 'Receipt verified successfully');
-                        } else {
-                            showError('Receipt not found. The receipt may have been deleted or is invalid.');
-                        }
-                    } else {
-                        showError('No receipts found in the database.');
-                    }
+                const result = await lookupReceiptByKey(receiptKey);
+                if (!result.ok) {
+                    showError(result.message);
                 }
-
-            } catch (error) {
-                console.error('Error loading receipt:', error);
-                showError('An error occurred while verifying the receipt. Please try again later.');
             } finally {
                 document.getElementById('loadingState').classList.remove('active');
             }
