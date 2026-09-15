@@ -11999,7 +11999,7 @@
 
           const messageData = {
             action: "GET_TERM_ASSESSMENT_RESULTS",
-            Term: termString+`*${window.__schoolContext?.id || ''}`,
+            Term: termString,
             SelectedAssessmentIds: [...assessmentIds],
             SelectedAssessments: selectedAssessments.map(a => ({
               id: String(a.id),
