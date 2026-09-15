@@ -3659,13 +3659,13 @@
     }
 
     .student-name {
-      font-weight: 600;
+      font-weight: 400;
       color: var(--gray-800);
-      font-size: var(--fs-base);
+      font-size: smaller;
     }
 
     .student-id {
-      font-size: var(--fs-xs);
+      font-size: smaller;
       color: var(--gray-400);
     }
 
@@ -4322,6 +4322,39 @@
     }
   </style>
 
+
+  <style>
+    .input-error {
+      border-color: #ef4444 !important;
+      background: #fef2f2 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+      animation: inputShake 0.35s ease;
+    }
+
+    .radio-group.input-error,
+    .consent-box.input-error {
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #fef2f2 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+    }
+
+    @keyframes inputShake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-4px);
+      }
+
+      75% {
+        transform: translateX(4px);
+      }
+    }
+  </style>
 </head>
 
 <body class="auth-pending">
@@ -5380,7 +5413,7 @@
                 <div style="display: flex; font-size: medium; margin-top: 10px;">
                   <div style="flex: 1; padding: 10px;">Payment Ref:</div>
                   <input type="text" id="Fn_PaymentRef" placeholder="Transaction Code" class="form-input"
-                    style="flex: 3; height: 37px; width: 50px;" />
+                    style="flex: 3; height: 37px; width: 50px;" required />
                   <div style="flex: 1;"></div>
                 </div>
 
@@ -5719,6 +5752,22 @@
       let studentsCache = {};
       let paymentCache = {};
       let classCache = {};
+
+      // Performance: index of payments by admission number, rebuilt once
+      // per UI refresh so per-row fee lookups don't scan all payments.
+      let paymentIndexByAdmission = new Map();
+
+      function rebuildPaymentIndex() {
+        paymentIndexByAdmission = new Map();
+        if (!paymentCache) return;
+        for (const key in paymentCache) {
+          const p = paymentCache[key];
+          if (!p || !p.admissionNumber) continue;
+          const norm = String(p.admissionNumber).replace(/-/g, '/');
+          if (!paymentIndexByAdmission.has(norm)) paymentIndexByAdmission.set(norm, []);
+          paymentIndexByAdmission.get(norm).push({ key, ...p });
+        }
+      }
 
       let studentsRef = null;
       let feepaymentRef = null;
@@ -6348,6 +6397,10 @@
         try { sessionStorage.setItem('acadia.activeTab', tabId); } catch (_) { }
 
         closeContextMenu?.();
+
+        if (typeof window.forceUIRefreshAfterWrite === 'function') {
+          requestAnimationFrame(() => window.forceUIRefreshAfterWrite());
+        }
       };
 
       document.getElementById('viewAllStudents')?.addEventListener('click', () => {
@@ -6502,6 +6555,12 @@
           }
 
           notifyTabChanged(targetId, 'user');
+
+          // Ensure the tab just clicked into has an up-to-date table,
+          // since refreshUIFromFirebase only rebuilds the visible tab.
+          if (typeof window.forceUIRefreshAfterWrite === 'function') {
+            requestAnimationFrame(() => window.forceUIRefreshAfterWrite());
+          }
         });
       });
 
@@ -6522,6 +6581,14 @@
           }
 
           notifyTabChanged(tabId, 'programmatic');
+
+          // The active tab's table is only rebuilt on refresh when it's
+          // the visible one, so make sure the tab we just switched to
+          // is up to date.
+          if (typeof window.forceUIRefreshAfterWrite === 'function') {
+            requestAnimationFrame(() => window.forceUIRefreshAfterWrite());
+          }
+
           return true;
         }
         return false;
@@ -6571,13 +6638,125 @@
 
         const saveBtn = document.getElementById("saveStudent");
 
-        const name = document.getElementById("studentName").value.trim();
-        const admissionNumber = document.getElementById("admissionNumber").value.trim();
+        // ── Grab field elements ──────────────────────────────────
+        const nameEl = document.getElementById("studentName");
+        const admissionEl = document.getElementById("admissionNumber");
+        const dobEl = document.getElementById("studentDOB");
+        const religionEl = document.getElementById("studentReligion");
+        const nationalityEl = document.getElementById("studentNationality");
+        const idNumberEl = document.getElementById("studentID");
+        const guardianEl = document.getElementById("guardianName");
+        const relationEl = document.getElementById("guardianRelationship");
+        const classEl = document.getElementById("studentClass");
+        const consentEl = document.getElementById("consentCheck");
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
 
-        if (!name) return alert("Please enter the student's name.");
-        if (!admissionNumber) return alert("Please enter the admission number.");
+        const name = nameEl.value.trim();
+        const admissionNumber = admissionEl.value.trim();
 
+        // ── Validation ───────────────────────────────────────────
+        if (!name) {
+          showToast("Please enter the student's name.", "warning");
+          flagInvalidField(nameEl);
+          return;
+        }
+
+        if (!admissionNumber) {
+          showToast("Please enter the admission number.", "warning");
+          flagInvalidField(admissionEl);
+          return;
+        }
+
+        // Date of Birth — required and at least 2 years back
+        const dobValue = dobEl.value;
+        if (!dobValue) {
+          showToast("Please enter the student's Date of Birth.", "warning");
+          flagInvalidField(dobEl);
+          return;
+        }
+        const dobDate = new Date(dobValue);
+        if (isNaN(dobDate.getTime())) {
+          showToast("Date of Birth is not a valid date.", "warning");
+          flagInvalidField(dobEl);
+          return;
+        }
+        const today = new Date();
+        const twoYearsAgo = new Date(
+          today.getFullYear() - 2,
+          today.getMonth(),
+          today.getDate()
+        );
+        if (dobDate > twoYearsAgo) {
+          showToast("Date of Birth must be at least 2 years.", "warning");
+          flagInvalidField(dobEl);
+          return;
+        }
+
+        // Religion
+        if (!religionEl.value) {
+          showToast("Please select Religion / Faith.", "warning");
+          flagInvalidField(religionEl);
+          return;
+        }
+
+        // Nationality
+        if (!nationalityEl.value) {
+          showToast("Please select Nationality.", "warning");
+          flagInvalidField(nationalityEl);
+          return;
+        }
+
+        // ID / Birth Certificate No.
+        if (!idNumberEl.value.trim()) {
+          showToast("Please enter the ID / Birth Certificate Number.", "warning");
+          flagInvalidField(idNumberEl);
+          return;
+        }
+
+        // Gender / Sex
         const genderEl = document.querySelector('input[name="gender"]:checked');
+        if (!genderEl) {
+          showToast("Please select Gender / Sex.", "warning");
+          const group = genderRadios[0]?.closest('.radio-group');
+          if (group) {
+            flagInvalidField(group);
+          } else if (genderRadios[0]) {
+            flagInvalidField(genderRadios[0]);
+          }
+          return;
+        }
+
+        // Parent / Guardian name
+        if (!guardianEl.value.trim()) {
+          showToast("Please enter the Parent / Guardian name.", "warning");
+          flagInvalidField(guardianEl);
+          return;
+        }
+
+        // Relationship
+        if (!relationEl.value) {
+          showToast("Please select the Relationship.", "warning");
+          flagInvalidField(relationEl);
+          return;
+        }
+
+        // Class
+        if (!classEl.value) {
+          showToast("Please select a Class.", "warning");
+          flagInvalidField(classEl);
+          return;
+        }
+
+        // Consent acknowledgement
+        if (!consentEl.checked) {
+          showToast("Please tick the Consent Acknowledgement to continue.", "warning");
+          const box = consentEl.closest('.consent-box') || consentEl;
+          flagInvalidField(box);
+          try { consentEl.focus(); } catch (_) { }
+          return;
+        }
+
+        // ── All good — proceed with save ─────────────────────────
         const admissionKey = admissionNumber.replace(/\//g, "-");
         const studentRef = ref(db, `${schoolPath('Students')}/${admissionKey}`);
 
@@ -6593,23 +6772,23 @@
           const existingStudent = snapshot.exists() ? snapshot.val() : null;
           const isNewStudent = !existingStudent;
 
-          const studentClass = document.getElementById("studentClass").value;
+          const studentClass = classEl.value;
 
           const studentData = {
             name,
-            dob: document.getElementById("studentDOB").value,
-            religion: document.getElementById("studentReligion").value,
-            nationality: document.getElementById("studentNationality").value,
-            gender: genderEl ? genderEl.value : "",
-            idNumber: document.getElementById("studentID").value.trim(),
-            guardian: document.getElementById("guardianName").value.trim(),
-            relationship: document.getElementById("guardianRelationship").value,
+            dob: dobValue,
+            religion: religionEl.value,
+            nationality: nationalityEl.value,
+            gender: genderEl.value,
+            idNumber: idNumberEl.value.trim(),
+            guardian: guardianEl.value.trim(),
+            relationship: relationEl.value,
             phone: document.getElementById("guardianPhone").value.trim(),
             email: document.getElementById("guardianEmail").value.trim(),
             address: document.getElementById("guardianAddress").value.trim(),
             admissionNumber,
             class: studentClass,
-            consent: document.getElementById("consentCheck").checked,
+            consent: consentEl.checked,
             Status: existingStudent?.Status || "Active",
             Exceptions: existingStudent?.Exceptions || {},
             lastPayment: existingStudent?.lastPayment ?? null
@@ -6619,33 +6798,50 @@
             const admissionCharges = getAdmissionCharges(studentClass);
             const senior = isSeniorGradeClass(studentClass);
             const gradeFee = getGradeFeeOnly(studentClass);
-            const mealExempt = getMealExemptionAmount();
+
+            // Pull meal & boarding from the active term
+            const activeTermData = terms.find(
+              t => String(t.status || '').trim().toLowerCase() === 'active'
+            );
+            let boardingFee = parseFloat(activeTermData?.boarding) || 0;
+            if (senior) boardingFee = Math.max(0, boardingFee - 2000);
+            const mealFee = parseFloat(activeTermData?.meal) || 0;
+
+            // Gross side / exemption side
+            const extraFee = senior ? boardingFee : mealFee;
+            const exemption = senior ? 0 : mealFee;
+
             const entryDate = todayDDMMYYYY();
             const paymentDate = todayISODate();
             const activeTerm = getActiveTerm() || "";
 
-            // Required fee at admission = grade fee + admission charges
-            const requiredAtAdmission = gradeFee + admissionCharges;
+            const grossFee = gradeFee + admissionCharges + extraFee;
+            const balance = grossFee - exemption;
 
             const admissionPayment = {
               term: activeTerm,
-              
               boarding: senior,
               class: studentClass,
               entryDate,
               admissionNumber,
               amount: formatCurrency(0),
-              fee: formatCurrency(requiredAtAdmission) + formatCurrency(senior ? 0 : mealExempt),
-              balance: formatCurrency(requiredAtAdmission),
+              fee: formatCurrency(grossFee),
+              Exemption: formatCurrency(exemption),
+              balance: formatCurrency(balance),
               Account: "Admission",
               paymentDate,
               paymentRef: "Admission",
-              Exemption: formatCurrency(senior ? 0 : mealExempt),
-              ReceiptNo: "Admission"
+              ReceiptNo: "Admission",
             };
 
-            await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
-            studentData.lastPayment = admissionPayment;
+            try {
+              const newRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
+              admissionPayment.key = newRef.key;
+              studentData.lastPayment = admissionPayment;
+            } catch (err) {
+              console.error("Admission fee write failed:", err);
+              throw err;
+            }
           }
           await set(studentRef, studentData);
 
@@ -6667,6 +6863,21 @@
         }
       });
 
+      function flagInvalidField(el) {
+        if (!el) return;
+        try { el.focus(); } catch (_) { }
+
+        if (el.tagName === 'SELECT' && typeof el.showPicker === 'function') {
+          try { el.showPicker(); } catch (_) { }
+        }
+
+        el.classList.add('input-error');
+        const clear = () => el.classList.remove('input-error');
+        el.addEventListener('input', clear, { once: true });
+        el.addEventListener('change', clear, { once: true });
+        el.addEventListener('click', clear, { once: true });
+        setTimeout(clear, 2500);
+      }
       // ============================================================
       // SAVE PAYMENT
       // ============================================================
@@ -6688,6 +6899,34 @@
         const amount = getValue("Fn_PaidAmount");
         if (amount <= 0) {
           showToast("Please enter a valid payment amount.", "warning");
+          flagInvalidField(document.getElementById("Fn_PaidAmount"));
+          return;
+        }
+
+        // ── Account is mandatory ───────────────────────────────────
+        const accountEl = document.getElementById("Fn_Account");
+        const accountValue = (accountEl?.value || "").trim();
+        if (!accountValue) {
+          showToast("Please select an Account before saving.", "warning");
+          flagInvalidField(accountEl);
+          return;
+        }
+
+        // ── Payment Ref is mandatory ───────────────────────────────
+        const paymentRefEl = document.getElementById("Fn_PaymentRef");
+        const paymentRefValue = (paymentRefEl?.value || "").trim();
+        if (!paymentRefValue) {
+          showToast("Please enter the Payment Ref / transaction code.", "warning");
+          flagInvalidField(paymentRefEl);
+          return;
+        }
+
+        // ── Payment date is mandatory ──────────────────────────────
+        const paymentDateEl = document.getElementById("Fn_PaymentDate");
+        const paymentDateValue = (paymentDateEl?.value || "").trim();
+        if (!paymentDateValue) {
+          showToast("Please select the payment date.", "warning");
+          flagInvalidField(paymentDateEl);
           return;
         }
 
@@ -6708,9 +6947,9 @@
           admissionNumber,
           amount: formatCurrency(amount),
           balance: formatCurrency(balance),
-          Account: document.getElementById("Fn_Account")?.value || "",
-          paymentDate: document.getElementById("Fn_PaymentDate")?.value || "",
-          paymentRef: document.getElementById("Fn_PaymentRef")?.value || "",
+          Account: accountValue,
+          paymentDate: paymentDateValue,
+          paymentRef: paymentRefValue,
           Exemption: formatCurrency(document.getElementById("Fn_studentExceptions")?.textContent.trim() || 0),
           ReceiptNo: String(getLastReceiptNo())
         };
@@ -6722,8 +6961,8 @@
         }
 
         try {
-          const paymentRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), paymentData);
-          const firebaseKey = paymentRef.key;
+          const paymentPushRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), paymentData);
+          const firebaseKey = paymentPushRef.key;
 
           await update(ref(db, `${schoolPath('Students')}/${admissionKey}`), { lastPayment: paymentData });
 
@@ -6803,7 +7042,6 @@
           }
         }
       });
-
       // ============================================================
       // AMOUNT INPUT
       // ============================================================
@@ -7113,15 +7351,21 @@
         if (!admission || !studentsCache) return "0.00";
         const student = studentsCache[admission];
         if (!student) return "0.00";
-        const gradeFee = getStudentRequiredFee(admission);
-        if (gradeFee === "Sponsored") return "Sponsored";
-        if (!student.lastPayment) return formatCurrency(gradeFee);
+
+        const netFee = getStudentNetFee(admission);
+        if (netFee === "Sponsored") return "Sponsored";
+
+        if (!student.lastPayment) return netFee;
+
         const balance = student.lastPayment.balance;
         const last_balance = parseFloat(String(balance || 0).replace(/,/g, '')) || 0.00;
         const activeTerm = getActiveTerm();
         if (!activeTerm) return formatCurrency(last_balance);
+
         if (student.lastPayment.term !== activeTerm) {
-          return formatCurrency(last_balance + parseFloat(gradeFee.replace(/,/g, '') || 0));
+          return formatCurrency(
+            last_balance + parseFloat(netFee.replace(/,/g, '') || 0)
+          );
         }
         return formatCurrency(last_balance);
       }
@@ -7141,52 +7385,32 @@
       }
 
       function getStudentRequiredFee(admissionNumber) {
-        if (!admissionNumber || !studentsCache) return "0.00";
-        const student = studentsCache[admissionNumber];
-        if (!student?.class) return "0.00";
-
-        const grade = String(student.class).split('-')[0].trim();
-        const activeTerm = terms.find(
-          term => String(term.status || '').trim().toLowerCase() === 'active'
-        );
-        if (!activeTerm?.grades || !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
-          return "0.00";
-        }
-
-        const fees = {
-          grade: parseFloat(activeTerm.grades[grade]) || 0,
-          meal: parseFloat(activeTerm.meal) || 0,
-          transport: parseFloat(activeTerm.transport) || 0,
-          boarding: parseFloat(activeTerm.boarding) || 0,
-          break: parseFloat(activeTerm.breakFee) || 0
-        };
-
-        if (/[789]/.test(grade)) {
-          fees.boarding = Math.max(0, fees.boarding - 2000);
-        }
-
-        const ex = student.Exceptions || {};
-        if (ex.Sponsored === true) return "Sponsored";
-
-        let requiredFee = fees.grade;
-
-        if (ex.Boarding === true) {
-          requiredFee += fees.boarding;
-        } else {
-          requiredFee += fees.transport;
-          if (ex.Meal === true || ex.meals === true) requiredFee += fees.meal;
-          if (ex.Break === true) requiredFee += fees.break;
-        }
-
-        // Newly admitted in the current term → include admission charges
-        if (typeof wasAdmittedInCurrentTerm === 'function' && wasAdmittedInCurrentTerm(admissionNumber)) {
-          requiredFee += (typeof getAdmissionCharges === 'function'
-            ? getAdmissionCharges(student.class)
-            : 0);
-        }
-
-        return formatCurrency(requiredFee);
+        // Gross fee (Term Fee / Fee column).
+        return getStudentGrossFee(admissionNumber);
       }
+      function getCurrentBalance(admission) {
+        if (!admission || !studentsCache?.[admission]) return "0.00";
+        const student = studentsCache[admission];
+
+        const gross = getStudentRequiredFee(admission);
+        if (gross === "Sponsored") return "Sponsored";
+
+        const exemption = studentExceptions(admission);
+        const g = parseFloat(String(gross).replace(/,/g, '')) || 0;
+        const e = parseFloat(String(exemption).replace(/,/g, '')) || 0;
+        const netFee = Math.max(0, g - e);
+
+        if (!student.lastPayment) return formatCurrency(netFee);
+
+        const balance = parseFloat(String(student.lastPayment.balance || 0).replace(/,/g, '')) || 0;
+        const activeTerm = getActiveTerm();
+
+        if (activeTerm && student.lastPayment.term !== activeTerm) {
+          return formatCurrency(balance + netFee);
+        }
+        return formatCurrency(balance);
+      }
+
       function studentExceptions(admissionNumber) {
         if (!admissionNumber || !studentsCache) return "0.00";
         const student = studentsCache[admissionNumber];
@@ -7272,16 +7496,10 @@
 
       function getInstallmentsForStudent(admissionNumber) {
         const activeTerm = getActiveTerm();
+        const list = paymentIndexByAdmission.get(admissionNumber.replace(/-/g, "/")) || [];
         let totalInstallments = 0;
-        const normalizedAdmissionNumber = admissionNumber.replace(/-/g, "/");
-        if (!paymentCache || typeof paymentCache !== 'object') {
-          console.warn("Payment cache is empty or invalid");
-          return "0.00";
-        }
-        Object.values(paymentCache).forEach(payment => {
-          const paymentAdmissionNumber = payment.admissionNumber ?
-            payment.admissionNumber.replace(/-/g, "/") : "";
-          if (paymentAdmissionNumber === normalizedAdmissionNumber && payment.term === activeTerm) {
+        for (const payment of list) {
+          if (payment.term === activeTerm) {
             let paymentAmount = 0;
             if (typeof payment.amount === 'string') {
               paymentAmount = parseFloat(payment.amount.replace(/,/g, '')) || 0;
@@ -7290,23 +7508,23 @@
             }
             totalInstallments += paymentAmount;
           }
-        });
+        }
         return formatCurrency(totalInstallments);
       }
 
       function getBalanceBefore(admissionNumber) {
-        const normalizedAdmission = admissionNumber.replace(/-/g, "/");
         const activeTerm = getActiveTerm();
+        const list = paymentIndexByAdmission.get(admissionNumber.replace(/-/g, "/")) || [];
         let lastBalance = 0;
-        Object.values(paymentCache || {}).forEach(payment => {
-          if (payment?.admissionNumber?.replace(/-/g, "/") === normalizedAdmission && payment.term !== activeTerm) {
+        for (const payment of list) {
+          if (payment.term !== activeTerm) {
             if (typeof payment.balance === 'string') {
               lastBalance = parseFloat(payment.balance.replace(/,/g, '')) || 0;
             } else {
               lastBalance = Number(payment.balance) || 0;
             }
           }
-        });
+        }
         return formatCurrency(lastBalance);
       }
 
@@ -7349,23 +7567,16 @@
       }
 
       function getAdmissionPayment(admissionNumber) {
-        if (!admissionNumber || !paymentCache || typeof paymentCache !== 'object') return null;
+        if (!admissionNumber) return null;
 
         const normalized = String(admissionNumber).replace(/-/g, '/').trim();
+        const list = paymentIndexByAdmission.get(normalized) || [];
 
-        for (const payment of Object.values(paymentCache)) {
-          if (!payment) continue;
-          const payAdmn = String(payment.admissionNumber || '').replace(/-/g, '/').trim();
-          if (payAdmn !== normalized) continue;
-
-          const isAdmission =
-            String(payment.Account || '').toLowerCase() === 'admission' ||
-            String(payment.paymentRef || '').toLowerCase() === 'admission' ||
-            String(payment.ReceiptNo || '').toLowerCase() === 'admission';
-
-          if (isAdmission) return payment;
-        }
-        return null;
+        return list.find(payment =>
+          String(payment.Account || '').toLowerCase() === 'admission' ||
+          String(payment.paymentRef || '').toLowerCase() === 'admission' ||
+          String(payment.ReceiptNo || '').toLowerCase() === 'admission'
+        ) || null;
       }
 
       function getStudentAdmissionTerm(admissionNumber) {
@@ -7403,7 +7614,65 @@
         if (!activeTerm) return 0;
         return parseFloat(activeTerm.meal) || 0;
       }
+      // -----------------------------------------------------------------
+      // GROSS FEE — the "Term Fee" / "Fee" column
+      //   Senior   → grade + boarding (+ admission if newly admitted)
+      //   Non-sen. → grade + meal     (+ admission if newly admitted)
+      // -----------------------------------------------------------------
+      function getStudentGrossFee(admissionNumber) {
+        if (!admissionNumber || !studentsCache) return "0.00";
+        const student = studentsCache[admissionNumber];
+        if (!student?.class) return "0.00";
 
+        const ex = student.Exceptions || {};
+        if (ex.Sponsored === true) return "Sponsored";
+
+        const grade = String(student.class).split('-')[0].trim();
+        const activeTerm = terms.find(
+          t => String(t.status || '').trim().toLowerCase() === 'active'
+        );
+        if (!activeTerm?.grades ||
+          !Object.prototype.hasOwnProperty.call(activeTerm.grades, grade)) {
+          return "0.00";
+        }
+
+        const gradeFee = parseFloat(activeTerm.grades[grade]) || 0;
+        const isSenior = isSeniorGradeClass(student.class);
+
+        let extraFee;
+        if (isSenior) {
+          let boardingFee = parseFloat(activeTerm.boarding) || 0;
+          boardingFee = Math.max(0, boardingFee - 2000);   // senior discount
+          extraFee = boardingFee;
+        } else {
+          extraFee = parseFloat(activeTerm.meal) || 0;
+        }
+
+        let total = gradeFee + extraFee;
+
+        if (typeof wasAdmittedInCurrentTerm === 'function' &&
+          wasAdmittedInCurrentTerm(admissionNumber)) {
+          total += (typeof getAdmissionCharges === 'function'
+            ? getAdmissionCharges(student.class)
+            : 0);
+        }
+
+        return formatCurrency(total);
+      }
+
+      // -----------------------------------------------------------------
+      // NET FEE — what the student actually has to pay (gross − exemption)
+      // -----------------------------------------------------------------
+      function getStudentNetFee(admissionNumber) {
+        const gross = getStudentGrossFee(admissionNumber);
+        if (gross === "Sponsored") return "Sponsored";
+
+        const exemption = studentExceptions(admissionNumber);
+        const g = parseFloat(String(gross).replace(/,/g, '')) || 0;
+        const e = parseFloat(String(exemption).replace(/,/g, '')) || 0;
+
+        return formatCurrency(Math.max(0, g - e));
+      }
       function todayDDMMYYYY() {
         const d = new Date();
         return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
@@ -7480,19 +7749,19 @@
           return orderA - orderB;
         });
 
-        let index = 1;
-        for (const [admissionNumber, student] of sortedStudents) {
+        const rows = new Array(sortedStudents.length);
+        for (let i = 0; i < sortedStudents.length; i++) {
+          const [admissionNumber, student] = sortedStudents[i];
           const formattedDob = student.dob ? formatDateToDDMMYYYY(student.dob) : "—";
           const isGraduate = student.class === "Graduate";
           const status = isGraduate ? "Graduate" : (student.Status || "—");
           const statusClass = isGraduate ? "late" : status.toLowerCase() === "inactive" ? "absent" : "";
-          const row = document.createElement("tr");
-          row.innerHTML = `
+          rows[i] = `<tr>
     <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
     <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
     <td class="col-name">
       <div class="student-info">
-        <span class="student-name clickable-name" data-student="${index}">${student.name || "Unknown"}</span>
+        <span class="student-name clickable-name" data-student="${i + 1}">${student.name || "Unknown"}</span>
         <span class="student-id">${admissionNumber}</span>
       </div>
     </td>
@@ -7501,10 +7770,9 @@
     <td class="col-national">${student.nationality || "—"}</td>
     <td class="col-contact">${student.phone || "—"}</td>
     <td class="col-status"><span class="status-badge ${statusClass}">${status}</span></td>
-  `;
-          tbody.appendChild(row);
-          index++;
+  </tr>`;
         }
+        tbody.innerHTML = rows.join('');
       }
 
       function populateFeeBalanceTable(students) {
@@ -7546,26 +7814,27 @@
           return orderA - orderB;
         });
 
-        for (const [admissionNumber, student] of sortedStudents) {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-    <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
-    <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
-    <td class="col-name">
-      <div class="student-info">
-        <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
-        <span class="student-id">${admissionNumber}</span>
-      </div>
-    </td>
-    <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td>
-    <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
-    <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
-    <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
-    <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
-    <td class="col-contact">${student.class || "—"}</td>
-  `;
-          tbody.appendChild(row);
+        const rows = new Array(sortedStudents.length);
+        for (let i = 0; i < sortedStudents.length; i++) {
+          const [admissionNumber, student] = sortedStudents[i];
+          rows[i] = `<tr>
+      <td class="col-check"><input type="checkbox" class="custom-checkbox"></td>
+      <td class="col-avatar"><div class="avatar-wrapper"><span class="avatar-placeholder">👤</span></div></td>
+      <td class="col-name">
+        <div class="student-info">
+          <span class="student-name clickable-name" data-student="${admissionNumber}">${student.name || "Unknown"}</span>
+          <span class="student-id">${admissionNumber}</span>
+        </div>
+      </td>
+      <td class="col-grade">${formatCurrency(getStudentRequiredFee(admissionNumber))}</td>
+      <td class="col-dob">${formatCurrency(studentExceptions(admissionNumber))}</td>
+      <td class="col-national">${formatCurrency(getBalanceBefore(admissionNumber))}</td>
+      <td class="col-contact">${formatCurrency(getInstallmentsForStudent(admissionNumber))}</td>
+      <td class="col-contact">${formatCurrency(getCurrent(admissionNumber))}</td>
+      <td class="col-contact">${student.class || "—"}</td>
+    </tr>`;
         }
+        tbody.innerHTML = rows.join('');
       }
 
       function formatCarriedFrom(value) {
@@ -7760,17 +8029,24 @@
         });
       }
 
+      let persistentStudentSearch = '';
+
       window.searchStudent = function (searchText) {
         closeContextMenu();
+
         try {
-          searchText = String(searchText || '').toLowerCase().trim();
+          persistentStudentSearch = String(searchText || '').toLowerCase().trim();
+
+          // Keep the actual search input synchronized
+          const searchInput = document.getElementById('Searchtext');
+          if (searchInput && searchInput.value !== searchText) {
+            searchInput.value = searchText || '';
+          }
 
           const activeTab = document.querySelector('.tab-panel.active');
 
-          if (!activeTab) {
-            console.log("No active tab found");
+          if (!activeTab)
             return false;
-          }
 
           let tableId = '';
 
@@ -7781,47 +8057,45 @@
             tableId = 'FeeBalanceList';
           }
           else {
-            console.log("Search not supported in tab: " + activeTab.id);
             return false;
           }
 
           const table = document.getElementById(tableId);
 
-          if (!table) {
-            console.log("Table not found: " + tableId);
+          if (!table)
             return false;
-          }
 
           const rows = table.querySelectorAll('tbody tr');
           let visibleCount = 0;
 
           rows.forEach(row => {
-            const studentName = row.querySelector('.student-name')
-              ?.textContent.trim().toLowerCase() || '';
+            const studentName =
+              row.querySelector('.student-name')
+                ?.textContent.trim().toLowerCase() || '';
 
-            const admissionNumber = row.querySelector('.student-id')
-              ?.textContent.trim().toLowerCase() || '';
+            const admissionNumber =
+              row.querySelector('.student-id')
+                ?.textContent.trim().toLowerCase() || '';
 
             const matches =
-              searchText === '' ||
-              studentName.includes(searchText) ||
-              admissionNumber.includes(searchText);
+              persistentStudentSearch === '' ||
+              studentName.includes(persistentStudentSearch) ||
+              admissionNumber.includes(persistentStudentSearch);
 
             row.style.display = matches ? '' : 'none';
 
-            if (matches) {
+            if (matches)
               visibleCount++;
-            }
           });
 
-          console.log(`Search complete: ${visibleCount} matches for "${searchText}"`);
           return true;
 
         } catch (error) {
-          console.error("Student search error: " + error.message);
+          console.error("Student search error:", error);
           return false;
         }
       };
+
 
       // ============================================================
       // REAL-TIME DATA SYNC
@@ -7931,15 +8205,33 @@
           : null;
 
         try {
-          populateStudentsTable(studentsCache);
-          populateFeeBalanceTable(studentsCache);
-          populateFeePaymentsTable(paymentCache);
-          renderClasses(classData);
-          populateClassSelect(classData);
-          renderGrid();
+          // Build the payment lookup index once per refresh instead of
+          // letting per-row fee functions scan the entire payments list.
+          rebuildPaymentIndex();
 
-          if (typeof updateDashboard === 'function') {
-            updateDashboard();
+          const activeTabId = document.querySelector('.tab-btn.active')?.getAttribute('data-tab');
+          const isFirstRender = !uiInitialRenderDone;
+
+          if (activeTabId === 'tab1' || isFirstRender) {
+            populateStudentsTable(studentsCache);
+          }
+          if (activeTabId === 'tab2' || isFirstRender) {
+            populateFeeBalanceTable(studentsCache);
+          }
+          if (activeTabId === 'tab6' || isFirstRender) {
+            populateFeePaymentsTable(paymentCache);
+          }
+          if (activeTabId === 'tab3' || isFirstRender) {
+            renderClasses(classData);
+            populateClassSelect(classData);
+          }
+          if (activeTabId === 'tab4' || isFirstRender) {
+            renderGrid();
+          }
+          if (activeTabId === 'tab0' || isFirstRender) {
+            if (typeof updateDashboard === 'function') {
+              updateDashboard();
+            }
           }
 
           const assessmentTerm = document.getElementById('assessment-term');
@@ -7952,8 +8244,10 @@
             autoGenerate.dispatchEvent(new Event('change'));
           }
 
-          if (typeof window.__refreshAssessmentUI === 'function') {
-            window.__refreshAssessmentUI();
+          if (activeTabId === 'tab5' || isFirstRender) {
+            if (typeof window.__refreshAssessmentUI === 'function') {
+              window.__refreshAssessmentUI();
+            }
           }
 
           if (savedSearch && typeof window.searchStudent === 'function') {
@@ -7994,7 +8288,11 @@
           clearTimeout(uiRefreshTimer);
           uiRefreshTimer = null;
         }
-        refreshUIFromFirebase(false, 'post-write');
+        // Defer the heavy rebuild one frame so "Saving..." button states
+        // and toasts painted by the caller show up before the work runs.
+        requestAnimationFrame(() => {
+          refreshUIFromFirebase(false, 'post-write');
+        });
       };
 
       let classData = [];
@@ -12321,6 +12619,7 @@
 
             document.body.classList.remove('auth-pending');
             document.body.classList.add('auth-ready');
+            authRoot.classList.remove('loading');
             authRoot.classList.add('hidden');
             showUserBar(user);
 
@@ -12577,10 +12876,17 @@
 
         document.body.classList.add('auth-pending');
         hideUserBar();
-        switchAuthMode('login');
+        // Prep the login form silently but keep it hidden behind the
+        // "checking session..." spinner until Firebase tells us whether
+        // there's a valid persisted session — this stops the login
+        // screen from flashing on refresh for users who are logged in.
+        switchAuthMode(false);
+        authRoot.classList.add('loading');
       })();
 
     </script>
+
+
   </div>
 
 </body>
