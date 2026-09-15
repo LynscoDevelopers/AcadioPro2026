@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
@@ -7,7 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -210,7 +213,9 @@
             gap: 18px;
         }
 
-        .login-field { position: relative; }
+        .login-field {
+            position: relative;
+        }
 
         .login-field-icon {
             position: absolute;
@@ -241,7 +246,10 @@
             font-weight: 500;
         }
 
-        .login-input::placeholder { color: #9aabbf; font-weight: 400; }
+        .login-input::placeholder {
+            color: #9aabbf;
+            font-weight: 400;
+        }
 
         .login-input:focus {
             outline: none;
@@ -276,7 +284,9 @@
             box-shadow: 0 14px 24px -10px rgba(11, 43, 78, 0.4);
         }
 
-        .login-btn:active { transform: translateY(0); }
+        .login-btn:active {
+            transform: translateY(0);
+        }
 
         .login-error {
             background: var(--danger-soft);
@@ -294,7 +304,10 @@
         }
 
         /* ============ PORTAL ============ */
-        .portal { display: none; min-height: 100vh; }
+        .portal {
+            display: none;
+            min-height: 100vh;
+        }
 
         .portal-header {
             background: rgba(255, 255, 255, 0.92);
@@ -310,7 +323,11 @@
             justify-content: space-between;
         }
 
-        .portal-header-left { display: flex; align-items: center; gap: 16px; }
+        .portal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
         .portal-logo {
             width: 44px;
@@ -332,9 +349,17 @@
             color: var(--primary-dark);
         }
 
-        .portal-header-right { display: flex; align-items: center; gap: 18px; }
+        .portal-header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
 
-        .portal-user { display: flex; align-items: center; gap: 12px; }
+        .portal-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
         .portal-user-avatar {
             width: 40px;
@@ -379,7 +404,10 @@
             font-family: inherit;
         }
 
-        .logout-btn:hover { background: #fee2e2; transform: translateY(-1px); }
+        .logout-btn:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
 
         .portal-nav {
             background: white;
@@ -408,10 +436,26 @@
             letter-spacing: -0.01em;
         }
 
-        .portal-nav-btn i { font-size: 0.85rem; opacity: 0.7; }
-        .portal-nav-btn:hover { color: var(--text); background: #fafcff; }
-        .portal-nav-btn.active { color: var(--primary); border-bottom-color: var(--accent); font-weight: 700; }
-        .portal-nav-btn.active i { color: var(--accent); opacity: 1; }
+        .portal-nav-btn i {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .portal-nav-btn:hover {
+            color: var(--text);
+            background: #fafcff;
+        }
+
+        .portal-nav-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--accent);
+            font-weight: 700;
+        }
+
+        .portal-nav-btn.active i {
+            color: var(--accent);
+            opacity: 1;
+        }
 
         .mobile-menu-btn {
             display: none;
@@ -425,7 +469,9 @@
             transition: background 0.2s;
         }
 
-        .mobile-menu-btn:hover { background: #f1f5f9; }
+        .mobile-menu-btn:hover {
+            background: #f1f5f9;
+        }
 
         .portal-content {
             padding: 32px 28px;
@@ -433,12 +479,25 @@
             margin: 0 auto;
         }
 
-        .section { display: none; animation: fadeIn 0.35s ease; }
-        .section.active { display: block; }
+        .section {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card {
@@ -451,7 +510,9 @@
             transition: box-shadow 0.2s;
         }
 
-        .card:hover { box-shadow: var(--shadow-md); }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
 
         .card-header {
             padding: 18px 24px;
@@ -474,9 +535,16 @@
             letter-spacing: -0.01em;
         }
 
-        .card-title i { color: var(--accent); font-size: 1rem; width: 20px; text-align: center; }
+        .card-title i {
+            color: var(--accent);
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
 
-        .card-body { padding: 24px; }
+        .card-body {
+            padding: 24px;
+        }
 
         /* Profile */
         .profile-card {
@@ -486,7 +554,10 @@
             align-items: flex-start;
         }
 
-        .profile-avatar-section { text-align: center; flex-shrink: 0; }
+        .profile-avatar-section {
+            text-align: center;
+            flex-shrink: 0;
+        }
 
         .profile-avatar {
             width: 108px;
@@ -518,9 +589,14 @@
             text-transform: uppercase;
         }
 
-        .profile-status i { font-size: 6px; }
+        .profile-status i {
+            font-size: 6px;
+        }
 
-        .profile-details { flex: 1; min-width: 250px; }
+        .profile-details {
+            flex: 1;
+            min-width: 250px;
+        }
 
         .profile-name {
             font-size: 1.6rem;
@@ -555,7 +631,10 @@
             gap: 6px;
         }
 
-        .personal-field:hover { border-color: #d4dfeb; background: #f8fbff; }
+        .personal-field:hover {
+            border-color: #d4dfeb;
+            background: #f8fbff;
+        }
 
         .personal-field-label {
             font-size: 0.65rem;
@@ -568,7 +647,12 @@
             gap: 6px;
         }
 
-        .personal-field-label i { color: var(--accent); font-size: 0.7rem; width: 14px; text-align: center; }
+        .personal-field-label i {
+            color: var(--accent);
+            font-size: 0.7rem;
+            width: 14px;
+            text-align: center;
+        }
 
         .personal-field-value {
             font-size: 0.98rem;
@@ -599,9 +683,17 @@
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
         }
 
-        .edit-mode .personal-field-value { display: none; }
-        .edit-mode .personal-field-input { display: block; }
-        .personal-field-input:disabled { display: none; }
+        .edit-mode .personal-field-value {
+            display: none;
+        }
+
+        .edit-mode .personal-field-input {
+            display: block;
+        }
+
+        .personal-field-input:disabled {
+            display: none;
+        }
 
         .profile-detail-grid {
             display: grid;
@@ -618,7 +710,10 @@
             transition: border-color 0.2s, background 0.2s;
         }
 
-        .profile-detail:hover { border-color: #d4dfeb; background: #f8fbff; }
+        .profile-detail:hover {
+            border-color: #d4dfeb;
+            background: #f8fbff;
+        }
 
         .profile-detail-label {
             font-size: 0.65rem;
@@ -632,7 +727,12 @@
             gap: 6px;
         }
 
-        .profile-detail-label i { color: var(--accent); font-size: 0.7rem; width: 14px; text-align: center; }
+        .profile-detail-label i {
+            color: var(--accent);
+            font-size: 0.7rem;
+            width: 14px;
+            text-align: center;
+        }
 
         .profile-detail-value {
             font-size: 0.95rem;
@@ -641,8 +741,13 @@
             word-break: break-word;
         }
 
-        .edit-mode .profile-detail-value { display: none; }
-        .edit-mode .profile-detail-input { display: block; }
+        .edit-mode .profile-detail-value {
+            display: none;
+        }
+
+        .edit-mode .profile-detail-input {
+            display: block;
+        }
 
         .profile-detail-input {
             display: none;
@@ -712,7 +817,10 @@
             box-shadow: 0 4px 10px -4px rgba(16, 185, 129, 0.3);
         }
 
-        .save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .save-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
 
         .cancel-btn {
             background: white;
@@ -730,10 +838,21 @@
             font-family: inherit;
         }
 
-        .cancel-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .cancel-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
 
-        .edit-actions { display: none; gap: 10px; margin-top: 18px; }
-        .edit-actions.active { display: flex; flex-wrap: wrap; }
+        .edit-actions {
+            display: none;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .edit-actions.active {
+            display: flex;
+            flex-wrap: wrap;
+        }
 
         /* Balance Cards */
         .balance-grid {
@@ -786,9 +905,17 @@
             letter-spacing: -0.02em;
         }
 
-        .balance-card-value.success { color: var(--success); }
-        .balance-card-value.warning { color: var(--warning); }
-        .balance-card-value.danger { color: var(--danger); }
+        .balance-card-value.success {
+            color: var(--success);
+        }
+
+        .balance-card-value.warning {
+            color: var(--warning);
+        }
+
+        .balance-card-value.danger {
+            color: var(--danger);
+        }
 
         /* Data Table */
         .table-wrapper {
@@ -824,8 +951,13 @@
             font-weight: 500;
         }
 
-        .data-table tr:last-child td { border-bottom: none; }
-        .data-table tr:hover td { background: #fafcff; }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: #fafcff;
+        }
 
         .badge {
             display: inline-block;
@@ -836,10 +968,25 @@
             letter-spacing: 0.01em;
         }
 
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger { background: #fee2e2; color: #991b1b; }
-        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
 
         /* ============================================================
            TRANSCRIPT — index.html STYLE
@@ -895,7 +1042,9 @@
             flex-shrink: 0;
         }
 
-        .collapsible-section.collapsed .collapsible-icon { transform: rotate(-90deg); }
+        .collapsible-section.collapsed .collapsible-icon {
+            transform: rotate(-90deg);
+        }
 
         .collapsible-title {
             flex: 1;
@@ -939,11 +1088,22 @@
         }
 
         @keyframes slideDown {
-            from { opacity: 0; max-height: 0; transform: translateY(-3px); }
-            to { opacity: 1; max-height: 5000px; transform: translateY(0); }
+            from {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-3px);
+            }
+
+            to {
+                opacity: 1;
+                max-height: 5000px;
+                transform: translateY(0);
+            }
         }
 
-        .collapsible-section.collapsed .collapsible-content { display: none; }
+        .collapsible-section.collapsed .collapsible-content {
+            display: none;
+        }
 
         .transcript-summary {
             display: grid;
@@ -956,7 +1116,9 @@
             border: 1px solid var(--border);
         }
 
-        .summary-item { text-align: center; }
+        .summary-item {
+            text-align: center;
+        }
 
         .summary-label {
             font-size: 0.6rem;
@@ -1002,7 +1164,9 @@
             font-weight: 500;
         }
 
-        .transcript-table tr:hover td { background: #f8fafc; }
+        .transcript-table tr:hover td {
+            background: #f8fafc;
+        }
 
         .transcript-section-heading {
             margin: 16px 0 10px;
@@ -1014,7 +1178,9 @@
             gap: 6px;
         }
 
-        .transcript-section-heading i { color: #2a7de1; }
+        .transcript-section-heading i {
+            color: #2a7de1;
+        }
 
         .subject-badge {
             background: #e9f2fa;
@@ -1040,10 +1206,30 @@
             letter-spacing: 0.02em;
         }
 
-        .grade-ee { background: #d1fae5; color: #065f46; }   /* Level 4 — Exceeding */
-        .grade-me { background: #dbeafe; color: #1e40af; }   /* Level 3 — Meeting */
-        .grade-ae { background: #fef3c7; color: #92400e; }   /* Level 2 — Approaching */
-        .grade-be { background: #fee2e2; color: #991b1b; }   /* Level 1 — Below */
+        .grade-ee {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Level 4 — Exceeding */
+        .grade-me {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Level 3 — Meeting */
+        .grade-ae {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Level 2 — Approaching */
+        .grade-be {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Level 1 — Below */
 
         /* Rank badges */
         .rank-badge {
@@ -1056,9 +1242,20 @@
             text-align: center;
         }
 
-        .rank-top { background: #d1fae5; color: #065f46; }
-        .rank-mid { background: #e0f2fe; color: #075985; }
-        .rank-bottom { background: #f3f4f6; color: #6b7280; }
+        .rank-top {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .rank-mid {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .rank-bottom {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
 
         .subject-performance-wrapper {
             width: 100%;
@@ -1096,7 +1293,10 @@
             display: block;
         }
 
-        .transcript-empty p { font-size: 0.95rem; font-weight: 500; }
+        .transcript-empty p {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
         /* Rubric Legend */
         .rubric-legend {
@@ -1126,16 +1326,30 @@
             flex-shrink: 0;
         }
 
-        .rubric-dot.level-4 { background: #10b981; }
-        .rubric-dot.level-3 { background: #3b82f6; }
-        .rubric-dot.level-2 { background: #f59e0b; }
-        .rubric-dot.level-1 { background: #ef4444; }
+        .rubric-dot.level-4 {
+            background: #10b981;
+        }
+
+        .rubric-dot.level-3 {
+            background: #3b82f6;
+        }
+
+        .rubric-dot.level-2 {
+            background: #f59e0b;
+        }
+
+        .rubric-dot.level-1 {
+            background: #ef4444;
+        }
 
         /* Loading */
         .loading-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(255, 255, 255, 0.88);
             z-index: 9999;
             align-items: center;
@@ -1144,7 +1358,9 @@
             backdrop-filter: blur(8px);
         }
 
-        .loading-overlay.active { display: flex; }
+        .loading-overlay.active {
+            display: flex;
+        }
 
         .loading-spinner {
             width: 48px;
@@ -1155,7 +1371,11 @@
             animation: spin 0.9s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         .loading-text {
             margin-top: 18px;
@@ -1184,13 +1404,21 @@
             max-width: 380px;
         }
 
-        .toast.show { transform: translateY(0); }
-        .toast-error { border-left-color: var(--danger); }
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-error {
+            border-left-color: var(--danger);
+        }
 
         .mobile-nav {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: white;
             z-index: 999;
             flex-direction: column;
@@ -1199,11 +1427,20 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .mobile-nav.active { display: flex; }
+        .mobile-nav.active {
+            display: flex;
+        }
 
         .mobile-nav-header {
             display: flex;
@@ -1245,69 +1482,250 @@
             font-family: inherit;
         }
 
-        .mobile-nav-link i { width: 22px; color: var(--text-muted); font-size: 1.05rem; }
-        .mobile-nav-link:hover { background: #f8fafc; }
-        .mobile-nav-link.active { background: var(--accent-soft); color: var(--accent); }
-        .mobile-nav-link.active i { color: var(--accent); }
+        .mobile-nav-link i {
+            width: 22px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .mobile-nav-link:hover {
+            background: #f8fafc;
+        }
+
+        .mobile-nav-link.active {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .mobile-nav-link.active i {
+            color: var(--accent);
+        }
 
         /* Responsive */
         @media (max-width: 900px) {
-            .login-left { padding: 40px 36px; }
-            .login-quote-text { font-size: 1.05rem; }
+            .login-left {
+                padding: 40px 36px;
+            }
+
+            .login-quote-text {
+                font-size: 1.05rem;
+            }
         }
 
         @media (max-width: 768px) {
-            .login-wrapper { flex-direction: column; }
-            .login-left { padding: 32px 24px; min-height: 220px; justify-content: center; }
-            .login-brand { margin-top: 0; margin-bottom: 0; }
-            .login-quote { display: none; }
-            .login-right { padding: 24px 20px; }
-            .login-box { padding: 28px 24px; border-radius: 24px; }
-            .login-box-title { font-size: 1.5rem; }
-            .portal-header { padding: 12px 16px; }
-            .portal-header-right .portal-user-name { display: none; }
-            .portal-header-right .portal-user-admission { display: none; }
-            .portal-nav { display: none; }
-            .mobile-menu-btn { display: block; }
-            .portal-content { padding: 20px 16px; }
-            .balance-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .profile-card { flex-direction: column; align-items: center; text-align: center; }
-            .personal-info-grid { grid-template-columns: 1fr; }
-            .profile-detail-grid { grid-template-columns: 1fr; }
-            .profile-detail-label, .personal-field-label { justify-content: center; }
-            .profile-detail-value, .personal-field-value { text-align: center; }
-            .data-table { font-size: 0.78rem; }
-            .data-table th, .data-table td { padding: 10px 12px; }
-            .card-header { padding: 14px 18px; }
-            .card-body { padding: 18px; }
-            .logout-btn span { display: none; }
-            .logout-btn { padding: 10px 12px; }
-            .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
-            .collapsible-header { padding: 10px 12px; font-size: 0.82rem; }
-            .collapsible-count { display: none; }
-            .collapsible-content { padding: 12px; }
-            .transcript-summary { grid-template-columns: 1fr 1fr; }
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .login-left {
+                padding: 32px 24px;
+                min-height: 220px;
+                justify-content: center;
+            }
+
+            .login-brand {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+
+            .login-quote {
+                display: none;
+            }
+
+            .login-right {
+                padding: 24px 20px;
+            }
+
+            .login-box {
+                padding: 28px 24px;
+                border-radius: 24px;
+            }
+
+            .login-box-title {
+                font-size: 1.5rem;
+            }
+
+            .portal-header {
+                padding: 12px 16px;
+            }
+
+            .portal-header-right .portal-user-name {
+                display: none;
+            }
+
+            .portal-header-right .portal-user-admission {
+                display: none;
+            }
+
+            .portal-nav {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .portal-content {
+                padding: 20px 16px;
+            }
+
+            .balance-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .profile-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .personal-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-detail-label,
+            .personal-field-label {
+                justify-content: center;
+            }
+
+            .profile-detail-value,
+            .personal-field-value {
+                text-align: center;
+            }
+
+            .data-table {
+                font-size: 0.78rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px 12px;
+            }
+
+            .card-header {
+                padding: 14px 18px;
+            }
+
+            .card-body {
+                padding: 18px;
+            }
+
+            .logout-btn span {
+                display: none;
+            }
+
+            .logout-btn {
+                padding: 10px 12px;
+            }
+
+            .toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                max-width: none;
+            }
+
+            .collapsible-header {
+                padding: 10px 12px;
+                font-size: 0.82rem;
+            }
+
+            .collapsible-count {
+                display: none;
+            }
+
+            .collapsible-content {
+                padding: 12px;
+            }
+
+            .transcript-summary {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 480px) {
-            .login-left { padding: 24px 20px; min-height: 180px; }
-            .login-brand-icon { width: 44px; height: 44px; font-size: 1.2rem; border-radius: 14px; margin-bottom: 16px; }
-            .login-brand-name { font-size: 1.3rem; }
-            .login-brand-tagline { font-size: 0.8rem; }
-            .login-box { padding: 24px 20px; }
-            .login-box-icon { width: 52px; height: 52px; font-size: 1.3rem; border-radius: 16px; margin-bottom: 18px; }
-            .login-box-title { font-size: 1.3rem; }
-            .balance-grid { grid-template-columns: 1fr; }
-            .personal-info-grid, .profile-detail-grid { grid-template-columns: 1fr; }
-            .balance-card-value { font-size: 1.15rem; }
-            .profile-avatar { width: 88px; height: 88px; font-size: 1.8rem; border-radius: 20px; }
-            .profile-name { font-size: 1.3rem; }
-            .transcript-summary { grid-template-columns: 1fr 1fr; }
-            .transcript-table { font-size: 0.7rem; }
-            .transcript-table th, .transcript-table td { padding: 6px 4px; }
+            .login-left {
+                padding: 24px 20px;
+                min-height: 180px;
+            }
+
+            .login-brand-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+                border-radius: 14px;
+                margin-bottom: 16px;
+            }
+
+            .login-brand-name {
+                font-size: 1.3rem;
+            }
+
+            .login-brand-tagline {
+                font-size: 0.8rem;
+            }
+
+            .login-box {
+                padding: 24px 20px;
+            }
+
+            .login-box-icon {
+                width: 52px;
+                height: 52px;
+                font-size: 1.3rem;
+                border-radius: 16px;
+                margin-bottom: 18px;
+            }
+
+            .login-box-title {
+                font-size: 1.3rem;
+            }
+
+            .balance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .personal-info-grid,
+            .profile-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .balance-card-value {
+                font-size: 1.15rem;
+            }
+
+            .profile-avatar {
+                width: 88px;
+                height: 88px;
+                font-size: 1.8rem;
+                border-radius: 20px;
+            }
+
+            .profile-name {
+                font-size: 1.3rem;
+            }
+
+            .transcript-summary {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .transcript-table {
+                font-size: 0.7rem;
+            }
+
+            .transcript-table th,
+            .transcript-table td {
+                padding: 6px 4px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- ============ LOGIN PAGE ============ -->
@@ -1318,7 +1736,8 @@
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <div class="login-brand-name">Student Portal</div>
-                <div class="login-brand-tagline">Sign in to access your academic information, fee status, and transcripts.</div>
+                <div class="login-brand-tagline">Sign in to access your academic information, fee status, and
+                    transcripts.</div>
             </div>
             <div class="login-quote">
                 <div class="login-quote-text">
@@ -1339,11 +1758,13 @@
                 <div class="login-form">
                     <div class="login-field">
                         <i class="fas fa-user login-field-icon"></i>
-                        <input type="text" class="login-input" id="loginFirstName" placeholder="First name" autocomplete="off">
+                        <input type="text" class="login-input" id="loginFirstName" placeholder="First name"
+                            autocomplete="off">
                     </div>
                     <div class="login-field">
                         <i class="fas fa-id-card login-field-icon"></i>
-                        <input type="password" class="login-input" id="loginAdmission" placeholder="Admission number" autocomplete="off">
+                        <input type="password" class="login-input" id="loginAdmission" placeholder="Admission number"
+                            autocomplete="off">
                     </div>
                     <div class="login-error" id="loginError">
                         <i class="fas fa-exclamation-circle"></i>
@@ -1458,12 +1879,14 @@
                                         </select>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label"><i class="fas fa-calendar"></i> Date of Birth</div>
+                                        <div class="personal-field-label"><i class="fas fa-calendar"></i> Date of Birth
+                                        </div>
                                         <div class="personal-field-value" id="profileDOB">-</div>
                                         <input type="date" class="personal-field-input" id="editDOB" disabled>
                                     </div>
                                     <div class="personal-field">
-                                        <div class="personal-field-label"><i class="fas fa-school"></i> Class/Grade</div>
+                                        <div class="personal-field-label"><i class="fas fa-school"></i> Class/Grade
+                                        </div>
                                         <div class="personal-field-value" id="profileClassValue">-</div>
                                         <input type="text" class="personal-field-input" id="editClass" disabled>
                                     </div>
@@ -1843,35 +2266,137 @@
         // school on record if there's just one (single-school deployments).
         async function resolveSchoolId() {
             const urlParams = new URLSearchParams(window.location.search);
-            const fromUrl = urlParams.get('school') || urlParams.get('schoolId') || urlParams.get('sid');
+
+            // First priority: schoolId explicitly in URL
+            const fromUrl =
+                urlParams.get('school') ||
+                urlParams.get('schoolId') ||
+                urlParams.get('sid');
+
             if (fromUrl) return fromUrl;
 
-            const schoolsSnap = await get(ref(db, 'Institution/Schools'));
+            // Second priority: schoolId/paymentKey inside receipt
+            const receipt = urlParams.get('receipt');
+
+            if (receipt) {
+                const parts = decodeURIComponent(receipt).split('/');
+
+                if (parts.length === 2 && parts[0]) {
+                    return parts[0];
+                }
+            }
+
+            // Fallback for single-school deployment
+            const schoolsSnap = await get(
+                ref(db, 'Institution/Schools')
+            );
+
             if (schoolsSnap.exists()) {
                 const ids = Object.keys(schoolsSnap.val());
-                if (ids.length === 1) return ids[0];
+
+                if (ids.length === 1) {
+                    return ids[0];
+                }
             }
+
             return null;
         }
 
         async function ensureSchoolContext() {
             if (schoolId) return true;
+
             schoolId = await resolveSchoolId();
+
             if (!schoolId) {
-                showLoginError('This portal link is missing a school reference. Please use the link provided by your school.');
+                showLoginError(
+                    'This portal link is missing a school reference. Please use the link provided by your school.'
+                );
                 return false;
             }
+
             try {
-                const schoolSnap = await get(ref(db, `Institution/Schools/${schoolId}`));
+                const schoolSnap = await get(
+                    ref(db, `Institution/Schools/${schoolId}`)
+                );
+
                 if (schoolSnap.exists()) {
                     schoolName = schoolSnap.val().name || null;
-                    const brandEl = document.querySelector('.login-brand-name');
-                    if (schoolName && brandEl) brandEl.textContent = schoolName;
+
+                    const brandEl =
+                        document.querySelector('.login-brand-name');
+
+                    if (schoolName && brandEl) {
+                        brandEl.textContent = schoolName;
+                    }
                 }
-            } catch (_) { /* non-critical */ }
+
+            } catch (_) {
+                // Non-critical
+            }
+
             return true;
         }
 
+        async function loadReceiptFromUrl() {
+            const urlParams =
+                new URLSearchParams(window.location.search);
+
+            const receiptValue =
+                urlParams.get('receipt');
+
+            if (!receiptValue) {
+                return false;
+            }
+
+            const parts =
+                decodeURIComponent(receiptValue)
+                    .trim()
+                    .split('/');
+
+            if (parts.length !== 2) {
+                showLoginError(
+                    'Invalid receipt link.'
+                );
+                return true;
+            }
+
+            schoolId = parts[0];
+            const paymentKey = parts[1];
+
+            try {
+                const paymentSnap = await get(
+                    ref(
+                        db,
+                        `Institution/Schools/${schoolId}/Fee_payment/${paymentKey}`
+                    )
+                );
+
+                if (!paymentSnap.exists()) {
+                    showLoginError(
+                        'Receipt not found or has been deleted.'
+                    );
+                    return true;
+                }
+
+                const payment = paymentSnap.val();
+
+                console.log('Receipt found:', payment);
+
+                return true;
+
+            } catch (error) {
+                console.error(
+                    'Receipt loading error:',
+                    error
+                );
+
+                showLoginError(
+                    'Unable to verify this receipt.'
+                );
+
+                return true;
+            }
+        }
         // ============================================================
         // AUTO LOGIN
         // ============================================================
@@ -1917,7 +2442,7 @@
         // ============================================================
         // LOGIN
         // ============================================================
-        window.login = async function() {
+        window.login = async function () {
             const firstName = document.getElementById('loginFirstName').value.trim().toLowerCase();
             const admissionNumber = document.getElementById('loginAdmission').value.trim();
             if (!firstName || !admissionNumber) {
@@ -2060,7 +2585,7 @@
         // ============================================================
         // EDIT / SAVE
         // ============================================================
-        window.toggleEdit = function(section) {
+        window.toggleEdit = function (section) {
             if (section === 'personal') {
                 personalEditMode = !personalEditMode;
                 document.getElementById('personalBody').classList.toggle('edit-mode', personalEditMode);
@@ -2080,7 +2605,7 @@
             }
         };
 
-        window.cancelEdit = function(section) {
+        window.cancelEdit = function (section) {
             if (section === 'personal') {
                 personalEditMode = false;
                 document.getElementById('personalBody').classList.remove('edit-mode');
@@ -2099,7 +2624,7 @@
             populateEditFields();
         };
 
-        window.savePersonalInfo = async function() {
+        window.savePersonalInfo = async function () {
             if (!currentStudent) return;
             const fullName = document.getElementById('editFullName').value.trim();
             const gender = document.getElementById('editGender').value;
@@ -2131,7 +2656,7 @@
             }
         };
 
-        window.saveContactInfo = async function() {
+        window.saveContactInfo = async function () {
             if (!currentStudent) return;
             const guardian = document.getElementById('editGuardian').value.trim();
             const relationship = document.getElementById('editRelationship').value;
@@ -2435,7 +2960,7 @@
                     const subjectGrade = getGradeLetter(subjectAvg);
 
                     const rank = subjectRanks[subject]?.[admissionNumber] ||
-                                 subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
+                        subjectRanks[subject]?.[admissionNumber.replace(/-/g, '/')] || '—';
                     const totalStudents = allStudentsForTerm[subject]?.length || 0;
 
                     let assessmentCells = '';
@@ -2582,7 +3107,7 @@
         }
 
         // Collapsible toggle (accordion)
-        window.toggleCollapsible = function(header) {
+        window.toggleCollapsible = function (header) {
             const section = header.closest('.collapsible-section');
             const container = section.parentElement;
             const isCurrentlyCollapsed = section.classList.contains('collapsed');
@@ -2603,7 +3128,7 @@
         // ============================================================
         // NAVIGATION
         // ============================================================
-        window.switchSection = function(sectionId) {
+        window.switchSection = function (sectionId) {
             document.querySelectorAll('.portal-nav-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.portal-nav-btn[data-section="${sectionId}"]`).classList.add('active');
             document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
@@ -2611,17 +3136,17 @@
             document.getElementById('mobileNav').classList.remove('active');
         };
 
-        window.mobileNavSwitch = function(sectionId) {
+        window.mobileNavSwitch = function (sectionId) {
             document.querySelectorAll('.mobile-nav-link').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.mobile-nav-link[data-section="${sectionId}"]`).classList.add('active');
             switchSection(sectionId);
         };
 
-        window.toggleMobileNav = function() {
+        window.toggleMobileNav = function () {
             document.getElementById('mobileNav').classList.toggle('active');
         };
 
-        window.logout = function() {
+        window.logout = function () {
             currentStudent = null;
             document.getElementById('portalContainer').style.display = 'none';
             document.getElementById('loginContainer').style.display = 'flex';
@@ -2633,7 +3158,7 @@
             window.history.replaceState({}, '', url);
         };
 
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && document.getElementById('loginContainer').style.display !== 'none') {
                 login();
             }
@@ -2647,5 +3172,7 @@
             if (uid) autoLoginFromUid(uid);
         })();
     </script>
+
 </body>
+
 </html>
