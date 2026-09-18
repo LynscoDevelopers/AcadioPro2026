@@ -1488,7 +1488,7 @@
                         .replace(/,/g, "")
                 ) || 0;
 
-            const totalFee = amount;
+            const totalFee = paymentData.fee;
 
             document.getElementById("totalFee").textContent =
                 formatCurrency(totalFee);
