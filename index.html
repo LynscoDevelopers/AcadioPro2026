@@ -5797,11 +5797,124 @@
             </button>
           </div>
 
+          <!-- Team & Access -->
+          <div class="card" id="teamAccessCard" style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:10px;padding:18px;display:none">
+            <h2 style="font-size:15px;margin:0 0 4px">Team &amp; Access</h2>
+            <p style="color:#64748b;font-size:12.5px;margin:0 0 14px">
+              Manage who can sign in to your school. New members who join your school start
+              <strong>disabled</strong> until you enable them below, and only the owner or an admin
+              can see this panel. Use the <strong>Access</strong> column to choose exactly what each
+              person can do — view the Register, register a new student, edit a student's record,
+              record a payment, create or edit a term, create or edit a class, create an assessment,
+              enter or edit marks, send notification letters, access Staff &amp; Payroll, and access
+              Settings.
+            </p>
+
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:16px">
+              <label for="customDenyMessageInput" style="display:block;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:4px">
+                Custom restriction warning
+              </label>
+              <p style="color:#94a3b8;font-size:11.5px;margin:0 0 8px">
+                Shown when someone tries something they don't have access to. Use <code>{action}</code>
+                to insert what they were blocked from doing (e.g. "record a payment").
+              </p>
+              <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+                <textarea id="customDenyMessageInput" rows="2" placeholder="You don't have permission to {action}. Ask your school's owner or admin to grant access in Settings → Team & Access."
+                  style="flex:1;min-width:240px;font-size:12.5px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;resize:vertical;font-family:inherit"></textarea>
+                <button type="button" class="btn" id="saveCustomDenyMessageBtn"
+                  style="padding:7px 14px;border-radius:7px;border:1px solid #0a5540;background:#fff;color:#0a5540;font-size:12.5px;cursor:pointer;white-space:nowrap">
+                  Save
+                </button>
+              </div>
+              <div id="customDenyMessageSaveMsg" style="font-size:11.5px;margin-top:6px"></div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table" id="userManagementTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Access</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="userManagementTbody"></tbody>
+              </table>
+              <p id="userManagementEmpty" style="color:#94a3b8;font-size:12.5px;padding:14px 4px;display:none">
+                No team members yet.
+              </p>
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div class="card" style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:10px;padding:18px">
+            <h2 style="font-size:15px;margin:0 0 4px">Account</h2>
+            <p style="color:#64748b;font-size:12.5px;margin:0 0 14px" id="settingsAccountEmailLine">
+              Signed in as <strong id="settingsAccountEmail">—</strong>
+            </p>
+            <button type="button" class="btn" id="settingsLogoutBtn"
+              style="padding:7px 14px;border-radius:7px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid #eef2f6">
+              <strong style="font-size:12.5px;color:#334155">Your access (live)</strong>
+              <p style="color:#94a3b8;font-size:11.5px;margin:2px 0 10px">
+                This shows exactly what's loaded for your signed-in account right now — use it to check
+                why an action is or isn't being blocked.
+              </p>
+              <div id="myAccessDebug" style="font-size:12px;color:#334155">Loading…</div>
+            </div>
+          </div>
+
           <div id="settingsSaveMsg" style="font-size:12.5px;margin-top:4px"></div>
         </div>
       </div>
 
     </div>
+
+    <!-- Custom logout confirmation prompt -->
+    <div class="modal-overlay" id="logoutConfirmModal">
+      <div class="modal-box" style="max-width:380px;text-align:center;padding:28px 24px">
+        <div style="font-size:2.2rem;color:#b91c1c;margin-bottom:10px">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 style="font-size:16px;margin:0 0 8px">Log out?</h2>
+        <p style="color:#64748b;font-size:13px;margin:0 0 22px;line-height:1.5">
+          You'll be signed out of this device and returned to the login screen. Any unsaved changes on
+          open forms may be lost.
+        </p>
+        <div class="dialogue-actions" style="justify-content:center;gap:10px">
+          <button type="button" class="btn-secondary" id="logoutCancelBtn">Cancel</button>
+          <button type="button" class="btn-primary" id="logoutConfirmBtn"
+            style="background:#b91c1c;border-color:#b91c1c">
+            <i class="fas fa-sign-out-alt"></i> Log out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom access-restriction warning (school owner/admin can edit the
+         wording in Settings → Team & Access). Replaces native alert(). -->
+    <div class="modal-overlay" id="accessDeniedModal">
+      <div class="modal-box" style="max-width:380px;text-align:center;padding:28px 24px">
+        <div style="font-size:2.2rem;color:#b45309;margin-bottom:10px">
+          <i class="fas fa-lock"></i>
+        </div>
+        <h2 style="font-size:16px;margin:0 0 8px">Access restricted</h2>
+        <p id="accessDeniedMessage" style="color:#64748b;font-size:13px;margin:0 0 22px;line-height:1.5">
+          You don't have permission to do that.
+        </p>
+        <div class="dialogue-actions" style="justify-content:center;gap:10px">
+          <button type="button" class="btn-primary" id="accessDeniedOkBtn">OK</button>
+        </div>
+      </div>
+    </div>
+
+
 
     <div class="modal-overlay" id="minBalanceModal">
       <div class="modal-box" style="max-width: 460px;">
@@ -6575,6 +6688,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ---- Add class ----
     $('openModalBtn')?.addEventListener('click', () => {
+      if (typeof window.hasPermission === 'function' && !window.hasPermission('manageClasses')) {
+        window.denyPermission('create or edit a class');
+        return;
+      }
       if (typeof window.openClassModalForAdd === 'function') {
         window.openClassModalForAdd();
       }
@@ -6624,6 +6741,69 @@ document.addEventListener('DOMContentLoaded', function() {
         update,
         onValue
       } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+      // ============================================================
+      // FINE-GRAINED ACTION PERMISSIONS
+      // ------------------------------------------------------------
+      // window.__userProfile.permissions is populated once the person
+      // is signed in (see TEAM & ACCESS below). Until then — or when
+      // there's no multi-user context at all — actions are allowed by
+      // default so nothing breaks for existing single-user setups.
+      // ============================================================
+      window.hasPermission = function (key) {
+        try {
+          const profile = window.__userProfile;
+          if (!profile) return true;
+          if (profile.role === 'owner') return true;
+          const perms = profile.permissions || {};
+          return !!perms[key];
+        } catch (_) {
+          return true;
+        }
+      };
+      const DEFAULT_DENY_MESSAGE_TEMPLATE =
+        "You don't have permission to {action}.\nAsk your school's owner or admin to grant access in Settings \u2192 Team & Access.";
+
+      window.denyPermission = function (actionLabel) {
+        const template = (window.__customDenyMessage && window.__customDenyMessage.trim())
+          ? window.__customDenyMessage
+          : DEFAULT_DENY_MESSAGE_TEMPLATE;
+        const message = template.includes('{action}')
+          ? template.replace(/\{action\}/g, actionLabel)
+          : template; // custom message with no placeholder is shown as-is
+
+        const modal = document.getElementById('accessDeniedModal');
+        const msgEl = document.getElementById('accessDeniedMessage');
+        const okBtn = document.getElementById('accessDeniedOkBtn');
+        if (!modal || !msgEl || !okBtn) {
+          alert(message);
+          return;
+        }
+        msgEl.textContent = message;
+        modal.classList.add('active');
+
+        function close() {
+          modal.classList.remove('active');
+          okBtn.removeEventListener('click', close);
+          modal.removeEventListener('click', onOverlayClick);
+        }
+        function onOverlayClick(e) { if (e.target === modal) close(); }
+        okBtn.addEventListener('click', close);
+        modal.addEventListener('click', onOverlayClick);
+      };
+
+      // Whole-tab gates. Some tabs (Staff & Payroll, Notifications, Settings)
+      // are single on/off areas rather than per-action permissions, and their
+      // entry buttons live outside the visible UI (invoked directly by the
+      // host app or by window.switchTab/goToTabFromDashboard), so hiding a
+      // button alone never actually blocks entry — the check has to live
+      // inside the navigation functions themselves.
+      const TAB_PERMISSIONS = { tab1: 'register', tab7: 'payroll', tab8: 'notifications', tab9: 'settings' };
+      window.canOpenTab = function (tabId) {
+        const perm = TAB_PERMISSIONS[tabId];
+        if (!perm) return true;
+        return window.hasPermission(perm);
+      };
 
       // ============================================================
       // FIREBASE CONFIG
@@ -6852,6 +7032,10 @@ document.addEventListener('DOMContentLoaded', function() {
       dialogTabBtns2.forEach((btn, idx) => {
         btn.addEventListener('click', function (e) {
           e.preventDefault();
+          if (idx === 0 && !window.hasPermission('makePayment')) {
+            window.denyPermission('record a new payment');
+            return;
+          }
           switchDialogTab2(idx);
         });
       });
@@ -6953,7 +7137,20 @@ document.addEventListener('DOMContentLoaded', function() {
       window.resetStudentForm = resetStudentForm;
 
       window.openDialog2 = function () {
-        switchDialogTab2(0);
+        const canPay = window.hasPermission('makePayment');
+        // If they can't record a new payment, land them on Payment History
+        // instead (still viewable) and lock down the New Payment tab/fields
+        // so there's nothing clickable that would only get denied anyway.
+        switchDialogTab2(canPay ? 0 : 1);
+        if (dialogTabBtns2[0]) {
+          dialogTabBtns2[0].style.opacity = canPay ? '' : '0.5';
+          dialogTabBtns2[0].style.pointerEvents = canPay ? '' : 'none';
+          dialogTabBtns2[0].title = canPay ? '' : "You don't have permission to record payments";
+        }
+        const paidAmountEl = document.getElementById('Fn_PaidAmount');
+        const savePayBtn = document.getElementById('savePaymentBtn');
+        if (paidAmountEl) paidAmountEl.disabled = !canPay;
+        if (savePayBtn) savePayBtn.disabled = !canPay;
         overlay2.classList.add('active');
         setTimeout(() => { closeIcon2.focus(); }, 50);
         document.body.style.overflow = 'hidden';
@@ -7034,6 +7231,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       if (openBtn) openBtn.addEventListener('click', function () {
+        const sb0 = document.getElementById('saveStudent');
+        if ((!sb0 || sb0.dataset.mode !== 'edit') && !window.hasPermission('registerStudent')) {
+          window.denyPermission('register a new student');
+          return;
+        }
         openDialog();
         // New registration: show the next free number, not one computed earlier.
         const sb = document.getElementById('saveStudent');
@@ -7302,6 +7504,10 @@ document.addEventListener('DOMContentLoaded', function() {
       window.closeAllDialogs = closeAllDialogs;
 
       window.goToTabFromDashboard = function (tabId) {
+        if (!window.canOpenTab(tabId)) {
+          window.denyPermission('access this area');
+          return false;
+        }
         closeAllDialogs();
         const btnList = document.querySelectorAll('.tab-btn');
         const panelMap = window.__tabPanels;
@@ -7574,6 +7780,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const LETTER_MESSAGE_MAX_LENGTH = 300; // must match FeesBalanceNotificationPrinter.MaxCustomMessageLength
 
         function sendBalanceLetters() {
+          if (!window.hasPermission('notifications')) {
+            window.denyPermission('send notification letters');
+            return;
+          }
           const fullList = getActiveNonGraduatedBalances();
           if (!fullList.length) { alert('No active students with a balance to notify.'); return; }
           openMinBalanceModal(fullList);
@@ -7877,6 +8087,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // themselves and this function remain fully addressable so the C#
         // host can still navigate to any tab programmatically
         // (e.g. webView.ExecuteScriptAsync("switchTab('tab3')")).
+        if (!window.canOpenTab(tabId)) {
+          window.denyPermission('access this area');
+          return false;
+        }
         if (!panelsx[tabId]) return false;
 
         closeAllDialogs();
@@ -7991,6 +8205,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (_studentSaveInProgress) return;
 
         const saveBtn = document.getElementById("saveStudent");
+        const isEditingStudent = saveBtn && saveBtn.dataset.mode === 'edit';
+        if (!window.hasPermission(isEditingStudent ? 'editStudentRecords' : 'registerStudent')) {
+          window.denyPermission(isEditingStudent ? 'edit student records' : 'register a new student');
+          return;
+        }
 
         // ── Grab field elements ──────────────────────────────────
         const nameEl = document.getElementById("studentName");
@@ -8314,6 +8533,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // SAVE PAYMENT
       // ============================================================
       document.getElementById("savePaymentBtn")?.addEventListener("click", async () => {
+        if (!window.hasPermission('makePayment')) {
+          window.denyPermission('record a new payment');
+          return;
+        }
         const saveBtn = document.getElementById("savePaymentBtn");
         const admissionNumber = document.getElementById("Fn_Admn")?.textContent.trim();
 
@@ -8546,6 +8769,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // SAVE CLASS DETAILS
       // ============================================================
       document.getElementById("saveClass_Details")?.addEventListener("click", async () => {
+        if (!window.hasPermission('manageClasses')) {
+          window.denyPermission('create or edit a class');
+          return;
+        }
         const saveBtn = document.getElementById("saveClass_Details");
         if (saveBtn) saveBtn.disabled = true;
 
@@ -9925,6 +10152,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       function openModal(index) {
+        if (!window.hasPermission('manageTerms')) {
+          window.denyPermission(index === -1 ? 'create a new term' : 'edit this term');
+          return;
+        }
         editingIndex = index;
         if (index === -1) {
           modalTitle.textContent = 'New Term';
@@ -9965,6 +10196,10 @@ document.addEventListener('DOMContentLoaded', function() {
       };
 
       window.openClassModalForEdit = function (key) {
+        if (!window.hasPermission('manageClasses')) {
+          window.denyPermission('edit a class');
+          return;
+        }
         const cls = classData.find(c => c.key === key);
         if (!cls) return;
 
@@ -9986,6 +10221,10 @@ document.addEventListener('DOMContentLoaded', function() {
       };
 
       window.openClassModalForAdd = function () {
+        if (!window.hasPermission('manageClasses')) {
+          window.denyPermission('create a class');
+          return;
+        }
         editingClassKey = null;
 
         document.getElementById('gradeInput').value = '';
@@ -10004,6 +10243,10 @@ document.addEventListener('DOMContentLoaded', function() {
       };
 
       window.deleteClass = async function (key) {
+        if (!window.hasPermission('manageClasses')) {
+          window.denyPermission('delete a class');
+          return;
+        }
         const cls = classData.find(c => c.key === key);
         if (!cls) return;
 
@@ -10159,6 +10402,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
       async function saveTerm(e) {
         e.preventDefault();
+        if (!window.hasPermission('manageTerms')) {
+          window.denyPermission('create or edit terms');
+          return;
+        }
         const termId = termIdInput.value.trim();
         const start = startDateInput.value;
         const end = endDateInput.value;
@@ -10262,6 +10509,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         Termgrid.querySelectorAll('.delete-btn').forEach(btn => {
           btn.addEventListener('click', function () {
+            if (!window.hasPermission('manageTerms')) {
+              window.denyPermission('delete a term');
+              return;
+            }
             const idx = parseInt(this.dataset.index);
             if (confirm('Delete this term?')) {
               terms.splice(idx, 1);
@@ -10332,6 +10583,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const s = studentsCache[admissionNumber];
         if (!s) {
           alert("Student data not found.");
+          return null;
+        }
+        if (!window.hasPermission('editStudentRecords')) {
+          window.denyPermission('edit student records');
           return null;
         }
         const set = (id, val) => document.getElementById(id).value = val || "";
@@ -11814,6 +12069,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         window.openAssessmentModal = function () {
+          if (!window.hasPermission('manageAssessments')) {
+            window.denyPermission('create an assessment');
+            return;
+          }
           document.getElementById('assessment-name').value = '';
           document.getElementById('assessment-max-marks').value = 100;
           document.getElementById('assessment-description').value = '';
@@ -11834,6 +12093,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         window.saveAssessment = async function () {
+          if (!window.hasPermission('manageAssessments')) {
+            window.denyPermission('create an assessment');
+            return;
+          }
           const name = document.getElementById('assessment-name').value.trim();
           const grade = document.getElementById('assessment-grade').value;
           const term = document.getElementById('assessment-term').value.trim();
@@ -12010,6 +12273,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         window.openEditMarksModal = function (idx) {
+          if (!window.hasPermission('manageMarks')) {
+            window.denyPermission('edit marks');
+            return;
+          }
           currentEditMarksIndex = idx;
           const m = marks[idx];
           const st = students.find(s => s.id === m.studentId);
@@ -12024,6 +12291,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         window.updateMarks = async function () {
+          if (!window.hasPermission('manageMarks')) {
+            window.denyPermission('edit marks');
+            return;
+          }
           const val = parseInt(document.getElementById('edit-marks-input').value);
 
           if (isNaN(val) || val < 0) {
@@ -12061,6 +12332,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         window.openBulkMarksModal = function () {
+          if (!window.hasPermission('manageMarks')) {
+            window.denyPermission('enter marks');
+            return;
+          }
           const sel = document.getElementById('bulk-assessment');
           sel.innerHTML = '<option value="">Select Assessment</option>';
           assessments.forEach(a => sel.innerHTML += `<option value="${a.id}">${a.name} (${a.id}) - Grade ${a.grade}</option>`);
@@ -12123,6 +12398,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         window.saveBulkMarks = async function () {
+          if (!window.hasPermission('manageMarks')) {
+            window.denyPermission('enter marks');
+            return;
+          }
           const inputs = document.querySelectorAll('#bulk-marks-content input[type="number"]');
           let count = 0;
 
@@ -12315,6 +12594,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         window.importBulkMarksFromExcel = function () {
+          if (!window.hasPermission('manageMarks')) {
+            window.denyPermission('import marks');
+            return;
+          }
           const aId = document.getElementById('bulk-assessment').value;
 
           if (!aId) {
@@ -16092,16 +16375,428 @@ window.__getPayrollState = () => state;
 
         function showUserBar(user) {
           if (!authUserBar) return;
-          const { shortName, tooltip } = getDisplayIdentity(user);
+          const { shortName, tooltip, fullEmail } = getDisplayIdentity(user);
           if (authUserEmail) {
             authUserEmail.textContent = shortName;
             authUserEmail.title = tooltip;
           }
           authUserBar.style.visibility = 'visible';
+          const settingsEmailEl = document.getElementById('settingsAccountEmail');
+          if (settingsEmailEl) settingsEmailEl.textContent = fullEmail;
         }
         function hideUserBar() {
           if (authUserBar) authUserBar.style.visibility = 'hidden';
         }
+
+        // ============================================================
+        // TEAM & ACCESS — per-school membership, status and roles
+        // ============================================================
+        // Institution/Schools/{schoolId}/members/{uid} is normally
+        // { role: 'owner'|'admin'|'staff', status: 'enabled'|'disabled',
+        //   name, email, addedAt }. Some accounts created before this
+        // feature existed just have `true` there — normalizeMemberRecord
+        // treats those as enabled admins so nobody already using the app
+        // gets locked out.
+        // Feature-level access control. Owner and admin get every area by
+        // default (owner's is fixed and can't be edited); staff get the
+        // Register (view only) until an owner/admin grants specific actions
+        // in Team & Access — e.g. registering a student, editing a student's
+        // record, recording a payment, creating/editing terms, or payroll.
+        const PERMISSION_AREAS = [
+          'register', 'registerStudent', 'editStudentRecords',
+          'makePayment', 'manageTerms', 'manageClasses', 'manageAssessments',
+          'manageMarks', 'notifications', 'payroll', 'settings'
+        ];
+        const AREA_LABELS = {
+          register: 'View Register',
+          registerStudent: 'Register Student',
+          editStudentRecords: 'Edit Student Records',
+          makePayment: 'Make Payment',
+          manageTerms: 'Create/Edit Term',
+          manageClasses: 'Create/Edit Class',
+          manageAssessments: 'Create Assessment',
+          manageMarks: 'Enter/Edit Marks',
+          notifications: 'Notifications',
+          payroll: 'Staff & Payroll',
+          settings: 'Settings'
+        };
+        const ALL_PERMISSIONS_TRUE = PERMISSION_AREAS.reduce((o, k) => (o[k] = true, o), {});
+        function defaultPermissionsForRole(role) {
+          if (role === 'owner' || role === 'admin') {
+            return { ...ALL_PERMISSIONS_TRUE };
+          }
+          return {
+            register: true,
+            registerStudent: false,
+            editStudentRecords: false,
+            makePayment: false,
+            manageTerms: false,
+            manageClasses: false,
+            manageAssessments: false,
+            manageMarks: false,
+            notifications: false,
+            payroll: false,
+            settings: false
+          };
+        }
+
+        function normalizeMemberRecord(raw, fallbackProfile) {
+          if (raw === null || raw === undefined) return null;
+          if (raw === true) {
+            const role = (fallbackProfile && fallbackProfile.role) || 'admin';
+            return {
+              role,
+              status: 'enabled',
+              name: (fallbackProfile && fallbackProfile.username) || null,
+              email: (fallbackProfile && fallbackProfile.email) || null,
+              addedAt: (fallbackProfile && fallbackProfile.createdAt) || null,
+              permissions: defaultPermissionsForRole(role)
+            };
+          }
+          if (typeof raw === 'object') {
+            const role = raw.role || 'staff';
+            return {
+              role,
+              status: raw.status || 'enabled',
+              name: raw.name || null,
+              email: raw.email || null,
+              addedAt: raw.addedAt || null,
+              permissions: { ...defaultPermissionsForRole(role), ...(raw.permissions || {}) }
+            };
+          }
+          return null;
+        }
+
+        // Who's allowed to edit whose feature access: owners can edit
+        // anyone except themselves (always full access); admins can only
+        // edit staff, never other admins or the owner; nobody edits their
+        // own row, to stop self-escalation.
+        function canEditPermissionsFor(targetRole, isSelf) {
+          if (isSelf || targetRole === 'owner') return false;
+          if (targetRole === 'admin') return _panelRole === 'owner';
+          return _panelRole === 'owner' || _panelRole === 'admin';
+        }
+
+        function applyAccessControl(memberInfo) {
+          const perms = memberInfo.role === 'owner'
+            ? { ...ALL_PERMISSIONS_TRUE }
+            : (memberInfo.permissions || defaultPermissionsForRole(memberInfo.role));
+
+          const registerTabBtn = document.querySelector('.tab-btn[data-tab="tab1"]');
+          const staffPayrollBtn = document.getElementById('openStaffPayrollBtn');
+          const settingsBtn = document.getElementById('openSettingsBtn');
+
+          if (registerTabBtn) registerTabBtn.style.display = perms.register ? '' : 'none';
+          if (staffPayrollBtn) staffPayrollBtn.style.display = perms.payroll ? '' : 'none';
+          if (settingsBtn) settingsBtn.style.display = perms.settings ? '' : 'none';
+
+          if (!perms.register && document.getElementById('tab1')?.classList.contains('active')
+            && typeof window.switchTab === 'function') {
+            window.switchTab('tab0');
+          }
+
+          renderMyAccessDebug(memberInfo.role, perms);
+        }
+
+        function renderMyAccessDebug(role, perms) {
+          const el = document.getElementById('myAccessDebug');
+          if (!el) return;
+          const roleLabel = ROLE_LABELS[role] || role || 'Unknown';
+          if (role === 'owner') {
+            el.innerHTML = `<div><strong>Role:</strong> ${roleLabel} — owner always has full access
+              and can't be restricted.</div>`;
+            return;
+          }
+          const rows = PERMISSION_AREAS.map(key => {
+            const on = !!perms[key];
+            const color = on ? '#15803d' : '#b91c1c';
+            const icon = on ? '✔ Allowed' : '✘ Blocked';
+            return `<div style="display:flex;justify-content:space-between;max-width:280px;padding:2px 0">
+              <span>${AREA_LABELS[key]}</span>
+              <span style="color:${color};font-weight:600">${icon}</span>
+            </div>`;
+          }).join('');
+          el.innerHTML = `<div style="margin-bottom:6px"><strong>Role:</strong> ${roleLabel}</div>${rows}`;
+        }
+        window.renderMyAccessDebug = renderMyAccessDebug;
+
+        function resetAccessControl() {
+          ['.tab-btn[data-tab="tab1"]'].forEach(sel => {
+            const el = document.querySelector(sel);
+            if (el) el.style.display = '';
+          });
+          ['openStaffPayrollBtn', 'openSettingsBtn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = '';
+          });
+        }
+
+        // Keeps a live eye on the signed-in person's own membership record
+        // so a status change (disabled/removed) or a permission change made
+        // by an admin takes effect immediately, without waiting for the
+        // next login.
+        let _selfMemberUnsub = null;
+        function attachSelfMembershipListener(schoolId, selfUid) {
+          if (_selfMemberUnsub) { try { _selfMemberUnsub(); } catch (_) { } _selfMemberUnsub = null; }
+          const selfRef = ref(db, `Institution/Schools/${schoolId}/members/${selfUid}`);
+          _selfMemberUnsub = onValue(selfRef, (snap) => {
+            if (!auth.currentUser || auth.currentUser.uid !== selfUid) return;
+            const info = normalizeMemberRecord(snap.exists() ? snap.val() : null, window.__userProfile);
+            if (!info || info.status !== 'enabled') {
+              showAuthMessage(loginMessage, info
+                ? 'Your account was disabled by your school admin.'
+                : 'Your access to this school was removed.', 'error');
+              signOut(auth);
+              return;
+            }
+            window.__userProfile = { ...window.__userProfile, role: info.role, status: info.status, permissions: info.permissions };
+            applyAccessControl(info);
+          });
+        }
+        function detachSelfMembershipListener() {
+          if (_selfMemberUnsub) { try { _selfMemberUnsub(); } catch (_) { } _selfMemberUnsub = null; }
+        }
+
+        let _denyMessageUnsub = null;
+        function attachDenyMessageListener(schoolId) {
+          if (_denyMessageUnsub) { try { _denyMessageUnsub(); } catch (_) { } _denyMessageUnsub = null; }
+          const msgRef = ref(db, `Institution/Schools/${schoolId}/accessDeniedMessage`);
+          _denyMessageUnsub = onValue(msgRef, (snap) => {
+            window.__customDenyMessage = snap.exists() ? snap.val() : null;
+            const input = document.getElementById('customDenyMessageInput');
+            if (input && document.activeElement !== input) {
+              input.value = window.__customDenyMessage || '';
+            }
+          });
+        }
+
+        const ROLE_LABELS = { owner: 'Owner', admin: 'Admin', staff: 'Staff' };
+        const ROLE_ORDER = ['owner', 'admin', 'staff'];
+
+        let _membersUnsub = null;
+        let _panelSchoolId = null;
+        let _panelUid = null;
+        let _panelRole = null;
+
+        function teardownUserManagementPanel() {
+          if (_membersUnsub) { try { _membersUnsub(); } catch (_) { } _membersUnsub = null; }
+          _panelSchoolId = null;
+          _panelUid = null;
+          _panelRole = null;
+          const section = document.getElementById('teamAccessCard');
+          if (section) section.style.display = 'none';
+          const tbody = document.getElementById('userManagementTbody');
+          if (tbody) tbody.innerHTML = '';
+        }
+
+        function initUserManagementPanel(schoolId, currentUid, currentRole) {
+          teardownUserManagementPanel();
+          const section = document.getElementById('teamAccessCard');
+          if (!section) return;
+
+          const canManage = currentRole === 'owner' || currentRole === 'admin';
+          if (!canManage) return; // stays hidden for staff accounts
+
+          section.style.display = '';
+          _panelSchoolId = schoolId;
+          _panelUid = currentUid;
+          _panelRole = currentRole;
+
+          const membersRef = ref(db, `Institution/Schools/${schoolId}/members`);
+          _membersUnsub = onValue(membersRef, (snapshot) => {
+            renderUserManagementTable(snapshot.exists() ? snapshot.val() : {});
+          }, (err) => console.error('Team & Access listener error:', err));
+        }
+
+        function renderUserManagementTable(membersObj) {
+          const tbody = document.getElementById('userManagementTbody');
+          const empty = document.getElementById('userManagementEmpty');
+          if (!tbody) return;
+
+          const entries = Object.entries(membersObj || {})
+            .map(([memberUid, raw]) => [memberUid, normalizeMemberRecord(raw)])
+            .filter(([, m]) => m);
+
+          if (!entries.length) {
+            tbody.innerHTML = '';
+            if (empty) empty.style.display = '';
+            return;
+          }
+          if (empty) empty.style.display = 'none';
+
+          entries.sort((a, b) => {
+            const ra = ROLE_ORDER.indexOf(a[1].role), rb = ROLE_ORDER.indexOf(b[1].role);
+            if (ra !== rb) return ra - rb;
+            return (a[1].name || a[1].email || '').localeCompare(b[1].name || b[1].email || '');
+          });
+
+          const isOwner = _panelRole === 'owner';
+
+          tbody.innerHTML = entries.map(([memberUid, m]) => {
+            const isSelf = memberUid === _panelUid;
+            const isTargetOwner = m.role === 'owner';
+            const statusBadge = m.status === 'enabled'
+              ? '<span class="badge badge-success">Enabled</span>'
+              : '<span class="badge badge-warning">Disabled</span>';
+            const joined = m.addedAt ? new Date(m.addedAt).toLocaleDateString() : '—';
+            const name = m.name ? escapeHtmlText(m.name) : '(no name)';
+            const email = m.email ? escapeHtmlText(m.email) : '—';
+
+            let roleCell;
+            if (isTargetOwner) {
+              roleCell = '<span class="badge badge-info">Owner</span>';
+            } else if (isOwner) {
+              roleCell = `<select class="member-role-select" data-uid="${memberUid}"
+                style="padding:5px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:12.5px">
+                <option value="staff" ${m.role === 'staff' ? 'selected' : ''}>Staff</option>
+                <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>`;
+            } else {
+              roleCell = `<span class="badge badge-info">${ROLE_LABELS[m.role] || m.role}</span>`;
+            }
+
+            let actions;
+            if (isTargetOwner) {
+              actions = isSelf
+                ? '<span style="color:#94a3b8;font-size:12px">You (owner)</span>'
+                : '<span style="color:#94a3b8;font-size:12px">—</span>';
+            } else if (isSelf) {
+              actions = '<span style="color:#94a3b8;font-size:12px">This is you</span>';
+            } else {
+              const toggleLabel = m.status === 'enabled' ? 'Disable' : 'Enable';
+              const nextStatus = m.status === 'enabled' ? 'disabled' : 'enabled';
+              actions = `
+                <button type="button" class="btn member-toggle-btn" data-uid="${memberUid}" data-next="${nextStatus}"
+                  style="padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-right:6px">${toggleLabel}</button>
+                <button type="button" class="btn member-remove-btn" data-uid="${memberUid}"
+                  style="padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;color:#b91c1c;border-color:#fecaca">Remove</button>`;
+            }
+
+            let accessCell;
+            if (isTargetOwner) {
+              accessCell = '<span style="color:#94a3b8;font-size:12px">Full access</span>';
+            } else {
+              const editable = canEditPermissionsFor(m.role, isSelf);
+              const p = m.permissions || defaultPermissionsForRole(m.role);
+              accessCell = `<div style="display:flex;flex-wrap:wrap;gap:4px 10px;min-width:260px;max-width:340px">` +
+                PERMISSION_AREAS.map(key => `
+                <label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#334155;white-space:nowrap">
+                  <input type="checkbox" class="member-perm-checkbox" data-uid="${memberUid}" data-perm="${key}"
+                    ${p[key] ? 'checked' : ''} ${editable ? '' : 'disabled'}>
+                  ${AREA_LABELS[key]}
+                </label>`).join('') + `</div>`;
+            }
+
+            return `<tr>
+              <td>${name}</td>
+              <td>${email}</td>
+              <td>${roleCell}</td>
+              <td>${statusBadge}</td>
+              <td>${accessCell}</td>
+              <td>${joined}</td>
+              <td style="white-space:nowrap">${actions}</td>
+            </tr>`;
+          }).join('');
+
+          const selfEntry = entries.find(([memberUid]) => memberUid === _panelUid);
+          if (selfEntry) applyAccessControl(selfEntry[1]);
+        }
+
+        document.getElementById('userManagementTbody')?.addEventListener('click', async (e) => {
+          if (!_panelSchoolId) return;
+          const toggleBtn = e.target.closest('.member-toggle-btn');
+          const removeBtn = e.target.closest('.member-remove-btn');
+
+          if (toggleBtn) {
+            const memberUid = toggleBtn.dataset.uid;
+            const next = toggleBtn.dataset.next;
+            toggleBtn.disabled = true;
+            try {
+              await update(ref(db, `Institution/Schools/${_panelSchoolId}/members/${memberUid}`), { status: next });
+            } catch (err) {
+              console.error('toggle member status failed:', err);
+              alert('Could not update that member. Please try again.');
+            } finally {
+              toggleBtn.disabled = false;
+            }
+            return;
+          }
+
+          if (removeBtn) {
+            const memberUid = removeBtn.dataset.uid;
+            if (!confirm('Remove this person\'s access to your school? They will need to be invited again to regain access.')) return;
+            removeBtn.disabled = true;
+            try {
+              await remove(ref(db, `Institution/Schools/${_panelSchoolId}/members/${memberUid}`));
+            } catch (err) {
+              console.error('remove member failed:', err);
+              alert('Could not remove that member. Please try again.');
+            } finally {
+              removeBtn.disabled = false;
+            }
+          }
+        });
+
+        document.getElementById('userManagementTbody')?.addEventListener('change', async (e) => {
+          if (!_panelSchoolId) return;
+
+          const select = e.target.closest('.member-role-select');
+          if (select) {
+            const memberUid = select.dataset.uid;
+            const newRole = select.value;
+            select.disabled = true;
+            try {
+              await update(ref(db, `Institution/Schools/${_panelSchoolId}/members/${memberUid}`), { role: newRole });
+            } catch (err) {
+              console.error('update member role failed:', err);
+              alert('Could not update that member\'s role. Please try again.');
+            } finally {
+              select.disabled = false;
+            }
+            return;
+          }
+
+          const checkbox = e.target.closest('.member-perm-checkbox');
+          if (checkbox) {
+            const memberUid = checkbox.dataset.uid;
+            const permKey = checkbox.dataset.perm;
+            const value = checkbox.checked;
+            checkbox.disabled = true;
+            try {
+              await update(ref(db, `Institution/Schools/${_panelSchoolId}/members/${memberUid}/permissions`), { [permKey]: value });
+            } catch (err) {
+              console.error('update member permission failed:', err);
+              alert('Could not update that permission. Please try again.');
+              checkbox.checked = !value;
+            } finally {
+              checkbox.disabled = false;
+            }
+          }
+        });
+
+        // Custom restriction-warning message (owner/admin only; textarea lives
+        // inside #teamAccessCard which stays hidden for staff accounts).
+        document.getElementById('saveCustomDenyMessageBtn')?.addEventListener('click', async () => {
+          if (!_panelSchoolId) return;
+          const input = document.getElementById('customDenyMessageInput');
+          const msgEl = document.getElementById('customDenyMessageSaveMsg');
+          const btn = document.getElementById('saveCustomDenyMessageBtn');
+          const value = (input?.value || '').trim();
+          btn.disabled = true;
+          try {
+            await update(ref(db, `Institution/Schools/${_panelSchoolId}`), { accessDeniedMessage: value || null });
+            if (msgEl) {
+              msgEl.style.color = '#15803d';
+              msgEl.textContent = 'Saved.';
+              setTimeout(() => { if (msgEl.textContent === 'Saved.') msgEl.textContent = ''; }, 2500);
+            }
+          } catch (err) {
+            console.error('save custom deny message failed:', err);
+            if (msgEl) { msgEl.style.color = '#b91c1c'; msgEl.textContent = 'Could not save. Please try again.'; }
+          } finally {
+            btn.disabled = false;
+          }
+        });
 
         async function bootstrapSession(user) {
           try {
@@ -16124,8 +16819,26 @@ window.__getPayrollState = () => state;
             }
             const school = { id: schoolId, ...schoolSnap.val() };
 
+            const memberSnap = await get(ref(db, `Institution/Schools/${schoolId}/members/${user.uid}`));
+            const memberInfo = normalizeMemberRecord(memberSnap.exists() ? memberSnap.val() : null, profile);
+
+            if (!memberInfo) {
+              showAuthMessage(loginMessage,
+                'You no longer have access to this school. Contact your school admin.', 'error');
+              await signOut(auth);
+              return;
+            }
+            if (memberInfo.status !== 'enabled') {
+              showAuthMessage(loginMessage,
+                'Your account is awaiting approval from your school admin.', 'error');
+              await signOut(auth);
+              return;
+            }
+
             window.__schoolContext = school;
-            window.__userProfile = profile;
+            window.__userProfile = { ...profile, role: memberInfo.role, status: memberInfo.status, permissions: memberInfo.permissions };
+            window.__customDenyMessage = school.accessDeniedMessage || null;
+            attachDenyMessageListener(schoolId);
 
             if (typeof window.refreshInstitutionProfileForm === 'function') {
               window.refreshInstitutionProfileForm();
@@ -16146,6 +16859,9 @@ window.__getPayrollState = () => state;
             }
 
             notifyAuthState(true, user);
+            initUserManagementPanel(schoolId, user.uid, memberInfo.role);
+            applyAccessControl(memberInfo);
+            attachSelfMembershipListener(schoolId, user.uid);
 
             if (!appInitialized) {
               appInitialized = true;
@@ -16220,32 +16936,50 @@ window.__getPayrollState = () => state;
             const cred = await createUserWithEmailAndPassword(auth, email, password);
             const uid = cred.user.uid;
 
+            const nowIso = new Date().toISOString();
+            // The person who creates a school is its owner and starts enabled.
+            // Anyone who joins an existing school starts disabled, with the
+            // least-privileged role, until the owner/an admin enables them
+            // in Settings → Team & Access.
+            const memberRole = joinedExisting ? 'staff' : 'owner';
+            const memberStatus = joinedExisting ? 'disabled' : 'enabled';
+            const memberRecord = {
+              role: memberRole,
+              status: memberStatus,
+              name,
+              email,
+              addedAt: nowIso,
+              permissions: defaultPermissionsForRole(memberRole)
+            };
+
             if (joinedExisting) {
-              await update(ref(db, `Institution/Schools/${schoolId}/members`), { [uid]: true });
+              await update(ref(db, `Institution/Schools/${schoolId}/members`), { [uid]: memberRecord });
             } else {
               const newRef = push(schoolsRef);
               schoolId = newRef.key;
               await set(newRef, {
                 name: schoolName,
                 ownerUid: uid,
-                createdAt: new Date().toISOString(),
-                members: { [uid]: true }
+                createdAt: nowIso,
+                members: { [uid]: memberRecord }
               });
             }
 
             await set(ref(db, `Institution/Users/${uid}`), {
               email,
               username: name,
-              role: 'admin',
+              role: memberRole,
               schoolId,
               schoolName,
-              createdAt: new Date().toISOString()
+              createdAt: nowIso
             });
 
             try { await updateProfile(cred.user, { displayName: name }); } catch (_) { }
 
             isSigningUp = false;
-            showAuthMessage(signupMessage, 'Account created! Loading your school…', 'success');
+            showAuthMessage(signupMessage, joinedExisting
+              ? 'Account created! Your school admin must enable your access before you can sign in.'
+              : 'Account created! Loading your school…', 'success');
           } catch (err) {
             isSigningUp = false;
             let msg = err.message;
@@ -16305,14 +17039,51 @@ window.__getPayrollState = () => state;
           }
         });
 
-        authLogoutBtn?.addEventListener('click', async () => {
-          if (confirm('Are you sure you want to logout?')) {
-            window.__schoolContext = null;
-            window.__userProfile = null;
-            const { signOut } = await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
-            await signOut(auth);
-          }
-        });
+        // ------------------------------------------------------------
+        // Custom logout confirmation prompt (replaces native confirm()).
+        // Shared by the dashboard header logout button and the Settings
+        // → Account logout button.
+        // ------------------------------------------------------------
+        const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+        const logoutCancelBtn = document.getElementById('logoutCancelBtn');
+        const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
+
+        function askLogoutConfirmation() {
+          return new Promise((resolve) => {
+            if (!logoutConfirmModal || !logoutCancelBtn || !logoutConfirmBtn) {
+              resolve(confirm('Are you sure you want to logout?'));
+              return;
+            }
+            logoutConfirmModal.classList.add('active');
+
+            function cleanup(result) {
+              logoutConfirmModal.classList.remove('active');
+              logoutCancelBtn.removeEventListener('click', onCancel);
+              logoutConfirmBtn.removeEventListener('click', onConfirm);
+              logoutConfirmModal.removeEventListener('click', onOverlayClick);
+              resolve(result);
+            }
+            function onCancel() { cleanup(false); }
+            function onConfirm() { cleanup(true); }
+            function onOverlayClick(e) { if (e.target === logoutConfirmModal) cleanup(false); }
+
+            logoutCancelBtn.addEventListener('click', onCancel);
+            logoutConfirmBtn.addEventListener('click', onConfirm);
+            logoutConfirmModal.addEventListener('click', onOverlayClick);
+          });
+        }
+
+        async function performLogout() {
+          const confirmed = await askLogoutConfirmation();
+          if (!confirmed) return;
+          window.__schoolContext = null;
+          window.__userProfile = null;
+          const { signOut } = await import("https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js");
+          await signOut(auth);
+        }
+
+        authLogoutBtn?.addEventListener('click', performLogout);
+        document.getElementById('settingsLogoutBtn')?.addEventListener('click', performLogout);
 
         const forgotLink = document.getElementById('forgotLink');
         const forgotForm = document.getElementById('forgotForm');
@@ -16395,6 +17166,9 @@ window.__getPayrollState = () => state;
               hideUserBar();
               window.__schoolContext = null;
               window.__userProfile = null;
+              teardownUserManagementPanel();
+              detachSelfMembershipListener();
+              resetAccessControl();
 
               loginForm.reset();
               signupForm.reset();
