@@ -6,7 +6,393 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
   <title>AcadiaPo™</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="classStyles.css">
+  <style>
+
+
+    .dashboard {
+        max-width: 1400px;
+        width: 100%;
+    }
+
+    /* header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #0b2b4a;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .header h1 i {
+        color: #2a7de1;
+        font-size: 2rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        background: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #1a3a5e;
+        box-shadow: 0 2px 8px rgba(0, 20, 40, 0.04);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: 0.15s ease;
+        border: 1px solid #e2eaf2;
+    }
+
+    .btn i {
+        color: #2a7de1;
+    }
+
+    .btn-primary {
+        background: #1a3a5e;
+        border: 1px solid #1a3a5e;
+        color: white;
+    }
+
+    .btn-primary i {
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #0f2a44;
+        border-color: #0f2a44;
+    }
+
+    /* stats */
+    .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 0.8rem 1.6rem 0.8rem 1.4rem;
+        border-radius: 60px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #e9eff4;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-size: 0.95rem;
+        color: #1e3b5a;
+    }
+
+    .stat-card i {
+        color: #2a7de1;
+        font-size: 1.2rem;
+        width: 1.4rem;
+    }
+
+    .stat-card span {
+        font-weight: 600;
+        color: #0b2b4a;
+        margin-right: 0.2rem;
+    }
+
+    /* grid */
+    .classes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 0.8rem;
+    }
+
+    /* class card */
+    .class-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem 1.2rem 1.5rem 1.5rem;
+        box-shadow: 0 8px 24px rgba(0, 20, 40, 0.04);
+        border: 1px solid #eaf0f6;
+        transition: 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .class-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px rgba(26, 58, 94, 0.08);
+        border-color: #d0dceb;
+    }
+
+    .class-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .grade-stream {
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+
+    .grade {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0b2b4a;
+        letter-spacing: -0.02em;
+    }
+
+    .stream {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #2a5f7a;
+        background: #e9f2fa;
+        padding: 0.1rem 0.7rem;
+        border-radius: 30px;
+        margin-left: 0.2rem;
+    }
+
+    .teacher-badge {
+        background: #eef4fa;
+        border-radius: 40px;
+        padding: 0.2rem 0.9rem 0.2rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #1a3a5e;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        border: 1px solid #dae6f2;
+    }
+
+    .teacher-badge i {
+        color: #2a7de1;
+        font-size: 0.7rem;
+    }
+
+    .class-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        margin: 0.6rem 0 0.8rem 0;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: 0.95rem;
+        color: #1e3b5a;
+        padding: 0.2rem 0;
+        border-bottom: 1px dashed #ecf2f8;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-row i {
+        width: 1.3rem;
+        color: #3f7fb0;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .detail-label {
+        font-weight: 450;
+        color: #4b6a87;
+        min-width: 4.2rem;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: #0b2b4a;
+    }
+
+    .class-footer {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        border-top: 1px solid #eef4fa;
+        padding-top: 0.9rem;
+    }
+
+    .class-teacher {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: #1f405f;
+        font-size: 0.9rem;
+        background: #f4f9ff;
+        padding: 0.2rem 1rem 0.2rem 0.8rem;
+        border-radius: 40px;
+        border: 1px solid #dce7f2;
+    }
+
+    .class-teacher i {
+        color: #1f6eb0;
+    }
+
+    /* ----- MODAL / DIALOG ----- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(11, 43, 74, 0.5);
+        backdrop-filter: blur(6px);
+        display: none;
+        /* hidden by default */
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .modal-box {
+        background: white;
+        max-width: 480px;
+        width: 100%;
+        border-radius: 36px;
+        padding: 2.2rem 2rem 2rem;
+        box-shadow: 0 30px 60px rgba(0, 20, 40, 0.25);
+        animation: modalFade 0.25s ease;
+    }
+
+    @keyframes modalFade {
+        0% {
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.8rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #0b2b4a;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .modal-header h2 i {
+        color: #2a7de1;
+    }
+
+    .modal-box .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        color: #7d9bb9;
+        cursor: pointer;
+        padding: 0 0.3rem;
+        transition: 0.2s;
+    }
+
+    .modal-box .modal-close:hover {
+        color: #1a3a5e;
+        transform: rotate(90deg);
+    }
+
+    
+
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+    }
+
+    
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #d0dceb;
+        color: #1a3a5e;
+    }
+
+    .btn-outline:hover {
+        background: #f0f5fc;
+    }
+
+    .btn-success {
+        background: #1a7d4b;
+        border: 1px solid #1a7d4b;
+        color: white;
+    }
+
+    .btn-success i {
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #12633a;
+        border-color: #12633a;
+    }
+
+    @media (max-width: 600px) {
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .modal-box {
+            padding: 1.8rem 1.2rem;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+    }
+</style>
   <style>
     /* ============================================================
        AUTH GATE — compact glass layout
@@ -2576,7 +2962,7 @@
       flex-direction: column;
     }
 
-    .modal-close {
+    .modal-content .modal-close {
       position: absolute;
       top: 0.6rem;
       right: 0.6rem;
@@ -2595,7 +2981,7 @@
       z-index: 10;
     }
 
-    .modal-close:hover {
+    .modal-content .modal-close:hover {
       background: var(--gray-200);
     }
 
@@ -4380,6 +4766,107 @@
       }
     }
   </style>
+
+  <!-- ===== Staff & Payroll module styles (scoped under #staffPayrollRoot) ===== -->
+  <style>
+#staffPayrollRoot{
+  --brand:#0d6e4f; --brand-dark:#0a5540; --brand-light:#e6f4ef;
+  --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --bg:#f4f7f6; --card:#ffffff;
+  --danger:#c0392b; --warn:#b7791f;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.18);
+}#staffPayrollRoot *{box-sizing:border-box;margin:0;padding:0}#staffPayrollRoot{
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}#staffPayrollRoot button, #staffPayrollRoot input, #staffPayrollRoot select, #staffPayrollRoot textarea{font:inherit;color:inherit}#staffPayrollRoot button{cursor:pointer;border:none;background:none}#staffPayrollRoot /* Layout */
+.app{display:flex;flex-direction:column;min-height:70vh}#staffPayrollRoot .sidebar{
+  width:100%;flex:none;background:#0b1f1a;color:#c7d2cb;
+  display:flex;flex-direction:row;align-items:center;position:sticky;top:0;
+  height:auto;padding:10px 18px;gap:18px;z-index:30;overflow-x:auto;
+  box-shadow:0 4px 16px -8px rgba(0,0,0,.35);
+}#staffPayrollRoot .brand{display:flex;align-items:center;gap:10px;padding:0 18px 0 0;
+  border-right:1px solid rgba(255,255,255,.08);margin:0;flex:0 0 auto}#staffPayrollRoot .brand-mark{width:38px;height:38px;border-radius:10px;flex:0 0 38px;
+  background:linear-gradient(135deg,#12a06f,#0a5540);
+  display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px}#staffPayrollRoot .brand-text strong{display:block;color:#fff;font-size:14px;letter-spacing:.2px}#staffPayrollRoot .brand-text span{font-size:11px;color:#7f9c8e;text-transform:uppercase;letter-spacing:.8px}#staffPayrollRoot .nav{padding:0;display:flex;flex-direction:row;gap:2px}#staffPayrollRoot .nav button{display:flex;align-items:center;gap:11px;width:auto;
+  padding:10px 12px;border-radius:9px;color:#a9bdb2;font-size:13.5px;
+  font-weight:500;text-align:left;white-space:nowrap;transition:.15s}#staffPayrollRoot .nav button:hover{background:rgba(255,255,255,.06);color:#fff}#staffPayrollRoot .nav button.active{background:var(--brand);color:#fff;box-shadow:0 6px 16px -8px #12a06f}#staffPayrollRoot .nav svg{width:17px;height:17px;flex:0 0 17px}#staffPayrollRoot .nav .badge{margin-left:auto;background:#c0392b;color:#fff;font-size:10.5px;
+  font-weight:700;padding:1px 7px;border-radius:20px}#staffPayrollRoot .nav .badge.info{background:#2563eb}#staffPayrollRoot .sidebar-foot{display:none}#staffPayrollRoot .main{margin-left:0;flex:1;min-width:0;padding:22px 26px 60px}#staffPayrollRoot /* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:22px}#staffPayrollRoot .topbar h1{font-size:21px;font-weight:700;letter-spacing:-.3px}#staffPayrollRoot .topbar p{font-size:12.5px;color:var(--muted);margin-top:2px}#staffPayrollRoot .topbar-right{display:flex;align-items:center;gap:10px}#staffPayrollRoot /* Cards */
+.card{background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow)}#staffPayrollRoot .card-head{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}#staffPayrollRoot .card-head h2{font-size:14.5px;font-weight:650}#staffPayrollRoot .card-body{padding:18px}#staffPayrollRoot /* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;
+  border-radius:9px;font-size:13px;font-weight:600;background:#fff;
+  border:1px solid var(--line);color:var(--ink);transition:.15s;white-space:nowrap}#staffPayrollRoot .btn:hover{background:#f8fafc;border-color:#cbd5e1}#staffPayrollRoot .btn svg{width:15px;height:15px}#staffPayrollRoot .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}#staffPayrollRoot .btn-primary:hover{background:var(--brand-dark);border-color:var(--brand-dark)}#staffPayrollRoot .btn-success{background:#0f7b53;border-color:#0f7b53;color:#fff}#staffPayrollRoot .btn-success:hover{background:#0a5e40;border-color:#0a5e40}#staffPayrollRoot .btn-danger{color:var(--danger);border-color:#f2d5d1}#staffPayrollRoot .btn-danger:hover{background:#fdf2f0}#staffPayrollRoot .btn-ghost{border-color:transparent;background:transparent}#staffPayrollRoot .btn-ghost:hover{background:#f1f5f9}#staffPayrollRoot .btn-sm{padding:6px 11px;font-size:12px;border-radius:7px}#staffPayrollRoot .btn:disabled{opacity:.45;cursor:not-allowed}#staffPayrollRoot /* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px}#staffPayrollRoot .stat{background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);
+  position:relative;overflow:hidden}#staffPayrollRoot .stat::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}#staffPayrollRoot .stat.alt::after{background:#2563eb}#staffPayrollRoot .stat.alt2::after{background:#b7791f}#staffPayrollRoot .stat.alt3::after{background:#7c3aed}#staffPayrollRoot .stat.alt4::after{background:#c0392b}#staffPayrollRoot .stat .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--muted);font-weight:600}#staffPayrollRoot .stat .value{font-size:22px;font-weight:700;margin-top:6px;letter-spacing:-.5px}#staffPayrollRoot .stat .sub{font-size:11.5px;color:var(--muted);margin-top:3px}#staffPayrollRoot /* Tables */
+.table-wrap{overflow-x:auto}#staffPayrollRoot table{width:100%;border-collapse:collapse;font-size:13px}#staffPayrollRoot thead th{text-align:left;font-size:11px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--muted);font-weight:700;
+  padding:10px 14px;background:#f8fafb;border-bottom:1px solid var(--line);
+  white-space:nowrap}#staffPayrollRoot tbody td{padding:11px 14px;border-bottom:1px solid #f1f5f4;vertical-align:middle}#staffPayrollRoot tbody tr:hover{background:#fafcfb}#staffPayrollRoot tbody tr:last-child td{border-bottom:none}#staffPayrollRoot tfoot td{padding:12px 14px;font-weight:700;background:#f8fafb;border-top:2px solid var(--line)}#staffPayrollRoot .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}#staffPayrollRoot .actions{display:flex;gap:4px;justify-content:flex-end}#staffPayrollRoot .pill{display:inline-block;padding:2px 9px;border-radius:20px;
+  font-size:11px;font-weight:650;letter-spacing:.2px;white-space:nowrap}#staffPayrollRoot .pill-green{background:#e6f4ef;color:#0a5540}#staffPayrollRoot .pill-grey{background:#eef2f6;color:#475569}#staffPayrollRoot .pill-blue{background:#e8effd;color:#1d4ed8}#staffPayrollRoot .pill-amber{background:#fdf3e3;color:#92610e}#staffPayrollRoot .pill-red{background:#fdecea;color:#a5281b}#staffPayrollRoot .pill-purple{background:#f3e8ff;color:#6b21a8}#staffPayrollRoot /* Forms */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}#staffPayrollRoot .field{display:flex;flex-direction:column;gap:5px}#staffPayrollRoot .field label{font-size:11.5px;font-weight:650;color:#334155;letter-spacing:.2px}#staffPayrollRoot .field input, #staffPayrollRoot .field select{padding:9px 11px;border:1px solid var(--line);
+  border-radius:8px;background:#fff;font-size:13px;transition:.15s;width:100%}#staffPayrollRoot .field input:focus, #staffPayrollRoot .field select:focus{outline:none;border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(13,110,79,.12)}#staffPayrollRoot .field .hint{font-size:11px;color:var(--muted)}#staffPayrollRoot .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.9px;
+  font-weight:750;color:var(--brand);margin:20px 0 10px;padding-bottom:6px;
+  border-bottom:1px dashed var(--line)}#staffPayrollRoot .section-title:first-child{margin-top:0}#staffPayrollRoot /* Toolbar & search */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#staffPayrollRoot .search{position:relative;flex:1;min-width:200px;max-width:320px}#staffPayrollRoot .search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);
+  border-radius:9px;background:#fff;font-size:13px}#staffPayrollRoot .search input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(13,110,79,.12)}#staffPayrollRoot .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--muted)}#staffPayrollRoot /* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(9,20,16,.55);
+  backdrop-filter:blur(2px);display:flex;align-items:flex-start;
+  justify-content:center;padding:28px 16px;z-index:60;overflow-y:auto;
+  animation:fade .15s ease}@keyframes pr-fade{from{opacity:0}to{opacity:1}}#staffPayrollRoot .modal{background:#fff;border-radius:14px;width:min(880px,100%);
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:pop .18s ease}@keyframes pr-pop{from{transform:translateY(10px) scale(.99);opacity:0}to{transform:none;opacity:1}}#staffPayrollRoot .modal-head{display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px;border-bottom:1px solid var(--line)}#staffPayrollRoot .modal-head h3{font-size:16px;font-weight:700}#staffPayrollRoot .modal-body{padding:22px}#staffPayrollRoot .modal-foot{display:flex;justify-content:flex-end;gap:10px;
+  padding:16px 22px;border-top:1px solid var(--line);background:#fafcfb;
+  border-radius:0 0 14px 14px}#staffPayrollRoot .icon-btn{width:32px;height:32px;border-radius:8px;display:grid;
+  place-items:center;color:var(--muted);transition:.15s}#staffPayrollRoot .icon-btn:hover{background:#f1f5f9;color:var(--ink)}#staffPayrollRoot /* Modal tabs */
+.modal-tabs{display:flex;gap:2px;padding:0 22px;border-bottom:1px solid var(--line);
+  overflow-x:auto}#staffPayrollRoot .modal-tab{padding:13px 14px;font-size:12.5px;font-weight:650;color:var(--muted);
+  white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}#staffPayrollRoot .modal-tab:hover{color:var(--ink)}#staffPayrollRoot .modal-tab.active{color:var(--brand);border-bottom-color:var(--brand)}#staffPayrollRoot .tab-pane{display:none}#staffPayrollRoot .tab-pane.active{display:block}#staffPayrollRoot /* Empty */
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}#staffPayrollRoot .empty svg{width:44px;height:44px;opacity:.35;margin-bottom:12px}#staffPayrollRoot .empty h3{font-size:15px;color:var(--ink);margin-bottom:5px}#staffPayrollRoot .empty p{font-size:13px;max-width:420px;margin:0 auto 16px}#staffPayrollRoot /* Dashboard: fixed overall height, #staffPayrollRoot only the runs table scrolls internally */
+.dashboard-view{display:flex;flex-direction:column;min-height:0;overflow:hidden}#staffPayrollRoot .dashboard-view.dv-scroll{overflow:visible;height:auto !important}#staffPayrollRoot .dashboard-view .stats{flex:0 0 auto;margin-bottom:10px;gap:10px}#staffPayrollRoot .dashboard-view .stat{padding:11px 14px}#staffPayrollRoot .dashboard-view .stat .label{font-size:10.5px}#staffPayrollRoot .dashboard-view .stat .value{font-size:18px;margin-top:3px}#staffPayrollRoot .dashboard-view .stat .sub{font-size:10.5px;margin-top:2px}#staffPayrollRoot .dashboard-view .card{flex:0 0 auto;margin-bottom:10px}#staffPayrollRoot .dashboard-view .card-head{padding:10px 14px}#staffPayrollRoot .dashboard-view .card-head h2{font-size:13px}#staffPayrollRoot .dashboard-view .card table{font-size:12.5px}#staffPayrollRoot .dashboard-view .card thead th{padding:7px 14px}#staffPayrollRoot .dashboard-view .card tbody td{padding:7px 14px}#staffPayrollRoot .dashboard-view .card.card-grow{flex:1;min-height:90px;margin-bottom:0;
+  display:flex;flex-direction:column;overflow:hidden}#staffPayrollRoot .dashboard-view .card.card-grow .table-wrap{flex:1;overflow:auto;min-height:0}#staffPayrollRoot .dashboard-view .card.card-grow .empty{flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow:auto;padding:20px}#staffPayrollRoot .dashboard-view .card.card-grow .empty svg{width:32px;height:32px;margin-bottom:8px}#staffPayrollRoot /* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#0b1f1a;color:#fff;padding:11px 20px;border-radius:10px;
+  font-size:13px;font-weight:550;z-index:100;opacity:0;transition:.28s;
+  box-shadow:0 12px 30px -8px rgba(0,0,0,.5);pointer-events:none}#staffPayrollRoot #toast.show{transform:translateX(-50%) translateY(0);opacity:1}#staffPayrollRoot #toast.err{background:#8f2318}#staffPayrollRoot /* Switch */
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}#staffPayrollRoot .switch input{display:none}#staffPayrollRoot .switch .track{width:40px;height:22px;border-radius:20px;background:#cbd5e1;
+  position:relative;transition:.2s;flex:0 0 40px}#staffPayrollRoot .switch .track::after{content:"";position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.25)}#staffPayrollRoot .switch input:checked + .track{background:var(--brand)}#staffPayrollRoot .switch input:checked + .track::after{transform:translateX(18px)}#staffPayrollRoot .switch .txt{font-size:13px;font-weight:550}#staffPayrollRoot /* Payslip */
+.payslip{font-size:13px}#staffPayrollRoot .payslip-head{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:20px;padding-bottom:16px;border-bottom:2px solid var(--brand);
+  margin-bottom:18px;flex-wrap:wrap}#staffPayrollRoot .payslip-head h2{font-size:18px;color:var(--brand);letter-spacing:-.3px}#staffPayrollRoot .payslip-head .sub{font-size:12px;color:var(--muted)}#staffPayrollRoot .payslip-head .meta{text-align:right;font-size:12px;color:var(--muted)}#staffPayrollRoot .payslip-head .meta strong{display:block;color:var(--ink);font-size:14px}#staffPayrollRoot .payslip-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}#staffPayrollRoot .payslip-grid table{font-size:12.5px}#staffPayrollRoot .payslip-grid table th{background:none;border-bottom:1px solid var(--line);
+  padding:6px 0;font-size:10.5px;letter-spacing:.6px}#staffPayrollRoot .payslip-grid table td{padding:6px 0;border-bottom:1px dashed #eef2f1}#staffPayrollRoot .payslip-grid .total-row td{border-top:2px solid var(--ink);border-bottom:none;
+  font-weight:750;padding-top:9px}#staffPayrollRoot .net-box{margin-top:20px;background:var(--brand-light);border:1px solid #c9e5da;
+  border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:8px}#staffPayrollRoot .net-box .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.8px;
+  color:#0a5540;font-weight:700}#staffPayrollRoot .net-box .amt{font-size:24px;font-weight:800;color:#0a5540;letter-spacing:-.6px}#staffPayrollRoot .net-box.amber{background:#fdf3e3;border-color:#f5dfb5}#staffPayrollRoot .net-box.amber .lbl, #staffPayrollRoot .net-box.amber .amt{color:#92610e}#staffPayrollRoot .payslip-foot{margin-top:18px;font-size:11px;color:var(--muted);
+  text-align:center;line-height:1.7}#staffPayrollRoot .detail-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px 22px;margin-bottom:4px}#staffPayrollRoot .detail-list .k{font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--muted);font-weight:650}#staffPayrollRoot .detail-list .v{font-size:13px;font-weight:550;margin-top:1px}#staffPayrollRoot /* Advance balance bar */
+.bar{height:6px;border-radius:6px;background:#eef2f6;overflow:hidden;margin-top:5px}#staffPayrollRoot .bar > span{display:block;height:100%;background:var(--brand);
+  border-radius:6px;transition:.3s}#staffPayrollRoot .bar.warn > span{background:#b7791f}#staffPayrollRoot /* Payment method tags */
+.pm{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600}#staffPayrollRoot .pm svg{width:13px;height:13px}#staffPayrollRoot .pm-cash{color:#0a5540}#staffPayrollRoot .pm-bank{color:#1d4ed8}#staffPayrollRoot .pm-mpesa{color:#6b21a8}#staffPayrollRoot /* Preview box (pay modal) */
+.preview-box{border-radius:10px;padding:13px 16px;font-size:12.5px;
+  display:flex;align-items:flex-start;gap:10px;line-height:1.5}#staffPayrollRoot .preview-box svg{width:16px;height:16px;flex:0 0 16px;margin-top:1px}#staffPayrollRoot .preview-ok{background:#e6f4ef;border:1px solid #c9e5da;color:#0a5540}#staffPayrollRoot .preview-warn{background:#fdf3e3;border:1px solid #f5dfb5;color:#92610e}#staffPayrollRoot .preview-info{background:#e8effd;border:1px solid #c7d9fb;color:#1d4ed8}#staffPayrollRoot /* Print */
+#staffPayrollRoot #printArea{display:none}
+@media print{
+  body *{visibility:hidden}
+  #staffPayrollRoot #printArea,#staffPayrollRoot #printArea *{visibility:visible}
+  #staffPayrollRoot #printArea{display:block !important;position:absolute;left:0;top:0;width:100%;padding:0}
+  @page{margin:14mm}
+}@media (max-width:880px){#staffPayrollRoot .sidebar{padding:10px 12px;gap:12px}#staffPayrollRoot .brand-text{display:none}#staffPayrollRoot .nav button{padding:8px 12px}#staffPayrollRoot .main{padding:18px 14px 60px}#staffPayrollRoot .payslip-grid{grid-template-columns:1fr;gap:18px}
+}
+  </style>
 </head>
 
 <body class="auth-pending">
@@ -4563,16 +5050,21 @@
     <button class="open-dialog-btn" id="openDialogBtn3" aria-haspopup="dialog" style="visibility: visible;">
       <span>📬</span> Open dialogue
     </button>
+    <button class="open-dialog-btn" id="openStaffPayrollBtn" style="visibility: visible;">
+      <span>🧾</span> Staff &amp; Payroll
+    </button>
+    <button class="open-dialog-btn" id="openSettingsBtn" style="visibility: visible;">
+      <span>⚙️</span> Settings
+    </button>
 
     <div class="tabs-container">
       <div class="tabs-header">
         <button class="tab-btn active" data-tab="tab0">Dashboard</button>
         <button class="tab-btn " data-tab="tab1">Register</button>
-        <button class="tab-btn" data-tab="tab2">Tab 2</button>
-        <button class="tab-btn" data-tab="tab3">Tab 3</button>
-        <button class="tab-btn" data-tab="tab4">Tab 4</button>
-        <button class="tab-btn" data-tab="tab5">Tab 5</button>
-        <button class="tab-btn" data-tab="tab6">Tab 6</button>
+        <!-- Tab 2-6 buttons intentionally removed from UI.
+             Panels (#tab2 .. #tab6) and window.switchTab / window.goToTabFromDashboard
+             are still fully functional and can be invoked from the C# host
+             (e.g. webView.ExecuteScriptAsync("switchTab('tab3')")). -->
       </div>
     </div>
 
@@ -4925,7 +5417,7 @@
               </div>
             </div>
 
-            <div class="stats" id="statsContainer">
+            <div class="stats" id="termsStatsContainer">
               <div class="stat-card"><i class="fas fa-calendar-check"></i> <span id="totalTerms">0</span> Terms</div>
               <div class="stat-card"><i class="fas fa-coins"></i> <span id="totalFees">0</span> Total Fees</div>
               <div class="stat-card"><i class="fas fa-user-graduate"></i> <span id="totalGrades">0</span> Grade Levels
@@ -5149,7 +5641,198 @@
         </table>
       </div>
 
+      <!-- Tab 7: Staff & Payroll (single-file, scoped under #staffPayrollRoot) -->
+      <div id="tab7" class="tab-panel">
+<div id="staffPayrollRoot">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SP</div>
+      <div class="brand-text">
+        <strong>Shule Payroll</strong>
+        <span>Staff &amp; Payroll</span>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-view="dashboard" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </button>
+      <button data-view="staff">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Staff
+      </button>
+      <button data-view="advances">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Advances <span class="badge" id="advBadge" style="display:none">0</span>
+      </button>
+      <button data-view="payroll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payroll
+      </button>
+      <button data-view="payments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+        Payments <span class="badge info" id="payBadge" style="display:none">0</span>
+      </button>
+      <button data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <div class="sidebar-foot">Data syncs to your school's database.</div>
+  </aside>
 
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSub">Overview of staff and payroll</p>
+      </div>
+      <div class="topbar-right" id="topbarActions"></div>
+    </div>
+    <div id="views"></div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="printArea"></div>
+<div id="toast"></div>
+</div>
+
+      </div>
+      <!-- Tab 8: Notifications (real alerts about things that need attention) -->
+      <div id="tab8" class="tab-panel">
+        <div class="app-notifications" style="padding:24px;max-width:900px;margin:0 auto">
+          <style>
+            .app-notifications .notif-item{display:flex;gap:14px;align-items:flex-start;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;background:#fff}
+            .app-notifications .notif-item.urgent{border-color:#fca5a5;background:#fff7f7}
+            .app-notifications .notif-item.info{border-color:#bfdbfe;background:#f6faff}
+            .app-notifications .notif-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 38px;background:#eef2f6}
+            .app-notifications .notif-item.urgent .notif-icon{background:#fee2e2}
+            .app-notifications .notif-item.info .notif-icon{background:#dbeafe}
+            .app-notifications .notif-body{flex:1;min-width:0}
+            .app-notifications .notif-body strong{font-size:13.5px;color:#0f172a;display:block}
+            .app-notifications .notif-body p{color:#64748b;font-size:12.5px;margin:3px 0 0}
+            .app-notifications .notif-actions{display:flex;gap:8px;margin-top:10px}
+            .app-notifications .notif-btn{padding:6px 13px;border-radius:7px;border:1px solid #0a5540;background:#fff;color:#0a5540;font-size:12px;cursor:pointer;font-weight:600}
+            .app-notifications .notif-btn.primary{background:#0a5540;color:#fff}
+            .app-notifications .notif-empty{text-align:center;padding:60px 20px;color:#94a3b8}
+            .app-notifications .notif-empty .big{font-size:38px;margin-bottom:10px}
+          </style>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+            <div>
+              <h1 style="font-size:22px;margin:0 0 4px">Notifications</h1>
+              <p style="color:#64748b;margin:0">Things that need your attention right now.</p>
+            </div>
+            <button type="button" class="notif-btn" id="refreshNotificationsBtn">⟳ Refresh</button>
+          </div>
+
+          <div id="notificationsFeed">
+            <div class="notif-empty">
+              <div class="big">🔔</div>
+              <p>Loading notifications…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 9: Settings (single hub for every settings area in the app) -->
+      <div id="tab9" class="tab-panel">
+        <div class="app-settings" style="padding:24px;max-width:1000px;margin:0 auto">
+          <div style="margin-bottom:22px">
+            <h1 style="font-size:22px;margin:0 0 4px">Settings</h1>
+            <p style="color:#64748b;margin:0">Everything you can configure for your school, in one place.</p>
+          </div>
+
+          <!-- Institution Profile -->
+          <div class="card" style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:10px;padding:18px">
+            <h2 style="font-size:15px;margin:0 0 4px">Institution Profile</h2>
+            <p style="color:#64748b;font-size:12.5px;margin:0 0 14px">
+              This name is used everywhere in the app — including payroll payslips and printed documents.
+            </p>
+            <form id="institutionProfileForm" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+              <div style="flex:1;min-width:220px">
+                <label style="display:block;font-size:12px;color:#64748b;margin-bottom:4px">Institution name</label>
+                <input type="text" id="institutionNameInput" name="institutionName" required
+                  style="width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13.5px">
+              </div>
+              <button type="submit" class="btn btn-primary" style="padding:9px 18px;border-radius:8px;border:none;background:#0a5540;color:#fff;font-size:13.5px;cursor:pointer">
+                Save
+              </button>
+            </form>
+          </div>
+
+          <!-- Academic Structure -->
+          <div class="card" style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:10px;padding:18px">
+            <h2 style="font-size:15px;margin:0 0 4px">Academic Structure</h2>
+            <p style="color:#64748b;font-size:12.5px;margin:0 0 14px">Classes, streams and term / fee-structure setup.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+              <div style="border:1px solid #eef2f6;border-radius:8px;padding:14px">
+                <strong style="font-size:13.5px">Classes &amp; Streams</strong>
+                <p style="color:#64748b;font-size:12px;margin:6px 0 12px">Add, edit or remove grades, streams, rooms and capacity.</p>
+                <button type="button" class="btn" id="openClassesSettingsBtn"
+                  style="padding:7px 14px;border-radius:7px;border:1px solid #0a5540;background:#fff;color:#0a5540;font-size:12.5px;cursor:pointer">
+                  Open Classes
+                </button>
+              </div>
+              <div style="border:1px solid #eef2f6;border-radius:8px;padding:14px">
+                <strong style="font-size:13.5px">Terms &amp; Fee Structure</strong>
+                <p style="color:#64748b;font-size:12px;margin:6px 0 12px">Set term dates, status and per-grade fee amounts.</p>
+                <button type="button" class="btn" id="openTermsSettingsBtn"
+                  style="padding:7px 14px;border-radius:7px;border:1px solid #0a5540;background:#fff;color:#0a5540;font-size:12.5px;cursor:pointer">
+                  Open Terms
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payroll Settings -->
+          <div class="card" style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:10px;padding:18px">
+            <h2 style="font-size:15px;margin:0 0 4px">Payroll</h2>
+            <p style="color:#64748b;font-size:12.5px;margin:0 0 14px">Statutory deduction rates: PAYE, NSSF, SHIF and the Housing Levy.</p>
+            <button type="button" class="btn" id="openPayrollSettingsBtn"
+              style="padding:7px 14px;border-radius:7px;border:1px solid #0a5540;background:#fff;color:#0a5540;font-size:12.5px;cursor:pointer">
+              Open Payroll Settings
+            </button>
+          </div>
+
+          <div id="settingsSaveMsg" style="font-size:12.5px;margin-top:4px"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-overlay" id="minBalanceModal">
+      <div class="modal-box" style="max-width: 460px;">
+        <div class="modal-header">
+          <h2><i class="fas fa-envelope-open-text"></i> Send Notification Letters</h2>
+          <button class="modal-close" id="closeMinBalanceModalBtn" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="form-group">
+          <label for="minBalanceInput">Minimum balance</label>
+          <input type="number" id="minBalanceInput" class="form-input" placeholder="e.g. 1000" min="0" step="any" inputmode="decimal">
+        </div>
+        <p style="color:#6b7e93; font-size:.85rem; margin: .6rem 0 0; line-height:1.4;">
+          <i class="fas fa-circle-info" style="color:#2a7de1; margin-right:.3rem;"></i>
+          Only active students with a balance at or above this amount will receive a letter.
+        </p>
+
+        <div class="form-group" style="margin-top: 1.1rem;">
+          <label for="letterMessageInput">Message (optional — appears on every letter)</label>
+          <textarea id="letterMessageInput" class="form-input" rows="4" maxlength="300"
+            placeholder="e.g. Payment due by: 26 Sep 2026. Please settle the outstanding balance using: Bank: [Details] | Mobile Money/Online: [Details]. If the balance has already been paid, kindly ignore this notice and share proof of payment. For queries or a payment plan, please contact Tel: 0723 337 524 / 0717 446 110. Thank you for your prompt attention."
+            style="resize: vertical; min-height: 90px; font-family: inherit;"></textarea>
+          <div id="letterMessageCounter" style="text-align: right; font-size: .78rem; color: #9fb1c4; margin-top: .2rem;">0 / 300</div>
+        </div>
+
+        <div class="dialogue-actions">
+          <button type="button" class="btn-secondary" id="cancelMinBalanceBtn">Cancel</button>
+          <button type="button" class="btn-primary" id="confirmMinBalanceBtn">
+            <i class="fas fa-paper-plane"></i> Send Letters
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- FIRST DIALOG -->
@@ -5169,7 +5852,7 @@
         </div>
 
         <div class="dialog-tab-content-wrapper">
-          <div class="dialog-tab-panel active" id="tab0">
+          <div class="dialog-tab-panel active" id="dlgTab0">
             <div class="dialogue-body">
 
               <div class="form-grid-2col">
@@ -5242,7 +5925,7 @@
             </div>
           </div>
 
-          <div class="dialog-tab-panel" id="tab1">
+          <div class="dialog-tab-panel" id="dlgTab1">
             <div class="dialogue-body">
 
               <div class="form-grid-2col">
@@ -5289,7 +5972,7 @@
             </div>
           </div>
 
-          <div class="dialog-tab-panel" id="tab2">
+          <div class="dialog-tab-panel" id="dlgTab2">
             <div class="dialogue-body">
 
               <div class="form-grid-2col">
@@ -5509,13 +6192,13 @@
           <div class="dialog-tabs-header">
             <button class="dialog-tab-btn active" data-tab="edit0"> Student's Bio-Data</button>
             <button class="dialog-tab-btn" data-tab="edit1">Fee Statement</button>
-            <button class="dialog-tab-btn" data-tab="edit1">Academics Transcript</button>
+            <button class="dialog-tab-btn" data-tab="edit2">Academics Transcript</button>
           </div>
 
         </div>
 
         <div class="dialog-tab-content-wrapper">
-          <div class="dialog-tab-panel active" id="editTab0">
+          <div class="dialog-tab-panel active" id="profileTab0">
             <div class="dialogue-body" style="height: 55vh;">
 
               <div class="main-card" style="height: 55vh;">
@@ -5590,7 +6273,7 @@
             </div>
           </div>
 
-          <div class="dialog-tab-panel" id="editTab1">
+          <div class="dialog-tab-panel" id="profileTab1">
             <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
 
               <table id="feeStatement"
@@ -5617,7 +6300,7 @@
             </div>
           </div>
 
-          <div class="dialog-tab-panel" id="editTab2">
+          <div class="dialog-tab-panel" id="profileTab2">
             <div class="dialogue-body" style="height: 55vh; overflow-y:auto;">
 
               <div id="termTranscriptsContainer">
@@ -5740,8 +6423,188 @@
     </div>
 
 
-    <script src="student-form.js"></script>
-    <script src="classScript.js"></script>
+    <script>
+// student-form.js - Dialog Tab Switching with Data Population
+document.addEventListener('DOMContentLoaded', function() {
+  // Scoped to #dialogOverlay only — these classes are reused by the
+  // Fee Management and Student Profile dialogs too, and an unscoped
+  // query here would let this dialog's tab logic clobber those.
+  const tabButtons = document.querySelectorAll('#dialogOverlay .dialog-tab-btn');
+  const tabPanels = document.querySelectorAll('#dialogOverlay .dialog-tab-panel');
+
+  // Function to populate admission tab with data from tabs 1 & 2
+  function populateAdmissionData() {
+    // Get data from Tab 1 - Personal Information
+    const studentName = document.getElementById('studentName').value || '-';
+    const studentDOB = document.getElementById('studentDOB').value || '-';
+    const studentReligion = document.getElementById('studentReligion').value || '-';
+    const studentNationality = document.getElementById('studentNationality').value || '-';
+    const studentID = document.getElementById('studentID').value || '-';
+    
+    // Get gender from radio buttons
+    let gender = '-';
+    if (document.getElementById('genderMale').checked) {
+      gender = 'Male';
+    } else if (document.getElementById('genderFemale').checked) {
+      gender = 'Female';
+    }
+    
+    // Get data from Tab 2 - Contact Information
+    const guardianName = document.getElementById('guardianName').value || '-';
+    const guardianRelationship = document.getElementById('guardianRelationship').value || '-';
+    const guardianPhone = document.getElementById('guardianPhone').value || '-';
+    const guardianEmail = document.getElementById('guardianEmail').value || '-';
+    const guardianAddress = document.getElementById('guardianAddress').value || '-';
+    
+    // Format DOB for display
+    let formattedDOB = studentDOB;
+    if (studentDOB !== '-') {
+      const date = new Date(studentDOB);
+      formattedDOB = date.toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: '2-digit' 
+      });
+    }
+    
+    // Populate Student Information in Tab 3
+    document.getElementById('displayName').textContent = studentName;
+    document.getElementById('displayDOB').textContent = formattedDOB;
+    document.getElementById('displayGender').textContent = gender;
+    document.getElementById('displayNationality').textContent = studentNationality;
+    document.getElementById('displayID').textContent = studentID;
+    document.getElementById('displayReligion').textContent = studentReligion;
+    
+    // Populate Contact Information in Tab 3
+    document.getElementById('displayGuardian').textContent = guardianName;
+    document.getElementById('displayRelationship').textContent = guardianRelationship;
+    document.getElementById('displayPhone').textContent = guardianPhone;
+    document.getElementById('displayEmail').textContent = guardianEmail;
+    document.getElementById('displayAddress').textContent = guardianAddress;
+  }
+
+  // Function to switch tabs
+  function switchTab(tabIndex) {
+    // Remove active class from all tabs and panels
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    tabPanels.forEach(panel => panel.classList.remove('active'));
+    
+    // Add active class to selected tab and panel
+    tabButtons[tabIndex].classList.add('active');
+    tabPanels[tabIndex].classList.add('active');
+    
+    // If switching to Admission tab (index 2), populate data
+    if (tabIndex === 2) {
+      populateAdmissionData();
+    }
+  }
+
+  // Add click event to each tab button
+  tabButtons.forEach((button, index) => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      switchTab(index);
+    });
+  });
+
+  // Auto-populate when any input changes in tabs 1 & 2
+  const inputFields = document.querySelectorAll('#dlgTab0 input, #dlgTab0 select, #dlgTab1 input, #dlgTab1 select, #dlgTab1 textarea');
+  inputFields.forEach(field => {
+    field.addEventListener('change', function() {
+      // If we're on tab 3, update the data
+      if (document.getElementById('dlgTab2').classList.contains('active')) {
+        populateAdmissionData();
+      }
+    });
+    field.addEventListener('input', function() {
+      // If we're on tab 3, update the data
+      if (document.getElementById('dlgTab2').classList.contains('active')) {
+        populateAdmissionData();
+      }
+    });
+  });
+
+
+
+  // Reset, Complete and close-dialog wiring for #dialogOverlay (the real
+  // "Reset"/"Complete" buttons are #resetBtn and #saveStudent) are handled
+  // by the main script below, which validates every field and persists
+  // the record to Firebase — kept in one place instead of duplicated here.
+
+  // Image upload functionality
+  document.getElementById('imageUploadBox').addEventListener('click', function() {
+    document.getElementById('studentImage').click();
+  });
+
+  document.getElementById('studentImage').addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const placeholder = document.querySelector('.image-placeholder');
+        placeholder.innerHTML = `<img src="${event.target.result}" style="max-width: 60px; max-height: 60px; border-radius: 50%; object-fit: cover;">`;
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  // Initialize first tab
+  switchTab(0);
+});
+</script>
+    <script>
+// classScript.js
+// Owns the class-modal wiring and delegates to the inline module.
+
+(function () {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+
+  function ready(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else {
+      fn();
+    }
+  }
+
+  ready(function () {
+    // ============================================
+    // STEP 5 LIVES HERE
+    // ============================================
+
+    // ---- Add class ----
+    $('openModalBtn')?.addEventListener('click', () => {
+      if (typeof window.openClassModalForAdd === 'function') {
+        window.openClassModalForAdd();
+      }
+    });
+
+    // ---- Close / Cancel ----
+    const closeBoth = () => {
+      if (typeof window.setEditingClassKey === 'function') {
+        window.setEditingClassKey(null);
+      }
+      $('modalOverlay')?.classList.remove('active');
+    };
+
+    $('closeModalBtn')?.addEventListener('click', closeBoth);
+    $('cancelModalBtn')?.addEventListener('click', closeBoth);
+
+    // ---- Click outside to close ----
+    $('modalOverlay')?.addEventListener('click', e => {
+      if (e.target === $('modalOverlay')) closeBoth();
+    });
+
+    // ---- Escape key ----
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && $('modalOverlay')?.classList.contains('active')) {
+        closeBoth();
+      }
+    });
+  });
+})();
+</script>
     <script src="TermFX1.js"></script>
     <script src="paymentReciept.js"></script>
 
@@ -5885,6 +6748,9 @@
         if (typeof window.__attachTranscriptListeners === 'function') {
           window.__attachTranscriptListeners();
         }
+        if (typeof window.__attachStaffPayrollListeners === 'function') {
+          window.__attachStaffPayrollListeners();
+        }
       };
 
       // ============================================================
@@ -6026,6 +6892,21 @@
         if (openBtn) openBtn.focus();
       }
 
+      // Fill the admission field with the next number when "Auto Generate" is on.
+      // Called whenever the form is blanked/opened so the field is never left
+      // empty (and locked) until the next background data refresh.
+      function refreshAdmissionNumberIfAuto() {
+        try {
+          const auto = document.getElementById('autoGenerate');
+          const adm = document.getElementById('admissionNumber');
+          if (!auto || !adm || !auto.checked) return;
+          adm.value = getNextAdmissionNumber();
+          adm.disabled = true;
+        } catch (e) {
+          console.warn('Admission number refresh failed:', e);
+        }
+      }
+
       function resetStudentForm() {
         const root = document.getElementById('dialogOverlay');
         if (!root) return;
@@ -6065,6 +6946,8 @@
 
         const btn = document.getElementById('saveStudent');
         if (btn) btn.textContent = 'Complete';
+        if (btn) delete btn.dataset.mode;
+        refreshAdmissionNumberIfAuto();
       }
 
       window.resetStudentForm = resetStudentForm;
@@ -6150,7 +7033,12 @@
         if (openBtn3) openBtn3.focus();
       }
 
-      if (openBtn) openBtn.addEventListener('click', openDialog);
+      if (openBtn) openBtn.addEventListener('click', function () {
+        openDialog();
+        // New registration: show the next free number, not one computed earlier.
+        const sb = document.getElementById('saveStudent');
+        if (!sb || sb.dataset.mode !== 'edit') refreshAdmissionNumberIfAuto();
+      });
       if (closeIcon) closeIcon.addEventListener('click', closeDialog);
       if (closeSecondary) closeSecondary.addEventListener('click', closeDialog);
       if (confirmBtn) confirmBtn.addEventListener('click', closeDialog);
@@ -6216,7 +7104,7 @@
         });
       }
 
-      if (openBtn3) openBtn2.addEventListener('click', openDialog3);
+      if (openBtn3) openBtn3.addEventListener('click', openDialog3);
       if (closeIcon3) closeIcon3.addEventListener('click', closeDialog3);
       if (closeSecondary3) closeSecondary3.addEventListener('click', closeDialog3);
       if (confirmBtn3) confirmBtn3.addEventListener('click', closeDialog3);
@@ -6283,7 +7171,9 @@
             });
 
             SaveUpdateBtn.textContent = "Complete";
+            delete SaveUpdateBtn.dataset.mode;
             if (Auto) Auto.disabled = false;
+            refreshAdmissionNumberIfAuto();
             switchDialogTab(0);
           }
         });
@@ -6346,7 +7236,10 @@
         tab3: document.getElementById('tab3'),
         tab4: document.getElementById('tab4'),
         tab5: document.getElementById('tab5'),
-        tab6: document.getElementById('tab6')
+        tab6: document.getElementById('tab6'),
+        tab7: document.getElementById('tab7'),
+        tab8: document.getElementById('tab8'),
+        tab9: document.getElementById('tab9')
       };
 
       tabs.forEach(tab => {
@@ -6451,6 +7344,373 @@
         window.goToTabFromDashboard('tab6');
       });
 
+      document.getElementById('openStaffPayrollBtn')?.addEventListener('click', () => {
+        window.goToTabFromDashboard('tab7');
+      });
+
+      // ============================================================
+      // SETTINGS TAB (tab9) — single hub for every settings area
+      // ============================================================
+      document.getElementById('openSettingsBtn')?.addEventListener('click', () => {
+        window.goToTabFromDashboard('tab9');
+        refreshInstitutionProfileForm();
+      });
+
+      document.getElementById('openClassesSettingsBtn')?.addEventListener('click', () => {
+        window.switchTab('tab3');
+      });
+
+      document.getElementById('openTermsSettingsBtn')?.addEventListener('click', () => {
+        window.switchTab('tab4');
+      });
+
+      document.getElementById('openPayrollSettingsBtn')?.addEventListener('click', () => {
+        window.switchTab('tab7');
+        // Reuse the payroll module's own nav so its internal state/render
+        // stays consistent, instead of poking its internals directly.
+        requestAnimationFrame(() => {
+          const btn = document.querySelector('#staffPayrollRoot #nav button[data-view="settings"]');
+          if (btn) btn.click();
+        });
+      });
+
+      function refreshInstitutionProfileForm() {
+        const input = document.getElementById('institutionNameInput');
+        if (input) input.value = (window.__schoolContext && window.__schoolContext.name) || '';
+      }
+      window.refreshInstitutionProfileForm = refreshInstitutionProfileForm;
+
+      document.getElementById('institutionProfileForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('settingsSaveMsg');
+        const input = document.getElementById('institutionNameInput');
+        const newName = (input?.value || '').trim();
+        if (!newName) return;
+
+        const schoolId = window.__schoolContext?.id;
+        if (!schoolId) {
+          if (msg) { msg.style.color = '#c0392b'; msg.textContent = 'No school loaded yet — try again in a moment.'; }
+          return;
+        }
+
+        try {
+          await update(ref(db, `Institution/Schools/${schoolId}`), { name: newName });
+          if (window.__schoolContext) window.__schoolContext.name = newName;
+          if (msg) { msg.style.color = '#0a5540'; msg.textContent = 'Institution name saved.'; }
+          if (typeof window.forceUIRefreshAfterWrite === 'function') window.forceUIRefreshAfterWrite();
+        } catch (err) {
+          if (msg) { msg.style.color = '#c0392b'; msg.textContent = 'Failed to save: ' + err.message; }
+        }
+      });
+
+      // ============================================================
+      // NOTIFICATIONS TAB (tab8) — real, computed alerts (not settings)
+      // ============================================================
+      (function initNotificationsFeed() {
+        const feedEl = () => document.getElementById('notificationsFeed');
+
+        function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function money(n) { return 'KES ' + (Number(n) || 0).toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+
+        function safeCall(fn, fallback) {
+          try { return fn(); } catch (_) { return fallback; }
+        }
+
+        function buildNotifications() {
+          const items = [];
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          // ---------- Payroll: new month not yet generated ----------
+          const pr = safeCall(() => window.__getPayrollState && window.__getPayrollState(), null);
+          if (pr && pr.staff && pr.staff.some(s => s.status === 'Active')) {
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const currentMonthKey = `${y}-${m}`;
+            const monthName = today.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            const already = pr.payrolls && pr.payrolls[currentMonthKey];
+            if (!already) {
+              items.push({
+                type: 'urgent', icon: '🗓️',
+                title: `New month — generate payroll for ${monthName}`,
+                desc: `Payroll for ${monthName} hasn't been generated yet.`,
+                actionLabel: 'Go to Payroll', actionTab: 'tab7'
+              });
+            }
+
+            // ---------- Advances outstanding ----------
+            const outstanding = (pr.advances || []).filter(a => (a.balance || 0) > 0);
+            if (outstanding.length) {
+              const total = outstanding.reduce((t, a) => t + (a.balance || 0), 0);
+              items.push({
+                type: 'info', icon: '💰',
+                title: `${outstanding.length} staff advance${outstanding.length > 1 ? 's' : ''} outstanding`,
+                desc: `${money(total)} in salary advances still to be recovered.`,
+                actionLabel: 'Go to Advances', actionTab: 'tab7'
+              });
+            }
+          }
+
+          // ---------- Terms: closure date ----------
+          const termsData = safeCall(() => window.__getTermsData && window.__getTermsData(), null) ||
+            safeCall(() => (typeof terms !== 'undefined' ? terms : null), null);
+          if (Array.isArray(termsData)) {
+            termsData.forEach(t => {
+              const status = String(t.status || '').trim().toLowerCase();
+              if (status !== 'active' || !t.end) return;
+              const endDate = new Date(t.end);
+              if (isNaN(endDate)) return;
+              endDate.setHours(0, 0, 0, 0);
+              const diffDays = Math.round((endDate - today) / 86400000);
+              const label = t.termId || 'Current term';
+              const dateStr = endDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+              if (diffDays <= 0) {
+                items.push({
+                  type: 'urgent', icon: '📕',
+                  title: `Term closure date is here`,
+                  desc: `${label} was set to close on ${dateStr}. Review and close it out.`,
+                  actionLabel: 'Go to Terms', actionTab: 'tab4'
+                });
+              } else if (diffDays <= 7) {
+                items.push({
+                  type: 'info', icon: '📅',
+                  title: `${label} closes in ${diffDays} day${diffDays > 1 ? 's' : ''}`,
+                  desc: `Closing on ${dateStr}. Plan the next term ahead of time.`,
+                  actionLabel: 'Go to Terms', actionTab: 'tab4'
+                });
+              }
+            });
+          }
+
+          // ---------- Assessments: no marks entered ----------
+          const aData = safeCall(() => window.__getAssessmentsData && window.__getAssessmentsData(), null);
+          if (aData && Array.isArray(aData.assessments)) {
+            const marks = Array.isArray(aData.marks) ? aData.marks : [];
+            const pending = aData.assessments.filter(a => !marks.some(m => m.assessmentId === a.id));
+            if (pending.length) {
+              const names = pending.slice(0, 3).map(a => a.name).join(', ');
+              items.push({
+                type: 'info', icon: '📝',
+                title: `${pending.length} assessment${pending.length > 1 ? 's' : ''} awaiting marks`,
+                desc: `No marks entered yet for: ${esc(names)}${pending.length > 3 ? '…' : ''}`,
+                actionLabel: 'Go to Assessments', actionTab: 'tab5'
+              });
+            }
+          }
+
+          // ---------- Fee balances ----------
+          const cache = safeCall(() => (typeof studentsCache !== 'undefined' ? studentsCache : null), null);
+          const balanceFn = safeCall(() => (typeof getCurrentBalance === 'function' ? getCurrentBalance : null), null);
+          if (cache && balanceFn) {
+            const withBalance = getActiveNonGraduatedBalances();
+            if (withBalance.length) {
+              const total = withBalance.reduce((t, s) => t + s.Balance, 0);
+              items.push({
+                type: 'info', icon: '🎓',
+                title: `${withBalance.length} student${withBalance.length > 1 ? 's' : ''} with an outstanding fee balance`,
+                desc: `${money(total)} owed in total across affected students.`,
+                actionLabel: 'Go to Fee Balance', actionTab: 'tab2',
+                extraActions: [
+                  { label: '🖨️ Print Balance List', handler: 'printBalanceList' },
+                  { label: '✉️ Send Notification Letters', handler: 'sendBalanceLetters' }
+                ]
+              });
+            }
+          }
+
+          return items;
+        }
+
+        // Active, non-graduated students, with their current fee balance.
+        // Reuses the same class/status filter already used elsewhere in the app
+        // (see #printStudents2) so "active students who have not graduated" stays consistent.
+        function getActiveNonGraduatedBalances() {
+          const cache = safeCall(() => (typeof studentsCache !== 'undefined' ? studentsCache : null), null);
+          const balanceFn = safeCall(() => (typeof getCurrentBalance === 'function' ? getCurrentBalance : null), null);
+          if (!cache || !balanceFn) return [];
+          return Object.entries(cache)
+            .filter(([, student]) => {
+              const cls = String(student.class || '').trim().toLowerCase();
+              const status = String(student.Status || 'Active').trim().toLowerCase();
+              return cls !== 'graduate' && status === 'active';
+            })
+            .map(([admissionNumber, student]) => {
+              const raw = safeCall(() => balanceFn(admissionNumber), '0');
+              const balance = raw === 'Sponsored' ? 0 : (parseFloat(String(raw).replace(/,/g, '')) || 0);
+              return {
+                Admission_No: admissionNumber,
+                Name: student.name || '',
+                Grade: student.class || '',
+                Balance: balance
+              };
+            })
+            .filter(s => s.Balance > 0)
+            .sort((a, b) => {
+              const gradeCompare = String(a.Grade || '').localeCompare(String(b.Grade || ''), undefined, { numeric: true, sensitivity: 'base' });
+              if (gradeCompare !== 0) return gradeCompare;
+              return (a.Name || '').localeCompare(b.Name || '');
+            });
+        }
+
+        // "Print Balance List" — reuse the app's existing print button/logic
+        // (#printStudents2) so formatting/sorting stays identical everywhere.
+        function printBalanceList() {
+          const btn = document.getElementById('printStudents2');
+          if (btn) { btn.click(); return; }
+          // Fallback: post a minimal balance list directly if the button isn't present.
+          const list = getActiveNonGraduatedBalances();
+          if (!list.length) { alert('No active students with a balance to print.'); return; }
+          if (window.chrome?.webview?.postMessage) {
+            window.chrome.webview.postMessage({
+              action: 'PRINT_BALANCE_LIST',
+              title: 'FEE BALANCE LIST',
+              balances: list
+            });
+          }
+        }
+
+        // "Send Notification Letters" — Admission No, Name & Balance for every
+        // active, non-graduated student with an outstanding balance.
+        const LETTER_MESSAGE_MAX_LENGTH = 300; // must match FeesBalanceNotificationPrinter.MaxCustomMessageLength
+
+        function sendBalanceLetters() {
+          const fullList = getActiveNonGraduatedBalances();
+          if (!fullList.length) { alert('No active students with a balance to notify.'); return; }
+          openMinBalanceModal(fullList);
+        }
+
+        // Styled "minimum balance + message" dialog used before sending
+        // notification letters. Falls back to native prompts if the modal
+        // markup is ever missing from the page.
+        function openMinBalanceModal(fullList) {
+          const modal = document.getElementById('minBalanceModal');
+          const input = document.getElementById('minBalanceInput');
+          const messageInput = document.getElementById('letterMessageInput');
+          const messageCounter = document.getElementById('letterMessageCounter');
+          const confirmBtn = document.getElementById('confirmMinBalanceBtn');
+          const cancelBtn = document.getElementById('cancelMinBalanceBtn');
+          const closeBtn = document.getElementById('closeMinBalanceModalBtn');
+
+          if (!modal || !input || !confirmBtn) {
+            const val = prompt('Send notification letters to students with a balance of at least how much?', '0');
+            if (val === null) return;
+            const minBalance = parseFloat(String(val).replace(/,/g, ''));
+            if (isNaN(minBalance) || minBalance < 0) { alert('Please enter a valid minimum balance amount.'); return; }
+            const msg = prompt(`Message to include on every letter (optional, max ${LETTER_MESSAGE_MAX_LENGTH} characters):`, '');
+            const message = (msg || '').slice(0, LETTER_MESSAGE_MAX_LENGTH);
+            dispatchBalanceLetters(fullList, minBalance, message);
+            return;
+          }
+
+          input.value = '0';
+          input.style.borderColor = '';
+          if (messageInput) messageInput.value = '';
+          if (messageCounter) messageCounter.textContent = `0 / ${LETTER_MESSAGE_MAX_LENGTH}`;
+          modal.classList.add('active');
+          setTimeout(() => { input.focus(); input.select(); }, 50);
+
+          const close = () => modal.classList.remove('active');
+
+          const updateCounter = () => {
+            if (!messageInput || !messageCounter) return;
+            messageCounter.textContent = `${messageInput.value.length} / ${LETTER_MESSAGE_MAX_LENGTH}`;
+          };
+          if (messageInput) messageInput.oninput = updateCounter;
+
+          const onConfirm = () => {
+            const minBalance = parseFloat(String(input.value).replace(/,/g, ''));
+            if (isNaN(minBalance) || minBalance < 0) {
+              input.style.borderColor = '#e0503c';
+              input.focus();
+              return;
+            }
+            const message = (messageInput?.value || '').trim().slice(0, LETTER_MESSAGE_MAX_LENGTH);
+            close();
+            dispatchBalanceLetters(fullList, minBalance, message);
+          };
+
+          confirmBtn.onclick = onConfirm;
+          cancelBtn.onclick = close;
+          if (closeBtn) closeBtn.onclick = close;
+          input.onkeydown = (e) => { if (e.key === 'Enter') onConfirm(); };
+        }
+
+        function dispatchBalanceLetters(fullList, minBalance, message) {
+          const list = fullList.filter(s => s.Balance >= minBalance);
+          if (!list.length) { alert(`No active students with a balance of at least ${money(minBalance)} to notify.`); return; }
+
+          if (!window.chrome?.webview?.postMessage) {
+            console.log('[no host] Would send balance notification letters:', list, 'message:', message);
+            return;
+          }
+          window.chrome.webview.postMessage({
+            action: 'SEND_BALANCE_NOTIFICATION_LETTERS',
+            title: 'FEE BALANCE NOTIFICATION LETTERS',
+            message: message || '',
+            students: list.map(s => ({
+              Admn: s.Admission_No,
+              Name: s.Name,
+              Grade: s.Grade,
+              Balance_Amount: s.Balance
+            }))
+          });
+          if (typeof toast === 'function') toast(`Notification letters sent for ${list.length} student${list.length > 1 ? 's' : ''}`);
+        }
+
+        function render() {
+          const el = feedEl();
+          if (!el) return;
+          let items = [];
+          try { items = buildNotifications(); } catch (err) { console.warn('Notifications build failed:', err); }
+
+          if (!items.length) {
+            el.innerHTML = `
+              <div class="notif-empty">
+                <div class="big">✅</div>
+                <p>You're all caught up — nothing needs your attention right now.</p>
+              </div>`;
+            return;
+          }
+
+          el.innerHTML = items.map(it => `
+            <div class="notif-item ${it.type}">
+              <div class="notif-icon">${it.icon}</div>
+              <div class="notif-body">
+                <strong>${esc(it.title)}</strong>
+                <p>${esc(it.desc)}</p>
+                <div class="notif-actions">
+                  <button type="button" class="notif-btn primary" data-goto="${it.actionTab}">${esc(it.actionLabel)}</button>
+                  ${(it.extraActions || []).map(a => `<button type="button" class="notif-btn" data-handler="${a.handler}">${esc(a.label)}</button>`).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('');
+
+          el.querySelectorAll('[data-goto]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const tabId = btn.getAttribute('data-goto');
+              if (tabId && typeof window.goToTabFromDashboard === 'function') {
+                window.goToTabFromDashboard(tabId);
+              }
+            });
+          });
+
+          const handlers = { printBalanceList, sendBalanceLetters };
+          el.querySelectorAll('[data-handler]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const fn = handlers[btn.getAttribute('data-handler')];
+              if (typeof fn === 'function') fn();
+            });
+          });
+        }
+
+        document.getElementById('refreshNotificationsBtn')?.addEventListener('click', render);
+        window.refreshNotificationsFeed = render;
+
+        // Initial render, deferred so Firebase-backed modules have a chance to load.
+        setTimeout(render, 1200);
+      })();
+
       function normalizeAdmission(raw) {
         if (!raw) return { key: '', display: '' };
         const trimmed = String(raw).trim();
@@ -6545,6 +7805,10 @@
 
       function notifyTabChanged(tabId, source = 'user') {
         try {
+          if (tabId === 'tab8' && typeof window.refreshNotificationsFeed === 'function') {
+            window.refreshNotificationsFeed();
+          }
+
           try { sessionStorage.setItem('acadia.activeTab', tabId); } catch (_) { }
 
           const allTabs = Array.from(document.querySelectorAll('.tab-btn'));
@@ -6577,7 +7841,10 @@
         tab3: document.getElementById('tab3'),
         tab4: document.getElementById('tab4'),
         tab5: document.getElementById('tab5'),
-        tab6: document.getElementById('tab6')
+        tab6: document.getElementById('tab6'),
+        tab7: document.getElementById('tab7'),
+        tab8: document.getElementById('tab8'),
+        tab9: document.getElementById('tab9')
       };
 
       tabx.forEach(tab => {
@@ -6605,6 +7872,13 @@
       });
 
       window.switchTab = function (tabId) {
+        // Note: this no longer requires a matching .tab-btn to exist in the
+        // header. Tab 2-6 buttons were removed from the UI, but the panels
+        // themselves and this function remain fully addressable so the C#
+        // host can still navigate to any tab programmatically
+        // (e.g. webView.ExecuteScriptAsync("switchTab('tab3')")).
+        if (!panelsx[tabId]) return false;
+
         closeAllDialogs();
         tabx.forEach(t => t.classList.remove('active'));
         Object.values(panelsx).forEach(p => {
@@ -6614,24 +7888,24 @@
         closeContextMenu();
 
         const targetTab = Array.from(tabx).find(t => t.getAttribute('data-tab') === tabId);
-        if (targetTab) {
-          targetTab.classList.add('active');
-          if (panelsx[tabId]) {
-            panelsx[tabId].classList.add('active');
-          }
+        if (targetTab) targetTab.classList.add('active');
 
-          notifyTabChanged(tabId, 'programmatic');
+        panelsx[tabId].classList.add('active');
 
-          // The active tab's table is only rebuilt on refresh when it's
-          // the visible one, so make sure the tab we just switched to
-          // is up to date.
-          if (typeof window.forceUIRefreshAfterWrite === 'function') {
-            requestAnimationFrame(() => window.forceUIRefreshAfterWrite());
-          }
-
-          return true;
+        if (tabId === 'tab9' && typeof window.refreshInstitutionProfileForm === 'function') {
+          window.refreshInstitutionProfileForm();
         }
-        return false;
+
+        notifyTabChanged(tabId, 'programmatic');
+
+        // The active tab's table is only rebuilt on refresh when it's
+        // the visible one, so make sure the tab we just switched to
+        // is up to date.
+        if (typeof window.forceUIRefreshAfterWrite === 'function') {
+          requestAnimationFrame(() => window.forceUIRefreshAfterWrite());
+        }
+
+        return true;
       };
 
       window.__tabPanels = panelsx;
@@ -6669,6 +7943,46 @@
       // SAVE / UPDATE STUDENT
       // ============================================================
       let _studentSaveInProgress = false;
+
+      // How long to wait on the network before telling the user, instead of
+      // leaving the dialog stuck on "Saving..." forever.
+      const NETWORK_CHECK_TIMEOUT_MS = 10000;   // reading from the server
+      const WRITE_CONFIRM_TIMEOUT_MS = 15000;   // server acknowledging a write
+      const _pendingStudentWrites = new Set();  // admission keys awaiting server ack
+
+      function withTimeout(promise, ms) {
+        return new Promise((resolve, reject) => {
+          const t = setTimeout(() => {
+            const e = new Error('Timed out waiting for the server');
+            e.code = 'save-timeout';
+            reject(e);
+          }, ms);
+          promise.then(v => { clearTimeout(t); resolve(v); },
+                       e => { clearTimeout(t); reject(e); });
+        });
+      }
+
+      function escapeStudentText(v) {
+        return String(v ?? '').replace(/[&<>"']/g, c =>
+          ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+
+      // Next admission number that is free on the SERVER (the local cache can be
+      // stale, e.g. when two computers register at the same time). Bounded probe.
+      async function findFreeAdmissionNumber() {
+        const m = /^(.*-)(\d+)$/.exec(getNextAdmissionNumber());
+        if (!m) return null;
+        let n = parseInt(m[2], 10);
+        for (let i = 0; i < 25; i++, n++) {
+          const candidate = `${m[1]}${n}`;
+          const key = candidate.replace(/\//g, '-');
+          if (studentsCache && studentsCache[key]) continue;
+          const snap = await withTimeout(
+            get(ref(db, `${schoolPath('Students')}/${key}`)), NETWORK_CHECK_TIMEOUT_MS);
+          if (!snap.exists()) return candidate;
+        }
+        return null;
+      }
 
       document.getElementById("saveStudent")?.addEventListener("click", async (e) => {
         e.preventDefault();
@@ -6798,7 +8112,13 @@
 
         // ── All good — proceed with save ─────────────────────────
         const admissionKey = admissionNumber.replace(/\//g, "-");
-        const studentRef = ref(db, `${schoolPath('Students')}/${admissionKey}`);
+        const isEditMode = saveBtn?.dataset.mode === 'edit' ||
+          (saveBtn?.textContent || '').trim() === 'Update';
+
+        if (_pendingStudentWrites.has(admissionKey)) {
+          showToast("This student is still being saved. Waiting for the server to confirm.", "warning", 5000);
+          return;
+        }
 
         _studentSaveInProgress = true;
         if (saveBtn) {
@@ -6808,10 +8128,46 @@
         }
 
         try {
-          const snapshot = await get(studentRef);
-          const existingStudent = snapshot.exists() ? snapshot.val() : null;
-          const isNewStudent = !existingStudent;
+          const studentRef = ref(db, `${schoolPath('Students')}/${admissionKey}`);
 
+          // 1. Does this admission number already exist? (server, then local cache)
+          let existingStudent = null;
+          try {
+            const snapshot = await withTimeout(get(studentRef), NETWORK_CHECK_TIMEOUT_MS);
+            existingStudent = snapshot.exists() ? snapshot.val() : null;
+          } catch (err) {
+            if (err && err.code === 'save-timeout') {
+              alert("Couldn't reach the server to check this admission number.\n\n" +
+                "Please check your internet connection and press Complete again.\nNothing has been saved.");
+              return;
+            }
+            throw err;
+          }
+          if (!existingStudent && studentsCache && studentsCache[admissionKey]) {
+            existingStudent = studentsCache[admissionKey];
+          }
+
+          // 2. A NEW registration must never overwrite an existing student.
+          if (existingStudent && !isEditMode) {
+            const auto = document.getElementById('autoGenerate');
+            if (auto && auto.checked) {
+              let free = null;
+              try { free = await findFreeAdmissionNumber(); } catch (_) { }
+              if (free) {
+                admissionEl.value = free;
+                showToast(`${escapeStudentText(admissionNumber)} was already taken. ` +
+                  `The number was changed to ${escapeStudentText(free)}. Please check and press Complete again.`,
+                  "warning", 6000);
+                return;
+              }
+            }
+            showToast(`Admission number ${escapeStudentText(admissionNumber)} is already used by another student. ` +
+              `Please enter a different number.`, "error", 6000);
+            flagInvalidField(admissionEl);
+            return;
+          }
+
+          const isNewStudent = !existingStudent;
           const studentClass = classEl.value;
 
           const studentData = {
@@ -6833,6 +8189,10 @@
             Exceptions: existingStudent?.Exceptions || {},
             lastPayment: existingStudent?.lastPayment ?? null
           };
+
+          // 3. Build ONE multi-path update so the student and the admission fee
+          //    record are saved together or not at all (no orphaned fee record).
+          const updates = {};
 
           if (isNewStudent) {
             const admissionCharges = getAdmissionCharges(studentClass);
@@ -6874,16 +8234,48 @@
               ReceiptNo: "Admission",
             };
 
-            try {
-              const newRef = await push(ref(db, `${schoolPath('Fee_payment')}/`), admissionPayment);
-              admissionPayment.key = newRef.key;
-              studentData.lastPayment = admissionPayment;
-            } catch (err) {
-              console.error("Admission fee write failed:", err);
-              throw err;
-            }
+            // push(ref) with no value only reserves a key; nothing is written yet.
+            const paymentKey = push(ref(db, schoolPath('Fee_payment'))).key;
+            updates[`${schoolPath('Fee_payment')}/${paymentKey}`] = admissionPayment;
+            studentData.lastPayment = { ...admissionPayment, key: paymentKey };
           }
-          await set(studentRef, studentData);
+          updates[`${schoolPath('Students')}/${admissionKey}`] = studentData;
+
+          // 4. Write, but never leave the user stuck on "Saving..." if the
+          //    connection is slow or down. Firebase keeps the write queued and
+          //    sends it when the connection returns.
+          _pendingStudentWrites.add(admissionKey);
+          let writePromise;
+          let outcome;
+          try {
+            // update() can throw immediately (e.g. an invalid character in a
+            // typed admission number), so it must be inside this try.
+            writePromise = update(ref(db), updates);
+            outcome = await Promise.race([
+              writePromise.then(() => 'confirmed'),
+              new Promise(res => setTimeout(() => res('unconfirmed'), WRITE_CONFIRM_TIMEOUT_MS))
+            ]);
+          } catch (err) {
+            _pendingStudentWrites.delete(admissionKey);
+            throw err;
+          }
+
+          if (outcome === 'confirmed') {
+            _pendingStudentWrites.delete(admissionKey);
+          } else {
+            writePromise.then(() => {
+              _pendingStudentWrites.delete(admissionKey);
+              showToast(`${escapeStudentText(name)} has now been saved to the server.`, "success", 6000);
+            }).catch(err => {
+              _pendingStudentWrites.delete(admissionKey);
+              console.error("Delayed student save failed:", err);
+              alert(`Saving ${name} failed:\n` + (err && err.message ? err.message : err));
+            });
+            alert(`The server has not confirmed the save of ${name} yet.\n\n` +
+              `The record is kept on this computer and will be sent automatically ` +
+              `when the connection returns. Please keep the app open until you see ` +
+              `the "saved to the server" message.`);
+          }
 
           if (typeof window.forceUIRefreshAfterWrite === 'function') {
             window.forceUIRefreshAfterWrite();
@@ -8249,7 +9641,13 @@
           // letting per-row fee functions scan the entire payments list.
           rebuildPaymentIndex();
 
-          const activeTabId = document.querySelector('.tab-btn.active')?.getAttribute('data-tab');
+          // Read the active tab from the panel itself, not the header
+          // button — tabs without a header button (tab3, tab4, tab8, tab9)
+          // never get a matching '.tab-btn.active', which used to make
+          // this always resolve to undefined for them and silently skip
+          // their data refresh (e.g. Classes/Terms grids staying empty).
+          const activePanel = document.querySelector('.tab-panel.active');
+          const activeTabId = activePanel ? activePanel.id : document.querySelector('.tab-btn.active')?.getAttribute('data-tab');
           const isFirstRender = !uiInitialRenderDone;
 
           if (activeTabId === 'tab1' || isFirstRender) {
@@ -8337,6 +9735,7 @@
 
       let classData = [];
       let terms = [];
+      window.__getTermsData = () => terms;
 
       const Termgrid = document.getElementById('termGrid');
       const totalTermsSpan = document.getElementById('totalTerms');
@@ -8561,6 +9960,10 @@
 
       let editingClassKey = null;
 
+      window.setEditingClassKey = function (key) {
+        editingClassKey = key;
+      };
+
       window.openClassModalForEdit = function (key) {
         const cls = classData.find(c => c.key === key);
         if (!cls) return;
@@ -8582,7 +9985,7 @@
         document.getElementById('modalOverlay').classList.add('active');
       };
 
-      function openClassModalForAdd() {
+      window.openClassModalForAdd = function () {
         editingClassKey = null;
 
         document.getElementById('gradeInput').value = '';
@@ -8598,7 +10001,7 @@
         if (title) title.innerHTML = '<i class="fas fa-plus-circle"></i> New class';
 
         document.getElementById('modalOverlay').classList.add('active');
-      }
+      };
 
       window.deleteClass = async function (key) {
         const cls = classData.find(c => c.key === key);
@@ -8954,6 +10357,7 @@
           const btn = document.getElementById("saveStudent");
           const auto = document.getElementById("autoGenerate");
           if (btn) btn.textContent = "Update";
+          if (btn) btn.dataset.mode = 'edit';   // lets the save handler tell "edit" from "new"
           if (auto) auto.disabled = true;
         }
         return s;
@@ -10786,12 +12190,12 @@
           showToast('Data exported successfully');
         };
 
-        window.showToast = function (message, type = 'success') {
+        window.showToast = function (message, type = 'success', duration = 3000) {
           const t = document.createElement('div');
           t.className = `toast ${type === 'error' ? 'toast-error' : (type === 'warning' ? 'toast-warning' : '')}`;
           t.innerHTML = `<span>${type === 'error' ? '❌' : (type === 'warning' ? '⚠️' : '✅')}</span> ${message}`;
           document.body.appendChild(t);
-          setTimeout(() => t.remove(), 3000);
+          setTimeout(() => t.remove(), duration);
         };
 
         window.closeModal = function (id) {
@@ -11239,6 +12643,8 @@
           URL.revokeObjectURL(url);
           showToast('Import template downloaded successfully');
         };
+
+        window.__getAssessmentsData = () => ({ assessments, marks, students });
       })();
 
       // ============================================================
@@ -12437,6 +13843,2074 @@
         updateWelcomeText();
       });
 
+      
+      // ============================================================
+      // STAFF & PAYROLL MODULE
+      // ============================================================
+// ============================================================
+// STAFF & PAYROLL MODULE (single-file integration)
+// Wrapped in its own IIFE so its internal variable/function names
+// (state, render, toast, money, set, etc.) never collide with the
+// rest of this document's script. Persistence goes through the
+// same Firebase Realtime Database instance and SCHOOL_BASE school
+// context already set up above, under Institution/Schools/{id}/Payroll.
+// ============================================================
+(function () {
+  'use strict';
+
+  const fbDb = db;
+  const fbRef = ref;
+  const fbSet = set;
+  const fbGet = get;
+  const fbRemove = remove;
+  const fbPush = push;
+  const fbUpdate = update;
+  const fbOnValue = onValue;
+  function fbSchoolPath(sub) { return schoolPath(sub); }
+  function fbHasSchool() { return !!SCHOOL_BASE; }
+
+/* ================================================================
+   SHULE PAYROLL v3
+   - Cash / Bank / M-Pesa payments
+   - Salary advances (recovered automatically)
+   - Pay button per payroll row:
+        paid > payable  → excess becomes an ADVANCE (staff owes school)
+        paid < payable  → shortfall tracked as school still OWES staff
+   ================================================================ */
+
+const PAYE_BANDS = [
+  { upTo: 24000,   rate: 0.10  },
+  { upTo: 32333,   rate: 0.25  },
+  { upTo: 500000,  rate: 0.30  },
+  { upTo: 800000,  rate: 0.325 },
+  { upTo: null,    rate: 0.35  }
+];
+
+const PAYMENT_METHODS = ['Bank Transfer', 'Cash', 'M-Pesa'];
+
+const DEFAULT_SETTINGS = {
+  personalRelief: 2400,
+  payeEnabled: true,
+  nssfEnabled: true,
+  shifEnabled: true,
+  housingEnabled: true,
+  nssfRate: 0.06,
+  nssfTier1Limit: 8000,
+  nssfTier2Limit: 72000,
+  shifRate: 0.0275,
+  shifMin: 300,
+  housingRate: 0.015
+};
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let state = {
+  settings: { ...DEFAULT_SETTINGS },
+  staff: [],
+  advances: [],
+  payments: [],   // { id, staffId, month, amount, applied, excess, date, method, note, advanceId }
+  payrolls: {}
+};
+
+let currentView = 'dashboard';
+let currentPayrollMonth = new Date().toISOString().slice(0, 7);
+
+/* ================================================================
+   PERSISTENCE — Firebase Realtime Database
+   Staff, advances, payments, payroll runs and settings are all
+   stored as one JSON object per school at Institution/Schools/{id}/Payroll,
+   mirroring the SCHOOL_BASE-scoped pattern used elsewhere in this app.
+   ================================================================ */
+let _payrollUnsub = null;
+let _payrollSaveTimer = null;
+let _payrollReady = false;
+
+function payrollRef() {
+  return fbRef(fbDb, fbSchoolPath('Payroll'));
+}
+
+function saveState() {
+  if (!fbHasSchool()) return;
+  // Small debounce so rapid successive edits (e.g. typing) don't spam writes.
+  clearTimeout(_payrollSaveTimer);
+  _payrollSaveTimer = setTimeout(() => {
+    fbSet(payrollRef(), state).catch(e => {
+      console.error('Payroll save failed', e);
+      toast('Failed to save to server', true);
+    });
+  }, 150);
+}
+
+function seedDefaultState() {
+  state.settings = { ...DEFAULT_SETTINGS };
+  state.staff = [];
+  state.advances = [];
+  state.payments = [];
+  state.payrolls = {};
+}
+
+function applyRemoteState(p) {
+  p = p || {};
+  state.settings = { ...DEFAULT_SETTINGS, ...(p.settings || {}) };
+  const toArr = v => Array.isArray(v) ? v : (v && typeof v === 'object' ? Object.values(v) : []);
+  state.staff    = toArr(p.staff);
+  state.advances = toArr(p.advances);
+  state.payments = toArr(p.payments);
+  state.payrolls = p.payrolls || {};
+  state.staff.forEach(s => { if (!s.paymentMethod) s.paymentMethod = 'Bank Transfer'; });
+}
+
+// Called by index.html's window.__initSchool() once a school is loaded,
+// the same way assessments/transcripts attach their own listeners.
+function attachPayrollListeners() {
+  if (_payrollUnsub) { try { _payrollUnsub(); } catch (_) { } _payrollUnsub = null; }
+  if (!fbHasSchool()) return;
+
+  _payrollUnsub = fbOnValue(payrollRef(), (snapshot) => {
+    if (snapshot.exists()) {
+      applyRemoteState(snapshot.val());
+    } else {
+      seedDefaultState();
+      saveState();
+    }
+    _payrollReady = true;
+    render();
+  }, (error) => {
+    console.error('Realtime payroll error:', error);
+    toast('Failed to load staff & payroll data', true);
+  });
+}
+
+function uid() {
+  return 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const money = n => 'KES ' + (Number(n) || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const num = n => (Number(n) || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+function monthLabel(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-');
+  return new Date(Number(y), Number(m) - 1, 1)
+    .toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+// Institution details come from the school's own profile (set up once for
+// the whole app at signup/school-creation), not from a payroll-specific
+// copy — so payslips/registers always match the real school name.
+function schoolDisplayName() {
+  return (window.__schoolContext && window.__schoolContext.name) || 'School';
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function toast(msg, isErr = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 2800);
+}
+
+function totalAllowances(s) {
+  return r2((+s.houseAllowance || 0) + (+s.transportAllowance || 0) + (+s.otherAllowance || 0));
+}
+function grossOf(s) { return r2((+s.basicSalary || 0) + totalAllowances(s)); }
+
+/* ---- Advance helpers ---- */
+function advanceBalance(staffId) {
+  return r2(state.advances
+    .filter(a => a.staffId === staffId && a.balance > 0)
+    .reduce((t, a) => t + a.balance, 0));
+}
+function staffWithAdvances() {
+  const set = new Set();
+  state.advances.forEach(a => { if (a.balance > 0) set.add(a.staffId); });
+  return set.size;
+}
+
+/* ---- Payment helpers ---- */
+/** Amount applied to a specific payroll month (capped at the month's payable) */
+function paidFor(staffId, month) {
+  const totalPaid = state.payments
+    .filter(p => p.staffId === staffId && p.month === month)
+    .reduce((t, p) => t + p.amount, 0);
+
+  const run = state.payrolls[month];
+  if (!run) return r2(totalPaid);
+  const rec = run.records.find(r => r.staffId === staffId);
+  if (!rec) return r2(totalPaid);
+
+  const payable = rec.amountPayable ?? rec.net;
+  return r2(Math.min(totalPaid, payable)); // excess already moved to advances
+}
+
+/** Payable for a staff in a month (null if no payroll) */
+function payableFor(staffId, month) {
+  const run = state.payrolls[month];
+  if (!run) return null;
+  const rec = run.records.find(r => r.staffId === staffId);
+  if (!rec) return null;
+  return r2(rec.amountPayable ?? rec.net);
+}
+
+/** Balance still owed to staff for a month */
+function balanceFor(staffId, month) {
+  const payable = payableFor(staffId, month);
+  if (payable === null) return null;
+  const paid = paidFor(staffId, month);
+  return r2(Math.max(0, payable - paid));
+}
+
+function paymentStatus(staffId, month) {
+  const payable = payableFor(staffId, month);
+  if (payable === null) return null;
+  const paid = paidFor(staffId, month);
+  if (paid <= 0) return 'Unpaid';
+  if (paid >= payable) return 'Paid';
+  return 'Partial';
+}
+
+/** Total the institution still owes all staff across all months */
+function totalOwedToStaff() {
+  let total = 0;
+  Object.values(state.payrolls).forEach(run => {
+    run.records.forEach(rec => {
+      const payable = rec.amountPayable ?? rec.net;
+      const paid = paidFor(rec.staffId, run.month);
+      const bal = r2(payable - paid);
+      if (bal > 0) total += bal;
+    });
+  });
+  return r2(total);
+}
+
+/** Total owed to a single staff member (all months) */
+function staffOwed(staffId) {
+  let total = 0;
+  Object.values(state.payrolls).forEach(run => {
+    const rec = run.records.find(r => r.staffId === staffId);
+    if (!rec) return;
+    const payable = rec.amountPayable ?? rec.net;
+    const paid = paidFor(staffId, run.month);
+    const bal = r2(payable - paid);
+    if (bal > 0) total += bal;
+  });
+  return r2(total);
+}
+
+/** Count of staff/month pairs with an outstanding balance */
+function unpaidCount() {
+  let n = 0;
+  Object.values(state.payrolls).forEach(run => {
+    run.records.forEach(rec => {
+      const payable = rec.amountPayable ?? rec.net;
+      const paid = paidFor(rec.staffId, run.month);
+      if (r2(payable - paid) > 0) n++;
+    });
+  });
+  return n;
+}
+
+/* ================================================================
+   PAYROLL ENGINE
+   ================================================================ */
+function computePaye(taxable, bands = PAYE_BANDS) {
+  let tax = 0, remaining = Math.max(0, taxable), lower = 0;
+  for (const b of bands) {
+    if (remaining <= 0) break;
+    const width = (b.upTo === null || b.upTo === undefined) ? Infinity : b.upTo - lower;
+    const slice = Math.min(remaining, width);
+    tax += slice * b.rate;
+    remaining -= slice;
+    lower = b.upTo;
+  }
+  return r2(tax);
+}
+function computeNssf(gross, set) {
+  const t1 = Math.min(gross, set.nssfTier1Limit) * set.nssfRate;
+  const t2 = Math.max(0, Math.min(gross, set.nssfTier2Limit) - set.nssfTier1Limit) * set.nssfRate;
+  return r2(t1 + t2);
+}
+function computePayroll(staff, set) {
+  const basic = r2(staff.basicSalary || 0);
+  const allowances = totalAllowances(staff);
+  const gross = r2(basic + allowances);
+  const nssf    = set.nssfEnabled    ? computeNssf(gross, set) : 0;
+  const shif    = set.shifEnabled    ? r2(Math.max(gross * set.shifRate, set.shifMin)) : 0;
+  const housing = set.housingEnabled ? r2(gross * set.housingRate) : 0;
+  const taxable = r2(Math.max(0, gross - nssf - shif - housing));
+  const paye = set.payeEnabled ? r2(Math.max(0, computePaye(taxable) - set.personalRelief)) : 0;
+  const deductions = r2(nssf + shif + housing + paye);
+  const net = r2(gross - deductions);
+  return { basic, allowances, gross, nssf, shif, housing, taxable, paye, deductions, net };
+}
+
+function planAdvanceRecovery(staffId, netPay) {
+  const active = state.advances
+    .filter(a => a.staffId === staffId && a.balance > 0)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (!active.length || netPay <= 0) return { recovery: 0, allocations: [] };
+  let remainingNet = netPay, total = 0;
+  const allocations = [];
+  for (const adv of active) {
+    if (remainingNet <= 0) break;
+    const scheduled = (+adv.monthlyRecovery > 0)
+      ? Math.min(+adv.monthlyRecovery, adv.balance)
+      : adv.balance;
+    const take = Math.min(scheduled, remainingNet, adv.balance);
+    if (take > 0) {
+      allocations.push({ advanceId: adv.id, amount: r2(take) });
+      total += take;
+      remainingNet -= take;
+    }
+  }
+  return { recovery: r2(total), allocations };
+}
+
+function reverseAdvanceRecoveries(month) {
+  const run = state.payrolls[month];
+  if (!run || !Array.isArray(run.records)) return;
+  run.records.forEach(rec => {
+    (rec.advanceAllocations || []).forEach(al => {
+      const adv = state.advances.find(a => a.id === al.advanceId);
+      if (adv) adv.balance = r2(adv.balance + al.amount);
+    });
+  });
+}
+
+/* ================================================================
+   VIEWS
+   ================================================================ */
+const VIEW_META = {
+  dashboard: { title: 'Dashboard',         sub: 'Overview of staff, payments and payroll' },
+  staff:     { title: 'Staff',             sub: 'Manage teaching and non-teaching staff' },
+  advances:  { title: 'Salary Advances',   sub: 'Track advances and recover them through payroll' },
+  payroll:   { title: 'Payroll',           sub: 'Generate payroll and record payments' },
+  payments:  { title: 'Payments',          sub: 'Payment history and outstanding balances' },
+  settings:  { title: 'Settings',          sub: 'Institution details and statutory rates' }
+};
+
+function render() {
+  const meta = VIEW_META[currentView];
+  document.getElementById('pageTitle').textContent = meta.title;
+  document.getElementById('pageSub').textContent = meta.sub;
+  document.querySelectorAll('#nav button').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === currentView));
+
+  // badges
+  const advBadge = document.getElementById('advBadge');
+  const activeAdv = state.advances.filter(a => a.balance > 0).length;
+  if (advBadge) { advBadge.style.display = activeAdv ? '' : 'none'; advBadge.textContent = activeAdv; }
+
+  const payBadge = document.getElementById('payBadge');
+  const unpaid = unpaidCount();
+  if (payBadge) { payBadge.style.display = unpaid ? '' : 'none'; payBadge.textContent = unpaid; }
+
+  const host = document.getElementById('views');
+  const actions = document.getElementById('topbarActions');
+
+  if (currentView === 'dashboard') { host.innerHTML = viewDashboard(); actions.innerHTML = ''; fitDashboardHeight(); }
+  if (currentView === 'staff') {
+    actions.innerHTML = `<button class="btn btn-primary" data-action="add-staff">${ico('plus')} Add Staff</button>`;
+    host.innerHTML = viewStaff();
+  }
+  if (currentView === 'advances') {
+    actions.innerHTML = `<button class="btn btn-primary" data-action="add-advance">${ico('plus')} Issue Advance</button>`;
+    host.innerHTML = viewAdvances();
+  }
+  if (currentView === 'payroll') { actions.innerHTML = ''; host.innerHTML = viewPayroll(); }
+  if (currentView === 'payments') { actions.innerHTML = ''; host.innerHTML = viewPayments(); }
+  if (currentView === 'settings') { actions.innerHTML = ''; host.innerHTML = viewSettings(); }
+}
+
+// Keeps the dashboard pinned to a fixed height (bottom of viewport), so it
+// never grows the page as more payroll runs accumulate — the runs table
+// scrolls internally instead.
+function fitDashboardHeight() {
+  const el = document.querySelector('.dashboard-view');
+  if (!el) return;
+  el.classList.remove('dv-scroll');
+  el.style.height = '';
+  const top = el.getBoundingClientRect().top;
+  const h = window.innerHeight - top - 22;
+  const MIN_USABLE = 380; // below this, compacting further would clip content
+  if (h < MIN_USABLE) {
+    el.classList.add('dv-scroll'); // fall back to normal page scroll
+  } else {
+    el.style.height = h + 'px';
+  }
+}
+window.addEventListener('resize', () => { if (currentView === 'dashboard') fitDashboardHeight(); });
+
+function ico(name) {
+  const icons = {
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>',
+    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+    cash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+    bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 10v11M20 10v11M12 3L2 9h20L12 3zM8 10v11M16 10v11"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    pay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+  };
+  return icons[name] || '';
+}
+
+function pmIcon(method) {
+  if (method === 'Cash')   return { cls:'pm-cash',  icon: ico('cash')  };
+  if (method === 'M-Pesa') return { cls:'pm-mpesa', icon: ico('phone') };
+  return { cls:'pm-bank', icon: ico('bank') };
+}
+function pmTag(method) {
+  const m = method || 'Bank Transfer';
+  const { cls, icon } = pmIcon(m);
+  return `<span class="pm ${cls}">${icon}${esc(m)}</span>`;
+}
+
+function statusPill(status) {
+  if (!status) return '<span class="pill pill-grey">—</span>';
+  if (status === 'Paid')    return '<span class="pill pill-green">Paid</span>';
+  if (status === 'Partial') return '<span class="pill pill-amber">Partial</span>';
+  if (status === 'Unpaid')  return '<span class="pill pill-red">Unpaid</span>';
+  return `<span class="pill pill-grey">${esc(status)}</span>`;
+}
+
+/* ---------------------------------------------------------------
+   DASHBOARD
+   --------------------------------------------------------------- */
+function viewDashboard() {
+  const active = state.staff.filter(s => s.status === 'Active');
+  const teaching = active.filter(s => s.category === 'Teaching').length;
+  const nonTeaching = active.length - teaching;
+  const monthlyGross = active.reduce((t, s) => t + grossOf(s), 0);
+  const sampleNet = active.reduce((t, s) => t + computePayroll(s, state.settings).net, 0);
+
+  const advOutstanding = r2(state.advances.filter(a => a.balance > 0).reduce((t, a) => t + a.balance, 0));
+  const advStaff = staffWithAdvances();
+  const owedToStaff = totalOwedToStaff();
+  const unpaidItems = unpaidCount();
+  const totalPaidOut = r2(state.payments.reduce((t, p) => t + p.amount, 0));
+
+  const runs = Object.keys(state.payrolls).sort().reverse();
+
+  return `
+    <div class="dashboard-view">
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Active Staff</div>
+        <div class="value">${active.length}</div>
+        <div class="sub">${teaching} teaching · ${nonTeaching} non-teaching</div>
+      </div>
+      <div class="stat alt">
+        <div class="label">Monthly Gross</div>
+        <div class="value">${money(monthlyGross)}</div>
+        <div class="sub">Estimated net ${money(sampleNet)}</div>
+      </div>
+      <div class="stat alt2">
+        <div class="label">Advances Outstanding</div>
+        <div class="value">${money(advOutstanding)}</div>
+        <div class="sub">${advStaff} staff owe the institution</div>
+      </div>
+      <div class="stat alt4">
+        <div class="label">Institution Owes Staff</div>
+        <div class="value">${money(owedToStaff)}</div>
+        <div class="sub">${unpaidItems} unpaid / partial payroll item(s)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Payment Summary</h2>
+        <button class="btn btn-sm" data-action="goto-payments">Open Payments</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th class="num">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Total recorded payouts</td><td class="num"><strong>${money(totalPaidOut)}</strong></td></tr>
+            <tr><td>Still owed to staff</td><td class="num"><strong style="color:#c0392b">${money(owedToStaff)}</strong></td></tr>
+            <tr><td>Advances recoverable from staff</td><td class="num"><strong style="color:#92610e">${money(advOutstanding)}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card card-grow">
+      <div class="card-head"><h2>Payroll Runs</h2></div>
+      ${runs.length ? `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th><th class="num">Employees</th><th class="num">Gross</th>
+              <th class="num">Statutory</th><th class="num">Advances</th>
+              <th class="num">Payable</th><th class="num">Paid</th>
+              <th class="num">Balance</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${runs.map(m => {
+              const run = state.payrolls[m];
+              const g = run.records.reduce((t, r) => t + r.gross, 0);
+              const d = run.records.reduce((t, r) => t + r.deductions, 0);
+              const adv = run.records.reduce((t, r) => t + (r.advanceRecovery || 0), 0);
+              const pay = run.records.reduce((t, r) => t + (r.amountPayable ?? r.net), 0);
+              const paid = run.records.reduce((t, r) => t + paidFor(r.staffId, m), 0);
+              const bal = r2(pay - paid);
+              return `<tr>
+                <td><strong>${monthLabel(m)}</strong></td>
+                <td class="num">${run.records.length}</td>
+                <td class="num">${money(g)}</td>
+                <td class="num">${money(d)}</td>
+                <td class="num">${money(adv)}</td>
+                <td class="num">${money(pay)}</td>
+                <td class="num">${money(paid)}</td>
+                <td class="num">${bal > 0
+                    ? `<span class="pill pill-red">${num(bal)}</span>`
+                    : `<span class="pill pill-green">Settled</span>`}</td>
+                <td class="actions">
+                  <button class="btn btn-sm" data-action="open-run" data-month="${m}">View</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : `
+      <div class="empty">
+        ${ico('doc')}
+        <h3>No payroll runs yet</h3>
+        <p>Generate your first payroll to start recording payments.</p>
+        <button class="btn btn-primary" data-action="goto-payroll">Go to Payroll</button>
+      </div>`}
+    </div>
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   STAFF
+   --------------------------------------------------------------- */
+let staffSearch = '';
+function viewStaff() {
+  const q = staffSearch.trim().toLowerCase();
+  const list = state.staff.filter(s => {
+    if (!q) return true;
+    return [s.name, s.role, s.department, s.phone, s.email, s.idNo, s.paymentMethod]
+      .some(v => String(v || '').toLowerCase().includes(q));
+  });
+
+  return `
+    <div class="card">
+      <div class="card-head">
+        <div class="search">
+          ${ico('search')}
+          <input type="search" id="staffSearch" placeholder="Search name, ID no, role, department…" value="${esc(staffSearch)}">
+        </div>
+        <div style="font-size:12.5px;color:var(--muted)">${list.length} of ${state.staff.length} staff</div>
+      </div>
+      ${list.length ? `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID No</th><th>Name</th><th>Role</th><th>Department</th>
+              <th>Payment</th><th class="num">Gross</th>
+              <th class="num">Advance Owed</th>
+              <th class="num">School Owes</th>
+              <th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(s => {
+              const advBal = advanceBalance(s.id);
+              const owed = staffOwed(s.id);
+              return `
+              <tr>
+                <td><strong>${esc(s.idNo)}</strong></td>
+                <td>${esc(s.name)}</td>
+                <td>${esc(s.role)}</td>
+                <td>${esc(s.department)}</td>
+                <td>${pmTag(s.paymentMethod)}</td>
+                <td class="num"><strong>${num(grossOf(s))}</strong></td>
+                <td class="num">${advBal > 0
+                  ? `<span class="pill pill-amber">${num(advBal)}</span>`
+                  : '<span style="color:var(--muted)">—</span>'}</td>
+                <td class="num">${owed > 0
+                  ? `<span class="pill pill-red">${num(owed)}</span>`
+                  : '<span style="color:var(--muted)">—</span>'}</td>
+                <td><span class="pill ${s.status === 'Active' ? 'pill-green' : 'pill-red'}">${esc(s.status)}</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-ghost" title="Edit" data-action="edit-staff" data-id="${s.id}">${ico('edit')}</button>
+                  <button class="btn btn-sm btn-ghost" title="Delete" data-action="delete-staff" data-id="${s.id}" style="color:var(--danger)">${ico('trash')}</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : `
+      <div class="empty">
+        ${ico('users')}
+        <h3>${state.staff.length ? 'No matching staff' : 'No staff records yet'}</h3>
+        <p>${state.staff.length ? 'Try a different search term.' : 'Add your teaching and non-teaching staff to start running payroll.'}</p>
+        ${state.staff.length ? '' : `<button class="btn btn-primary" data-action="add-staff">${ico('plus')} Add Staff</button>`}
+      </div>`}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   ADVANCES
+   --------------------------------------------------------------- */
+let advFilter = 'outstanding';
+function viewAdvances() {
+  const all = state.advances.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const list = all.filter(a => {
+    if (advFilter === 'outstanding') return a.balance > 0;
+    if (advFilter === 'settled')     return a.balance <= 0;
+    return true;
+  });
+
+  const outstanding = r2(all.filter(a => a.balance > 0).reduce((t, a) => t + a.balance, 0));
+  const issued = r2(all.reduce((t, a) => t + a.amount, 0));
+  const recovered = r2(all.reduce((t, a) => t + (a.amount - a.balance), 0));
+
+  return `
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Total Issued</div>
+        <div class="value">${money(issued)}</div>
+        <div class="sub">${all.length} advance record(s)</div>
+      </div>
+      <div class="stat alt2">
+        <div class="label">Outstanding Balance</div>
+        <div class="value">${money(outstanding)}</div>
+        <div class="sub">${staffWithAdvances()} staff affected</div>
+      </div>
+      <div class="stat alt3">
+        <div class="label">Recovered So Far</div>
+        <div class="value">${money(recovered)}</div>
+        <div class="sub">Deducted through payroll</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Advance Records</h2>
+        <div class="toolbar">
+          <select id="advFilter" style="padding:8px 11px;border:1px solid var(--line);border-radius:8px">
+            <option value="outstanding" ${advFilter === 'outstanding' ? 'selected' : ''}>Outstanding only</option>
+            <option value="settled"     ${advFilter === 'settled'     ? 'selected' : ''}>Fully recovered</option>
+            <option value="all"         ${advFilter === 'all'         ? 'selected' : ''}>All records</option>
+          </select>
+        </div>
+      </div>
+      ${list.length ? `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Staff</th><th>Reason</th>
+              <th class="num">Amount</th><th class="num">Recovered</th>
+              <th class="num">Balance</th><th>Monthly Recovery</th>
+              <th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(a => {
+              const staff = state.staff.find(s => s.id === a.staffId);
+              const name = staff ? staff.name : '(deleted staff)';
+              const idNo = staff ? staff.idNo : '—';
+              const recAmt = r2(a.amount - a.balance);
+              const pct = a.amount > 0 ? Math.min(100, (recAmt / a.amount) * 100) : 0;
+              const settled = a.balance <= 0;
+              return `
+              <tr>
+                <td>${fmtDate(a.date)}</td>
+                <td><div><strong>${esc(name)}</strong></div>
+                  <div style="font-size:11.5px;color:var(--muted)">${esc(idNo)}</div></td>
+                <td>${esc(a.reason || '—')}</td>
+                <td class="num">${num(a.amount)}</td>
+                <td class="num">${num(recAmt)}
+                  <div class="bar ${settled ? '' : 'warn'}" style="width:70px;margin-left:auto">
+                    <span style="width:${pct}%"></span>
+                  </div>
+                </td>
+                <td class="num"><strong>${num(a.balance)}</strong></td>
+                <td>${a.monthlyRecovery > 0
+                    ? money(a.monthlyRecovery) + ' / month'
+                    : '<span style="color:var(--muted)">Full balance next payroll</span>'}</td>
+                <td>${settled
+                    ? '<span class="pill pill-green">Recovered</span>'
+                    : '<span class="pill pill-amber">Outstanding</span>'}</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-ghost" title="Edit" data-action="edit-advance" data-id="${a.id}">${ico('edit')}</button>
+                  <button class="btn btn-sm btn-ghost" title="Delete" data-action="delete-advance" data-id="${a.id}" style="color:var(--danger)">${ico('trash')}</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : `
+      <div class="empty">
+        ${ico('wallet')}
+        <h3>${advFilter === 'outstanding' ? 'No outstanding advances' : 'No advance records'}</h3>
+        <p>Issue a salary advance to a staff member, or overpay a payroll row to auto-create an advance.</p>
+        <button class="btn btn-primary" data-action="add-advance">${ico('plus')} Issue Advance</button>
+      </div>`}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   PAYROLL
+   --------------------------------------------------------------- */
+function viewPayroll() {
+  const month = currentPayrollMonth;
+  const run = state.payrolls[month];
+  const active = state.staff.filter(s => s.status === 'Active');
+
+  let body;
+  if (!run) {
+    body = `
+      <div class="empty">
+        ${ico('wallet')}
+        <h3>No payroll for ${monthLabel(month)}</h3>
+        <p>${active.length} active staff will be included. Statutory deductions and any outstanding salary advances will be applied automatically.</p>
+        <button class="btn btn-primary" data-action="generate-payroll" ${active.length ? '' : 'disabled'}>
+          ${ico('refresh')} Generate Payroll
+        </button>
+      </div>`;
+  } else {
+    const tot = run.records.reduce((a, r) => {
+      a.gross += r.gross; a.deductions += r.deductions;
+      a.advance += (r.advanceRecovery || 0);
+      a.payable += (r.amountPayable ?? r.net);
+      return a;
+    }, { gross:0, deductions:0, advance:0, payable:0 });
+
+    const paidTotal = run.records.reduce((t, r) => t + paidFor(r.staffId, month), 0);
+    const balanceTotal = r2(tot.payable - paidTotal);
+
+    const cashTotal = run.records
+      .filter(r => (r.paymentMethod || 'Bank Transfer') === 'Cash')
+      .reduce((t, r) => t + (r.amountPayable ?? r.net), 0);
+    const cashCount = run.records.filter(r => (r.paymentMethod || 'Bank Transfer') === 'Cash').length;
+
+    body = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID No</th><th>Name</th><th>Payment</th>
+              <th class="num">Gross</th>
+              <th class="num">Statutory</th>
+              <th class="num">Advance</th>
+              <th class="num">Payable</th>
+              <th class="num">Paid</th>
+              <th class="num">Balance</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${run.records.map(r => {
+              const payable = r.amountPayable ?? r.net;
+              const paid = paidFor(r.staffId, month);
+              const bal = r2(Math.max(0, payable - paid));
+              const status = paymentStatus(r.staffId, month);
+              return `
+              <tr>
+                <td><strong>${esc(r.idNo)}</strong></td>
+                <td>${esc(r.name)}</td>
+                <td>${pmTag(r.paymentMethod)}</td>
+                <td class="num">${num(r.gross)}</td>
+                <td class="num">${num(r.deductions)}</td>
+                <td class="num">${(r.advanceRecovery || 0) > 0
+                  ? `<span class="pill pill-amber">${num(r.advanceRecovery)}</span>`
+                  : '<span style="color:var(--muted)">—</span>'}</td>
+                <td class="num"><strong>${num(payable)}</strong></td>
+                <td class="num">${num(paid)}</td>
+                <td class="num">${bal > 0
+                  ? `<strong style="color:#c0392b">${num(bal)}</strong>`
+                  : '<span style="color:var(--muted)">—</span>'}</td>
+                <td>${statusPill(status)}</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-success" data-action="pay" data-id="${r.staffId}" data-month="${month}">
+                    ${ico('pay')} Pay
+                  </button>
+                  <button class="btn btn-sm" data-action="payslip" data-id="${r.staffId}" data-month="${month}">Slip</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">TOTALS (${run.records.length})</td>
+              <td class="num">${num(tot.gross)}</td>
+              <td class="num">${num(tot.deductions)}</td>
+              <td class="num">${num(tot.advance)}</td>
+              <td class="num">${num(tot.payable)}</td>
+              <td class="num">${num(paidTotal)}</td>
+              <td class="num">${balanceTotal > 0
+                ? `<span style="color:#c0392b">${num(balanceTotal)}</span>`
+                : '<span style="color:#0a5540">0.00</span>'}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:18px">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fafcfb">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700">Paid So Far</div>
+          <div style="font-size:19px;font-weight:750;margin-top:5px;color:#0a5540">${money(paidTotal)}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px">of ${money(tot.payable)} payable</div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fafcfb">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700">Still Owed to Staff</div>
+          <div style="font-size:19px;font-weight:750;margin-top:5px;color:${balanceTotal > 0 ? '#c0392b' : '#0a5540'}">${money(balanceTotal)}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px">Across this payroll period</div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fafcfb">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700">Cash Payout</div>
+          <div style="font-size:19px;font-weight:750;margin-top:5px;color:#0a5540">${money(cashTotal)}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${cashCount} staff paid in cash</div>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="card">
+      <div class="card-head">
+        <div class="toolbar">
+          <div class="field" style="flex-direction:row;align-items:center;gap:9px">
+            <label for="payMonth" style="white-space:nowrap">Payroll period</label>
+            <input type="month" id="payMonth" value="${month}" style="padding:8px 11px;border:1px solid var(--line);border-radius:8px">
+          </div>
+        </div>
+        <div class="toolbar">
+          ${run ? `
+            <button class="btn" data-action="export-csv">${ico('download')} Export CSV</button>
+            <button class="btn" data-action="print-register">${ico('print')} Register</button>
+            <button class="btn" data-action="print-cash">${ico('cash')} Cash Sheet</button>
+            <button class="btn" data-action="generate-payroll">${ico('refresh')} Regenerate</button>
+          ` : ''}
+        </div>
+      </div>
+      ${body}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   PAYMENTS VIEW
+   --------------------------------------------------------------- */
+let payFilter = 'all';
+function viewPayments() {
+  const all = state.payments.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const list = all.filter(p => {
+    if (payFilter === 'excess')    return p.excess > 0;
+    if (payFilter === 'shortfall') return p.shortfall > 0;
+    return true;
+  });
+
+  const totalPaid = r2(all.reduce((t, p) => t + p.amount, 0));
+  const owed = totalOwedToStaff();
+  const advancesOut = r2(state.advances.filter(a => a.balance > 0).reduce((t, a) => t + a.balance, 0));
+
+  // Build list of outstanding balances (institution owes)
+  const outstanding = [];
+  Object.values(state.payrolls).forEach(run => {
+    run.records.forEach(rec => {
+      const payable = rec.amountPayable ?? rec.net;
+      const paid = paidFor(rec.staffId, run.month);
+      const bal = r2(payable - paid);
+      if (bal > 0) outstanding.push({ staffId: rec.staffId, month: run.month, payable, paid, balance: bal, idNo: rec.idNo, name: rec.name });
+    });
+  });
+  outstanding.sort((a, b) => a.month.localeCompare(b.month));
+
+  return `
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Total Paid Out</div>
+        <div class="value">${money(totalPaid)}</div>
+        <div class="sub">${all.length} payment transaction(s)</div>
+      </div>
+      <div class="stat alt4">
+        <div class="label">Institution Owes Staff</div>
+        <div class="value">${money(owed)}</div>
+        <div class="sub">${outstanding.length} outstanding balance(s)</div>
+      </div>
+      <div class="stat alt2">
+        <div class="label">Advances Outstanding</div>
+        <div class="value">${money(advancesOut)}</div>
+        <div class="sub">Staff owe the institution</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">
+        <h2>Outstanding Balances (Institution Owes Staff)</h2>
+      </div>
+      ${outstanding.length ? `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th><th>ID No</th><th>Name</th>
+              <th class="num">Payable</th><th class="num">Paid</th>
+              <th class="num">Balance Due</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${outstanding.map(o => `
+              <tr>
+                <td>${monthLabel(o.month)}</td>
+                <td><strong>${esc(o.idNo)}</strong></td>
+                <td>${esc(o.name)}</td>
+                <td class="num">${num(o.payable)}</td>
+                <td class="num">${num(o.paid)}</td>
+                <td class="num"><strong style="color:#c0392b">${num(o.balance)}</strong></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-success" data-action="pay" data-id="${o.staffId}" data-month="${o.month}">
+                    ${ico('pay')} Pay
+                  </button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : `
+      <div class="empty">
+        ${ico('check')}
+        <h3>All salaries fully paid</h3>
+        <p>No outstanding balances to staff across any payroll period.</p>
+      </div>`}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Payment History</h2>
+        <div class="toolbar">
+          <select id="payFilter" style="padding:8px 11px;border:1px solid var(--line);border-radius:8px">
+            <option value="all"        ${payFilter === 'all'        ? 'selected' : ''}>All payments</option>
+            <option value="excess"     ${payFilter === 'excess'     ? 'selected' : ''}>With excess (advance created)</option>
+            <option value="shortfall"  ${payFilter === 'shortfall'  ? 'selected' : ''}>With shortfall (balance due)</option>
+          </select>
+        </div>
+      </div>
+      ${list.length ? `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Staff</th><th>Period</th>
+              <th>Method</th><th class="num">Amount Paid</th>
+              <th class="num">Applied</th><th class="num">Excess</th>
+              <th>Result</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(p => {
+              const staff = state.staff.find(s => s.id === p.staffId);
+              const name = staff ? staff.name : '(deleted)';
+              const idNo = staff ? staff.idNo : '—';
+              let result;
+              if (p.excess > 0) {
+                result = `<span class="pill pill-purple">Advance created</span>`;
+              } else if (p.shortfall > 0) {
+                result = `<span class="pill pill-red">School still owes</span>`;
+              } else {
+                result = `<span class="pill pill-green">Settled</span>`;
+              }
+              return `
+              <tr>
+                <td>${fmtDate(p.date)}</td>
+                <td><div><strong>${esc(name)}</strong></div>
+                  <div style="font-size:11.5px;color:var(--muted)">${esc(idNo)}</div></td>
+                <td>${monthLabel(p.month)}</td>
+                <td>${pmTag(p.method)}</td>
+                <td class="num"><strong>${num(p.amount)}</strong></td>
+                <td class="num">${num(p.applied)}</td>
+                <td class="num">${p.excess > 0
+                  ? `<span style="color:#6b21a8">${num(p.excess)}</span>`
+                  : '<span style="color:var(--muted)">—</span>'}</td>
+                <td>${result}${p.shortfall > 0
+                  ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">Bal: ${money(p.shortfall)}</div>`
+                  : ''}</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-ghost" title="Delete" data-action="delete-payment" data-id="${p.id}" style="color:var(--danger)">${ico('trash')}</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>` : `
+      <div class="empty">
+        ${ico('cash')}
+        <h3>No payments recorded yet</h3>
+        <p>Open a payroll period and click Pay on a staff row to record a payment.</p>
+      </div>`}
+    </div>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   SETTINGS
+   --------------------------------------------------------------- */
+function viewSettings() {
+  const s = state.settings;
+  const sw = (key, label) => `
+    <label class="switch">
+      <input type="checkbox" name="${key}" ${s[key] ? 'checked' : ''}>
+      <span class="track"></span>
+      <span class="txt">${label}</span>
+    </label>`;
+
+  return `
+    <form id="settingsForm">
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-head">
+          <h2>Statutory Deductions</h2>
+          <span style="font-size:12px;color:var(--muted)">Switch off any deduction you do not want applied</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 24px;margin-bottom:6px">
+            ${sw('payeEnabled',    'PAYE (Income Tax)')}
+            ${sw('nssfEnabled',    'NSSF (Pension)')}
+            ${sw('shifEnabled',    'SHIF (Health)')}
+            ${sw('housingEnabled', 'Affordable Housing Levy')}
+          </div>
+
+          <div class="section-title">Rates &amp; Thresholds</div>
+          <div class="form-grid">
+            <div class="field"><label>Personal relief (KES / month)</label>
+              <input type="number" step="0.01" name="personalRelief" value="${s.personalRelief}"></div>
+            <div class="field"><label>NSSF rate (employee)</label>
+              <input type="number" step="0.0001" name="nssfRate" value="${s.nssfRate}">
+              <span class="hint">0.06 = 6%</span></div>
+            <div class="field"><label>NSSF Tier I limit (KES)</label>
+              <input type="number" step="1" name="nssfTier1Limit" value="${s.nssfTier1Limit}"></div>
+            <div class="field"><label>NSSF Tier II limit (KES)</label>
+              <input type="number" step="1" name="nssfTier2Limit" value="${s.nssfTier2Limit}"></div>
+            <div class="field"><label>SHIF rate</label>
+              <input type="number" step="0.0001" name="shifRate" value="${s.shifRate}">
+              <span class="hint">0.0275 = 2.75% of gross</span></div>
+            <div class="field"><label>SHIF minimum (KES)</label>
+              <input type="number" step="1" name="shifMin" value="${s.shifMin}"></div>
+            <div class="field"><label>Housing Levy rate</label>
+              <input type="number" step="0.0001" name="housingRate" value="${s.housingRate}">
+              <span class="hint">0.015 = 1.5% of gross</span></div>
+          </div>
+
+          <div class="section-title">PAYE Tax Bands (monthly, KES)</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Band</th><th class="num">Rate</th></tr></thead>
+              <tbody>
+                ${PAYE_BANDS.map((b, i) => {
+                  const lower = i === 0 ? 0 : PAYE_BANDS[i - 1].upTo + 1;
+                  const range = b.upTo === null ? `Above ${num(lower)}` : `${num(lower)} – ${num(b.upTo)}`;
+                  return `<tr><td>${range}</td><td class="num">${(b.rate * 100).toFixed(1)}%</td></tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <button type="button" class="btn btn-danger" data-action="reset-data">Reset All Data</button>
+      </div>
+    </form>
+  `;
+}
+
+/* ================================================================
+   STAFF MODAL
+   ================================================================ */
+function openStaffModal(id) {
+  const editing = id ? state.staff.find(s => s.id === id) : null;
+  const s = editing || {
+    name:'', gender:'Female', role:'', department:'',
+    category:'Teaching', employmentType:'Permanent',
+    basicSalary:'', houseAllowance:'', transportAllowance:'', otherAllowance:'',
+    phone:'', email:'', idNo:'', kraPin:'', nssfNo:'', shifNo:'',
+    paymentMethod:'Bank Transfer', bankName:'', bankAccount:'', mpesaNumber:'',
+    dateHired: todayISO(), status:'Active'
+  };
+  const depts = ['Administration','Sciences','Mathematics','Languages','Humanities','Technical','ICT','Library','Boarding','Support Staff'];
+
+  const html = `
+    <div class="modal-backdrop" data-close="1">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <h3>${editing ? 'Edit Staff Member' : 'Add Staff Member'}</h3>
+          <button class="icon-btn" data-action="close-modal" aria-label="Close">✕</button>
+        </div>
+        <form id="staffForm">
+          <div class="modal-tabs">
+            <button type="button" class="modal-tab active" data-action="switch-tab" data-tab="personal">Personal Details</button>
+            <button type="button" class="modal-tab" data-action="switch-tab" data-tab="employment">Employment</button>
+            <button type="button" class="modal-tab" data-action="switch-tab" data-tab="salary">Salary &amp; Allowances</button>
+          </div>
+          <div class="modal-body">
+
+            <div class="tab-pane active" data-pane="personal">
+              <div class="form-grid">
+                <div class="field"><label>Full name *</label><input name="name" required value="${esc(s.name)}"></div>
+                <div class="field"><label>Gender</label>
+                  <select name="gender">${['Female','Male','Other'].map(g => `<option ${s.gender === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
+                <div class="field"><label>ID Number *</label><input name="idNo" required value="${esc(s.idNo)}"></div>
+                <div class="field"><label>KRA PIN</label><input name="kraPin" value="${esc(s.kraPin)}"></div>
+                <div class="field"><label>Phone</label><input name="phone" value="${esc(s.phone)}"></div>
+                <div class="field"><label>Email</label><input type="email" name="email" value="${esc(s.email)}"></div>
+                <div class="field"><label>Date hired</label><input type="date" name="dateHired" value="${esc(s.dateHired)}"></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="employment">
+              <div class="form-grid">
+                <div class="field"><label>Role / Designation</label><input name="role" value="${esc(s.role)}"></div>
+                <div class="field"><label>Department</label>
+                  <input name="department" list="deptList" value="${esc(s.department)}">
+                  <datalist id="deptList">${depts.map(d => `<option value="${d}">`).join('')}</datalist></div>
+                <div class="field"><label>Category</label>
+                  <select name="category">${['Teaching','Non-Teaching'].map(c => `<option ${s.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+                <div class="field"><label>Employment type</label>
+                  <select name="employmentType">${['Permanent','Contract','BOM','Intern','Part-time'].map(c => `<option ${s.employmentType === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+                <div class="field"><label>Status</label>
+                  <select name="status">${['Active','Inactive'].map(c => `<option ${s.status === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+              </div>
+            </div>
+
+            <div class="tab-pane" data-pane="salary">
+              <div class="section-title" style="margin-top:0">Salary &amp; Allowances (KES / month)</div>
+              <div class="form-grid">
+                <div class="field"><label>Basic salary *</label><input type="number" step="0.01" min="0" name="basicSalary" required value="${esc(s.basicSalary)}" style="width:auto;max-width:140px"></div>
+                <div class="field"><label>House allowance</label><input type="number" step="0.01" min="0" name="houseAllowance" value="${esc(s.houseAllowance)}" style="width:auto;max-width:140px"></div>
+                <div class="field"><label>Transport allowance</label><input type="number" step="0.01" min="0" name="transportAllowance" value="${esc(s.transportAllowance)}" style="width:auto;max-width:140px"></div>
+                <div class="field"><label>Other allowance</label><input type="number" step="0.01" min="0" name="otherAllowance" value="${esc(s.otherAllowance)}" style="width:auto;max-width:140px"></div>
+              </div>
+
+              <div class="section-title">Payment Method</div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>How is this staff paid? *</label>
+                  <select name="paymentMethod" id="pmSelect">
+                    ${PAYMENT_METHODS.map(m => `<option ${s.paymentMethod === m ? 'selected' : ''}>${m}</option>`).join('')}
+                  </select>
+                  <span class="hint">Cash payments are grouped into a separate payout sheet.</span>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top:14px">
+                <div class="field" data-pm="bank"><label>Bank name</label><input name="bankName" value="${esc(s.bankName)}"></div>
+                <div class="field" data-pm="bank"><label>Bank account</label><input name="bankAccount" value="${esc(s.bankAccount)}"></div>
+                <div class="field" data-pm="mpesa"><label>M-Pesa number</label><input name="mpesaNumber" value="${esc(s.mpesaNumber)}" placeholder="07XX XXX XXX"></div>
+              </div>
+
+              <div class="section-title">Statutory Numbers</div>
+              <div class="form-grid">
+                <div class="field"><label>NSSF number</label><input name="nssfNo" value="${esc(s.nssfNo)}"></div>
+                <div class="field"><label>SHIF number</label><input name="shifNo" value="${esc(s.shifNo)}"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="btn" data-action="close-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">${editing ? 'Save Changes' : 'Add Staff'}</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+
+  document.getElementById('modalRoot').innerHTML = html;
+  const form = document.getElementById('staffForm');
+  const pmSelect = form.querySelector('#pmSelect');
+  function updatePmFields() {
+    const v = pmSelect.value;
+    form.querySelectorAll('[data-pm="bank"]').forEach(el => el.style.display = v === 'Bank Transfer' ? '' : 'none');
+    form.querySelectorAll('[data-pm="mpesa"]').forEach(el => el.style.display = v === 'M-Pesa' ? '' : 'none');
+  }
+  pmSelect.addEventListener('change', updatePmFields);
+  updatePmFields();
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      const invalid = form.querySelector(':invalid');
+      if (invalid) {
+        const pane = invalid.closest('.tab-pane');
+        if (pane) activateModalTab(form.querySelector(`.modal-tab[data-tab="${pane.dataset.pane}"]`));
+        requestAnimationFrame(() => invalid.reportValidity());
+      }
+      return;
+    }
+    const fd = new FormData(form);
+    const data = {
+      name: fd.get('name').trim(), gender: fd.get('gender'),
+      idNo: fd.get('idNo').trim(), kraPin: fd.get('kraPin').trim(),
+      phone: fd.get('phone').trim(), email: fd.get('email').trim(), dateHired: fd.get('dateHired'),
+      role: fd.get('role').trim(), department: fd.get('department').trim(),
+      category: fd.get('category'), employmentType: fd.get('employmentType'), status: fd.get('status'),
+      basicSalary: +fd.get('basicSalary') || 0, houseAllowance: +fd.get('houseAllowance') || 0,
+      transportAllowance: +fd.get('transportAllowance') || 0, otherAllowance: +fd.get('otherAllowance') || 0,
+      paymentMethod: fd.get('paymentMethod'), bankName: fd.get('bankName').trim(),
+      bankAccount: fd.get('bankAccount').trim(), mpesaNumber: fd.get('mpesaNumber').trim(),
+      nssfNo: fd.get('nssfNo').trim(), shifNo: fd.get('shifNo').trim()
+    };
+    const dup = state.staff.find(x => x.idNo.toLowerCase() === data.idNo.toLowerCase() && x.id !== id);
+    if (dup) { toast('ID number already exists', true); return; }
+    if (editing) { Object.assign(editing, data); toast('Staff record updated'); }
+    else { state.staff.push({ id: uid(), ...data }); toast('Staff member added'); }
+    saveState(); closeModal(); render();
+  });
+}
+
+/* ================================================================
+   ADVANCE MODAL
+   ================================================================ */
+function openAdvanceModal(id) {
+  const editing = id ? state.advances.find(a => a.id === id) : null;
+  const activeStaff = state.staff.filter(s => s.status === 'Active');
+  if (!editing && !activeStaff.length) { toast('Add active staff before issuing an advance', true); return; }
+
+  const a = editing || { staffId: activeStaff[0] ? activeStaff[0].id : '', amount:'', date: todayISO(), reason:'', monthlyRecovery:'' };
+  const currentBalance = editing ? editing.balance : 0;
+  const recoveredSoFar = editing ? r2(editing.amount - editing.balance) : 0;
+
+  const html = `
+    <div class="modal-backdrop" data-close="1">
+      <div class="modal" style="width:min(620px,100%)" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <h3>${editing ? 'Edit Salary Advance' : 'Issue Salary Advance'}</h3>
+          <button class="icon-btn" data-action="close-modal" aria-label="Close">✕</button>
+        </div>
+        <form id="advanceForm">
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1">
+                <label>Staff member *</label>
+                <select name="staffId" ${editing ? 'disabled' : ''} required>
+                  ${activeStaff.map(s => `<option value="${s.id}" ${a.staffId === s.id ? 'selected' : ''}>${esc(s.idNo)} — ${esc(s.name)}</option>`).join('')}
+                </select>
+                ${editing ? '<span class="hint">Staff cannot be changed after an advance is issued.</span>' : ''}
+              </div>
+              <div class="field">
+                <label>Advance amount (KES) *</label>
+                <input type="number" step="0.01" min="1" name="amount" required value="${esc(a.amount)}" ${editing ? 'disabled' : ''}>
+                ${editing
+                  ? `<span class="hint">Recovered so far: ${money(recoveredSoFar)} · Balance: ${money(currentBalance)}</span>`
+                  : `<span class="hint">Gross advance paid to the staff member.</span>`}
+              </div>
+              <div class="field">
+                <label>Date issued *</label>
+                <input type="date" name="date" required value="${esc(a.date)}" ${editing ? 'disabled' : ''}>
+              </div>
+              <div class="field" style="grid-column:1/-1">
+                <label>Reason / notes</label>
+                <input name="reason" value="${esc(a.reason || '')}" placeholder="e.g. School fees, medical emergency">
+              </div>
+              <div class="field" style="grid-column:1/-1">
+                <label>Monthly recovery amount (KES)</label>
+                <input type="number" step="0.01" min="0" name="monthlyRecovery" value="${esc(a.monthlyRecovery || '')}"
+                       placeholder="Leave blank to recover the full balance next payroll">
+                <span class="hint">If set, this amount is deducted from each payroll until the balance clears. If blank, the entire balance is recovered in the next payroll (capped at net pay).</span>
+              </div>
+            </div>
+            ${editing ? `
+              <div style="margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fafcfb;font-size:12.5px">
+                <strong>Current status:</strong>
+                ${editing.balance > 0
+                  ? `<span class="pill pill-amber">Outstanding — ${money(editing.balance)} remaining</span>`
+                  : `<span class="pill pill-green">Fully recovered</span>`}
+              </div>` : ''}
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="btn" data-action="close-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">${editing ? 'Save Changes' : 'Issue Advance'}</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+
+  document.getElementById('modalRoot').innerHTML = html;
+  const form = document.getElementById('advanceForm');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    if (editing) {
+      editing.reason = fd.get('reason').trim();
+      editing.monthlyRecovery = +fd.get('monthlyRecovery') || 0;
+      saveState(); toast('Advance updated'); closeModal(); render(); return;
+    }
+    const amount = +fd.get('amount');
+    if (!amount || amount <= 0) { toast('Enter a valid amount', true); return; }
+    const staffId = fd.get('staffId');
+    const staff = state.staff.find(s => s.id === staffId);
+    if (!staff) { toast('Staff member not found', true); return; }
+    state.advances.push({
+      id: uid(), staffId, amount: r2(amount), balance: r2(amount),
+      date: fd.get('date') || todayISO(),
+      reason: fd.get('reason').trim(),
+      monthlyRecovery: +fd.get('monthlyRecovery') || 0
+    });
+    saveState();
+    toast(`Advance of ${money(amount)} issued to ${staff.name}`);
+    closeModal(); render();
+  });
+}
+
+/* ================================================================
+   PAY MODAL — the core new feature
+   ================================================================ */
+function openPayModal(staffId, month) {
+  const run = state.payrolls[month];
+  if (!run) { toast('Generate payroll first', true); return; }
+  const rec = run.records.find(r => r.staffId === staffId);
+  if (!rec) { toast('Payroll record not found', true); return; }
+  const staff = state.staff.find(s => s.id === staffId);
+
+  const payable = r2(rec.amountPayable ?? rec.net);
+  const alreadyPaid = paidFor(staffId, month);
+  const remaining = r2(Math.max(0, payable - alreadyPaid));
+  const defaultMethod = (staff && staff.paymentMethod) || rec.paymentMethod || 'Bank Transfer';
+
+  const html = `
+    <div class="modal-backdrop" data-close="1">
+      <div class="modal" style="width:min(600px,100%)" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <h3>Record Payment — ${esc(rec.name)}</h3>
+          <button class="icon-btn" data-action="close-modal" aria-label="Close">✕</button>
+        </div>
+        <form id="payForm">
+          <div class="modal-body">
+            <div style="background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:18px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px">
+                <span style="color:var(--muted)">Payroll period</span><strong>${monthLabel(month)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px">
+                <span style="color:var(--muted)">Amount payable</span><strong>${money(payable)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px">
+                <span style="color:var(--muted)">Already paid</span><strong>${money(alreadyPaid)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:9px 0 0;margin-top:6px;border-top:1px dashed var(--line);font-size:15px">
+                <span><strong>Remaining to pay</strong></span>
+                <strong style="color:var(--brand)">${money(remaining)}</strong>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1">
+                <label>Amount paid now (KES) *</label>
+                <input type="number" step="0.01" min="0.01" name="amount" id="payAmount" required
+                       value="${remaining > 0 ? remaining : ''}" autofocus>
+                <span class="hint">Enter what you are handing over to the staff member right now.</span>
+              </div>
+              <div class="field">
+                <label>Payment date</label>
+                <input type="date" name="date" value="${todayISO()}">
+              </div>
+              <div class="field">
+                <label>Payment method</label>
+                <select name="method">
+                  ${PAYMENT_METHODS.map(m => `<option ${defaultMethod === m ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field" style="grid-column:1/-1">
+                <label>Note / reference</label>
+                <input name="note" placeholder="e.g. Cash receipt no. 123, M-Pesa code QWERTY">
+              </div>
+            </div>
+
+            <div id="payPreview" style="margin-top:16px"></div>
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="btn" data-action="close-modal">Cancel</button>
+            <button type="submit" class="btn btn-success">${ico('check')} Record Payment</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+
+  document.getElementById('modalRoot').innerHTML = html;
+
+  const form = document.getElementById('payForm');
+  const amountInput = form.querySelector('#payAmount');
+  const preview = form.querySelector('#payPreview');
+
+  function updatePreview() {
+    const val = +amountInput.value || 0;
+    const diff = r2(val - remaining);
+
+    if (!val) {
+      preview.innerHTML = `<div class="preview-box preview-info">${ico('info')}<div>Enter the amount handed over. Anything above the remaining balance becomes a salary advance; anything below leaves a balance the institution still owes.</div></div>`;
+      return;
+    }
+
+    if (diff > 0) {
+      preview.innerHTML = `<div class="preview-box preview-warn">${ico('alert')}<div>
+        <strong>Overpayment of ${money(diff)}</strong><br>
+        This excess will be recorded as a <strong>salary advance</strong>. The staff member will owe the institution this amount, and it will be recovered from future payrolls.
+      </div></div>`;
+    } else if (diff < 0) {
+      preview.innerHTML = `<div class="preview-box preview-info">${ico('info')}<div>
+        <strong>Shortfall of ${money(Math.abs(diff))}</strong><br>
+        The institution will still <strong>owe this staff member</strong> ${money(Math.abs(diff))} after this payment. It will be tracked under Payments → Outstanding Balances.
+      </div></div>`;
+    } else {
+      preview.innerHTML = `<div class="preview-box preview-ok">${ico('check')}<div>
+        <strong>Fully settled.</strong> This payment clears the remaining balance for ${monthLabel(month)}.
+      </div></div>`;
+    }
+  }
+  amountInput.addEventListener('input', updatePreview);
+  updatePreview();
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const amount = r2(+fd.get('amount'));
+    if (!amount || amount <= 0) { toast('Enter a valid payment amount', true); return; }
+
+    const diff = r2(amount - remaining);
+    let excess = 0, shortfall = 0, advanceId = null;
+
+    if (diff > 0) {
+      // Overpayment → create an advance (staff owes the institution)
+      excess = diff;
+      advanceId = uid();
+      state.advances.push({
+        id: advanceId,
+        staffId,
+        amount: excess,
+        balance: excess,
+        date: fd.get('date') || todayISO(),
+        reason: `Overpayment on ${monthLabel(month)} payroll`,
+        monthlyRecovery: 0
+      });
+    } else if (diff < 0) {
+      shortfall = Math.abs(diff);
+    }
+
+    state.payments.push({
+      id: uid(),
+      staffId,
+      month,
+      amount,
+      applied: r2(Math.min(amount, remaining)),
+      excess,
+      shortfall,
+      date: fd.get('date') || todayISO(),
+      method: fd.get('method'),
+      note: fd.get('note').trim(),
+      advanceId
+    });
+
+    saveState();
+
+    let msg = `Payment of ${money(amount)} recorded for ${rec.name}`;
+    if (excess > 0)    msg += ` · ${money(excess)} advance created`;
+    if (shortfall > 0) msg += ` · ${money(shortfall)} still owed`;
+    toast(msg);
+
+    closeModal();
+    render();
+  });
+}
+
+function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+
+function activateModalTab(btn) {
+  if (!btn) return;
+  const modal = btn.closest('.modal');
+  if (!modal) return;
+  modal.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t === btn));
+  modal.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === btn.dataset.tab));
+}
+
+/* ================================================================
+   PAYSLIP / RECEIPT
+   ================================================================ */
+function openPayslip(staffId, month) {
+  const run = state.payrolls[month];
+  if (!run) return;
+  const rec = run.records.find(r => r.staffId === staffId);
+  if (!rec) return;
+
+  const html = `
+    <div class="modal-backdrop" data-close="1">
+      <div class="modal" style="width:min(720px,100%)">
+        <div class="modal-head">
+          <h3>Payslip — ${esc(rec.name)}</h3>
+          <button class="icon-btn" data-action="close-modal">✕</button>
+        </div>
+        <div class="modal-body">${payslipHTML(rec, month)}</div>
+        <div class="modal-foot">
+          <button class="btn" data-action="close-modal">Close</button>
+          <button class="btn btn-primary" data-action="print-payslip" data-id="${staffId}" data-month="${month}">
+            ${ico('print')} Print Payslip
+          </button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modalRoot').innerHTML = html;
+}
+
+function payslipHTML(rec, month) {
+  const set = state.settings;
+  const pm = rec.paymentMethod || 'Bank Transfer';
+  const adv = rec.advanceRecovery || 0;
+  const payable = rec.amountPayable ?? rec.net;
+  const paid = paidFor(rec.staffId, month);
+  const balance = r2(Math.max(0, payable - paid));
+
+  const paymentDetail =
+    pm === 'Bank Transfer'
+      ? `${esc(rec.bankName || '—')}${rec.bankAccount ? ' · ' + esc(rec.bankAccount) : ''}`
+      : pm === 'M-Pesa'
+        ? esc(rec.mpesaNumber || rec.phone || '—')
+        : 'Cash payment at the institution';
+
+  return `
+    <div class="payslip">
+      <div class="payslip-head">
+        <div>
+          <h2>${esc(schoolDisplayName())}</h2>
+        </div>
+        <div class="meta">
+          <strong>PAYSLIP</strong>
+          Period: ${monthLabel(month)}
+        </div>
+      </div>
+
+      <div class="detail-list">
+        <div><div class="k">ID Number</div><div class="v">${esc(rec.idNo)}</div></div>
+        <div><div class="k">Name</div><div class="v">${esc(rec.name)}</div></div>
+        <div><div class="k">Role</div><div class="v">${esc(rec.role || '—')}</div></div>
+        <div><div class="k">Department</div><div class="v">${esc(rec.department || '—')}</div></div>
+        <div><div class="k">Payment Method</div><div class="v">${pmTag(pm)}</div></div>
+        <div><div class="k">Paid To</div><div class="v">${paymentDetail}</div></div>
+      </div>
+
+      <div class="payslip-grid" style="margin-top:22px">
+        <div>
+          <table>
+            <thead><tr><th>EARNINGS</th><th style="text-align:right">KES</th></tr></thead>
+            <tbody>
+              <tr><td>Basic Salary</td><td class="num">${num(rec.basic)}</td></tr>
+              <tr><td>House Allowance</td><td class="num">${num(rec.houseAllowance || 0)}</td></tr>
+              <tr><td>Transport Allowance</td><td class="num">${num(rec.transportAllowance || 0)}</td></tr>
+              <tr><td>Other Allowance</td><td class="num">${num(rec.otherAllowance || 0)}</td></tr>
+              <tr class="total-row"><td>GROSS PAY</td><td class="num">${num(rec.gross)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <table>
+            <thead><tr><th>DEDUCTIONS</th><th style="text-align:right">KES</th></tr></thead>
+            <tbody>
+              ${rec.paye    ? `<tr><td>PAYE (Income Tax)</td><td class="num">${num(rec.paye)}</td></tr>` : ''}
+              ${rec.nssf    ? `<tr><td>NSSF</td><td class="num">${num(rec.nssf)}</td></tr>` : ''}
+              ${rec.shif    ? `<tr><td>SHIF</td><td class="num">${num(rec.shif)}</td></tr>` : ''}
+              ${rec.housing ? `<tr><td>Housing Levy</td><td class="num">${num(rec.housing)}</td></tr>` : ''}
+              ${rec.deductions === 0 && adv === 0 ? `<tr><td colspan="2" style="color:var(--muted)">No deductions applied</td></tr>` : ''}
+              <tr class="total-row"><td>STATUTORY DEDUCTIONS</td><td class="num">${num(rec.deductions)}</td></tr>
+              <tr><td>Net Pay (after statutory)</td><td class="num">${num(rec.net)}</td></tr>
+              ${adv > 0 ? `<tr><td>Less: Salary Advance Recovery</td><td class="num" style="color:#b7791f">− ${num(adv)}</td></tr>` : ''}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="net-box">
+        <div class="lbl">Amount Payable (${pm})</div>
+        <div class="amt">${money(payable)}</div>
+      </div>
+
+      ${paid > 0 || balance > 0 ? `
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fafcfb">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700">Paid</div>
+            <div style="font-size:17px;font-weight:750;margin-top:4px">${money(paid)}</div>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:${balance > 0 ? '#fdf3e3' : '#fafcfb'}">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:${balance > 0 ? '#92610e' : 'var(--muted)'};font-weight:700">Balance ${balance > 0 ? 'Owed to Staff' : ''}</div>
+            <div style="font-size:17px;font-weight:750;margin-top:4px;color:${balance > 0 ? '#92610e' : 'var(--muted)'}">${money(balance)}</div>
+          </div>
+        </div>` : ''}
+
+      <div class="payslip-foot">
+        Taxable income: ${money(rec.taxable)} &nbsp;·&nbsp; Personal relief applied: ${money(state.settings.personalRelief)}<br>
+        This is a computer-generated payslip and does not require a signature.
+      </div>
+    </div>`;
+}
+
+/* ================================================================
+   PAYROLL ACTIONS
+   ================================================================ */
+function generatePayroll(month) {
+  const active = state.staff.filter(s => s.status === 'Active');
+  if (!active.length) { toast('No active staff to process', true); return; }
+
+  if (state.payrolls[month]) {
+    const hasPayments = state.payments.some(p => p.month === month);
+    let msg = `A payroll for ${monthLabel(month)} already exists. Regenerate and overwrite it?`;
+    if (hasPayments) msg += `\n\n⚠ There are already ${state.payments.filter(p => p.month === month).length} payment(s) recorded for this period. The payables will change and balances will recalculate.`;
+    msg += `\n\nAdvance recoveries already applied for this month will be reversed first.`;
+    if (!confirm(msg)) return;
+    reverseAdvanceRecoveries(month);
+  }
+
+  const set = state.settings;
+  const records = active.map(s => {
+    const calc = computePayroll(s, set);
+    const { recovery, allocations } = planAdvanceRecovery(s.id, calc.net);
+    return {
+      staffId: s.id, idNo: s.idNo, name: s.name, role: s.role,
+      department: s.department, category: s.category,
+      paymentMethod: s.paymentMethod || 'Bank Transfer',
+      bankName: s.bankName, bankAccount: s.bankAccount,
+      mpesaNumber: s.mpesaNumber, phone: s.phone,
+      basic: calc.basic,
+      houseAllowance: r2(s.houseAllowance || 0),
+      transportAllowance: r2(s.transportAllowance || 0),
+      otherAllowance: r2(s.otherAllowance || 0),
+      allowances: calc.allowances, gross: calc.gross, taxable: calc.taxable,
+      nssf: calc.nssf, shif: calc.shif, housing: calc.housing,
+      paye: calc.paye, deductions: calc.deductions, net: calc.net,
+      advanceRecovery: recovery,
+      advanceAllocations: allocations,
+      amountPayable: r2(calc.net - recovery)
+    };
+  });
+
+  records.forEach(r => {
+    r.advanceAllocations.forEach(al => {
+      const adv = state.advances.find(a => a.id === al.advanceId);
+      if (adv) adv.balance = r2(Math.max(0, adv.balance - al.amount));
+    });
+  });
+
+  state.payrolls[month] = { month, generatedAt: new Date().toISOString(), records };
+  saveState();
+
+  const totalRecovered = records.reduce((t, r) => t + r.advanceRecovery, 0);
+  toast(totalRecovered > 0
+    ? `Payroll generated · ${money(totalRecovered)} advance recovered`
+    : `Payroll generated for ${monthLabel(month)}`);
+  render();
+}
+
+function exportCSV(month) {
+  const run = state.payrolls[month];
+  if (!run) return;
+
+  const headers = [
+    'ID No','Name','Role','Department','Category','Payment Method',
+    'Bank Name','Bank Account','M-Pesa Number',
+    'Basic','House Allow','Transport Allow','Other Allow','Gross',
+    'NSSF','SHIF','Housing Levy','Taxable','PAYE','Statutory Deductions',
+    'Net Pay','Advance Recovered','Amount Payable',
+    'Paid','Balance','Payment Status'
+  ];
+
+  const rows = run.records.map(r => {
+    const payable = r.amountPayable ?? r.net;
+    const paid = paidFor(r.staffId, month);
+    const balance = r2(Math.max(0, payable - paid));
+    const status = paymentStatus(r.staffId, month);
+    return [
+      r.idNo, r.name, r.role, r.department, r.category, r.paymentMethod || '',
+      r.bankName || '', r.bankAccount || '', r.mpesaNumber || '',
+      r.basic, r.houseAllowance, r.transportAllowance, r.otherAllowance, r.gross,
+      r.nssf, r.shif, r.housing, r.taxable, r.paye, r.deductions,
+      r.net, r.advanceRecovery || 0, payable, paid, balance, status
+    ];
+  });
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => {
+      const v = String(cell ?? '');
+      return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+    }).join(','))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `payroll-${month}.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('CSV exported');
+}
+
+function printRegister(month) {
+  const run = state.payrolls[month];
+  if (!run) return;
+  const set = state.settings;
+
+  const tot = run.records.reduce((a, r) => {
+    const payable = r.amountPayable ?? r.net;
+    const paid = paidFor(r.staffId, month);
+    a.gross += r.gross; a.deductions += r.deductions;
+    a.advanceRecovery += (r.advanceRecovery || 0);
+    a.payable += payable; a.paid += paid;
+    a.balance += Math.max(0, payable - paid);
+    return a;
+  }, { gross:0, deductions:0, advanceRecovery:0, payable:0, paid:0, balance:0 });
+
+  const html = `
+    <div class="payslip">
+      <div class="payslip-head">
+        <div>
+          <h2>${esc(schoolDisplayName())}</h2>
+        </div>
+        <div class="meta">
+          <strong>PAYROLL REGISTER</strong>
+          ${monthLabel(month)}
+        </div>
+      </div>
+      <table style="font-size:10px">
+        <thead>
+          <tr>
+            <th>ID No</th><th>Name</th><th>Payment</th>
+            <th style="text-align:right">Gross</th>
+            <th style="text-align:right">Statutory</th>
+            <th style="text-align:right">Advance</th>
+            <th style="text-align:right">Payable</th>
+            <th style="text-align:right">Paid</th>
+            <th style="text-align:right">Balance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${run.records.map(r => {
+            const payable = r.amountPayable ?? r.net;
+            const paid = paidFor(r.staffId, month);
+            const bal = r2(Math.max(0, payable - paid));
+            return `
+            <tr>
+              <td>${esc(r.idNo)}</td>
+              <td>${esc(r.name)}</td>
+              <td>${esc(r.paymentMethod || 'Bank')}</td>
+              <td class="num">${num(r.gross)}</td>
+              <td class="num">${num(r.deductions)}</td>
+              <td class="num">${num(r.advanceRecovery || 0)}</td>
+              <td class="num">${num(payable)}</td>
+              <td class="num">${num(paid)}</td>
+              <td class="num">${num(bal)}</td>
+              <td>${esc(paymentStatus(r.staffId, month))}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>TOTALS</strong></td>
+            <td class="num"><strong>${num(tot.gross)}</strong></td>
+            <td class="num"><strong>${num(tot.deductions)}</strong></td>
+            <td class="num"><strong>${num(tot.advanceRecovery)}</strong></td>
+            <td class="num"><strong>${num(tot.payable)}</strong></td>
+            <td class="num"><strong>${num(tot.paid)}</strong></td>
+            <td class="num"><strong>${num(tot.balance)}</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="payslip-foot">
+        Generated on ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' })}
+        · ${run.records.length} employee(s)
+      </div>
+    </div>`;
+
+  document.getElementById('printArea').innerHTML = html;
+  window.print();
+}
+
+function printCashSheet(month) {
+  const run = state.payrolls[month];
+  if (!run) return;
+  const set = state.settings;
+
+  const cashRecords = run.records.filter(r => (r.paymentMethod || 'Bank Transfer') === 'Cash');
+  if (!cashRecords.length) { toast('No staff are paid in cash for this period', true); return; }
+
+  const total = cashRecords.reduce((t, r) => t + (r.amountPayable ?? r.net), 0);
+
+  const html = `
+    <div class="payslip">
+      <div class="payslip-head">
+        <div>
+          <h2>${esc(schoolDisplayName())}</h2>
+        </div>
+        <div class="meta">
+          <strong>CASH PAYMENT SHEET</strong>
+          ${monthLabel(month)}
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:#64748b;margin-bottom:14px">
+        The staff members listed below are paid in cash. Please have each person sign against
+        their name as acknowledgement of receipt.
+      </p>
+
+      <table style="font-size:11px">
+        <thead>
+          <tr>
+            <th style="width:26px">#</th>
+            <th>ID No</th><th>Name</th><th>Role</th>
+            <th style="text-align:right">Payable</th>
+            <th style="text-align:right">Paid</th>
+            <th style="text-align:right">Balance</th>
+            <th style="width:140px">Signature</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cashRecords.map((r, i) => {
+            const payable = r.amountPayable ?? r.net;
+            const paid = paidFor(r.staffId, month);
+            const bal = r2(Math.max(0, payable - paid));
+            return `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${esc(r.idNo)}</td>
+              <td>${esc(r.name)}</td>
+              <td>${esc(r.role || '—')}</td>
+              <td class="num">${num(payable)}</td>
+              <td class="num">${num(paid)}</td>
+              <td class="num">${num(bal)}</td>
+              <td style="border-bottom:1px solid #ccc"></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4"><strong>TOTAL CASH PAYOUT (${cashRecords.length} staff)</strong></td>
+            <td class="num"><strong>${num(total)}</strong></td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="margin-top:40px;display:flex;justify-content:space-between;gap:30px;font-size:12px">
+        <div style="flex:1"><div style="border-top:1px solid #333;padding-top:6px">Prepared by (Name &amp; Signature)</div></div>
+        <div style="flex:1"><div style="border-top:1px solid #333;padding-top:6px">Approved by (Name &amp; Signature)</div></div>
+        <div style="flex:1"><div style="border-top:1px solid #333;padding-top:6px">Date</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('printArea').innerHTML = html;
+  window.print();
+}
+
+function printPayslip(staffId, month) {
+  const run = state.payrolls[month];
+  const rec = run && run.records.find(r => r.staffId === staffId);
+  if (!rec) return;
+  document.getElementById('printArea').innerHTML = payslipHTML(rec, month);
+  window.print();
+}
+
+/* ================================================================
+   EVENT WIRING
+   ================================================================ */
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-view]');
+  if (!btn) return;
+  currentView = btn.dataset.view;
+  closeModal(); render();
+  window.scrollTo({ top: 0 });
+});
+
+document.getElementById('views').addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+
+  if (action === 'add-staff')     openStaffModal();
+  if (action === 'edit-staff')    openStaffModal(el.dataset.id);
+  if (action === 'delete-staff')  deleteStaff(el.dataset.id);
+
+  if (action === 'add-advance')   openAdvanceModal();
+  if (action === 'edit-advance')  openAdvanceModal(el.dataset.id);
+  if (action === 'delete-advance') deleteAdvance(el.dataset.id);
+
+  if (action === 'pay')           openPayModal(el.dataset.id, el.dataset.month);
+  if (action === 'payslip')       openPayslip(el.dataset.id, el.dataset.month);
+  if (action === 'delete-payment') deletePayment(el.dataset.id);
+
+  if (action === 'generate-payroll') generatePayroll(currentPayrollMonth);
+  if (action === 'export-csv')    exportCSV(currentPayrollMonth);
+  if (action === 'print-register') printRegister(currentPayrollMonth);
+  if (action === 'print-cash')    printCashSheet(currentPayrollMonth);
+
+  if (action === 'open-run') { currentPayrollMonth = el.dataset.month; currentView = 'payroll'; render(); }
+  if (action === 'goto-payroll') { currentView = 'payroll'; render(); }
+  if (action === 'goto-payments') { currentView = 'payments'; render(); }
+  if (action === 'reset-data')    resetData();
+});
+
+document.getElementById('topbarActions').addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  if (el.dataset.action === 'add-staff')   openStaffModal();
+  if (el.dataset.action === 'add-advance') openAdvanceModal();
+});
+
+document.getElementById('views').addEventListener('input', e => {
+  if (e.target.id === 'staffSearch') {
+    staffSearch = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const input = document.getElementById('staffSearch');
+    if (input) { input.focus(); input.setSelectionRange(pos, pos); }
+  }
+});
+
+document.getElementById('views').addEventListener('change', e => {
+  if (e.target.id === 'payMonth') { currentPayrollMonth = e.target.value || currentPayrollMonth; render(); }
+  if (e.target.id === 'advFilter') { advFilter = e.target.value; render(); }
+  if (e.target.id === 'payFilter') { payFilter = e.target.value; render(); }
+});
+
+document.getElementById('modalRoot').addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (el) {
+    const action = el.dataset.action;
+    if (action === 'close-modal') closeModal();
+    if (action === 'print-payslip') printPayslip(el.dataset.id, el.dataset.month);
+    if (action === 'switch-tab') activateModalTab(el);
+    return;
+  }
+  if (e.target.classList.contains('modal-backdrop')) closeModal();
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+document.getElementById('views').addEventListener('submit', e => {
+  if (e.target.id !== 'settingsForm') return;
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const s = state.settings;
+  s.payeEnabled = fd.get('payeEnabled') === 'on';
+  s.nssfEnabled = fd.get('nssfEnabled') === 'on';
+  s.shifEnabled = fd.get('shifEnabled') === 'on';
+  s.housingEnabled = fd.get('housingEnabled') === 'on';
+  s.personalRelief = +fd.get('personalRelief') || 0;
+  s.nssfRate = +fd.get('nssfRate') || 0;
+  s.nssfTier1Limit = +fd.get('nssfTier1Limit') || 0;
+  s.nssfTier2Limit = +fd.get('nssfTier2Limit') || 0;
+  s.shifRate = +fd.get('shifRate') || 0;
+  s.shifMin = +fd.get('shifMin') || 0;
+  s.housingRate = +fd.get('housingRate') || 0;
+  saveState(); toast('Settings saved'); render();
+});
+
+/* ================================================================
+   DELETE / RESET
+   ================================================================ */
+function deleteStaff(id) {
+  const s = state.staff.find(x => x.id === id);
+  if (!s) return;
+  const bal = advanceBalance(id);
+  const owed = staffOwed(id);
+  let warn = '';
+  if (bal > 0) warn += `\n\n⚠ This staff has an outstanding advance of ${money(bal)}. Their advance records will also be deleted.`;
+  if (owed > 0) warn += `\n\n⚠ The institution still owes this staff ${money(owed)}. Payment history will be kept but the staff record will be removed.`;
+  if (!confirm(`Delete ${s.name} (${s.idNo})? This cannot be undone.${warn}`)) return;
+  state.staff = state.staff.filter(x => x.id !== id);
+  state.advances = state.advances.filter(a => a.staffId !== id);
+  saveState(); toast('Staff member deleted'); render();
+}
+
+function deleteAdvance(id) {
+  const a = state.advances.find(x => x.id === id);
+  if (!a) return;
+  const staff = state.staff.find(s => s.id === a.staffId);
+  const recovered = r2(a.amount - a.balance);
+  let warn = recovered > 0 ? `\n\n⚠ ${money(recovered)} has already been recovered through payroll. Deleting this record will not refund that amount.` : '';
+  if (!confirm(`Delete this advance of ${money(a.amount)} for ${staff ? staff.name : 'a deleted staff member'}?${warn}`)) return;
+  state.advances = state.advances.filter(x => x.id !== id);
+  saveState(); toast('Advance record deleted'); render();
+}
+
+function deletePayment(id) {
+  const p = state.payments.find(x => x.id === id);
+  if (!p) return;
+  const staff = state.staff.find(s => s.id === p.staffId);
+  let warn = '';
+  if (p.advanceId) {
+    const adv = state.advances.find(a => a.id === p.advanceId);
+    if (adv) {
+      const rec = r2(adv.amount - adv.balance);
+      warn = `\n\n⚠ This payment created an advance of ${money(adv.amount)}.`;
+      if (rec > 0) warn += ` ${money(rec)} of it has already been recovered from future payrolls. Deleting the payment will not reverse that recovery.`;
+      warn += ` The advance record will also be deleted.`;
+    }
+  }
+  if (!confirm(`Delete this payment of ${money(p.amount)} for ${staff ? staff.name : 'a deleted staff member'} (${monthLabel(p.month)})?${warn}`)) return;
+
+  if (p.advanceId) state.advances = state.advances.filter(a => a.id !== p.advanceId);
+  state.payments = state.payments.filter(x => x.id !== id);
+  saveState(); toast('Payment deleted'); render();
+}
+
+function resetData() {
+  if (!confirm('This will erase ALL staff, advances, payments and payroll data and restore sample data. Continue?')) return;
+  if (!fbHasSchool()) { toast('No school loaded yet', true); return; }
+  fbRemove(payrollRef()).catch(e => {
+    console.error('Reset failed', e);
+    toast('Reset failed', true);
+  });
+  // The realtime listener (attachPayrollListeners) will see the node is
+  // gone and automatically reseed + save default sample data + re-render.
+  currentView = 'dashboard';
+  toast('All data reset');
+}
+
+/* ================================================================
+   BOOT
+   Render immediately with an empty/default state so the UI has
+   something to show; real data streams in via attachPayrollListeners()
+   once a school is loaded (wired up by index.html's window.__initSchool).
+   ================================================================ */
+seedDefaultState();
+state.staff = []; // don't show sample rows before real Firebase data arrives
+render();
+
+window.__attachStaffPayrollListeners = attachPayrollListeners;
+if (fbHasSchool()) attachPayrollListeners();
+
+window.__getPayrollState = () => state;
+
+})();
+
+
       // ============================================================
       // AUTH LAYER — with school selection
       // ============================================================
@@ -12653,6 +16127,10 @@
             window.__schoolContext = school;
             window.__userProfile = profile;
 
+            if (typeof window.refreshInstitutionProfileForm === 'function') {
+              window.refreshInstitutionProfileForm();
+            }
+
             if (typeof window.__initSchool === 'function') {
               await window.__initSchool(schoolId);
             }
@@ -12678,6 +16156,24 @@
             showAuthMessage(loginMessage, 'Could not load your account. Please sign in again.', 'error');
             try { await signOut(auth); } catch (_) { }
           }
+        }
+
+        // signInWithEmailAndPassword() resolving is not, by itself, a
+        // guarantee the UI has switched over yet — that only happens once
+        // bootstrapSession() finishes loading the profile/school records.
+        // Previously only onAuthStateChanged triggered that, so on a slow
+        // connection a correct login could sit there doing nothing until
+        // the user refreshed (which worked because by then Firebase had
+        // already restored the session and onAuthStateChanged fired again).
+        // Calling it directly, right after a successful sign-in, removes
+        // that wait. bootstrapPromise de-dupes so this and the
+        // onAuthStateChanged listener never run it twice in parallel.
+        let bootstrapPromise = null;
+        function bootstrapSessionOnce(user) {
+          if (!bootstrapPromise) {
+            bootstrapPromise = bootstrapSession(user).finally(() => { bootstrapPromise = null; });
+          }
+          return bootstrapPromise;
         }
 
         signupForm.addEventListener('submit', async (e) => {
@@ -12789,6 +16285,12 @@
 
             await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
             await signInWithEmailAndPassword(auth, email, password);
+
+            // Don't wait on the async onAuthStateChanged listener elsewhere
+            // in the file — take the user in as soon as sign-in succeeds.
+            if (auth.currentUser) {
+              await bootstrapSessionOnce(auth.currentUser);
+            }
           } catch (err) {
             let msg = err.message;
             if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential'].includes(err.code)) {
@@ -12883,7 +16385,7 @@
             if (isSigningUp) return;
 
             if (user) {
-              await bootstrapSession(user);
+              await bootstrapSessionOnce(user);
             } else {
               document.body.classList.add('auth-pending');
               document.body.classList.remove('auth-ready');
